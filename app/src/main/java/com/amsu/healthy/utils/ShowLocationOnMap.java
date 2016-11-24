@@ -1,34 +1,29 @@
 package com.amsu.healthy.utils;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.util.Log;
 
+import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
-import com.baidu.mapapi.map.MapStatus;
+import com.baidu.mapapi.map.CircleOptions;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationData;
-import com.baidu.mapapi.map.Overlay;
 import com.baidu.mapapi.map.OverlayOptions;
-import com.baidu.mapapi.map.PolylineOptions;
+import com.baidu.mapapi.map.PolygonOptions;
+import com.baidu.mapapi.map.Polyline;
+import com.baidu.mapapi.map.Stroke;
 import com.baidu.mapapi.model.LatLng;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.baidu.mapapi.model.inner.GeoPoint;
 
 /**
  * Created by root on 10/25/16.
@@ -37,12 +32,9 @@ import java.util.Set;
 public class ShowLocationOnMap {
     static MapView mMapView;
     private static final String TAG = "ShowLocationOnMap";
-    private static LocationService locationService;
-    private static Context context;
+    static  Context context;
 
-
-
-    public static void showPointOnMap(double latitude,double longitude,MapView mMapView,Context context) {
+    public static void showPointOnMap(double latitude,double longitude,MapView mMapView) {
         if (mMapView!=null){
             ShowLocationOnMap.mMapView = mMapView;
         }
@@ -60,24 +52,60 @@ public class ShowLocationOnMap {
         MapStatusUpdate msu = MapStatusUpdateFactory.newLatLngZoom(latLng, 17); //17为地图的显示比例，比例范围是3-19
         map.animateMapStatus(msu);
 
+
+        /*  BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.circle_scope);
+        OverlayOptions overlayOptions = new MarkerOptions().position(latLng).icon(bitmapDescriptor).zIndex(9).draggable(true);
+        map.addOverlay(overlayOptions);*/
+
+
+        Resources resources = ShowLocationOnMap.context.getResources();
+        int radius = (int) resources.getDimension(R.dimen.x260);
+        int strokeWidth = (int) resources.getDimension(R.dimen.x3);
+
+        //边线
+        Stroke stroke = new Stroke(strokeWidth,Color.argb(160,14,101,151));
+        //圆形范围
+        CircleOptions polygonOption = new CircleOptions().center(latLng).radius(radius).fillColor(Color.argb(180,182,198,203)).stroke(stroke);
+        //添加在地图中
+        map.addOverlay(polygonOption);
+
+        Log.i(TAG,"radius:"+radius);
+
+
     }
 
-    public static void startLocation(Context context,MapView mMapView) {
+    public static void startLocation(MapView mMapView,Context context) {
         ShowLocationOnMap.context = context;
+        Log.i(TAG,"startLocation");
         ShowLocationOnMap.mMapView = mMapView;
         // -----------location config ------------
-        locationService = new LocationService(context);
         //获取locationservice实例，建议应用中只初始化1个location实例，然后使用，可以参考其他示例的activity，都是通过此种方式获取locationservice实例的
-        locationService.registerListener(mListener);
+        MyApplication.locationService.registerListener(mListener);
         //注册监听
-        locationService.setLocationOption(locationService.getDefaultLocationClientOption());
-        locationService.start();// 定位SDK
+        MyApplication.locationService.setLocationOption(MyApplication.locationService.getDefaultLocationClientOption());
+
+        MyApplication.locationService.start();// 定位SDK
+
+        /*while (true){
+            new Thread(){
+                @Override
+                public void run() {
+                    locationService.start();// 定位SDK
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        }*/
+
     }
 
 
-    protected void stopLocation() {
-        locationService.unregisterListener(mListener); //注销掉监听
-        locationService.stop(); //停止定位服务
+    public static void stopLocation() {
+        MyApplication.locationService.unregisterListener(mListener); //注销掉监听
+        MyApplication.locationService.stop(); //停止定位服务
     }
 
 
@@ -86,7 +114,7 @@ public class ShowLocationOnMap {
      * 定位结果回调，重写onReceiveLocation方法，可以直接拷贝如下代码到自己工程中修改
      *
      */
-    private static BDLocationListener mListener = new BDLocationListener() {
+    public static BDLocationListener mListener = new BDLocationListener() {
 
         @Override
         public void onReceiveLocation(BDLocation location) {
@@ -96,10 +124,13 @@ public class ShowLocationOnMap {
                 double longitude = location.getLongitude();
                 Log.i(TAG,"latitude:"+location.getLatitude());
                 Log.i(TAG,"longitude:"+location.getLongitude());
-                showPointOnMap(latitude,longitude,null,ShowLocationOnMap.context);
+                showPointOnMap(latitude,longitude,null);
+                //stopLocation();
             }
         }
     };
+
+
 
 
 

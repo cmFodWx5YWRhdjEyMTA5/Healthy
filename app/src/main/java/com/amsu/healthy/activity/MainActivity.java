@@ -1,13 +1,18 @@
 package com.amsu.healthy.activity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.ShowLocationOnMap;
 import com.baidu.mapapi.map.MapView;
 
 public class MainActivity extends BaseActivity {
+
+    private static final String TAG = "MainActivity";
+    private MapView mv_main_bmapView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,11 +26,19 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(TAG,"onStart");
+        //地图定位
+        ShowLocationOnMap.startLocation(mv_main_bmapView,this);
+    }
 
     private void initView() {
         initHeadView();
-        MapView mv_main_bmapView = (MapView) findViewById(R.id.mv_main_bmapView);
-        ShowLocationOnMap.startLocation(this,mv_main_bmapView);
+        mv_main_bmapView = (MapView) findViewById(R.id.mv_main_bmapView);
+
+
 
     }
 
@@ -38,5 +51,14 @@ public class MainActivity extends BaseActivity {
         setRightText("我的设备");
 
     }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        MyApplication.locationService.unregisterListener(ShowLocationOnMap.mListener); //注销掉监听
+        ShowLocationOnMap.stopLocation();  //停止定位服务
+    }
+
 
 }
