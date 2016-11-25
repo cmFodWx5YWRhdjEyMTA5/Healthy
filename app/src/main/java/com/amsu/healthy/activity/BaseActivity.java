@@ -34,6 +34,7 @@ public class BaseActivity extends Activity {
     public void setLeftImage(int resource) {
         iv_base_leftimage.setImageResource(resource);
         iv_base_leftimage.setVisibility(View.VISIBLE);
+
     }
 
     public void setRightImage(int resource) {
@@ -48,5 +49,38 @@ public class BaseActivity extends Activity {
     public void setRightText(String text) {
         tv_base_rightText.setText(text);
         tv_base_rightText.setVisibility(View.VISIBLE);
+    }
+
+
+    public ImageView getIv_base_leftimage() {
+        return iv_base_leftimage;
+    }
+
+    public void setIv_base_leftimage(ImageView iv_base_leftimage) {
+        this.iv_base_leftimage = iv_base_leftimage;
+    }
+
+    public TextView getTv_base_rightText() {
+        return tv_base_rightText;
+    }
+
+    public void setTv_base_rightText(TextView tv_base_rightText) {
+        this.tv_base_rightText = tv_base_rightText;
+    }
+
+    public TextView getTv_base_centerText() {
+        return tv_base_centerText;
+    }
+
+    public void setTv_base_centerText(TextView tv_base_centerText) {
+        this.tv_base_centerText = tv_base_centerText;
+    }
+
+    public ImageView getIv_base_rightimage() {
+        return iv_base_rightimage;
+    }
+
+    public void setIv_base_rightimage(ImageView iv_base_rightimage) {
+        this.iv_base_rightimage = iv_base_rightimage;
     }
 }

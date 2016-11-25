@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">倾听体语</string>
+    <string name="title_activity_move_state">MoveStateActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -63,7 +63,7 @@ public class ShowLocationOnMap {
         int strokeWidth = (int) resources.getDimension(R.dimen.x3);
 
         //边线
-        Stroke stroke = new Stroke(strokeWidth,Color.argb(160,14,101,151));
+        Stroke stroke = new Stroke(strokeWidth,Color.argb(160,138,171,203));  //8AABCB
         //圆形范围
         CircleOptions polygonOption = new CircleOptions().center(latLng).radius(radius).fillColor(Color.argb(180,182,198,203)).stroke(stroke);
         //添加在地图中

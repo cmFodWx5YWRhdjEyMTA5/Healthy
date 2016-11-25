@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#212121"
+    tools:context="com.amsu.healthy.activity.MoveStateActivity">
+
+    <TextView
+        android:id="@+id/tv_movestate_static"
+        android:layout_width="@dimen/x400"
+        android:layout_height="@dimen/x400"
+        android:text="静止"
+        android:layout_marginTop="@dimen/y346"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:textSize="@dimen/x80"
+        android:onClick="staticDump"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/bg_static_circle"/>
+
+    <TextView
+        android:id="@+id/tv_movestate_sport"
+        android:layout_width="@dimen/x400"
+        android:layout_height="@dimen/x400"
+        android:layout_below="@id/tv_movestate_static"
+        android:text="运动"
+        android:layout_marginTop="@dimen/y228"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:textSize="@dimen/x80"
+        android:textColor="#FFFFFF"
+        android:onClick="sportDump"
+        android:background="@drawable/bg_sport_circle"/>
+    
+    <ImageView
+        android:layout_width="@dimen/x80"
+        android:layout_height="@dimen/x80"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/guanbi"
+        android:onClick="close"
+        android:layout_centerHorizontal="true"/>
+
+
+</RelativeLayout>

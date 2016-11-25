@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#212121"
+    tools:context="com.amsu.healthy.activity.HeartRateActivity">
+
+    <TextView
+        android:id="@+id/tv_heartrate_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="正在分析"
+        android:layout_centerHorizontal="true"
+        android:textColor="#0c64b5"
+        android:textSize="@dimen/x72"
+        android:layout_marginTop="@dimen/y154"/>
+    <TextView
+        android:id="@+id/tv_heartrate_txt1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="请稍后..."
+        android:layout_below="@id/tv_heartrate_txt"
+        android:layout_centerHorizontal="true"
+        android:textColor="#0c64b5"
+        android:textSize="@dimen/x36"
+        android:layout_marginTop="@dimen/y36"/>
+
+    <RelativeLayout
+        android:id="@+id/rl_heartrate_top"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y600"
+        android:layout_marginTop="@dimen/y224"
+        android:layout_below="@id/tv_heartrate_txt1"
+        android:layout_centerHorizontal="true">
+
+        <TextView
+            android:id="@+id/tv_healthydata_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="当前心率"
+            android:layout_marginTop="@dimen/y96"
+            android:textColor="#666666"
+            android:textSize="@dimen/x36"
+            android:layout_centerHorizontal="true"/>
+        <TextView
+            android:id="@+id/tv_healthydata_rate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_healthydata_txt"
+            android:text="72"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/x148"
+            android:layout_centerInParent="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BMP"
+            android:layout_below="@id/tv_healthydata_rate"
+            android:textColor="#666666"
+            android:textSize="@dimen/x28"
+            android:layout_centerHorizontal="true"/>
+
+    </RelativeLayout>
+    <ImageView
+        android:id="@+id/iv_heartrate_rotateimage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_heartrate_txt1"
+        android:src="@drawable/loading"
+        android:layout_marginTop="@dimen/y224"
+        android:layout_centerHorizontal="true"/>
+    <ImageView
+        android:layout_width="@dimen/x80"
+        android:layout_height="@dimen/x80"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/guanbi"
+        android:onClick="close"
+        android:layout_centerHorizontal="true"/>
+
+
+</RelativeLayout>
