@@ -20,8 +20,8 @@
             android:src="@drawable/back_icon"/>
         <ImageView
             android:id="@+id/iv_me_headicon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/x180"
+            android:layout_height="@dimen/x180"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/y204"
             android:src="@drawable/touxiang_images"/>

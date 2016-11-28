@@ -30,15 +30,15 @@ import com.baidu.mapapi.model.inner.GeoPoint;
  */
 
 public class ShowLocationOnMap {
-    static MapView mMapView;
+    private static BaiduMap mMapView;
     private static final String TAG = "ShowLocationOnMap";
-    static  Context context;
+    private static  Context context;
 
-    public static void showPointOnMap(double latitude,double longitude,MapView mMapView) {
-        if (mMapView!=null){
-            ShowLocationOnMap.mMapView = mMapView;
+    public static void showPointOnMap(double latitude,double longitude,BaiduMap baiduMap) {
+        if (baiduMap!=null){
+            ShowLocationOnMap.mMapView = baiduMap;
         }
-        BaiduMap map = ShowLocationOnMap.mMapView.getMap();
+        BaiduMap map = ShowLocationOnMap.mMapView;
         LatLng latLng = new LatLng(latitude, longitude);
 
         //在地图上显示所在位置
@@ -74,10 +74,10 @@ public class ShowLocationOnMap {
 
     }
 
-    public static void startLocation(MapView mMapView,Context context) {
+    public static void startLocation(BaiduMap baiduMap,Context context) {
         ShowLocationOnMap.context = context;
         Log.i(TAG,"startLocation");
-        ShowLocationOnMap.mMapView = mMapView;
+        ShowLocationOnMap.mMapView = baiduMap;
         // -----------location config ------------
         //获取locationservice实例，建议应用中只初始化1个location实例，然后使用，可以参考其他示例的activity，都是通过此种方式获取locationservice实例的
         MyApplication.locationService.registerListener(mListener);
@@ -106,6 +106,7 @@ public class ShowLocationOnMap {
     public static void stopLocation() {
         MyApplication.locationService.unregisterListener(mListener); //注销掉监听
         MyApplication.locationService.stop(); //停止定位服务
+
     }
 
 

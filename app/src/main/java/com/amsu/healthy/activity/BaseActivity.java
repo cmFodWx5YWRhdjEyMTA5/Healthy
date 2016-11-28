@@ -2,13 +2,14 @@ package com.amsu.healthy.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
 
-public class BaseActivity extends Activity {
+public class BaseActivity extends FragmentActivity {
 
     public ImageView iv_base_leftimage;
     public TextView tv_base_rightText;

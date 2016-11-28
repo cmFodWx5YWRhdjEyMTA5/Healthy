@@ -1,7 +1,9 @@
 package com.amsu.healthy.utils;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
 /**
@@ -35,6 +37,14 @@ public class MyUtil {
     public static float dp2px(Context context, float dp) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp,
                 context.getResources().getDisplayMetrics());
+    }
+
+    public static float getScreeenWidth(Activity activity){
+        DisplayMetrics dm = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int width = dm.widthPixels;  //屏幕宽
+        int height = dm.heightPixels;  //屏幕高
+        return width;
     }
 
 

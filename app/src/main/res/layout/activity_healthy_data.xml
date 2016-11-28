@@ -79,6 +79,7 @@
             android:gravity="center"
             android:textSize="@dimen/x56"
             android:textColor="#FFFFFF"
+            android:onClick="startAnalysis"
             android:background="@drawable/bg_center_circle"
             android:layout_centerInParent="true"/>
 

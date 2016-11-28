@@ -1,11 +1,9 @@
 package com.amsu.healthy.adapter;
 
-import android.app.Fragment;
-import android.support.v4.view.PagerAdapter;
-import android.view.View;
-import android.view.ViewGroup;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 
-import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.page.BasePage;
 
 import java.util.List;
@@ -13,11 +11,32 @@ import java.util.List;
 /**
  * Created by HP on 2016/11/25.
  */
-public class AnalysisRateAdapter extends PagerAdapter {
-    private List<BasePage> basePageLista;
-    private String titleStrings[];
+public class AnalysisRateAdapter extends FragmentPagerAdapter {
+    private List<Fragment> fragmentList;
+    //private String titleStrings[];
 
-    public AnalysisRateAdapter(List<BasePage> fragmentList, String titleStrings[]) {
+    public AnalysisRateAdapter(FragmentManager fm) {
+        super(fm);
+    }
+
+    public AnalysisRateAdapter(FragmentManager fm, List<Fragment> fragmentList) {
+        super(fm);
+        this.fragmentList = fragmentList;
+    }
+
+    @Override
+    public Fragment getItem(int position) {
+        return fragmentList.get(position);
+    }
+
+    @Override
+    public int getCount() {
+        return fragmentList.size();
+    }
+
+
+
+    /*public AnalysisRateAdapter(List<BasePage> fragmentList, String titleStrings[]) {
         this.basePageLista = fragmentList;
         this.titleStrings = titleStrings;
     }
@@ -48,5 +67,5 @@ public class AnalysisRateAdapter extends PagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return titleStrings[position];
-    }
+    }*/
 }

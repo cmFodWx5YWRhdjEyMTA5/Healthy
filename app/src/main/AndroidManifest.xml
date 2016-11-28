@@ -58,7 +58,10 @@
         <activity android:name=".activity.HealthyDataActivity" />
         <activity android:name=".activity.MoveStateActivity" />
         <activity android:name=".activity.HeartRateActivity" />
-        <activity android:name=".activity.RateAnalysisActivity"></activity>
+        <activity android:name=".activity.RateAnalysisActivity" />
+        <activity android:name=".activity.RegisterSetp1Activity" />
+        <activity android:name=".activity.RegisterSetp2Activity" />
+        <activity android:name=".activity.RegisterSetp3Activity"></activity>
     </application>
 
 </manifest>

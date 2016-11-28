@@ -24,10 +24,14 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Log.i(TAG,"onCreate");
+        //mv_main_bmapView.onCreate(this,savedInstanceState);
 
         initView();
         initValue();
         initData();
+
+
 
     }
 
@@ -36,7 +40,16 @@ public class MainActivity extends BaseActivity {
         super.onStart();
         Log.i(TAG,"onStart");
         //地图定位
-        ShowLocationOnMap.startLocation(mv_main_bmapView,this);
+        ShowLocationOnMap.startLocation(mv_main_bmapView.getMap(),this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG,"onResume");
+        mv_main_bmapView.onResume();
+
+
     }
 
     private void initView() {
@@ -73,7 +86,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        MyApplication.locationService.unregisterListener(ShowLocationOnMap.mListener); //注销掉监听
+        Log.i(TAG,"onStop");
         ShowLocationOnMap.stopLocation();  //停止定位服务
     }
 
@@ -108,4 +121,21 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(TAG,"onPause");
+        mv_main_bmapView.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG,"onDestroy");
+        mv_main_bmapView.onDestroy();
+       // ShowLocationOnMap.mMapView = null;
+        mv_main_bmapView = null;
+        android.os.Process.killProcess(android.os.Process.myPid());  //退出应用程序
+    }
 }

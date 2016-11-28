@@ -43,6 +43,10 @@ public class HealthyDataActivity extends BaseActivity {
 
 
     public void startSoS(View view) {
+
+    }
+
+    public void startAnalysis(View view) {
         startActivity(new Intent(this,MoveStateActivity.class));
     }
 }

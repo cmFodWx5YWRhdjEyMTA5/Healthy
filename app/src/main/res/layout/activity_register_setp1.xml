@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    tools:context="com.amsu.healthy.activity.RegisterSetp1Activity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:layout_below="@id/rl_base_head">
+        <TextView
+            android:id="@+id/tv_step1_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/y158"
+            android:text="填写昵称"
+            android:textSize="@dimen/x72"
+            android:textColor="#000000"
+            android:layout_centerHorizontal="true"/>
+        <TextView
+            android:id="@+id/tv_step1_text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_step1_text1"
+            android:layout_marginTop="@dimen/y36"
+            android:text="填写昵称"
+            android:textSize="@dimen/x48"
+            android:textColor="#969696"
+            android:layout_centerHorizontal="true"/>
+
+        <EditText
+            android:id="@+id/et_step1_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/y172"
+            android:textSize="@dimen/x48"
+            android:hint="填写昵称"
+            android:textColorHint="#b2b2b8"
+            android:layout_below="@id/tv_step1_text2"/>
+        
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x128"
+            android:layout_below="@id/et_step1_username"
+            android:layout_marginTop="@dimen/y72"
+            android:textColor="#f5f5f5"
+            android:textSize="@dimen/x48"
+            android:background="#c8c8c8"
+            android:onClick="nextStrep"
+            android:text="下一步"/>
+
+    </RelativeLayout>
+
+
+</RelativeLayout>
