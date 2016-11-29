@@ -52,7 +52,7 @@
             android:layout_marginTop="@dimen/y72"
             android:textColor="#f5f5f5"
             android:textSize="@dimen/x48"
-            android:background="#c8c8c8"
+            android:background="@drawable/bg_bt_rec"
             android:onClick="nextStrep"
             android:text="下一步"/>
 

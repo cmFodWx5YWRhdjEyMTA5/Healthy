@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:orientation="vertical"
+    android:padding="10.0dip">
+
+    <LinearLayout
+        android:id="@+id/customDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:divider="@drawable/deiver_horiz_line"
+        android:showDividers="middle"
+        android:layout_gravity="center">
+
+        <TextView
+            android:id="@+id/tv_pick_name"
+            android:layout_width="match_parent"
+            android:layout_height="40.0dip"
+            android:gravity="center"
+            android:textColor="#aa00aeef"
+            android:textSize="20sp"
+            android:text="选择地区"/>
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+                <com.amsu.healthy.view.PickerView
+                    android:id="@+id/picker_provice"
+                    android:layout_width="150dp"
+                    android:layout_height="200dp">
+                </com.amsu.healthy.view.PickerView>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="省"
+                    android:layout_gravity="center_vertical"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+                <com.amsu.healthy.view.PickerView
+                    android:id="@+id/picker_city"
+                    android:layout_width="150dp"
+                    android:layout_height="200dp">
+                </com.amsu.healthy.view.PickerView>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="市"
+                    android:layout_gravity="center_vertical"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@drawable/deiver_vertical_line"
+            android:showDividers="middle">
+
+            <Button
+                android:id="@+id/bt_pick_cancel"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="#FFF"
+                android:text="取消"/>
+            <Button
+                android:id="@+id/bt_pick_ok"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="#FFF"
+                android:text="确定"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+</FrameLayout>
