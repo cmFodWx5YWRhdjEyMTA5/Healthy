@@ -8,6 +8,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.view.CircleImageView;
 
 public class MeActivity extends BaseActivity {
 
@@ -23,7 +25,7 @@ public class MeActivity extends BaseActivity {
 
     private void initView() {
         ImageView iv_me_back = (ImageView) findViewById(R.id.iv_me_back);
-        ImageView iv_me_headicon = (ImageView) findViewById(R.id.iv_me_headicon);
+        CircleImageView iv_me_headicon = (CircleImageView) findViewById(R.id.iv_me_headicon);
 
         RelativeLayout rl_me_report = (RelativeLayout) findViewById(R.id.rl_me_report);
         RelativeLayout rl_me_healthplan = (RelativeLayout) findViewById(R.id.rl_me_healthplan);
@@ -34,6 +36,7 @@ public class MeActivity extends BaseActivity {
         MyOnClickListener myOnClickListener = new MyOnClickListener();
         iv_me_back.setOnClickListener(myOnClickListener);
         iv_me_headicon.setOnClickListener(myOnClickListener);
+        rl_me_report.setOnClickListener(myOnClickListener);
         rl_me_healthplan.setOnClickListener(myOnClickListener);
         rl_me_follow.setOnClickListener(myOnClickListener);
         rl_me_help.setOnClickListener(myOnClickListener);
@@ -52,8 +55,7 @@ public class MeActivity extends BaseActivity {
                     finish();
                     break;
                 case R.id.iv_me_headicon:
-                    startActivity(new Intent(MeActivity.this,RegisterSetp1Activity.class));
-
+                    dumpToPersionData();
                     break;
                 case R.id.rl_me_report:
 
@@ -71,6 +73,16 @@ public class MeActivity extends BaseActivity {
 
                     break;
             }
+        }
+    }
+
+    private void dumpToPersionData() {
+        boolean isLogin = MyUtil.getBooleanValueFromSP("isLogin");
+        if (isLogin){
+            startActivity(new Intent(MeActivity.this,PersionDataActivity.class));
+        }
+        else {
+            startActivity(new Intent(MeActivity.this,LoginActivity.class));
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.amsu.healthy.appication;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 
 import com.amsu.healthy.utils.LocationService;
 import com.baidu.mapapi.SDKInitializer;
@@ -13,6 +14,7 @@ import cn.smssdk.SMSSDK;
 public class MyApplication extends Application{
 
     public static LocationService locationService;
+    public static SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate() {
@@ -22,9 +24,11 @@ public class MyApplication extends Application{
         SDKInitializer.initialize(getApplicationContext());
 
         //sharesdk短信
-        SMSSDK.initSDK(this, "19729c0c696ad", "f5b9fe28ae503f2d7f9afc92e7515223");
+        SMSSDK.initSDK(this, "1976143c3c888", "0c1784d4bf495891bf142767b314651c");
 
         locationService = new LocationService(this);
+
+        sharedPreferences = getSharedPreferences("userinfo", MODE_PRIVATE);
 
     }
 }

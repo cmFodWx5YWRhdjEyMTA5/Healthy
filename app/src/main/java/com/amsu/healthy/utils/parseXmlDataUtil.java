@@ -35,10 +35,10 @@ public class ParseXmlDataUtil {
             while (next != XmlPullParser.END_DOCUMENT) {
                 switch (next) {
                     case XmlPullParser.START_DOCUMENT:
-                        Log.i("parse", "START_DOCUMENT");
+                        //Log.i("parse", "START_DOCUMENT");
                         break;
                     case XmlPullParser.END_DOCUMENT:
-                        Log.i("parse", "END_DOCUMENT");
+                        //Log.i("parse", "END_DOCUMENT");
                         break;
                     case XmlPullParser.START_TAG:
                         String name = xmlPullParser.getName();
@@ -56,7 +56,7 @@ public class ParseXmlDataUtil {
                         }
                         break;
                     case XmlPullParser.END_TAG:
-                        Log.i("parse", "END_TAG");
+                        //Log.i("parse", "END_TAG");
                         String edname = xmlPullParser.getName();
                         if (edname.equals("province")) {
                             provinceModel.setCityList(cityList);

@@ -2,17 +2,16 @@ package com.amsu.healthy.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.ProvinceModel;
@@ -20,11 +19,6 @@ import com.amsu.healthy.utils.ParseXmlDataUtil;
 import com.amsu.healthy.view.DateTimeDialogOnlyYMD;
 import com.amsu.healthy.view.PickerView;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,12 +33,14 @@ public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialo
     private TextView tv_step2_height;
     private TextView tv_step2_area;
     public PickerView pickerView;
-    private String weightValue;
-    private String heightValue;
+    private String birthday = "";
+    private String weightValue = "";
+    private String heightValue = "";
     private List<ProvinceModel> provinceModels;
     private String province;
     private String city;
-    private int sex;
+    private String area = "" ;
+    private int sex =-1;
 
 
     @Override
@@ -104,6 +100,7 @@ public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialo
 
         Log.i(TAG,"onDateSet:"+year+","+month+","+day);
         tv_step2_birthday.setText(year+"/"+month+"/"+day);   //          1998/12/21
+        birthday = year+"/"+month+"/"+day;
     }
 
     class MyOnclickListener implements View.OnClickListener{
@@ -127,10 +124,48 @@ public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialo
                     chooseAreaDialog();
                     break;
                 case R.id.t_step_nextstep:
-                    startActivity(new Intent(RegisterSetp2Activity.this,RegisterSetp3Activity.class));
+
+                    ToStep3Register();
+
                     break;
             }
         }
+
+
+    }
+
+    private void ToStep3Register() {
+        if (birthday.isEmpty()){
+            Toast.makeText(this,"请输入生日", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else if (sex==-1){
+            Toast.makeText(this,"请输入性别", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else if (weightValue.isEmpty()){
+            Toast.makeText(this,"请输入体重", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else if (heightValue.isEmpty()){
+            Toast.makeText(this,"请输入身高", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else if (area.isEmpty()){
+            Toast.makeText(this,"请输入地区", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent intent = getIntent();
+        String username = intent.getStringExtra("username");
+
+        Intent intentToStep3 = new Intent(RegisterSetp2Activity.this, RegisterSetp3Activity.class);
+        intentToStep3.putExtra("username",username);
+        intentToStep3.putExtra("birthday",tv_step2_birthday.getText().toString());
+        intentToStep3.putExtra("sex",sex);
+        intentToStep3.putExtra("weightValue",weightValue);
+        intentToStep3.putExtra("heightValue",heightValue);
+        intentToStep3.putExtra("area",area);
+        startActivity(intentToStep3);
     }
 
     private void chooseAreaDialog() {
@@ -152,8 +187,10 @@ public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialo
             grade.add(provinceModels.get(i).getName());
         }
 
+
         //省份的数据
         picker_provice.setData(grade);
+        province = grade.get(grade.size()/2);
         picker_provice.setOnSelectListener(new PickerView.onSelectListener() {
             @Override
             public void onSelect(int position) {
@@ -165,26 +202,32 @@ public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialo
                 //省份切换时的城市改变
                 final List<String> cityList = provinceModels.get(provincePosition).getCityList();
                 picker_city.setData(cityList);
+
+                area = province+city;
                 picker_city.setOnSelectListener(new PickerView.onSelectListener() {
                     @Override
                     public void onSelect(int position) {
                         Log.i(TAG,"选择了"+cityList.get(position));
                         city = cityList.get(position);
-                        tv_step2_area.setText(province+city);
+                        area = province+city;
+
+
                     }
                 });
             }
         });
 
         //城市的默认数据
-        picker_city.setData(provinceModels.get(provinceModels.size()/2).getCityList());
+        List<String> cityList = provinceModels.get(provinceModels.size() / 2).getCityList();
+        picker_city.setData(cityList);
         picker_city.setOnSelectListener(new PickerView.onSelectListener() {
             @Override
             public void onSelect(int position) {
                 Log.i(TAG,"选择了"+grade.get(position));
             }
         });
-
+        city = cityList.get(cityList.size()/2);
+        area = province+city;
 
         //显示对话框
         final AlertDialog showAlertDialog = builder.show();
@@ -200,7 +243,7 @@ public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialo
             @Override
             public void onClick(View v) {
                 showAlertDialog.dismiss();
-                //tv_step2_height.setText(heightValue+"cm");
+                tv_step2_area.setText(area);
             }
         });
     }

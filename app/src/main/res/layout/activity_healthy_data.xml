@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
     tools:context="com.amsu.healthy.activity.HealthyDataActivity">
 
     <include layout="@layout/page_head"
@@ -50,8 +51,16 @@
         android:id="@+id/rl_healthydata_middle"
         android:layout_width="match_parent"
         android:layout_height="@dimen/y520"
-        android:layout_below="@id/rl_healthydata_top"
-        android:background="#AAAAAA">
+        android:layout_marginTop="@dimen/y96"
+        android:layout_below="@id/rl_healthydata_top">
+        <com.amsu.healthy.view.CardiographView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <com.amsu.healthy.view.PathView
+            android:id="@+id/pv_healthydata_path"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </RelativeLayout>
 
@@ -84,6 +93,48 @@
             android:layout_centerInParent="true"/>
 
     </RelativeLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="扫描"
+        android:onClick="scanBel"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="链接"
+        android:layout_marginLeft="100dp"
+        android:onClick="connect"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="配置指令"
+        android:layout_marginLeft="200dp"
+        android:onClick="sendOrder1"/>cc
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="数据指令"
+        android:layout_marginLeft="300dp"
+        android:onClick="sendOrder2"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="关闭指令"
+        android:layout_marginLeft="300dp"
+        android:layout_marginTop="50dp"
+        android:onClick="sendOrder3"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="测试"
+        android:layout_marginLeft="300dp"
+        android:layout_marginTop="100dp"
+        android:onClick="test"/>
 
 
 </RelativeLayout>

@@ -8,15 +8,105 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.view.PathView;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class ECGFragment extends Fragment {
+
+    private View inflate;
+    private FileInputStream fileInputStream;
+    private String ecgDatatext = "";;
+    private PathView pv_ecg_path;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View inflate = inflater.inflate(R.layout.fragment_ecg, null);
+        inflate = inflater.inflate(R.layout.fragment_ecg, null);
+
+        initView();
         return inflate;
+
+    }
+
+    private void initView() {
+        pv_ecg_path = (PathView) inflate.findViewById(R.id.pv_ecg_path);
+
+        String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
+        if (!cacheFileName.equals("")){
+            try {
+                if (fileInputStream==null){
+                    fileInputStream = new FileInputStream(cacheFileName);
+                }
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
 
+    @Override
+    public void onResume() {
+
+        super.onResume();
+        if (fileInputStream!=null){
+            byte [] mybyte = new byte[1024];
+            int length=0;
+            try {
+                while (true) {
+                    length = fileInputStream.read(mybyte,0,mybyte.length);
+                    System.out.println("length:"+length);
+                    if (length!=-1) {
+                        String s = new String(mybyte,0,length);
+                        ecgDatatext +=s;
+                        System.out.println(s);
+                    }else {
+                        break;
+                    }
+
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        new Thread(){
+            @Override
+            public void run() {
+                if (!ecgDatatext.equals("")){
+                    String[] allGrounpData = ecgDatatext.split(",");
+                    for (int i=0;i<allGrounpData.length;i++){
+                        String[] oneGroupData = allGrounpData[i].split(",");
+                        final int arr[] = new int[oneGroupData.length];
+                        for (int j=0;j<oneGroupData.length;j++){
+                            arr[j] = Integer.parseInt(oneGroupData[j]);
+                        }
+
+                        //给心电图界面传递数据
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                pv_ecg_path.drawLine(arr);
+                            }
+                        });
+                        try {
+                            Thread.sleep(1000/15);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+            }
+        }.start();
+
+    }
 }
