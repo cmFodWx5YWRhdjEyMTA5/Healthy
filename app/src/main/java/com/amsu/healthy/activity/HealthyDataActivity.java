@@ -134,7 +134,7 @@ public class HealthyDataActivity extends BaseActivity {
             // 接收到从机数据
             String uuid = c.getUuid().toString();
             String hexData = DataUtil.byteArrayToHex(c.getValue());
-            //Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
+            Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
 
             //4.2写配置信息   onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 81 05 00 16
             //4.5App读主机设备的版本号  onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 84 07 88 88 00 16
@@ -149,6 +149,7 @@ public class HealthyDataActivity extends BaseActivity {
 
 
             final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
+
             //滤波处理
             for (int i=0;i<ints.length;i++){
                 int temp = EcgFilterUtil.miniEcgFilterLp(ints[i], 0);
@@ -163,14 +164,10 @@ public class HealthyDataActivity extends BaseActivity {
                 }
             });
 
+            //写入文件时用到，以逗号分隔
             String data = "";
             for (int i=0;i<ints.length;i++){
-                if (i!=ints.length-1){
-                    data += ints[i]+" ";
-                }
-                else {
-                    data += ints[i] + ",";
-                }
+                data += ints[i]+",";
             }
             Log.i(TAG,"onCharacteristicChanged:"+data);
             //cacheText += data;
@@ -331,7 +328,7 @@ public class HealthyDataActivity extends BaseActivity {
             }
         });
 
-
+        //simulator();
     }
 
 
@@ -372,7 +369,7 @@ public class HealthyDataActivity extends BaseActivity {
     }
 
     public void sendOrder1(View view) {
-        mLeService.send("44:A6:E5:1F:C5:E4","FF0109100C080E010016",true);
+        mLeService.send("44:A6:E5:1F:C5:E4","FF010A100C080E010016",true);
     }
 
     public void sendOrder2(View view) {
@@ -390,7 +387,8 @@ public class HealthyDataActivity extends BaseActivity {
 
 
     public void test(View view) {
-        /*new Timer().schedule(new TimerTask() {
+        loadDatas();
+        new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 if(EcgView.isRunning){
@@ -405,9 +403,9 @@ public class HealthyDataActivity extends BaseActivity {
 
                 }
             }
-        }, 0, 1000/15);*/
+        }, 0, 1000/15);
 
-        simulator();
+
     }
 
     //开始整个，从文件中获取的情况
@@ -417,9 +415,8 @@ public class HealthyDataActivity extends BaseActivity {
             @Override
             public void run() {
                 if(EcgView.isRunning){
-
                     if(data0Q.size() > 0){
-                        EcgView.addEcgData0(data0Q.poll());
+                        pv_healthydata_path.addEcgCacheData(data0Q.poll());
                     }
                 }
             }

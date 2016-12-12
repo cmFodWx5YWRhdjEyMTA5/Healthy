@@ -165,15 +165,6 @@ public class LoginActivity extends BaseActivity {
             Toast.makeText(this,"请输入验证码", Toast.LENGTH_SHORT).show();
             return;
         }
-        else if(inputVerifycode.isEmpty()){
-            Toast.makeText(this,"请输入验证码", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        else {
-            //先将短信提交到shareSDK进行短信验证
-            SMSSDK.submitVerificationCode("86", phone, inputVerifycode);
-            MyUtil.showDialog("正在校验",this);
-        }
 
         validateLogin(phone,inputVerifycode);
 

@@ -1,7 +1,5 @@
 package com.amsu.healthy.ecganalysis;
 
-import android.util.Log;
-
 import java.util.Arrays;
 
 /**

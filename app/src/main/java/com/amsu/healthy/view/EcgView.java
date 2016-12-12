@@ -32,12 +32,12 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     public static boolean isRunning;
     private Canvas mCanvas;
 
-    private float ecgMax = 4096;//心电的最大值
+    private float ecgMax = 255;//心电的最大值
     private int sleepTime = 1000/15; //每次锁屏的时间间距，单位:ms
     private float lockWidth;//每次锁屏需要画的
     private static int ecgPerCount = 10;//每次画心电数据的个数，心电每秒有500个数据包
 
-    private static Queue<Integer> ecg0Datas = new LinkedList<Integer>();
+    private static Queue<Integer> ecgDatas = new LinkedList<Integer>();
     private static Queue<Integer> ecgOneGroupData = new LinkedList<Integer>();
 
     private Paint mLinePaint;//背景
@@ -70,6 +70,8 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     protected int mSGridWidth = 15;
     protected int mHorSmiallGridCount ;  //小网格的个数
     protected int mVirGigGridCount ;  //小网格的个数
+    private boolean isStartCacheDrawLine = false;
+
 
     public EcgView(Context context, AttributeSet attrs){
         super(context, attrs);
@@ -82,7 +84,6 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
     private void init() {
         mLinePaint = new Paint();
-
         mWavePaint = new Paint();
         mWavePaint.setColor(mLineColor);
         mWavePaint.setStrokeWidth(6);
@@ -91,14 +92,12 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         soundId = soundPool.load(mContext, R.raw.heartbeat, 1);
 
         ecgXOffset = lockWidth / ecgPerCount;
-        //Log.i(TAG,"ecgXOffset:"+ecgXOffset);
-        startY0 = mHeight * (1 / 2);//波1初始Y坐标是控件高度的1/4
+        startY0 = mHeight * (1 / 2);//波1初始Y坐标是控件高度的1/2
         ecgYRatio = mHeight / ecgMax;
-
     }
 
     private void converXOffset(){
-        lockWidth = (float)mSGridWidth/3;
+        lockWidth = (float)5*(mSGridWidth/3);
         Log.i(TAG,"lockWidth:"+lockWidth);
     }
 
@@ -125,13 +124,8 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
         mHorSmiallGridCount = mWidth/mSGridWidth;
         mVirGigGridCount = mHeight / mGridWidth;
-        Log.i("PathView","mSmiallGridCount:==="+mHorSmiallGridCount);
+        Log.i("onSizeChanged","==mWidth:"+mWidth+",mHeight:"+mHeight);
         super.onSizeChanged(w, h, oldw, oldh);
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-
     }
 
     @Override
@@ -140,7 +134,6 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void startThread() {
-        isRunning = true;
         new Thread(drawRunnable).start();
     }
 
@@ -173,8 +166,12 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         mCanvas = surfaceHolder.lockCanvas(rect);
         if(mCanvas == null) return;
         initBackground(mCanvas);
-        //drawWave0();
-        drawWaveOneGroup();
+        if (isStartCacheDrawLine){
+            drawCacheWave();
+        }
+        else {
+            drawWaveOneGroup();
+        }
 
         surfaceHolder.unlockCanvasAndPost(mCanvas);
 
@@ -184,6 +181,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    //画一组的数据
     private void drawWaveOneGroup(){
         Log.i(TAG,"ecgOneGroupData.size():"+ecgOneGroupData.size());
         try{
@@ -213,16 +211,14 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
-    /**
-     * 画波1
-     */
-    private void drawWave0(){
+    //画整个文件波形
+    private void drawCacheWave(){
         try{
             float mStartX = startX;
-            if(ecg0Datas.size() > ecgPerCount){
+            if(ecgDatas.size() > ecgPerCount){
                 for(int i=0;i<ecgPerCount;i++){
                     float newX = (float) (mStartX + ecgXOffset);
-                    int newY = ecgConver(ecg0Datas.poll());
+                    int newY = ecgConver(ecgDatas.poll());
                     mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
                     mStartX = newX;
                     startY0 = newY;
@@ -254,6 +250,13 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         return data;
     }
 
+    public static float normalizationMethod(int value){
+        int min = 0;
+        int max = 255;
+        return  (float)(value-min)/(max-min);
+    }
+
+    //添加一组的数据
     public void addEcgOnGroupData(int[] data){
         for (int i=0;i<data.length;i++){
             ecgOneGroupData.add(data[i]);
@@ -261,8 +264,13 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         startDrawWave();
     }
 
-    public static void addEcgData0(int data){
-        ecg0Datas.add(data);
+    //通过文件添加数据
+    public void addEcgCacheData(int data){
+        if (!isStartCacheDrawLine){
+            startThread();
+            isStartCacheDrawLine = true;
+        }
+        ecgDatas.add(data);
     }
 
     //绘制背景
@@ -303,7 +311,5 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         for(int i = 0;i<hNum+1;i++){
             canvas.drawLine(0,i*mGridWidth,mWidth,i*mGridWidth,mLinePaint);
         }
-
-
     }
 }

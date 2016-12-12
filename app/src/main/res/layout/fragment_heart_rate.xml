@@ -22,7 +22,7 @@
             android:layout_centerHorizontal="true" />
 
         <TextView
-            android:id="@+id/tv_rate_text2"
+            android:id="@+id/tv_rate_rate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_rate_text1"
@@ -35,7 +35,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="@dimen/x2"
-            android:layout_below="@id/tv_rate_text2"
+            android:layout_below="@id/tv_rate_rate"
             android:layout_marginTop="@dimen/y48"
             android:background="#e0e0e0"></View>
         <LinearLayout
@@ -43,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/x72"
-            android:layout_below="@id/tv_rate_text2">
+            android:layout_below="@id/tv_rate_rate">
             <TextView
                 android:layout_width="0dp"
                 android:layout_weight="1"
