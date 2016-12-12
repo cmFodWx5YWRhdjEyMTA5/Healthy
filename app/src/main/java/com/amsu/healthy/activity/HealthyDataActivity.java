@@ -41,7 +41,13 @@ public class HealthyDataActivity extends BaseActivity {
 
     private String cacheText = "";
 
-    private int[] calcuEcgRate = new int[12*15]; //12s计算一次
+    private int preGroupCalcuLength = 12*15;
+    private int fourGroupCalcuLength = 4*15;
+    private int[] preCalcuEcgRate = new int[preGroupCalcuLength*10]; //前一次数的数据，12s
+    private int[] currCalcuEcgRate = new int[preGroupCalcuLength*10]; //当前的数据，12s
+    private int[] fourCalcuEcgRate = new int[fourGroupCalcuLength*10]; //4s的数据
+    private boolean isFirstCalcu = true;
+    private int currentIndex = 0;
 
 
     @Override
@@ -136,9 +142,59 @@ public class HealthyDataActivity extends BaseActivity {
                     data += ints[i] + ",";
                 }
             }
-            cacheText += data;
+            //cacheText += data;
 
-            int calcuEcgDataindex=0;
+
+            if (isFirstCalcu){
+                //第一次计算，连续12秒数据
+                if (currentIndex<preGroupCalcuLength){
+                    //未到12s
+                    for (int j=0;j<ints.length;j++){
+                        currCalcuEcgRate[currentIndex*10+j] = ints[j];
+                    }
+                    currentIndex++;
+                }
+                else{
+                    //到12s
+                    isFirstCalcu = false;
+                    currentIndex = 0;
+                    preCalcuEcgRate = currCalcuEcgRate;
+                    //带入公式，计算心率
+
+
+                }
+
+            }
+            else {
+                //第二次进来，采集4s数据
+                if (currentIndex<fourGroupCalcuLength){
+                    //未到4s
+                    for (int j=0;j<ints.length;j++){
+                        fourCalcuEcgRate[currentIndex*10+j] = ints[j];
+                    }
+                    currentIndex++;
+                }
+                else {
+                    int i=0;
+                    //到4s,需要前8s+当前4s
+                    for (int j=7*15*10;j<preCalcuEcgRate.length;j++){
+                        currCalcuEcgRate[i] = preCalcuEcgRate[j];
+                        i++;
+                    }
+                    for (int k=0;k<fourCalcuEcgRate.length;k++){
+                        currCalcuEcgRate[i] = fourCalcuEcgRate[k];
+                        i++;
+                    }
+                    currentIndex = 0;
+                    preCalcuEcgRate = currCalcuEcgRate;
+                    //带入公式，计算心率
+
+                    //注：这里有一组的数据遗漏
+
+                }
+
+            }
+
 
 
 
