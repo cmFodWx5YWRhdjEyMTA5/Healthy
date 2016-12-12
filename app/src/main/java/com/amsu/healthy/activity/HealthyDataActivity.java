@@ -13,13 +13,16 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.ecganalysis.DiagnosisNDK;
 import com.amsu.healthy.ecganalysis.HeartRateResult;
 import com.amsu.healthy.utils.ECGUtil;
+import com.amsu.healthy.utils.EcgFilterUtil;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.view.EcgView;
 import com.amsu.healthy.view.PathView;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
@@ -28,6 +31,13 @@ import com.ble.ble.BleService;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class HealthyDataActivity extends BaseActivity {
 
@@ -36,18 +46,24 @@ public class HealthyDataActivity extends BaseActivity {
 
     public static BleService mLeService;
     private BluetoothAdapter mBluetoothAdapter;
-    private PathView pv_healthydata_path;
+    private EcgView pv_healthydata_path;
     private FileOutputStream fileOutputStream;
 
     private String cacheText = "";
 
-    private int preGroupCalcuLength = 12*15;
-    private int fourGroupCalcuLength = 4*15;
+    private int preGroupCalcuLength = 12*15; //有多少组数据就进行计算心率，12s一次，每秒15次，共12*15组
+    private int fourGroupCalcuLength = 4*15; //有多少组数据就进行更新，4s更新一次，每秒15次，共4*15组
     private int[] preCalcuEcgRate = new int[preGroupCalcuLength*10]; //前一次数的数据，12s
     private int[] currCalcuEcgRate = new int[preGroupCalcuLength*10]; //当前的数据，12s
     private int[] fourCalcuEcgRate = new int[fourGroupCalcuLength*10]; //4s的数据
-    private boolean isFirstCalcu = true;
-    private int currentIndex = 0;
+    private boolean isFirstCalcu = true;  //是否是第一次计算心率，第一次要连续12秒的数据
+   private int currentIndex = 0;   //组的索引
+
+    private List<Integer> datas = new ArrayList<>();
+
+    private Queue<Integer> data0Q = new LinkedList<Integer>();
+    private int heartRate;   //心率
+    private TextView tv_healthydata_rate;
 
 
     @Override
@@ -118,7 +134,7 @@ public class HealthyDataActivity extends BaseActivity {
             // 接收到从机数据
             String uuid = c.getUuid().toString();
             String hexData = DataUtil.byteArrayToHex(c.getValue());
-            Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
+            //Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
 
             //4.2写配置信息   onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 81 05 00 16
             //4.5App读主机设备的版本号  onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 84 07 88 88 00 16
@@ -133,6 +149,20 @@ public class HealthyDataActivity extends BaseActivity {
 
 
             final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
+            //滤波处理
+            for (int i=0;i<ints.length;i++){
+                int temp = EcgFilterUtil.miniEcgFilterLp(ints[i], 0);
+                EcgFilterUtil.miniEcgFilterHp(temp,0);
+                ints[i] = temp;
+            }
+            //绘图
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    pv_healthydata_path.addEcgOnGroupData(ints);
+                }
+            });
+
             String data = "";
             for (int i=0;i<ints.length;i++){
                 if (i!=ints.length-1){
@@ -142,6 +172,7 @@ public class HealthyDataActivity extends BaseActivity {
                     data += ints[i] + ",";
                 }
             }
+            Log.i(TAG,"onCharacteristicChanged:"+data);
             //cacheText += data;
 
 
@@ -160,10 +191,15 @@ public class HealthyDataActivity extends BaseActivity {
                     currentIndex = 0;
                     preCalcuEcgRate = currCalcuEcgRate;
                     //带入公式，计算心率
-
-
+                    heartRate = ECGUtil.countEcgRate(currCalcuEcgRate, currCalcuEcgRate.length, 150);
+                    //更新心率
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tv_healthydata_rate.setText(heartRate+"");
+                        }
+                    });
                 }
-
             }
             else {
                 //第二次进来，采集4s数据
@@ -175,9 +211,9 @@ public class HealthyDataActivity extends BaseActivity {
                     currentIndex++;
                 }
                 else {
-                    int i=0;
                     //到4s,需要前8s+当前4s
-                    for (int j=7*15*10;j<preCalcuEcgRate.length;j++){
+                    int i=0;
+                    for (int j=4*15*10;j<preCalcuEcgRate.length;j++){
                         currCalcuEcgRate[i] = preCalcuEcgRate[j];
                         i++;
                     }
@@ -188,20 +224,24 @@ public class HealthyDataActivity extends BaseActivity {
                     currentIndex = 0;
                     preCalcuEcgRate = currCalcuEcgRate;
                     //带入公式，计算心率
+                    heartRate = ECGUtil.countEcgRate(currCalcuEcgRate, currCalcuEcgRate.length, 150);
+                    //更新心率
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tv_healthydata_rate.setText(heartRate+"");
+                        }
+                    });
 
                     //注：这里有一组的数据遗漏
 
                 }
-
             }
-
-
-
 
             //写到文件里
             try {
                 if (fileOutputStream==null){
-                    String filePath = getCacheDir()+"/"+"cacheFile";
+                    String filePath = getCacheDir()+"/"+System.currentTimeMillis();  //随机生成一个文件
                     fileOutputStream = new FileOutputStream(filePath,true);
                     MyUtil.putStringValueFromSP("cacheFileName",filePath);
                 }
@@ -213,17 +253,6 @@ public class HealthyDataActivity extends BaseActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    pv_healthydata_path.drawLine(ints);
-                }
-            });
-
-
-
-
 
         }
 
@@ -285,7 +314,8 @@ public class HealthyDataActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-
+        pv_healthydata_path = (EcgView) findViewById(R.id.pv_healthydata_path);
+        tv_healthydata_rate = (TextView) findViewById(R.id.tv_healthydata_rate);
 
     }
 
@@ -300,13 +330,6 @@ public class HealthyDataActivity extends BaseActivity {
                 finish();
             }
         });
-
-        pv_healthydata_path = (PathView) findViewById(R.id.pv_healthydata_path);
-        int[] ecgData = {101,106,130,106,77,199,133,222,111,87};
-
-        //pv_healthydata_path.setOneDrawData(ecgData);
-
-
 
 
     }
@@ -364,25 +387,63 @@ public class HealthyDataActivity extends BaseActivity {
         mLeService.connect("44:A6:E5:1F:C5:E4",false);
     }
 
-    public void test(View view) {
-        int [] test1 = {50,100,60,99,51,111,66,100,50,100};
-        int [] test2 = {50,100,55,100,50,100,77,100,50,100};
-        int [] test3 = {63,64,64,65,65,66,66,66,67,67};
-        int [] test4 = {100,68,68,69,69,69,70,70,71,71};
-        int [] test5 = {72,72,72,73,73,73,74,74,74,74};
-        int [] test6 = {74,74,74,74,145,74,80,80,80,90};
-        int [] test7 = {90,90,89,89,88,88,88,87,87,80};
-        int [] test8 = {80,70,70,70,69,69,68,68,67,67};
-        int [] test9 = {111,66,65,63,62,12,58,57,54,53};
 
-        pv_healthydata_path.drawLine(test1);
-        pv_healthydata_path.drawLine(test2);
-        pv_healthydata_path.drawLine(test3);
-        pv_healthydata_path.drawLine(test4);
-        pv_healthydata_path.drawLine(test5);
-        pv_healthydata_path.drawLine(test6);
-        pv_healthydata_path.drawLine(test7);
-        pv_healthydata_path.drawLine(test8);
-        pv_healthydata_path.drawLine(test9);
+
+    public void test(View view) {
+        /*new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(EcgView.isRunning){
+                    int [] oneGroupeData = new int[10];
+                    for (int i=0;i<10;i++){
+                        if (data0Q.size()>0){
+                            oneGroupeData[i] = data0Q.poll();
+                        }
+
+                    }
+                    pv_healthydata_path.addEcgOnGroupData(oneGroupeData);
+
+                }
+            }
+        }, 0, 1000/15);*/
+
+        simulator();
+    }
+
+    //开始整个，从文件中获取的情况
+    private void simulator(){
+        loadDatas();
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(EcgView.isRunning){
+
+                    if(data0Q.size() > 0){
+                        EcgView.addEcgData0(data0Q.poll());
+                    }
+                }
+            }
+        }, 0, 2);
+    }
+
+
+    //画整个文件
+    private void loadDatas(){
+        try{
+            String data0 = "";
+            InputStream in = getResources().openRawResource(R.raw.ecgdata);
+            int length = in.available();
+            byte [] buffer = new byte[length];
+            in.read(buffer);
+            data0 = new String(buffer);
+            in.close();
+            String[] data0s = data0.split(",");
+            for(String str : data0s){
+                datas.add(Integer.parseInt(str));
+            }
+
+            data0Q.addAll(datas);
+        }catch (Exception e){}
+
     }
 }
