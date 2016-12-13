@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_healthydata_txt"
-            android:text="112"
+            android:text="_ _"
 
             android:textColor="#000000"
             android:textSize="@dimen/x288"

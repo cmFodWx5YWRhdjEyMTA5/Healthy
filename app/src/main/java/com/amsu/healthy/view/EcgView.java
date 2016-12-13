@@ -245,16 +245,20 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
      * @return
      */
     private int ecgConver(int data){
-        data = (int) (ecgMax - data);
-        data = (int) (data * ecgYRatio);
-        return data;
+        /*data = (int) (ecgMax - data);
+        data = (int) (data * ecgYRatio);*/
+        int i = data * 5 + mHeight / 2;
+        return i;
+
+
     }
 
     public static float normalizationMethod(int value){
-        int min = 0;
+        int min = -255;
         int max = 255;
         return  (float)(value-min)/(max-min);
     }
+
 
     //添加一组的数据
     public void addEcgOnGroupData(int[] data){

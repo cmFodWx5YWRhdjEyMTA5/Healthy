@@ -1,4 +1,4 @@
-package com.amsu.healthy.ecganalysis;
+package com.test.objects;
 
 import java.util.Arrays;
 

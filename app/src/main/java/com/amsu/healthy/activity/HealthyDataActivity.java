@@ -17,8 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.ecganalysis.DiagnosisNDK;
-import com.amsu.healthy.ecganalysis.HeartRateResult;
 import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.EcgFilterUtil;
 import com.amsu.healthy.utils.MyUtil;
@@ -64,6 +62,9 @@ public class HealthyDataActivity extends BaseActivity {
     private Queue<Integer> data0Q = new LinkedList<Integer>();
     private int heartRate;   //心率
     private TextView tv_healthydata_rate;
+
+
+    private String test ="";
 
 
     @Override
@@ -134,7 +135,7 @@ public class HealthyDataActivity extends BaseActivity {
             // 接收到从机数据
             String uuid = c.getUuid().toString();
             String hexData = DataUtil.byteArrayToHex(c.getValue());
-            Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
+            //Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
 
             //4.2写配置信息   onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 81 05 00 16
             //4.5App读主机设备的版本号  onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 84 07 88 88 00 16
@@ -147,13 +148,123 @@ public class HealthyDataActivity extends BaseActivity {
                 只有倒数2位变化
             */
 
-
+            if (hexData.length()<40){
+                return;
+            }
             final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
+
+            String data = "";
+            for (int i=0;i<ints.length;i++){
+                data += ints[i]+",";
+            }
+            //Log.i(TAG,"onCharacteristicChanged滤波前:"+data);
+
+
+
+            test += data;
+            //Log.i(TAG,"onCharacteristicChanged滤波后:"+data);
+            //cacheText += data;
+
+            //Log.i(TAG,"currentIndex:"+currentIndex);
+            if (isFirstCalcu){
+                //第一次计算，连续12秒数据
+                if (currentIndex<preGroupCalcuLength){
+                    //未到12s
+                    for (int j=0;j<ints.length;j++){
+                        currCalcuEcgRate[currentIndex*10+j] = ints[j];
+                    }
+                }
+                else{
+                    //到12s
+                    Log.i(TAG,"test:"+test);
+                    test = "";
+                    isFirstCalcu = false;
+                    currentIndex = 0;
+                    for (int n=0;n<currCalcuEcgRate.length;n++){
+                        preCalcuEcgRate[n] = currCalcuEcgRate[n];
+                    }
+
+                    String data0 = "";
+                    for (int j=0;j<currCalcuEcgRate.length;j++){
+                        data0 += currCalcuEcgRate[j]+",";
+                    }
+                    Log.i(TAG,"data0:"+data0);
+                    Log.i(TAG,"currCalcuEcgRate.length:"+currCalcuEcgRate.length);
+
+
+                    //带入公式，计算心率
+                    heartRate = ECGUtil.countEcgRate(currCalcuEcgRate, currCalcuEcgRate.length, 150);
+                    Log.i(TAG,"heartRate0:"+heartRate);
+                    //更新心率
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tv_healthydata_rate.setText(heartRate+"");
+                        }
+                    });
+                    for (int j=0;j<ints.length;j++){
+                        currCalcuEcgRate[currentIndex*10+j] = ints[j];
+                    }
+                }
+                currentIndex++;
+            }
+            else {
+                //第二次进来，采集4s数据
+                if (currentIndex<fourGroupCalcuLength){
+                    //未到4s
+                    for (int j=0;j<ints.length;j++){
+                        fourCalcuEcgRate[currentIndex*10+j] = ints[j];
+                    }
+                }
+                else {
+                    //到4s,需要前8s+当前4s
+                    Log.i(TAG,"test:"+test);
+                    test = "";
+                    int i=0;
+                    for (int j=4*15*10;j<preCalcuEcgRate.length;j++){
+                        currCalcuEcgRate[i] = preCalcuEcgRate[j];
+                        i++;
+                    }
+                    for (int k=0;k<fourCalcuEcgRate.length;k++){
+                        currCalcuEcgRate[i] = fourCalcuEcgRate[k];
+                        i++;
+                    }
+
+                    currentIndex = 0;
+                    for (int n=0;n<currCalcuEcgRate.length;n++){
+                        preCalcuEcgRate[n] = currCalcuEcgRate[n];
+                    }
+
+                    String data1 = "";
+                    for (int j=0;j<currCalcuEcgRate.length;j++){
+                        data1 += currCalcuEcgRate[j]+",";
+                    }
+                    Log.i(TAG,"data1:"+data1);
+                    Log.i(TAG,"currCalcuEcgRate.length:"+currCalcuEcgRate.length);
+
+                    //带入公式，计算心率
+                    heartRate = ECGUtil.countEcgRate(currCalcuEcgRate, currCalcuEcgRate.length, 150);
+                    Log.i(TAG,"heartRate:"+heartRate);
+                    //更新心率
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tv_healthydata_rate.setText(heartRate+"");
+                        }
+                    });
+
+
+                    for (int j=0;j<ints.length;j++){
+                        fourCalcuEcgRate[currentIndex*10+j] = ints[j];
+                    }
+                }
+                currentIndex++;
+            }
 
             //滤波处理
             for (int i=0;i<ints.length;i++){
                 int temp = EcgFilterUtil.miniEcgFilterLp(ints[i], 0);
-                EcgFilterUtil.miniEcgFilterHp(temp,0);
+                temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
                 ints[i] = temp;
             }
             //绘图
@@ -165,74 +276,9 @@ public class HealthyDataActivity extends BaseActivity {
             });
 
             //写入文件时用到，以逗号分隔
-            String data = "";
+            data = "";
             for (int i=0;i<ints.length;i++){
                 data += ints[i]+",";
-            }
-            Log.i(TAG,"onCharacteristicChanged:"+data);
-            //cacheText += data;
-
-
-            if (isFirstCalcu){
-                //第一次计算，连续12秒数据
-                if (currentIndex<preGroupCalcuLength){
-                    //未到12s
-                    for (int j=0;j<ints.length;j++){
-                        currCalcuEcgRate[currentIndex*10+j] = ints[j];
-                    }
-                    currentIndex++;
-                }
-                else{
-                    //到12s
-                    isFirstCalcu = false;
-                    currentIndex = 0;
-                    preCalcuEcgRate = currCalcuEcgRate;
-                    //带入公式，计算心率
-                    heartRate = ECGUtil.countEcgRate(currCalcuEcgRate, currCalcuEcgRate.length, 150);
-                    //更新心率
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            tv_healthydata_rate.setText(heartRate+"");
-                        }
-                    });
-                }
-            }
-            else {
-                //第二次进来，采集4s数据
-                if (currentIndex<fourGroupCalcuLength){
-                    //未到4s
-                    for (int j=0;j<ints.length;j++){
-                        fourCalcuEcgRate[currentIndex*10+j] = ints[j];
-                    }
-                    currentIndex++;
-                }
-                else {
-                    //到4s,需要前8s+当前4s
-                    int i=0;
-                    for (int j=4*15*10;j<preCalcuEcgRate.length;j++){
-                        currCalcuEcgRate[i] = preCalcuEcgRate[j];
-                        i++;
-                    }
-                    for (int k=0;k<fourCalcuEcgRate.length;k++){
-                        currCalcuEcgRate[i] = fourCalcuEcgRate[k];
-                        i++;
-                    }
-                    currentIndex = 0;
-                    preCalcuEcgRate = currCalcuEcgRate;
-                    //带入公式，计算心率
-                    heartRate = ECGUtil.countEcgRate(currCalcuEcgRate, currCalcuEcgRate.length, 150);
-                    //更新心率
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            tv_healthydata_rate.setText(heartRate+"");
-                        }
-                    });
-
-                    //注：这里有一组的数据遗漏
-
-                }
             }
 
             //写到文件里

@@ -1,10 +1,12 @@
-package com.amsu.healthy.ecganalysis;
+package com.test.utils;
+
+import android.util.Log;
+
+import com.test.objects.HeartRateResult;
 
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import android.util.Log;
 
 
 public class DiagnosisNDK {
@@ -50,8 +52,7 @@ public class DiagnosisNDK {
 		}
 	}
 
-	public native static HeartRateResult getEcgResult(double[] source,
-			long len, int s_rate);
+	public native static HeartRateResult getEcgResult(double[] source, long len, int s_rate);
 
 	public static HeartRateResult AnalysisEcg(int[] source, int len, int s_rate) {
 		double[] ecg = new double[len];

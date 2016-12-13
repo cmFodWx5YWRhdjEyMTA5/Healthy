@@ -31,9 +31,9 @@ public class HeartRateFragment extends Fragment {
 
     private void initData() {
         Intent intent = getActivity().getIntent();
-        String ecgRate = intent.getStringExtra("ecgRate");
+        int ecgRate = intent.getIntExtra("ecgRate",0);
 
-        tv_rate_rate.setText(ecgRate);
+        tv_rate_rate.setText(ecgRate+"");
 
     }
 
