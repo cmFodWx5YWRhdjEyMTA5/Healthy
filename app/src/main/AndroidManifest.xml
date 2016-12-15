@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.amsu.healthy">
-    <!--地图-->
+
+    <!-- 地图 -->
     <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
     <uses-permission android:name="android.permission.GET_TASKS" />
     <!-- 这个权限用于进行网络定位 -->
@@ -39,7 +40,7 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
 
-    <!--蓝牙-->
+    <!-- 蓝牙 -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
@@ -68,16 +69,16 @@
         <activity android:name=".activity.MoveStateActivity" />
         <activity android:name=".activity.HeartRateActivity" />
         <activity android:name=".activity.RateAnalysisActivity" />
-        <activity android:name=".activity.RegisterSetp1Activity" />
-        <activity android:name=".activity.RegisterSetp2Activity" />
-        <activity android:name=".activity.RegisterSetp3Activity" />
+        <activity android:name=".activity.SupplyPersionDataActivity" />
         <activity android:name=".activity.LoginActivity" />
-        <activity android:name=".activity.PersionDataActivity"></activity>
+        <activity android:name=".activity.PersionDataActivity" />
 
         <service
             android:name="com.ble.ble.BleService"
             android:enabled="true"
             android:exported="false" />
+
+        <activity android:name=".activity.ModifyPersionDataActivity"></activity>
     </application>
 
 </manifest>

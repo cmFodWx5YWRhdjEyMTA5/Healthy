@@ -1,7 +1,10 @@
 package com.amsu.healthy.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -14,6 +17,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MD5Util;
 import com.amsu.healthy.utils.MyUtil;
@@ -24,9 +29,11 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.CookieStore;
 import java.security.NoSuchAlgorithmException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -66,15 +73,6 @@ public class LoginActivity extends BaseActivity {
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
-            }
-        });
-
-        setRightText("快速注册");
-        getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this,RegisterSetp1Activity.class));
                 finish();
             }
         });
@@ -183,7 +181,6 @@ public class LoginActivity extends BaseActivity {
 
     public void getMESCode(String country, final String phone) {
         SMSSDK.getVerificationCode(country, phone);
-
     }
 
     class MyTimerTask extends TimerTask {
@@ -243,8 +240,9 @@ public class LoginActivity extends BaseActivity {
         }
     };
 
-    private void validateLogin(String phone, String inputVerifycode) {
-        HttpUtils httpUtils = new HttpUtils();
+    private void validateLogin(final String phone, String inputVerifycode) {
+        MyUtil.showDialog("正在登陆",this);
+        final HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
 
         params.addBodyParameter("phone",phone);
@@ -254,6 +252,7 @@ public class LoginActivity extends BaseActivity {
 
         params.addBodyParameter("zone","86");  //区号
         params.addBodyParameter("code",inputVerifycode);  //验证码
+        params.addBodyParameter("mobtype","1");
 
         Log.i(TAG,"phone:"+phone+",param:"+param+",inputVerifycode:"+inputVerifycode);
 
@@ -272,15 +271,109 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
+                MyUtil.hideDialog();
                 String result = responseInfo.result;
                 Log.i(TAG,"登陆onSuccess==result:"+result);
+                //{"ret":"0","errDesc":"注册成功!"}
+                //{"ret":"-468","errDesc":"验证码错误"}
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    int ret = jsonObject.getInt("ret");
+                    String errDesc = jsonObject.getString("errDesc");
+                    //ret = 0;
+                    //errDesc = "注册成功";
+                    MyUtil.showToask(LoginActivity.this,errDesc);
+                    if (ret==0){
+                        //注册成功
+                        MyUtil.putBooleanValueFromSP("isLogin",true);
+                        MyUtil.putStringValueFromSP("phone",phone);
+
+                        //保存Cookie
+                        DefaultHttpClient httpClient = (DefaultHttpClient) httpUtils.getHttpClient();
+                        MyApplication.cookieStore =  httpClient.getCookieStore();
+
+                        HttpUtils httpUtils1 = new HttpUtils();
+                        httpUtils1.configCookieStore(MyApplication.cookieStore);  //配置Cookie
+                        httpUtils1.send(HttpRequest.HttpMethod.POST, Constant.downloadPersionDataURL, new RequestCallBack<String>() {
+                            @Override
+                            public void onSuccess(ResponseInfo<String> responseInfo) {
+                                String result = responseInfo.result;
+                                Log.i(TAG,"result:"+result);
+                                try {
+                                    JSONObject jsonObject = new JSONObject(result);
+                                    int ret = jsonObject.getInt("ret");
+                                    String errDesc = jsonObject.getString("errDesc");
+                                    if (ret==0){
+                                        JSONObject jsonObject1 = new JSONObject(errDesc);
+                                        String userName = jsonObject1.getString("UserName");
+                                        if (userName.equals("")){
+                                            //没有完善个人信息
+                                            showdialog();
+                                        }
+                                        else {
+                                            String sex = jsonObject1.getString("Sex");
+                                            String birthday = jsonObject1.getString("Birthday");
+                                            String weight = jsonObject1.getString("Weight");
+                                            String height = jsonObject1.getString("Height");
+                                            String address = jsonObject1.getString("Address");
+                                            String email = jsonObject1.getString("Email");
+                                            String icon = jsonObject1.getString("Icon");
+                                            User user = new User(phone,userName,birthday,sex,weight,height,address,email,icon);
+                                            MyUtil.saveUserToSP(user);
+                                            startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                                        }
+                                    }
+                                    else {
+                                        //操作失败
+                                        startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                                    }
+                                    finish();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(HttpException e, String s) {
+
+                            }
+                        });
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
             }
 
             @Override
             public void onFailure(HttpException e, String s) {
+                MyUtil.hideDialog();
                 Log.i(TAG,"登陆onFailure==s:"+s);
             }
         });
         
     }
+
+    public void showdialog(){
+        new AlertDialog.Builder(LoginActivity.this).setTitle("注册成功")
+                .setMessage("现在去完善资料")
+                .setPositiveButton("等会再去", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                        finish();
+                    }
+                })
+                .setNegativeButton("现在就去", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(LoginActivity.this,SupplyPersionDataActivity.class));
+                        finish();
+                    }
+                })
+                .show();
+
+    }
+
 }

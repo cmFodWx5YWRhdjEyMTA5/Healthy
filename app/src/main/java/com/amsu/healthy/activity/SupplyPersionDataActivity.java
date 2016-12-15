@@ -9,23 +9,36 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.ProvinceModel;
+import com.amsu.healthy.bean.User;
+import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.ParseXmlDataUtil;
 import com.amsu.healthy.view.DateTimeDialogOnlyYMD;
 import com.amsu.healthy.view.PickerView;
+import com.lidroid.xutils.HttpUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialogOnlyYMD.MyOnDateSetListener{
+public class SupplyPersionDataActivity extends BaseActivity implements DateTimeDialogOnlyYMD.MyOnDateSetListener{
 
-    private static final String TAG = "RegisterSetp2Activity";
+    private static final String TAG = "SupplyPersionData";
     private DateTimeDialogOnlyYMD dateTimeDialogOnlyYMD;
     private TextView tv_step2_birthday;
     private TextView tv_step2_sex;
@@ -33,6 +46,7 @@ public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialo
     private TextView tv_step2_height;
     private TextView tv_step2_area;
     public PickerView pickerView;
+    private String username = "";
     private String birthday = "";
     private String weightValue = "";
     private String heightValue = "";
@@ -41,12 +55,13 @@ public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialo
     private String city;
     private String area = "" ;
     private int sex =-1;
+    private EditText tv_step2_username;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register_setp2);
+        setContentView(R.layout.activity_supply_persiondata);
 
         initView();
 
@@ -58,7 +73,6 @@ public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialo
 
     private void initView() {
         initHeadView();
-        setCenterText("快速注册");
         setLeftImage(R.drawable.guanbi_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,6 +92,7 @@ public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialo
         tv_step2_weight = (TextView) findViewById(R.id.tv_step2_weight);
         tv_step2_height = (TextView) findViewById(R.id.tv_step2_height);
         tv_step2_area = (TextView) findViewById(R.id.tv_step2_area);
+        tv_step2_username = (EditText) findViewById(R.id.tv_step2_username);
 
         MyOnclickListener myOnclickListener = new MyOnclickListener();
         rl_step2_birthday.setOnClickListener(myOnclickListener);
@@ -135,6 +150,11 @@ public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialo
     }
 
     private void ToStep3Register() {
+        username = tv_step2_username.getText().toString();
+        if (username.isEmpty()){
+            Toast.makeText(this,"昵称", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (birthday.isEmpty()){
             Toast.makeText(this,"请输入生日", Toast.LENGTH_SHORT).show();
             return;
@@ -155,17 +175,9 @@ public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialo
             Toast.makeText(this,"请输入地区", Toast.LENGTH_SHORT).show();
             return;
         }
-        Intent intent = getIntent();
-        String username = intent.getStringExtra("username");
 
-        Intent intentToStep3 = new Intent(RegisterSetp2Activity.this, RegisterSetp3Activity.class);
-        intentToStep3.putExtra("username",username);
-        intentToStep3.putExtra("birthday",tv_step2_birthday.getText().toString());
-        intentToStep3.putExtra("sex",sex);
-        intentToStep3.putExtra("weightValue",weightValue);
-        intentToStep3.putExtra("heightValue",heightValue);
-        intentToStep3.putExtra("area",area);
-        startActivity(intentToStep3);
+        registerToDB();
+
     }
 
     private void chooseAreaDialog() {
@@ -380,5 +392,61 @@ public class RegisterSetp2Activity extends BaseActivity implements DateTimeDialo
                     }
                 })
                 .show();
+    }
+
+    //上传数据
+    private void registerToDB() {
+        MyUtil.showDialog("正在上传",this);
+        final String phone = MyUtil.getStringValueFromSP("phone");
+        final String sexString = String.valueOf(sex);
+
+        //保存用户信息
+        final User user = new User(phone,username,birthday,sexString,weightValue,heightValue,area);
+        Log.i(TAG,"user:"+user.toString());
+
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("UserName",username);
+        params.addBodyParameter("Birthday",birthday);
+        params.addBodyParameter("Sex",sexString);
+        params.addBodyParameter("Weight",weightValue);
+        params.addBodyParameter("Height",heightValue);
+        params.addBodyParameter("Address",area);
+        params.addBodyParameter("Phone",phone);
+        params.addBodyParameter("Email","");
+
+        httpUtils.configCookieStore(MyApplication.cookieStore);  //配置Cookie
+
+        String url = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/uploadUserinfo"; //上传个人信息
+        httpUtils.send(HttpRequest.HttpMethod.POST, url,params, new RequestCallBack<String>() {
+
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                MyUtil.hideDialog();
+                String result = responseInfo.result;
+                Log.i(TAG,"上传onSuccess==result:"+result);
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    int ret = jsonObject.getInt("ret");
+                    String errDesc = jsonObject.getString("errDesc");
+                    MyUtil.showToask(SupplyPersionDataActivity.this,errDesc);
+                    if (ret==0){
+                        //个人资料完善成功
+                        MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
+                        MyUtil.saveUserToSP(user);
+                        startActivity(new Intent(SupplyPersionDataActivity.this,MainActivity.class));
+                        finish();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                MyUtil.hideDialog();
+                Log.i(TAG,"上传onFailure==s:"+s);
+            }
+        });
     }
 }

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.widget.Toast;
 
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.User;
@@ -51,13 +52,13 @@ public class MyUtil {
         return width;
     }
 
-
+    public static void showToask(Context context ,String text){
+        Toast.makeText(context,text,Toast.LENGTH_SHORT).show();
+    }
 
     public static void saveUserToSP(User user) {
         //将登陆用户信息保存在MyApplication类的sharedPreferences
         SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
-        edit.putBoolean("isLogin",true);
-        edit.putString("phone",user.getPhone());
         edit.putString("username",user.getUsername());
         edit.putString("birthday",user.getBirthday());
         edit.putString("sex",user.getSex());
@@ -65,7 +66,26 @@ public class MyUtil {
         edit.putString("height",user.getHeight());
         edit.putString("area",user.getArea());
         edit.putString("email",user.getEmail());
+        edit.putString("icon",user.getIcon());
         edit.apply();
+    }
+
+    public static User getUserFromSP(){
+        String username = getStringValueFromSP("username");
+        String phone = getStringValueFromSP("phone");
+        String birthday = getStringValueFromSP("birthday");
+        String sex = getStringValueFromSP("sex");
+        String weight = getStringValueFromSP("weight");
+        String height = getStringValueFromSP("height");
+        String area = getStringValueFromSP("area");
+        String email = getStringValueFromSP("email");
+        String icon = getStringValueFromSP("icon");
+        User user = null;
+        if (!phone.equals("")){
+            user = new User(phone,username,birthday,sex,weight,height,area,email,icon);
+        }
+
+        return user;
     }
 
 

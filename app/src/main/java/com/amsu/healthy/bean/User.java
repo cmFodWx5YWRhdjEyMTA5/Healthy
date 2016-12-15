@@ -12,6 +12,19 @@ public class User {
     private String height;
     private String area;
     private String email;
+    private String icon;
+
+
+
+    public User(String phone, String username, String birthday, String sex, String weight, String height, String area) {
+        this.phone = phone;
+        this.username = username;
+        this.birthday = birthday;
+        this.sex = sex;
+        this.weight = weight;
+        this.height = height;
+        this.area = area;
+    }
 
     public User(String phone, String username, String birthday, String sex, String weight, String height, String area, String email) {
         this.phone = phone;
@@ -89,6 +102,25 @@ public class User {
         this.email = email;
     }
 
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    public User(String phone, String username, String birthday, String sex, String weight, String height, String area, String email, String icon) {
+        this.phone = phone;
+        this.username = username;
+        this.birthday = birthday;
+        this.sex = sex;
+        this.weight = weight;
+        this.height = height;
+        this.area = area;
+        this.email = email;
+        this.icon = icon;
+    }
 
     @Override
     public String toString() {

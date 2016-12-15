@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import com.amsu.healthy.utils.LocationService;
 import com.baidu.mapapi.SDKInitializer;
 
+import org.apache.http.client.CookieStore;
+
 import cn.smssdk.SMSSDK;
 
 /**
@@ -15,6 +17,7 @@ public class MyApplication extends Application{
 
     public static LocationService locationService;
     public static SharedPreferences sharedPreferences;
+    public static CookieStore cookieStore=null;
 
     @Override
     public void onCreate() {

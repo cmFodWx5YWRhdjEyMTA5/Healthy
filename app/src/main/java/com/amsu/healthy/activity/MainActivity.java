@@ -1,5 +1,7 @@
 package com.amsu.healthy.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +11,7 @@ import android.widget.LinearLayout;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.ShowLocationOnMap;
 import com.baidu.mapapi.map.MapView;
 
@@ -104,7 +107,21 @@ public class MainActivity extends BaseActivity {
                     break;
 
                 case R.id.iv_main_healthdata:
-                    startActivity(new Intent(MainActivity.this,HealthyDataActivity.class));
+                    boolean isLogin = MyUtil.getBooleanValueFromSP("isLogin");
+                    if (isLogin){
+                        boolean isPrefectInfo = MyUtil.getBooleanValueFromSP("isPrefectInfo");
+                        if (isPrefectInfo){
+                            startActivity(new Intent(MainActivity.this,HealthyDataActivity.class));
+                        }
+                        else {
+                            showdialogToSupplyData();
+                        }
+                    }
+                    else {
+                        showdialogToLogin();
+                    }
+
+
                     break;
                 case R.id.iv_main_action:
 
@@ -119,6 +136,42 @@ public class MainActivity extends BaseActivity {
 
             }
         }
+    }
+
+    public void showdialogToLogin(){
+        new AlertDialog.Builder(this).setTitle("登陆提醒")
+                .setMessage("现在登陆")
+                .setPositiveButton("等会再去", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("现在就去", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(MainActivity.this,LoginActivity.class));
+                    }
+                })
+                .show();
+    }
+
+    public void showdialogToSupplyData(){
+        new AlertDialog.Builder(this).setTitle("数据提醒")
+                .setMessage("现在去完善资料")
+                .setPositiveButton("等会再去", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("现在就去", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(MainActivity.this,SupplyPersionDataActivity.class));
+                    }
+                })
+                .show();
     }
 
 

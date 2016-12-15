@@ -13,8 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/rl_base_head"
-        android:paddingLeft="@dimen/x36"
-        android:paddingRight="@dimen/x40"
         android:divider="@drawable/deiver_horiz_line"
         android:showDividers="middle"
         android:orientation="vertical"
@@ -22,7 +20,9 @@
         <RelativeLayout
             android:id="@+id/rl_persiondata_headicon"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/y200">
+            android:layout_height="@dimen/y200"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -30,20 +30,34 @@
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_1"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+
             <com.amsu.healthy.view.CircleImageView
-                android:id="@+id/tv_persiondata_headicon"
+                android:id="@+id/cv_persiondata_headicon"
                 android:layout_width="@dimen/y180"
                 android:layout_height="@dimen/y180"
+                android:layout_toLeftOf="@+id/iv_persion_1"
+                android:layout_marginRight="5dp"
                 android:text="未设置"
                 android:layout_centerVertical="true"
-                android:src="@drawable/widget_dface"
-                android:layout_alignParentRight="true"/>
+                android:src="@drawable/widget_dface"/>
+
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/rl_persiondata_name"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/y140">
+            android:layout_height="@dimen/y140"
+            android:clickable="true"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -51,20 +65,30 @@
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_2"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
             <TextView
                 android:id="@+id/tv_persiondata_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="未设置"
                 android:textColor="#9f9f9f"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"/>
+                android:layout_toLeftOf="@+id/iv_persion_2"
+                android:layout_marginRight="5dp"/>
         </RelativeLayout>
         <RelativeLayout
             android:id="@+id/rl_persiondata_birthday"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/y140">
+            android:layout_height="@dimen/y140"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -72,20 +96,30 @@
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_3"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
             <TextView
                 android:id="@+id/tv_persiondata_birthday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="未设置"
                 android:textColor="#9f9f9f"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"/>
+                android:layout_toLeftOf="@+id/iv_persion_3"
+                android:layout_marginRight="5dp"/>
         </RelativeLayout>
         <RelativeLayout
             android:id="@+id/rl_persiondata_sex"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/y140">
+            android:layout_height="@dimen/y140"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -93,20 +127,30 @@
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_4"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
             <TextView
                 android:id="@+id/tv_persiondata_sex"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="未设置"
                 android:textColor="#9f9f9f"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"/>
+                android:layout_toLeftOf="@+id/iv_persion_4"
+                android:layout_marginRight="5dp"/>
         </RelativeLayout>
         <RelativeLayout
             android:id="@+id/rl_persiondata_weight"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/y140">
+            android:layout_height="@dimen/y140"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -114,20 +158,30 @@
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_5"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
             <TextView
                 android:id="@+id/tv_persiondata_weight"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="未设置"
                 android:textColor="#9f9f9f"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"/>
+                android:layout_toLeftOf="@+id/iv_persion_5"
+                android:layout_marginRight="5dp"/>
         </RelativeLayout>
         <RelativeLayout
             android:id="@+id/rl_persiondata_height"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/y140">
+            android:layout_height="@dimen/y140"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -135,41 +189,30 @@
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_6"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
             <TextView
                 android:id="@+id/tv_persiondata_height"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="未设置"
                 android:textColor="#9f9f9f"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"/>
-        </RelativeLayout>
-        <RelativeLayout
-            android:id="@+id/rl_persiondata_stepsize"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/y140">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="步幅"
-                android:textColor="#030303"
-                android:textSize="@dimen/x48"
-                android:layout_centerVertical="true"/>
-            <TextView
-                android:id="@+id/tv_persiondata_stepsize"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="未设置"
-                android:textColor="#9f9f9f"
-                android:textSize="@dimen/x48"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"/>
+                android:layout_toLeftOf="@+id/iv_persion_6"
+                android:layout_marginRight="5dp"/>
         </RelativeLayout>
         <RelativeLayout
             android:id="@+id/rl_persiondata_area"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/y140">
+            android:layout_height="@dimen/y140"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -177,20 +220,30 @@
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_7"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
             <TextView
                 android:id="@+id/tv_persiondata_area"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="未设置"
                 android:textColor="#9f9f9f"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"/>
+                android:layout_toLeftOf="@+id/iv_persion_7"
+                android:layout_marginRight="5dp"/>
         </RelativeLayout>
         <RelativeLayout
             android:id="@+id/rl_persiondata_phone"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/y140">
+            android:layout_height="@dimen/y140"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -198,37 +251,69 @@
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_8"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:visibility="invisible"/>
             <TextView
                 android:id="@+id/tv_persiondata_phone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="未设置"
                 android:textColor="#9f9f9f"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"/>
+                android:layout_toLeftOf="@+id/iv_persion_8"
+                android:layout_marginRight="5dp"/>
         </RelativeLayout>
         <RelativeLayout
             android:id="@+id/rl_persiondata_email"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/y140">
+            android:layout_height="@dimen/y140"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="姓名"
+                android:text="邮箱"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
+                android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_9"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"/>
             <TextView
                 android:id="@+id/tv_persiondata_email"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="未设置"
                 android:textColor="#9f9f9f"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"/>
+                android:layout_toLeftOf="@+id/iv_persion_9"
+                android:layout_marginRight="5dp"/>
         </RelativeLayout>
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/bt_persion_save"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x128"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="@dimen/y72"
+        android:textColor="#f5f5f5"
+        android:textSize="@dimen/x48"
+        android:background="@drawable/bg_bt_rec"
+        android:layout_marginBottom="10dp"
+        android:text="保存"/>
 </RelativeLayout>

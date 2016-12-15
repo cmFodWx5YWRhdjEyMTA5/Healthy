@@ -10,11 +10,12 @@
         android:id="@+id/rl_base_head">
     </include>
 
-    <TextView
+    <EditText
         android:id="@+id/tv_step2_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="昵称"
+        android:hint="输入昵称"
+        android:textColorHint="#b2b2b8"
         android:layout_below="@id/rl_base_head"
         android:layout_marginTop="@dimen/x112"
         android:layout_centerHorizontal="true"

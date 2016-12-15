@@ -6,18 +6,27 @@
     android:background="#F6F6F6"
     tools:context="com.amsu.healthy.activity.MeActivity">
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="测试"
+        android:onClick="test"/>
+
     <RelativeLayout
         android:id="@+id/rl_me_image"
         android:layout_width="match_parent"
         android:layout_height="@dimen/y624"
         android:background="@drawable/head_bg">
+
         <ImageView
             android:id="@+id/iv_me_back"
-            android:layout_width="@dimen/x52"
-            android:layout_height="@dimen/x52"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="10dp"
+            android:layout_width="@dimen/y188"
+            android:layout_height="@dimen/y148"
+            android:paddingTop="@dimen/y48"
+            android:paddingBottom="@dimen/y48"
+            android:paddingRight="@dimen/x40"
             android:src="@drawable/back_icon"/>
+
         <com.amsu.healthy.view.CircleImageView
             android:id="@+id/iv_me_headicon"
             android:layout_width="@dimen/x180"
@@ -48,9 +57,10 @@
                 android:layout_gravity="center"
                 android:src="@drawable/location"/>
             <TextView
+                android:id="@+id/tv_me_city"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="深圳市"
+                android:text="未知"
                 android:layout_gravity="center"
                 android:layout_marginLeft="@dimen/x5"
                 android:textSize="@dimen/x32"
@@ -66,9 +76,10 @@
                     android:layout_height="@dimen/x20"
                     android:src="@drawable/man_icon"/>
                 <TextView
+                    android:id="@+id/tv_me_age"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="23"
+                    android:text="0"
                     android:layout_marginLeft="@dimen/x10"
                     android:textSize="@dimen/x28"
                     android:textColor="#FFFFFF"/>
