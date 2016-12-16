@@ -5,11 +5,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.widget.Toast;
 
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.User;
+import com.lidroid.xutils.http.RequestParams;
 
 /**
  * Created by root on 10/25/16.
@@ -115,5 +117,25 @@ public class MyUtil {
     public static void putIntValueFromSP(String key,int value){
         SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
         edit.putInt(key,value).apply();
+    }
+
+    public static boolean isEmpty(String text){
+        if (text==null || text.equals("")){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    //添加Cookie
+    public static void addCookieForHttp(RequestParams requestParams){
+        String cookie = getStringValueFromSP("Cookie");
+        if (!MyUtil.isEmpty(cookie)){
+            requestParams.addHeader("Cookie",cookie);
+        }
+        else {
+            Log.e("com.amsu.healthy","Cookie is null");
+        }
     }
 }

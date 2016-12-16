@@ -28,6 +28,7 @@ import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.ProvinceModel;
 import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.MyBitMapUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.ParseXmlDataUtil;
 import com.amsu.healthy.view.CircleImageView;
@@ -154,7 +155,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
             String birthday = userFromSP.getBirthday();  //	1998/12/21  ===1999-11-11
             if (!birthday.equals("")){
-                String[] split = birthday.split("/");
+                String[] split = birthday.split("-");
                 String newBirthday = split[0]+"-"+split[1]+"-"+split[2];
                 tv_persiondata_birthday.setText(newBirthday);
             }
@@ -176,8 +177,11 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
             String iconUrl = userFromSP.getIcon();
             if (!iconUrl.equals("")){
-                BitmapUtils bitmapUtils = new BitmapUtils(this);
-                bitmapUtils.display(cv_persiondata_headicon,iconUrl);
+                if (iconUrl.endsWith("jpg") || iconUrl.endsWith("png") || iconUrl.endsWith("jpeg") || iconUrl.endsWith("gif")){
+                    BitmapUtils bitmapUtils = new BitmapUtils(this);
+                    bitmapUtils.display(cv_persiondata_headicon,iconUrl);
+                }
+
             }
         }
 
@@ -326,6 +330,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     iconFilePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)); //storage/emulated/0/360Browser/download/20151006063040806.jpg
                     currentImageSaveFile = new File(iconFilePath);
                     Log.i(TAG,"iconFilePath:"+ iconFilePath);
+                    Log.i(TAG,"currentImageSaveFile.length():"+ currentImageSaveFile.length());
                 }
                 if (cursor != null) {
                     cursor.close();
@@ -337,6 +342,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
             else if (requestCode==102){
                 iconFilePath = currentImageSaveFile.getAbsolutePath();
                 Log.i(TAG,"iconFilePath:"+ iconFilePath);
+                Log.i(TAG,"currentImageSaveFile.length():"+ currentImageSaveFile.length());
                 showImageAndUpload(iconFilePath);
             }
         }
@@ -344,17 +350,29 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
     //显示，上传
     private void showImageAndUpload(String iconFilePath) {
+
         if (iconFilePath!=null){
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inPreferredConfig = Bitmap.Config.RGB_565;
             options.inSampleSize= 6;
+
             Bitmap bitmap = BitmapFactory.decodeFile(iconFilePath,options);
+            bitmap = MyBitMapUtil.compressImage(bitmap);
+
+
             cv_persiondata_headicon.setImageBitmap(bitmap);
+
 
             HttpUtils httpUtils = new HttpUtils();
             RequestParams params = new RequestParams();
-            params.addBodyParameter("userfile",currentImageSaveFile);
-            httpUtils.configCookieStore(MyApplication.cookieStore);  //配置Cookie
+
+            File file = MyBitMapUtil.saveBitmapFile(bitmap, this);
+            long length = file.length();
+            Log.i(TAG,"压缩后length:"+length);
+
+            //params.addBodyParameter("userfile",currentImageSaveFile);
+            params.addBodyParameter("userfile",file);
+            MyUtil.addCookieForHttp(params);
 
             httpUtils.send(HttpRequest.HttpMethod.POST, Constant.uploadIconURL, params, new RequestCallBack<String>() {
                 @Override
@@ -372,7 +390,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                         String errDesc = jsonObject.getString("errDesc");
                         if (ret==0){
                             MyUtil.showToask(PersionDataActivity.this,"上传成功");
-                            MyUtil.putStringValueFromSP("iconUrl",errDesc);
+                            MyUtil.putStringValueFromSP("icon",errDesc);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -387,6 +405,8 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
         }
     }
+
+
 
 
     private void chooseAreaDialog() {
@@ -616,8 +636,9 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         params.addBodyParameter("Phone",phone);
         params.addBodyParameter("Email",email);
 
-        httpUtils.configCookieStore(MyApplication.cookieStore);  //配置Cookie
+        //httpUtils.configCookieStore(MyApplication.cookieStore);  //配置Cookie
 
+        MyUtil.addCookieForHttp(params);
         String url = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/uploadUserinfo"; //上传个人信息
         httpUtils.send(HttpRequest.HttpMethod.POST, url,params, new RequestCallBack<String>() {
 

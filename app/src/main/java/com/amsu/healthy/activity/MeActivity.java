@@ -19,6 +19,7 @@ import com.amsu.healthy.view.CircleImageView;
 import com.lidroid.xutils.BitmapUtils;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
@@ -89,7 +90,7 @@ public class MeActivity extends BaseActivity {
 
             String birthday = userFromSP.getBirthday(); //  1998/12/21
             if (!birthday.equals("")){
-                String[] split = birthday.split("/");
+                String[] split = birthday.split("-");
                 Date date = new Date();
                 int age = 1900+date.getYear() - Integer.parseInt(split[0]);
                 Log.i(TAG,"age:"+age);
@@ -105,8 +106,11 @@ public class MeActivity extends BaseActivity {
 
     public void test(View view) {
         HttpUtils httpUtils1 = new HttpUtils();
-        httpUtils1.configCookieStore(MyApplication.cookieStore);  //配置Cookie
-        httpUtils1.send(HttpRequest.HttpMethod.POST, Constant.downloadPersionDataURL, new RequestCallBack<String>() {
+        //httpUtils1.configCookieStore(MyApplication.cookieStore);  //配置Cookie
+        RequestParams params = new RequestParams();
+        MyUtil.addCookieForHttp(params);
+
+        httpUtils1.send(HttpRequest.HttpMethod.POST, Constant.downloadPersionDataURL,params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;

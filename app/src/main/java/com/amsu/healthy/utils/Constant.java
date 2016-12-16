@@ -12,5 +12,5 @@ public class Constant {
     public static int MODIFY_PHONE = 3;
 
     public static String uploadIconURL = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/do_upload";
-    public static String downloadPersionDataURL = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/do_upload";
+    public static String downloadPersionDataURL = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/readUserinfo";
 }

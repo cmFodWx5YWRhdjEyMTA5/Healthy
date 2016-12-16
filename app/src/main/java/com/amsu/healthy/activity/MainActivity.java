@@ -139,7 +139,8 @@ public class MainActivity extends BaseActivity {
     }
 
     public void showdialogToLogin(){
-        new AlertDialog.Builder(this).setTitle("登陆提醒")
+        startActivity(new Intent(MainActivity.this,LoginActivity.class));
+        /*new AlertDialog.Builder(this).setTitle("登陆提醒")
                 .setMessage("现在登陆")
                 .setPositiveButton("等会再去", new DialogInterface.OnClickListener() {
                     @Override
@@ -153,7 +154,8 @@ public class MainActivity extends BaseActivity {
                         startActivity(new Intent(MainActivity.this,LoginActivity.class));
                     }
                 })
-                .show();
+                .show();*/
+        finish();
     }
 
     public void showdialogToSupplyData(){

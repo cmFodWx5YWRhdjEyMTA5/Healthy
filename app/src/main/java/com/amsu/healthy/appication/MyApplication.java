@@ -17,7 +17,7 @@ public class MyApplication extends Application{
 
     public static LocationService locationService;
     public static SharedPreferences sharedPreferences;
-    public static CookieStore cookieStore=null;
+
 
     @Override
     public void onCreate() {

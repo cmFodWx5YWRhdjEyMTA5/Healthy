@@ -29,12 +29,14 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
+import org.apache.http.client.CookieStore;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.CookieStore;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -288,17 +290,35 @@ public class LoginActivity extends BaseActivity {
                         MyUtil.putBooleanValueFromSP("isLogin",true);
                         MyUtil.putStringValueFromSP("phone",phone);
 
-                        //保存Cookie
-                        DefaultHttpClient httpClient = (DefaultHttpClient) httpUtils.getHttpClient();
-                        MyApplication.cookieStore =  httpClient.getCookieStore();
+                        saveCookieToSP(httpUtils);
+
+
 
                         HttpUtils httpUtils1 = new HttpUtils();
-                        httpUtils1.configCookieStore(MyApplication.cookieStore);  //配置Cookie
-                        httpUtils1.send(HttpRequest.HttpMethod.POST, Constant.downloadPersionDataURL, new RequestCallBack<String>() {
+                        RequestParams params = new RequestParams();
+                        MyUtil.addCookieForHttp(params);
+
+                        httpUtils1.send(HttpRequest.HttpMethod.POST, Constant.downloadPersionDataURL,params, new RequestCallBack<String>() {
                             @Override
                             public void onSuccess(ResponseInfo<String> responseInfo) {
                                 String result = responseInfo.result;
                                 Log.i(TAG,"result:"+result);
+                                /*
+                                * {
+                                    "ret": "0",
+                                    "errDesc": {
+                                        "UserName": "张敏",
+                                        "Sex": "1",
+                                        "Birthday": "2016-12-07",
+                                        "Weight": "36.1",
+                                        "Height": "78.1",
+                                        "Address": "广东省深圳市",
+                                        "Phone": "15467893247",
+                                        "Email": "222@c.com",
+                                        "Icon": "http://xxxxx.com:83/xxx/xxx.jpg"    //例子
+                                    }
+                                }
+                                * */
                                 try {
                                     JSONObject jsonObject = new JSONObject(result);
                                     int ret = jsonObject.getInt("ret");
@@ -353,6 +373,30 @@ public class LoginActivity extends BaseActivity {
             }
         });
         
+    }
+
+    private void saveCookieToSP(HttpUtils httpUtils) {
+        /*ci_session,94efd294d41da5b13b0740f476a93950df0c4159
+        uid,18689463192
+        id,9
+        token,66-7550512929-106-27-7353-46-269-33-31-109
+        userParam,1481855331071*/
+        //保存Cookie
+        DefaultHttpClient httpClient = (DefaultHttpClient) httpUtils.getHttpClient();
+        CookieStore cookieStore = httpClient.getCookieStore();
+        List<Cookie> cookies = cookieStore.getCookies();
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < cookies.size(); i++) {
+            String name = cookies.get(i).getName();
+            String value = cookies.get(i).getValue();
+            //Log.i(TAG,"cookies:"+ name +","+ value);
+            if (!MyUtil.isEmpty(name) && !MyUtil.isEmpty(value)){
+                sb.append(name + "=" );
+                sb.append(value + ";" );
+            }
+        }
+        //Log. i("Cookie", sb.toString());
+        MyUtil.putStringValueFromSP("Cookie", sb.toString());
     }
 
     public void showdialog(){

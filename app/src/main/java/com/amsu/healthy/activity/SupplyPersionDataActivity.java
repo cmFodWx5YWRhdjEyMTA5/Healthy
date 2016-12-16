@@ -56,6 +56,9 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
     private String area = "" ;
     private int sex =-1;
     private EditText tv_step2_username;
+    private int year;
+    private int month;
+    private int day;
 
 
     @Override
@@ -109,13 +112,13 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
 
     @Override
     public void onDateSet(Date date) {
-        int year = date.getYear() + 1900;
-        int month = date.getMonth() + 1;
-        int day = date.getDate();
+        year = date.getYear() + 1900;
+        month = date.getMonth() + 1;
+        day = date.getDate();
 
-        Log.i(TAG,"onDateSet:"+year+","+month+","+day);
-        tv_step2_birthday.setText(year+"/"+month+"/"+day);   //          1998/12/21
-        birthday = year+"/"+month+"/"+day;
+        Log.i(TAG,"onDateSet:"+ year +","+ month +","+ day);
+        tv_step2_birthday.setText(year +"/"+ month +"/"+ day);   //          1998/12/21
+        birthday = year +"/"+ month +"/"+ day;
     }
 
     class MyOnclickListener implements View.OnClickListener{
@@ -415,7 +418,7 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
         params.addBodyParameter("Phone",phone);
         params.addBodyParameter("Email","");
 
-        httpUtils.configCookieStore(MyApplication.cookieStore);  //配置Cookie
+        MyUtil.addCookieForHttp(params);
 
         String url = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/uploadUserinfo"; //上传个人信息
         httpUtils.send(HttpRequest.HttpMethod.POST, url,params, new RequestCallBack<String>() {
@@ -433,6 +436,9 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
                     if (ret==0){
                         //个人资料完善成功
                         MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
+
+                        birthday = year+"-"+month+"-"+day;
+                        user.setBirthday(birthday);
                         MyUtil.saveUserToSP(user);
                         startActivity(new Intent(SupplyPersionDataActivity.this,MainActivity.class));
                         finish();
