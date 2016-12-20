@@ -5,4 +5,14 @@
         <attr name="border_color2" format="color" />
         <attr name="border_overlay" format="boolean" />
     </declare-styleable>
+
+    <!-- 声明属性级的名称 -->
+    <declare-styleable name="MyCalendarView">
+
+        <!-- 声明一个属性，整型 -->
+        <attr name="cellTextSize" format="dimension" />
+        <!-- 声明一个属性，字符串 -->
+        <attr name="weekTextSize" format="dimension" />
+        <attr name="cellHeight" format="dimension" />
+    </declare-styleable>
 </resources>

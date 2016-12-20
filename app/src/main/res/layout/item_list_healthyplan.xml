@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/x160"
+    android:gravity="center_vertical"
+    android:paddingLeft="@dimen/x48">
+
+    <TextView
+        android:id="@+id/tv_item_titlt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#383838"
+        android:textSize="@dimen/x48"
+        android:text="题目"/>
+    <TextView
+        android:id="@+id/tv_item_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_item_titlt"
+        android:layout_marginTop="@dimen/x20"
+        android:textColor="#6b6b6b"
+        android:textSize="@dimen/x40"
+        android:text="2016/12/12"/>
+    <TextView
+        android:id="@+id/tv_item_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#868686"
+        android:textSize="@dimen/x40"
+        android:layout_below="@id/tv_item_titlt"
+        android:layout_toRightOf="@id/tv_item_date"
+        android:layout_marginTop="@dimen/x20"
+        android:layout_marginLeft="@dimen/x36"
+        android:text="内容"/>
+</RelativeLayout>

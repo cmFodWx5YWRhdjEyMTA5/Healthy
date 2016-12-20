@@ -78,7 +78,10 @@
             android:enabled="true"
             android:exported="false" />
 
-        <activity android:name=".activity.ModifyPersionDataActivity"></activity>
+        <activity android:name=".activity.ModifyPersionDataActivity" />
+        <activity android:name=".activity.HealthyPlanActivity" />
+        <activity android:name=".activity.HealthyPlanCalenActivity" />
+        <activity android:name=".activity.AddHeathyPlanActivity"></activity>
     </application>
 
 </manifest>

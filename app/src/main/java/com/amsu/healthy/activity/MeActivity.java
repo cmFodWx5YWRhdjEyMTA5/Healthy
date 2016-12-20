@@ -90,7 +90,7 @@ public class MeActivity extends BaseActivity {
 
             String birthday = userFromSP.getBirthday(); //  1998/12/21
             if (!birthday.equals("")){
-                String[] split = birthday.split("-");
+                String[] split = birthday.split("/");
                 Date date = new Date();
                 int age = 1900+date.getYear() - Integer.parseInt(split[0]);
                 Log.i(TAG,"age:"+age);
@@ -164,7 +164,7 @@ public class MeActivity extends BaseActivity {
 
                     break;
                 case R.id.rl_me_healthplan:
-
+                    startActivity(new Intent(MeActivity.this,HealthyPlanActivity.class));
                     break;
                 case R.id.rl_me_follow:
 

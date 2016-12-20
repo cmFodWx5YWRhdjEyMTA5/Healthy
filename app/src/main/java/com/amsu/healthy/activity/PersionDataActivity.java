@@ -22,6 +22,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
@@ -63,13 +64,14 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
     private TextView tv_persiondata_email;
     private User userFromSP;
 
-    private String birthday = "";
-    private String weightValue = "";
-    private String heightValue = "";
+    private String upLoadbirthday = "";
+    private String upLoadweightValue = "";
+    private String upLoadheightValue = "";
     private List<ProvinceModel> provinceModels;
     private String province;
     private String city;
     private String area = "" ;
+    private String upLoadSex = "" ;
     public PickerView pickerView;
     private DateTimeDialogOnlyYMD dateTimeDialogOnlyYMD;
     private Button bt_dialog_take;
@@ -155,17 +157,20 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
             String birthday = userFromSP.getBirthday();  //	1998/12/21  ===1999-11-11
             if (!birthday.equals("")){
-                String[] split = birthday.split("-");
+                String[] split = birthday.split("/");
                 String newBirthday = split[0]+"-"+split[1]+"-"+split[2];
                 tv_persiondata_birthday.setText(newBirthday);
+                upLoadbirthday = split[0]+"/"+split[1]+"/"+split[2];
             }
 
             String sex = userFromSP.getSex();
             if (sex.equals("1")){
                 tv_persiondata_sex.setText("男");
+                upLoadSex = "1";
             }
             else if (sex.equals("2")){
                 tv_persiondata_sex.setText("女");
+                upLoadSex = "2";
             }
 
             tv_persiondata_weight.setText(userFromSP.getWeight()+"kg");
@@ -174,6 +179,11 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
             tv_persiondata_phone.setText(userFromSP.getPhone());
             tv_persiondata_email.setText(userFromSP.getEmail());
+
+            upLoadheightValue = userFromSP.getHeight();
+            upLoadweightValue = userFromSP.getWeight();
+            area = userFromSP.getArea();
+
 
             String iconUrl = userFromSP.getIcon();
             if (!iconUrl.equals("")){
@@ -196,7 +206,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
         Log.i(TAG,"onDateSet:"+year+","+month+","+day);
         tv_persiondata_birthday.setText(year+"/"+month+"/"+day);   //          1998/12/21
-        birthday = year+"/"+month+"/"+day;
+        upLoadbirthday = year+"/"+month+"/"+day;
     }
 
     class MyOnClickListener implements View.OnClickListener {
@@ -443,6 +453,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                 //省份切换时的城市改变
                 final List<String> cityList = provinceModels.get(provincePosition).getCityList();
                 picker_city.setData(cityList);
+                city = cityList.get(cityList.size()/2);
 
                 area = province+city;
                 picker_city.setOnSelectListener(new PickerView.onSelectListener() {
@@ -526,14 +537,14 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
             grade.add(i+"");
 
         }
-        heightValue = 160+"";
+        upLoadheightValue = 160+"";
         //为滚动选择器设置数据
         pickerView.setData(grade);
         pickerView.setOnSelectListener(new PickerView.onSelectListener() {
             @Override
             public void onSelect(int position) {
                 Log.i(TAG,"选择了"+grade.get(position));
-                heightValue = position+"";
+                upLoadheightValue = position+"";
             }
         });
         //显示对话框
@@ -550,7 +561,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
             @Override
             public void onClick(View v) {
                 showAlertDialog.dismiss();
-                tv_persiondata_height.setText(heightValue+"cm");
+                tv_persiondata_height.setText(upLoadheightValue+"cm");
             }
         });
     }
@@ -577,14 +588,14 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
             grade.add(i+"");
 
         }
-        weightValue = 65+"";
+        upLoadweightValue = 65+"";
         //为滚动选择器设置数据
         pickerView.setData(grade);
         pickerView.setOnSelectListener(new PickerView.onSelectListener() {
             @Override
             public void onSelect(int position) {
                 Log.i(TAG,"选择了"+grade.get(position));
-                weightValue = grade.get(position);
+                upLoadweightValue = grade.get(position);
             }
         });
         //显示对话框
@@ -601,7 +612,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
             @Override
             public void onClick(View v) {
                 showAlertDialog.dismiss();
-                tv_persiondata_weight.setText(weightValue+"kg");
+                tv_persiondata_weight.setText(upLoadweightValue+"kg");
             }
         });
     }
@@ -609,38 +620,55 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
     //上传数据
     private void registerToDB() {
-        MyUtil.showDialog("正在上传",this);
-        final String phone = MyUtil.getStringValueFromSP("phone");
-        String sexString = tv_persiondata_sex.getText().toString();
-        if (sexString.equals("男")){
-            sexString = "1";
-        }
-        else {
-            sexString = "2";
-        }
-
         String username = tv_persiondata_name.getText().toString();
         String email = tv_persiondata_email.getText().toString();
 
-        final User user = new User(phone,username,birthday,sexString,weightValue,heightValue,area,email);
+        if (username.isEmpty()){
+            Toast.makeText(this,"昵称", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (upLoadbirthday.isEmpty()){
+            Toast.makeText(this,"请输入生日", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else if (upLoadSex.equals("")){
+            Toast.makeText(this,"请输入性别", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else if (upLoadweightValue.isEmpty()){
+            Toast.makeText(this,"请输入体重", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else if (upLoadheightValue.isEmpty()){
+            Toast.makeText(this,"请输入身高", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else if (area.isEmpty()){
+            Toast.makeText(this,"请输入地区", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        MyUtil.showDialog("正在上传",this);
+        final String phone = MyUtil.getStringValueFromSP("phone");
+
+
+
+        final User user = new User(phone,username,upLoadbirthday,upLoadSex,upLoadweightValue,upLoadheightValue,area,email);
         Log.i(TAG,"user:"+user.toString());
 
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
         params.addBodyParameter("UserName",username);
-        params.addBodyParameter("Birthday",birthday);
-        params.addBodyParameter("Sex",sexString);
-        params.addBodyParameter("Weight",weightValue);
-        params.addBodyParameter("Height",heightValue);
+        params.addBodyParameter("Birthday",upLoadbirthday);
+        params.addBodyParameter("Sex",upLoadSex);
+        params.addBodyParameter("Weight",upLoadweightValue);
+        params.addBodyParameter("Height",upLoadheightValue);
         params.addBodyParameter("Address",area);
         params.addBodyParameter("Phone",phone);
         params.addBodyParameter("Email",email);
 
-        //httpUtils.configCookieStore(MyApplication.cookieStore);  //配置Cookie
-
         MyUtil.addCookieForHttp(params);
-        String url = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/uploadUserinfo"; //上传个人信息
-        httpUtils.send(HttpRequest.HttpMethod.POST, url,params, new RequestCallBack<String>() {
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.duploadPersionDataURL,params, new RequestCallBack<String>() {
 
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
@@ -656,8 +684,6 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                         //个人资料完善成功
                         MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
                         MyUtil.saveUserToSP(user);
-                        startActivity(new Intent(PersionDataActivity.this,MainActivity.class));
-                        finish();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

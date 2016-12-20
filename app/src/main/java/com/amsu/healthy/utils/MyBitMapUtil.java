@@ -17,7 +17,7 @@ import java.io.IOException;
 public class MyBitMapUtil {
     public static Bitmap compressImage(Bitmap bitmap) {
         //图片允许最大空间   单位：KB
-        double maxSize =10.00;
+        double maxSize =512.00;
         //将bitmap放至数组中，意在bitmap的大小（与实际读取的原文件要大）
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -77,7 +77,7 @@ public class MyBitMapUtil {
         }*/
         try {
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(compressImagePath));
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
             bos.flush();
             bos.close();
         } catch (IOException e) {
