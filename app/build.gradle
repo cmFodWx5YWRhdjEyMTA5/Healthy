@@ -40,4 +40,5 @@ dependencies {
     compile(name: 'SMSSDK-2.1.2', ext: 'aar')
     compile(name: 'SMSSDKGUI-2.1.2', ext: 'aar')
     compile files('libs/AndroidBleApi_V1.1.0.jar')
+    compile files('libs/gson-2.5.jar')
 }

@@ -155,12 +155,14 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         if (userFromSP!=null){
             tv_persiondata_name.setText(userFromSP.getUsername());
 
+
             String birthday = userFromSP.getBirthday();  //	1998/12/21  ===1999-11-11
+            Log.i(TAG,"birthday:"+birthday);
             if (!birthday.equals("")){
-                String[] split = birthday.split("/");
+                String[] split = birthday.split("-");
                 String newBirthday = split[0]+"-"+split[1]+"-"+split[2];
                 tv_persiondata_birthday.setText(newBirthday);
-                upLoadbirthday = split[0]+"/"+split[1]+"/"+split[2];
+                upLoadbirthday = split[0]+"-"+split[1]+"-"+split[2];
             }
 
             String sex = userFromSP.getSex();

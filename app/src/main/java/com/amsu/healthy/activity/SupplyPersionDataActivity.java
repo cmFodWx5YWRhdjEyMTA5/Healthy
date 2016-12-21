@@ -117,8 +117,8 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
         day = date.getDate();
 
         Log.i(TAG,"onDateSet:"+ year +","+ month +","+ day);
-        tv_step2_birthday.setText(year +"/"+ month +"/"+ day);   //          1998/12/21
-        birthday = year +"/"+ month +"/"+ day;
+        tv_step2_birthday.setText(year +"-"+ month +"-"+ day);   //          1998/12/21
+        birthday = year +"-"+ month +"-"+ day;
     }
 
     class MyOnclickListener implements View.OnClickListener{
