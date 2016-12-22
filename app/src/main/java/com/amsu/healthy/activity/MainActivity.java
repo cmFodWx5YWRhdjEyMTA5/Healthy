@@ -155,7 +155,7 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .show();*/
-        finish();
+        //finish();
     }
 
     public void showdialogToSupplyData(){

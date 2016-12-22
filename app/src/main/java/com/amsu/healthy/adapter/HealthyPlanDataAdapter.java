@@ -1,6 +1,7 @@
 package com.amsu.healthy.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -25,6 +26,7 @@ public class HealthyPlanDataAdapter extends BaseAdapter{
 
     @Override
     public int getCount() {
+        Log.i("HealthyPlanData","getCount:"+healthyPlanList.size());
         return healthyPlanList.size();
     }
 
@@ -48,7 +50,7 @@ public class HealthyPlanDataAdapter extends BaseAdapter{
 
         tv_item_titlt.setText(healthyPlan.getTitle());
         tv_item_date.setText(healthyPlan.getDate());
-        tv_item_content.setText(healthyPlan.getContent());
+        //tv_item_content.setText(healthyPlan.getContent());
         return inflate;
     }
 }

@@ -31,6 +31,5 @@
         android:layout_below="@id/tv_item_titlt"
         android:layout_toRightOf="@id/tv_item_date"
         android:layout_marginTop="@dimen/x20"
-        android:layout_marginLeft="@dimen/x36"
-        android:text="内容"/>
+        android:layout_marginLeft="@dimen/x36"/>
 </RelativeLayout>

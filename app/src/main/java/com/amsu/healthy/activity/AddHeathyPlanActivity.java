@@ -116,6 +116,9 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
                         }
                     });
                 }
+                else {
+                    MyUtil.showToask(AddHeathyPlanActivity.this,"输入标题和内容");
+                }
 
 
             }

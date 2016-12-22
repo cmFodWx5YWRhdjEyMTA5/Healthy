@@ -1,13 +1,9 @@
 package com.amsu.healthy.bean;
 
-import java.util.List;
-
 /**
- * Created by HP on 2016/12/21.
+ * Created by HP on 2016/12/22.
  */
-public class JsonHealthyList extends JsonBase<List<HealthyPlan>>{
-
-
+public class JsonHealthy extends JsonBase<HealthyPlan> {
     public int getRet() {
         return ret;
     }
@@ -16,11 +12,11 @@ public class JsonHealthyList extends JsonBase<List<HealthyPlan>>{
         this.ret = ret;
     }
 
-    public List<HealthyPlan> getErrDesc() {
+    public HealthyPlan getErrDesc() {
         return errDesc;
     }
 
-    public void setErrDesc(List<HealthyPlan> errDesc) {
+    public void setErrDesc(HealthyPlan errDesc) {
         this.errDesc = errDesc;
     }
 }

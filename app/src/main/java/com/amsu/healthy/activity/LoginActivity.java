@@ -340,6 +340,7 @@ public class LoginActivity extends BaseActivity {
                                             String icon = jsonObject1.getString("Icon");
                                             User user = new User(phone,userName,birthday,sex,weight,height,address,email,icon);
                                             MyUtil.saveUserToSP(user);
+                                            MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
                                             startActivity(new Intent(LoginActivity.this,MainActivity.class));
                                         }
                                     }

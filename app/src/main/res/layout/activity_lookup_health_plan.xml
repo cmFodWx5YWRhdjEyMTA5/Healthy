@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.amsu.healthy.activity.LookupHealthPlanActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:divider="@drawable/deiver_horiz_line"
+        android:showDividers="middle|end"
+        android:padding="@dimen/x36"
+        android:layout_below="@+id/rl_base_head">
+        <TextView
+            android:id="@+id/tv_addplan_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:textSize="@dimen/x56"
+            android:textColor="#1f1f1f"
+            android:paddingTop="@dimen/x12"
+            android:paddingBottom="@dimen/x36"/>
+        <TextView
+            android:id="@+id/tv_addplan_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/x48"
+            android:background="@null"
+            android:textColor="#1f1f1f"
+            android:paddingTop="@dimen/x36"
+            android:lines="10"
+            android:gravity="top"/>
+        <TextView
+            android:id="@+id/tv_addplan_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:textColor="#a9a9a9"
+            android:textSize="@dimen/x46"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

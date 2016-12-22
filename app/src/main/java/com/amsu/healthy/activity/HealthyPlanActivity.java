@@ -6,11 +6,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.HealthyPlanDataAdapter;
 import com.amsu.healthy.bean.HealthyPlan;
+import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.JsonHealthyList;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
@@ -75,25 +77,43 @@ public class HealthyPlanActivity extends BaseActivity {
 
     private void initData() {
         healthyPlanList = new ArrayList<>();
-        healthyPlanList.add(new HealthyPlan("hhh","hhhh","hhhh"));
-        healthyPlanDataAdapter = new HealthyPlanDataAdapter(this,healthyPlanList);
+        healthyPlanDataAdapter = new HealthyPlanDataAdapter(HealthyPlanActivity.this,healthyPlanList);
         lv_healthplan_plan.setAdapter(healthyPlanDataAdapter);
+        lv_healthplan_plan.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                HealthyPlan healthyPlan = healthyPlanList.get(position);
+                String healthyPlanId = healthyPlan.getId();
+                Intent intent = new Intent(HealthyPlanActivity.this,LookupHealthPlanActivity.class);
+                intent.putExtra("id",healthyPlanId);
+                startActivity(intent);
+            }
+        });
 
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
         String formatTime = MyUtil.getFormatTime(new Date());
         params.addBodyParameter("date",formatTime);
+        params.addBodyParameter("page","1");
         MyUtil.addCookieForHttp(params);
-        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHealthyPlanListURL, params, new RequestCallBack<String>() {
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getAfter20ItemHealthyPlanListURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 Gson gson = new Gson();
-                JsonHealthyList jsonHealthyList = gson.fromJson(result, JsonHealthyList.class);
-                List<HealthyPlan> errDesc = jsonHealthyList.getErrDesc();
-                healthyPlanList = errDesc;
-                healthyPlanDataAdapter.notifyDataSetChanged();
+                JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+                Log.i(TAG,"jsonBase:"+jsonBase);
+                if (jsonBase.getRet()==0){
+                    JsonHealthyList jsonHealthyList = gson.fromJson(result, JsonHealthyList.class);
+                    List<HealthyPlan> errDesc = jsonHealthyList.getErrDesc();
+                    for (int i=0;i<errDesc.size();i++){
+                        healthyPlanList.add(errDesc.get(i));
+                    }
+
+                    Log.i(TAG,"healthyPlanList:"+healthyPlanList.size());
+                    healthyPlanDataAdapter.notifyDataSetChanged();
+                }
             }
 
             @Override
@@ -103,7 +123,6 @@ public class HealthyPlanActivity extends BaseActivity {
             }
         });
     }
-
 
     public void addHealthyPlan(View view) {
         Intent intent = new Intent(HealthyPlanActivity.this, AddHeathyPlanActivity.class);

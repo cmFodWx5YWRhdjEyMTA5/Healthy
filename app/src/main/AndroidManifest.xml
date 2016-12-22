@@ -81,7 +81,10 @@
         <activity android:name=".activity.ModifyPersionDataActivity" />
         <activity android:name=".activity.HealthyPlanActivity" />
         <activity android:name=".activity.HealthyPlanCalenActivity" />
-        <activity android:name=".activity.AddHeathyPlanActivity"></activity>
+        <activity android:name=".activity.AddHeathyPlanActivity" />
+        <activity android:name=".activity.LookupHealthPlanActivity" />
+        <activity android:name=".activity.MyReportActivity" />
+        <activity android:name=".activity.SystemSettingActivity"></activity>
     </application>
 
 </manifest>

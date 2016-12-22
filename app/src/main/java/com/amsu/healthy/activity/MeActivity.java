@@ -161,7 +161,7 @@ public class MeActivity extends BaseActivity {
                     dumpToPersionData();
                     break;
                 case R.id.rl_me_report:
-
+                    startActivity(new Intent(MeActivity.this,MyReportActivity.class));
                     break;
                 case R.id.rl_me_healthplan:
                     startActivity(new Intent(MeActivity.this,HealthyPlanActivity.class));
@@ -173,7 +173,7 @@ public class MeActivity extends BaseActivity {
 
                     break;
                 case R.id.rl_me_setting:
-
+                    startActivity(new Intent(MeActivity.this,SystemSettingActivity.class));
                     break;
             }
         }

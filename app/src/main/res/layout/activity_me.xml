@@ -98,6 +98,8 @@
         <RelativeLayout
             android:id="@+id/rl_me_report"
             android:layout_width="match_parent"
+            android:clickable="true"
+            android:background="@drawable/list_item_background"
             android:layout_height="@dimen/y160">
             <ImageView
                 android:id="@+id/iv_me_preicon"
@@ -128,6 +130,8 @@
         <RelativeLayout
             android:id="@+id/rl_me_healthplan"
             android:layout_width="match_parent"
+            android:clickable="true"
+            android:background="@drawable/list_item_background"
             android:layout_height="@dimen/y160">
             <ImageView
                 android:id="@+id/iv_me_mypreicon"
@@ -157,7 +161,9 @@
         <RelativeLayout
             android:id="@+id/rl_me_follow"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/y160">
+            android:layout_height="@dimen/y160"
+            android:clickable="true"
+            android:background="@drawable/list_item_background">
             <ImageView
                 android:id="@+id/iv_me_follow"
                 android:layout_width="@dimen/x56"
@@ -186,7 +192,9 @@
         <RelativeLayout
             android:id="@+id/rl_me_help"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/y160">
+            android:layout_height="@dimen/y160"
+            android:clickable="true"
+            android:background="@drawable/list_item_background">
             <ImageView
                 android:id="@+id/iv_me_help"
                 android:layout_width="@dimen/x56"
@@ -215,7 +223,9 @@
         <RelativeLayout
             android:id="@+id/rl_me_setting"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/y160">
+            android:layout_height="@dimen/y160"
+            android:clickable="true"
+            android:background="@drawable/list_item_background">
             <ImageView
                 android:id="@+id/iv_me_system"
                 android:layout_width="@dimen/x56"
