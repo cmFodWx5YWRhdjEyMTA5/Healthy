@@ -68,8 +68,8 @@ public class MyReportActivity extends BaseActivity {
         quarterReprtFragment = new QuarterReprtFragment();
         yearReprtFragment = new YearReprtFragment();
 
-        currentFragment = mouthReprtFragment;
-        addOrShowFragment(fragmentTransaction,currentFragment);
+
+        addOrShowFragment(fragmentTransaction,mouthReprtFragment);
 
 
     }
