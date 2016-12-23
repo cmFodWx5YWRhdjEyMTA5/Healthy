@@ -84,7 +84,9 @@
         <activity android:name=".activity.AddHeathyPlanActivity" />
         <activity android:name=".activity.LookupHealthPlanActivity" />
         <activity android:name=".activity.MyReportActivity" />
-        <activity android:name=".activity.SystemSettingActivity"></activity>
+        <activity android:name=".activity.SystemSettingActivity" />
+        <activity android:name=".activity.MyDeviceActivity" />
+        <activity android:name=".activity.SearchDevicehActivity"></activity>
     </application>
 
 </manifest>

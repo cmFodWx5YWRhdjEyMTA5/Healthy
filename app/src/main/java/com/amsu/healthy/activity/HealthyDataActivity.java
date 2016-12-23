@@ -43,7 +43,7 @@ public class HealthyDataActivity extends BaseActivity {
     private static final int REQUEST_ENABLE_BT = 2;
 
     public static BleService mLeService;
-    private BluetoothAdapter mBluetoothAdapter;
+
     private EcgView pv_healthydata_path;
     private FileOutputStream fileOutputStream;
 
@@ -72,13 +72,10 @@ public class HealthyDataActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_healthy_data);
 
-
-        checkBLEFeature();
-        //绑定蓝牙，获取蓝牙服务
-        bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
-
         initView();
         initData();
+        //绑定蓝牙，获取蓝牙服务
+        bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
 
        /* double []test = {45,40,67,89,23,45,56,65,45,45,33,66,77.80,80};
         HeartRateResult ecgResult = DiagnosisNDK.getEcgResult(test, test.length, 15);
@@ -301,6 +298,8 @@ public class HealthyDataActivity extends BaseActivity {
 
     };
 
+
+
     private final ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -337,22 +336,7 @@ public class HealthyDataActivity extends BaseActivity {
         }
     };
 
-    //检查是否支持蓝牙
-    private void checkBLEFeature() {
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, "ble_not_supported", Toast.LENGTH_SHORT).show();
-            finish();
-        }
 
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = bluetoothManager.getAdapter();
-
-        if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "error_bluetooth_not_supported", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-    }
 
 
     private void initView() {
@@ -389,20 +373,10 @@ public class HealthyDataActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
+
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
-            finish();
-            return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
+
 
     @Override
     protected void onDestroy() {
@@ -411,7 +385,7 @@ public class HealthyDataActivity extends BaseActivity {
     }
 
     public void scanBel(View view) {
-        mBluetoothAdapter.startLeScan(mLeScanCallback);
+        //mBluetoothAdapter.startLeScan(mLeScanCallback);
     }
 
     public void sendOrder1(View view) {

@@ -1,19 +1,29 @@
 package com.amsu.healthy.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.ShowLocationOnMap;
 import com.baidu.mapapi.map.MapView;
+import com.ble.ble.BleService;
 
 public class MainActivity extends BaseActivity {
 
@@ -21,6 +31,8 @@ public class MainActivity extends BaseActivity {
     private MapView mv_main_bmapView;
     private ImageView iv_main_elf;
     private LinearLayout ll_main_floatcontent;
+    private BluetoothAdapter mBluetoothAdapter;
+    private static final int REQUEST_ENABLE_BT = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +64,10 @@ public class MainActivity extends BaseActivity {
         Log.i(TAG,"onResume");
         mv_main_bmapView.onResume();
 
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
 
     }
 
@@ -83,6 +99,36 @@ public class MainActivity extends BaseActivity {
         setCenterText("倾听体语");
         setRightText("我的设备");
 
+        checkAndOpenBLEFeature();
+
+    }
+
+
+
+    //检查是否支持蓝牙
+    private void checkAndOpenBLEFeature() {
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, "ble_not_supported", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
+
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, "error_bluetooth_not_supported", Toast.LENGTH_SHORT).show();
+            //finish();
+            return;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
+            finish();
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
 

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.amsu.healthy.activity.MyDeviceActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <ListView
+        android:id="@+id/lv_device_devicelist"
+        android:layout_below="@+id/rl_base_head"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </ListView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/lv_device_devicelist"
+        android:background="#d3d3d3"></View>
+    <RelativeLayout
+        android:id="@+id/rl_device_adddevice"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x140"
+        android:layout_below="@+id/lv_device_devicelist"
+        android:layout_marginTop="1dp"
+        android:background="@drawable/list_item_background"
+        android:gravity="center">
+        <ImageView
+            android:id="@+id/iv_icon"
+            android:layout_width="@dimen/x52"
+            android:layout_height="@dimen/x52"
+            android:src="@drawable/tianjia_icon"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/iv_icon"
+            android:layout_marginLeft="@dimen/x32"
+            android:textSize="@dimen/x38"
+            android:textColor="#383838"
+            android:text="添加新设备"/>
+
+    </RelativeLayout>
+</RelativeLayout>
