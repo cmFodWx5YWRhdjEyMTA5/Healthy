@@ -1,8 +1,11 @@
 package com.amsu.healthy.activity;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -12,11 +15,17 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.bean.DeviceList;
+import com.amsu.healthy.utils.MyUtil;
+import com.google.gson.Gson;
+
+import java.util.List;
 
 public class SearchDevicehActivity extends BaseActivity {
-    private static final String TAG = "HeartRateActivity";
+    private static final String TAG = "SearchDevicehActivity";
     private Animation animation;
     private TextView tv_search_state;
+    private List<Device> deviceListFromSP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +53,9 @@ public class SearchDevicehActivity extends BaseActivity {
     }
 
     private void initDate() {
-        new Thread(){
+        MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
+
+        /*new Thread(){
             @Override
             public void run() {
                 try {
@@ -67,6 +78,10 @@ public class SearchDevicehActivity extends BaseActivity {
                 });
             }
         }.start();
+*/
+        deviceListFromSP = MyUtil.getDeviceListFromSP();
+
+
     }
 
     private void bindDevice() {
@@ -83,9 +98,68 @@ public class SearchDevicehActivity extends BaseActivity {
 
     }
 
+    //扫描蓝牙回调
+    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
+
+        @Override
+        public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
+            //BLE#0x44A6E51FC5BF,44:A6:E5:1F:C5:BF,null,10,2
+            //null,72:A8:23:AF:25:42,null,10,0
+            //null,63:5C:3E:B6:A0:AE,null,10,0
+
+            Log.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
+
+            String leName = device.getName();
+            if (leName!=null && leName.startsWith("BLE")){
+                if (deviceListFromSP.size()==0){
+                    deviceListFromSP.add(new Device("智能运动衣","已激活",device.getAddress(), leName));
+                    DeviceList deviceList = new DeviceList();
+                    deviceList.setDeviceList(deviceListFromSP);
+                    MyUtil.putDeviceListToSP(deviceList);
+                    Log.i(TAG,"添加新设备成功");
+                    MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+                    tv_search_state.setText("查找成功");
+                    animation.cancel();
+                    setResult(RESULT_OK,getIntent());
+                    finish();
+                }
+                else {
+                    boolean isAdded = false;
+                    for (int i=0;i<deviceListFromSP.size();i++){
+                        if (!deviceListFromSP.get(i).getLEName().equals(leName)){
+                            isAdded  = true;
+                        }
+                    }
+                    if (!isAdded){
+                        deviceListFromSP.add(new Device("智能运动衣","已激活",device.getAddress(), leName));
+                        DeviceList deviceList = new DeviceList();
+                        deviceList.setDeviceList(deviceListFromSP);
+                        MyUtil.putDeviceListToSP(deviceList);
+                        Log.i(TAG,"添加新设备成功");
+                        MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+                        tv_search_state.setText("查找成功");
+                        animation.cancel();
+                        setResult(RESULT_OK,getIntent());
+                        finish();
+                    }
+                }
+
+            }
+        }
+    };
+
+
     public void stopsearch(View view) {
+        MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
         animation.cancel();
+        finish();
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        animation.cancel();
+        MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+    }
 }

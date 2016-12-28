@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.amsu.healthy.activity.AboutUsActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="@dimen/x208"
+        android:layout_height="@dimen/x208"
+        android:layout_below="@+id/rl_base_head"
+        android:layout_marginTop="@dimen/x116"
+        android:layout_centerHorizontal="true"
+        android:src="@mipmap/ic_launcher"/>
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/icon"
+        android:text="@string/app_name"
+        android:textSize="@dimen/x48"
+        android:textColor="#333333"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/x32"/>
+    <TextView
+        android:id="@+id/tv_aboutus_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/name"
+        android:text="version"
+        android:textSize="@dimen/x40"
+        android:textColor="#727272"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/x28"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_aboutus_version"
+        android:orientation="vertical"
+        android:divider="@drawable/deiver_horiz_line"
+        android:layout_marginTop="@dimen/x72"
+        android:background="#FFFFFF"
+        android:showDividers="middle|end"
+        android:paddingLeft="@dimen/x36"
+        android:paddingRight="@dimen/x36">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x140"
+            android:background="@drawable/list_item_background">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="新手引导"
+                android:textSize="@dimen/x48"
+                android:textColor="#212121"
+                android:layout_centerVertical="true"/>
+            <ImageView
+                android:layout_width="@dimen/x40"
+                android:layout_height="@dimen/x40"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/more_icon"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x140"
+            android:background="@drawable/list_item_background">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="联系我们"
+                android:textSize="@dimen/x48"
+                android:textColor="#212121"
+                android:layout_centerVertical="true"/>
+            <ImageView
+                android:layout_width="@dimen/x40"
+                android:layout_height="@dimen/x40"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/more_icon"/>
+        </RelativeLayout>
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="copyright 2015-2016 AMSU All Right Reserved"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:textSize="@dimen/x24"
+        android:textColor="#727272"
+        android:layout_marginBottom="@dimen/x64"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/text1"
+        android:text="阿木科技 版权所有"
+        android:textSize="@dimen/x40"
+        android:textColor="#212121"
+        android:layout_marginBottom="@dimen/x16"
+        android:layout_centerHorizontal="true"/>
+
+</RelativeLayout>

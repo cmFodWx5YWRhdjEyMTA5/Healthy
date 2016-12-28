@@ -20,10 +20,13 @@ import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.ShowLocationOnMap;
 import com.baidu.mapapi.map.MapView;
 import com.ble.ble.BleService;
+
+import java.util.List;
 
 public class MainActivity extends BaseActivity {
 
@@ -31,7 +34,7 @@ public class MainActivity extends BaseActivity {
     private MapView mv_main_bmapView;
     private ImageView iv_main_elf;
     private LinearLayout ll_main_floatcontent;
-    private BluetoothAdapter mBluetoothAdapter;
+    public static BluetoothAdapter mBluetoothAdapter;
     private static final int REQUEST_ENABLE_BT = 2;
 
     @Override
@@ -157,7 +160,15 @@ public class MainActivity extends BaseActivity {
                     if (isLogin){
                         boolean isPrefectInfo = MyUtil.getBooleanValueFromSP("isPrefectInfo");
                         if (isPrefectInfo){
-                            startActivity(new Intent(MainActivity.this,HealthyDataActivity.class));
+                            List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
+                            if (deviceListFromSP.size()==0){
+                                //没有绑定设备，提示用户去绑定
+                                startActivity(new Intent(MainActivity.this,MyDeviceActivity.class));
+                            }
+                            else {
+                                startActivity(new Intent(MainActivity.this,HealthyDataActivity.class));
+                            }
+
                         }
                         else {
                             showdialogToSupplyData();

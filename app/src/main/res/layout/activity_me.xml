@@ -3,15 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#F6F6F6"
     tools:context="com.amsu.healthy.activity.MeActivity">
 
-    <Button
+    <!--<Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="测试"
         android:onClick="test"/>
-
+-->
     <RelativeLayout
         android:id="@+id/rl_me_image"
         android:layout_width="match_parent"
@@ -33,6 +34,8 @@
             android:layout_height="@dimen/x180"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/y204"
+            app:border_width2="2dp"
+            app:border_color2="#FFFFFF"
             android:src="@drawable/widget_dface"/>
         <TextView
             android:id="@+id/tv_me_name"

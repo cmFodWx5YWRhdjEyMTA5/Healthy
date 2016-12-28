@@ -4,8 +4,8 @@ package com.amsu.healthy.bean;
  * Created by HP on 2016/12/21.
  */
 public class JsonBase<T> {
-    int ret;
-    T errDesc;
+    public int ret;
+    public T errDesc;
 
     public int getRet() {
         return ret;

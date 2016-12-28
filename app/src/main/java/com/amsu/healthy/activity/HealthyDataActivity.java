@@ -17,6 +17,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.EcgFilterUtil;
 import com.amsu.healthy.utils.MyUtil;
@@ -40,14 +42,12 @@ import java.util.TimerTask;
 public class HealthyDataActivity extends BaseActivity {
 
     private static final String TAG = "HealthyDataActivity";
-    private static final int REQUEST_ENABLE_BT = 2;
 
     public static BleService mLeService;
 
     private EcgView pv_healthydata_path;
     private FileOutputStream fileOutputStream;
 
-    private String cacheText = "";
 
     private int preGroupCalcuLength = 12*15; //有多少组数据就进行计算心率，12s一次，每秒15次，共12*15组
     private int fourGroupCalcuLength = 4*15; //有多少组数据就进行更新，4s更新一次，每秒15次，共4*15组
@@ -65,6 +65,8 @@ public class HealthyDataActivity extends BaseActivity {
 
 
     private String test ="";
+    private List<Device> deviceListFromSP;
+    private String connecMac;
 
 
     @Override
@@ -115,6 +117,22 @@ public class HealthyDataActivity extends BaseActivity {
         public void onServicesDiscovered(String mac) {
             Log.i(TAG, "onServicesDiscovered() - " + mac);
             // !!!到这一步才可以与从机进行数据交互
+            mLeService.send(connecMac, Constant.writeConfigureOrder,true);  //写配置
+            //延迟0.5秒后发送开启数据指令
+            new Thread(){
+                @Override
+                public void run() {
+                    super.run();
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    mLeService.send(connecMac, Constant.openDataTransmitOrder,true);  //开启数据传输
+                }
+            }.start();
+
+
         }
 
         @Override
@@ -325,19 +343,27 @@ public class HealthyDataActivity extends BaseActivity {
 
         @Override
         public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-            Log.i(TAG,"onLeScan");
-            Log.i(TAG,"device:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
-
             //BLE#0x44A6E51FC5BF,44:A6:E5:1F:C5:BF,null,10,2
             //null,72:A8:23:AF:25:42,null,10,0
             //null,63:5C:3E:B6:A0:AE,null,10,0
 
+            Log.i(TAG,"onLeScan");
+            Log.i(TAG,"device:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
+            String leName = device.getName();
 
+            if (leName!=null && leName.startsWith("BLE")) {
+                for (int i = 0; i < deviceListFromSP.size(); i++) {
+                    if (leName.equals(deviceListFromSP.get(i).getLEName())){
+                        //配对成功
+                        connecMac = device.getAddress();
+                        MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+                        mLeService.connect(device.getAddress(),false);  //链接
+                        Log.i(TAG,"开始连接");
+                    }
+                }
+            }
         }
     };
-
-
-
 
     private void initView() {
         initHeadView();
@@ -358,7 +384,8 @@ public class HealthyDataActivity extends BaseActivity {
             }
         });
 
-        //simulator();
+        deviceListFromSP = MyUtil.getDeviceListFromSP();
+        MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
     }
 
 
@@ -376,12 +403,11 @@ public class HealthyDataActivity extends BaseActivity {
 
     }
 
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unbindService(mConnection);
+        MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
     }
 
     public void scanBel(View view) {

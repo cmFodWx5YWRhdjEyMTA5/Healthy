@@ -1,13 +1,47 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="5dp"
+    android:background="#FFFFFF"
     tools:context="com.amsu.healthy.fragment.HeartRatemouthFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <RelativeLayout
+        android:id="@+id/rl_ecgmouth_text"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="@dimen/x140"
+        android:background="@drawable/list_item_background">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="月度心率报告"
+            android:textColor="#000000"
+            android:layout_centerVertical="true"
+            android:textSize="@dimen/x46"/>
+        <TextView
+            android:id="@+id/tv_ecgmouth_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2016/12"
+            android:layout_centerVertical="true"
+            android:textColor="#000000"
+            android:layout_alignParentRight="true"
+            android:textSize="@dimen/x46"/>
+    </RelativeLayout>
 
-</FrameLayout>
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/rl_ecgmouth_text"
+        android:background="#d3d3d3"></View>
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/spread_line_chart"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y1100"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/view"
+        android:layout_marginTop="@dimen/x86"/>
+
+</RelativeLayout>

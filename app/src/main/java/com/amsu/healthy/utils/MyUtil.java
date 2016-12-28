@@ -4,17 +4,24 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.widget.Toast;
 
 import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.bean.DeviceList;
 import com.amsu.healthy.bean.User;
+import com.google.gson.Gson;
 import com.lidroid.xutils.http.RequestParams;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -148,4 +155,58 @@ public class MyUtil {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);  //07-12 15:10
         return format.format(date);
     }
+
+    public static List<Device> getDeviceListFromSP(){
+        String name = "devicelist";
+        String stringValueFromSP = MyUtil.getStringValueFromSP(name);
+        Log.i("stringValueFromSP",stringValueFromSP);
+        Gson gson = new Gson();
+
+        DeviceList deviceList = gson.fromJson(stringValueFromSP, DeviceList.class);
+        if (deviceList!=null){
+            return deviceList.getDeviceList();
+        }
+        else{
+            return new ArrayList<>();
+        }
+    }
+
+    public static void putDeviceListToSP(DeviceList deviceList){
+        Gson gson = new Gson();
+        String  listString = gson.toJson(deviceList);
+        MyUtil.putStringValueFromSP("devicelist",listString);
+    }
+
+
+    //获取app的版本名称
+    public static String getVersionName(Context context) {
+        try{
+            PackageManager packageManager = context.getPackageManager();
+            PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionName;
+        }
+        catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //获取app的版本号
+    public static int getVersionCode(Context context) {
+        try{
+            PackageManager packageManager = context.getPackageManager();
+            PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionCode;
+        }
+        catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static float getDimen(Context context,int resource){
+        float dimension = context.getResources().getDimension(resource);
+        return dimension;
+    }
+
 }

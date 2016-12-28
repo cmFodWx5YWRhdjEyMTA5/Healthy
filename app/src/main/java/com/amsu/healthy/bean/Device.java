@@ -10,6 +10,8 @@ public class Device implements Parcelable {
     String name;
     String state;
     String mac;
+    String LEName;
+
 
     public Device(String name, String state) {
         this.name = name;
@@ -70,4 +72,20 @@ public class Device implements Parcelable {
             return new Device[size];
         }
     };
+
+
+    public Device(String name, String state, String mac, String LEName) {
+        this.name = name;
+        this.state = state;
+        this.mac = mac;
+        this.LEName = LEName;
+    }
+
+    public String getLEName() {
+        return LEName;
+    }
+
+    public void setLEName(String LEName) {
+        this.LEName = LEName;
+    }
 }

@@ -55,13 +55,13 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
                 startActivity(new Intent(SystemSettingActivity.this,MyDeviceActivity.class));
                 break;
             case R.id.rl_persiondata_running:
-
+                startActivity(new Intent(SystemSettingActivity.this,DeviceRunActivity.class));
                 break;
             case R.id.rl_persiondata_update:
-
+                startActivity(new Intent(SystemSettingActivity.this,AppUpdateActivity.class));
                 break;
             case R.id.rl_persiondata_aboutus:
-
+                startActivity(new Intent(SystemSettingActivity.this,AboutUsActivity.class));
                 break;
 
         }

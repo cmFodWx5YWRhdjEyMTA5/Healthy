@@ -3,6 +3,7 @@ package com.amsu.healthy.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -97,14 +98,17 @@ public class MeActivity extends BaseActivity {
                 tv_me_age.setText(age+"");
             }
         }
-        String iconUrl = MyUtil.getStringValueFromSP("iconUrl");
+        String iconUrl = userFromSP.getIcon();
         if (!iconUrl.equals("")){
-            BitmapUtils bitmapUtils = new BitmapUtils(this);
-            bitmapUtils.display(iv_me_headicon,iconUrl);
+            if (iconUrl.endsWith("jpg") || iconUrl.endsWith("png") || iconUrl.endsWith("jpeg") || iconUrl.endsWith("gif")){
+                BitmapUtils bitmapUtils = new BitmapUtils(this);
+                bitmapUtils.display(iv_me_headicon,iconUrl);
+            }
+
         }
     }
 
-    public void test(View view) {
+    /*public void test(View view) {
         HttpUtils httpUtils1 = new HttpUtils();
         //httpUtils1.configCookieStore(MyApplication.cookieStore);  //配置Cookie
         RequestParams params = new RequestParams();
@@ -146,7 +150,7 @@ public class MeActivity extends BaseActivity {
             }
         });
 
-    }
+    }*/
 
     class MyOnClickListener implements View.OnClickListener{
 

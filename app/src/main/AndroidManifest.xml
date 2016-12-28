@@ -86,7 +86,13 @@
         <activity android:name=".activity.MyReportActivity" />
         <activity android:name=".activity.SystemSettingActivity" />
         <activity android:name=".activity.MyDeviceActivity" />
-        <activity android:name=".activity.SearchDevicehActivity"></activity>
+        <activity android:name=".activity.SearchDevicehActivity" />
+        <activity android:name=".activity.AboutUsActivity" />
+        <activity android:name=".activity.DeviceRunActivity" />
+        <activity android:name=".activity.AppUpdateActivity" />
+        <activity android:name=".activity.TestActivity">
+
+        </activity>
     </application>
 
 </manifest>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:orientation="vertical"
+    android:padding="10.0dip">
+
+    <LinearLayout
+        android:id="@+id/customDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:divider="@drawable/deiver_horiz_line"
+        android:showDividers="middle"
+        android:layout_gravity="center">
+
+<!--        <TextView
+            android:id="@+id/tv_pick_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="#aa00aeef"
+            android:textSize="20sp"
+            android:text="名称"/>-->
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <NumberPicker
+                android:id="@+id/np_pick"
+                android:layout_width="100dp"
+                android:layout_height="150dp">
+            </NumberPicker>
+            <TextView
+                android:id="@+id/tv_pick_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="小时"
+                android:layout_gravity="center_vertical"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@drawable/deiver_vertical_line"
+            android:showDividers="middle">
+
+            <Button
+                android:id="@+id/bt_pick_cancel"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@drawable/actionsheet_top_selector"
+                android:text="取消"/>
+            <Button
+                android:id="@+id/bt_pick_ok"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@drawable/actionsheet_top_selector"
+                android:text="确定"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+</FrameLayout>

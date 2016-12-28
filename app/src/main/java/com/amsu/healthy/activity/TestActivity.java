@@ -1,51 +1,45 @@
-package com.amsu.healthy.fragment;
-
+package com.amsu.healthy.activity;
 
 import android.graphics.Color;
-import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.util.DisplayMetrics;
+import android.util.Log;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.utils.MyUtil;
 import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.Legend.LegendPosition;
+import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 
 import java.util.ArrayList;
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class EcgMouthFragment extends Fragment {
+public class TestActivity extends AppCompatActivity {
 
-
-    private static final String TAG = "EcgMouthFragment";
+    private static final String TAG = "TestActivity";
     private PieChart mChart;
-    private View inflate;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_test);
 
-        inflate = inflater.inflate(R.layout.fragment_ecg_mouth, container, false);
-        initView();
-
-        return inflate;
-    }
-
-    private void initView() {
-        mChart = (PieChart) inflate.findViewById(R.id.spread_pie_chart);
-        PieData mPieData = getPieData();
+        mChart = (PieChart) findViewById(R.id.spread_pie_chart);
+        PieData mPieData = getPieData(4, 100);
         showChart(mChart, mPieData);
-    }
 
+    }
 
     private void showChart(PieChart pieChart, PieData pieData) {
-        pieChart.setHoleRadius(40f);  //半径
+        //pieChart.setHoleColorTransparent(true);
+
+
+        pieChart.setHoleRadius(50f);  //半径
         //pieChart.setCenterTextRadiusPercent(dimen1);
         pieChart.setTransparentCircleRadius(0); // 半透明圈
         //pieChart.setHoleRadius(0)  //实心圆
@@ -84,27 +78,38 @@ public class EcgMouthFragment extends Fragment {
         //设置数据
         pieChart.setData(pieData);
 
-        pieChart.setEntryLabelTextSize(MyUtil.dp2px(getActivity(),45));
 
         // undo all highlights
 //      pieChart.highlightValues(null);
 //      pieChart.invalidate();
 
         Legend mLegend = pieChart.getLegend();  //设置比例图
-        mLegend.setPosition(Legend.LegendPosition.BELOW_CHART_CENTER);  //最右边显示
+        mLegend.setPosition(LegendPosition.BELOW_CHART_CENTER);  //最右边显示
 //      mLegend.setForm(LegendForm.LINE);  //设置比例图的形状，默认是方形
         mLegend.setXEntrySpace(20f);
         mLegend.setYEntrySpace(5f);
-        /*mLegend.setFormSize(MyUtil.getDimen(getActivity(),R.dimen.x40));
-        mLegend.setTextSize(MyUtil.getDimen(getActivity(),R.dimen.x40));
-        mLegend.setTextColor(Color.parseColor("#6b6b6b"));*/
+
 
         pieChart.animateXY(1000, 1000);  //设置动画
         // mChart.spin(2000, 0, 360);
     }
 
-    private PieData getPieData() {
+    /**
+     *
+     * @param count 分成几部分
+     * @param range
+     */
+    private PieData getPieData(int count, float range) {
+
+
+
         ArrayList<PieEntry> yValues = new ArrayList<>();  //yVals用来表示封装每个饼块的实际数据
+
+        // 饼图数据
+        /**
+         * 将一个饼形图分成四部分， 四部分的数值比例为14:14:34:38
+         * 所以 14代表的百分比就是14%
+         */
         float quarterly1 = 14;
         float quarterly2 = 14;
         float quarterly3 = 34;

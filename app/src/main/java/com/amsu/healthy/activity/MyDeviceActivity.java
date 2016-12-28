@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -11,11 +12,14 @@ import android.widget.RelativeLayout;
 import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.DeviceAdapter;
 import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.utils.MyUtil;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MyDeviceActivity extends BaseActivity {
+    private static final String TAG = "MyDeviceActivity";
     List<Device>  deviceList;
     private DeviceAdapter deviceAdapter;
 
@@ -39,8 +43,15 @@ public class MyDeviceActivity extends BaseActivity {
         });
 
         ListView lv_device_devicelist = (ListView) findViewById(R.id.lv_device_devicelist);
+        deviceList = MyUtil.getDeviceListFromSP();;
 
-        deviceList = new ArrayList<>();
+        /*List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
+        if (deviceListFromSP!=null){
+            for (int i=0;i<deviceListFromSP.size();i++){
+                deviceList.add(deviceListFromSP.get(i));
+            }
+        }*/
+
         deviceAdapter = new DeviceAdapter(this,deviceList);
         lv_device_devicelist.setAdapter(deviceAdapter);
 
@@ -61,10 +72,12 @@ public class MyDeviceActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode==130 &  resultCode==RESULT_OK){
-            Bundle bundle = data.getBundleExtra("bundle");
-            Device device = bundle.getParcelable("device");
-            deviceList.add(device);
-            deviceAdapter.notifyDataSetChanged();
+            List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
+            deviceList.clear();
+            for (int i=0;i<deviceListFromSP.size();i++){
+                deviceList.add(deviceListFromSP.get(i));
+                deviceAdapter.notifyDataSetChanged();
+            }
         }
     }
 }
