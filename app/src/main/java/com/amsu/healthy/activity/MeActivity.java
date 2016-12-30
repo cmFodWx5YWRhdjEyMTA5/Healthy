@@ -97,15 +97,17 @@ public class MeActivity extends BaseActivity {
                 Log.i(TAG,"age:"+age);
                 tv_me_age.setText(age+"");
             }
-        }
-        String iconUrl = userFromSP.getIcon();
-        if (!iconUrl.equals("")){
-            if (iconUrl.endsWith("jpg") || iconUrl.endsWith("png") || iconUrl.endsWith("jpeg") || iconUrl.endsWith("gif")){
-                BitmapUtils bitmapUtils = new BitmapUtils(this);
-                bitmapUtils.display(iv_me_headicon,iconUrl);
-            }
 
+            String iconUrl = userFromSP.getIcon();
+            if (!iconUrl.equals("")){
+                if (iconUrl.endsWith("jpg") || iconUrl.endsWith("png") || iconUrl.endsWith("jpeg") || iconUrl.endsWith("gif")){
+                    BitmapUtils bitmapUtils = new BitmapUtils(this);
+                    bitmapUtils.display(iv_me_headicon,iconUrl);
+                }
+
+            }
         }
+
     }
 
     /*public void test(View view) {

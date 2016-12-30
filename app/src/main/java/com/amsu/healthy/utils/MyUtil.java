@@ -61,8 +61,14 @@ public class MyUtil {
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
         int width = dm.widthPixels;  //屏幕宽
-        int height = dm.heightPixels;  //屏幕高
         return width;
+    }
+
+    public static float getScreeenHeight(Activity activity){
+        DisplayMetrics dm = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int height = dm.heightPixels;  //屏幕高
+        return height;
     }
 
     public static void showToask(Context context ,String text){

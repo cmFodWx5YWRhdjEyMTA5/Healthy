@@ -31,7 +31,6 @@ import java.util.List;
 public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
-    private MapView mv_main_bmapView;
     private ImageView iv_main_elf;
     private LinearLayout ll_main_floatcontent;
     public static BluetoothAdapter mBluetoothAdapter;
@@ -57,15 +56,13 @@ public class MainActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
         Log.i(TAG,"onStart");
-        //地图定位
-        ShowLocationOnMap.startLocation(mv_main_bmapView.getMap(),this);
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.i(TAG,"onResume");
-        mv_main_bmapView.onResume();
 
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -76,7 +73,6 @@ public class MainActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        mv_main_bmapView = (MapView) findViewById(R.id.mv_main_bmapView);
         iv_main_elf = (ImageView) findViewById(R.id.iv_main_elf);
         ll_main_floatcontent = (LinearLayout) findViewById(R.id.ll_main_floatcontent);
         ImageView iv_main_healthdata = (ImageView) findViewById(R.id.iv_main_healthdata);
@@ -238,16 +234,13 @@ public class MainActivity extends BaseActivity {
     protected void onPause() {
         super.onPause();
         Log.i(TAG,"onPause");
-        mv_main_bmapView.onPause();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
-        mv_main_bmapView.onDestroy();
        // ShowLocationOnMap.mMapView = null;
-        mv_main_bmapView = null;
         android.os.Process.killProcess(android.os.Process.myPid());  //退出应用程序
     }
 }

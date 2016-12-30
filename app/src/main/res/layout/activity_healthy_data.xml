@@ -94,47 +94,10 @@
 
     </RelativeLayout>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="扫描"
-        android:onClick="scanBel"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="链接"
-        android:layout_marginLeft="100dp"
-        android:onClick="connect"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="配置指令"
-        android:layout_marginLeft="200dp"
-        android:onClick="sendOrder1"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="数据指令"
-        android:layout_marginLeft="300dp"
-        android:onClick="sendOrder2"/>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="关闭指令"
-        android:layout_marginLeft="300dp"
-        android:layout_marginTop="50dp"
-        android:onClick="sendOrder3"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="测试"
-        android:layout_marginLeft="300dp"
-        android:layout_marginTop="100dp"
-        android:onClick="test"/>
 
 
 </RelativeLayout>

@@ -67,6 +67,8 @@ public class HealthyDataActivity extends BaseActivity {
     private String test ="";
     private List<Device> deviceListFromSP;
     private String connecMac;
+    private boolean isConnectted  =false;
+    private boolean isConnectting  =false;
 
 
     @Override
@@ -93,46 +95,54 @@ public class HealthyDataActivity extends BaseActivity {
             Log.i(TAG, "onConnected() - " + mac);
             //ToastUtil.showMsg(HealthyDataActivity.this, R.string.scan_connected, mac + " ");
             mLeService.startReadRssi(mac, 1000);
+            MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+            isConnectted = true;
+            isConnectting = false;
         }
 
         @Override
         public void onConnectTimeout(String mac) {
             Log.w(TAG, "onConnectTimeout() - " + mac);
+            isConnectting = false;
             //ToastUtil.showMsg(HealthyDataActivity.this, R.string.scan_connect_timeout, mac + " ");
         }
 
         @Override
         public void onConnectionError(String mac, int status, int newState) {
             Log.w(TAG, "onConnectionError() - " + mac + ", status = " + status + ", newState = " + newState);
+            isConnectting = false;
             //ToastUtil.showMsg(HealthyDataActivity.this, R.string.scan_connection_error,mac + "\nstatus:" + status + "\nnew state:" + newState + "\n");
         }
 
         @Override
         public void onDisconnected(String mac) {
             Log.w(TAG, "onDisconnected() - " + mac);
+            isConnectting = false;
             //ToastUtil.showMsg(HealthyDataActivity.this, R.string.scan_disconnected, mac + " ");
         }
 
         @Override
         public void onServicesDiscovered(String mac) {
-            Log.i(TAG, "onServicesDiscovered() - " + mac);
             // !!!到这一步才可以与从机进行数据交互
-            mLeService.send(connecMac, Constant.writeConfigureOrder,true);  //写配置
-            //延迟0.5秒后发送开启数据指令
+            Log.i(TAG, "onServicesDiscovered() - " + mac);
+
             new Thread(){
                 @Override
                 public void run() {
                     super.run();
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(1000);
+                        Log.i(TAG,"写配置");
+                        mLeService.send(connecMac, Constant.writeConfigureOrder,true);  //开启数据传输
+
+                        Thread.sleep(1000);
+                        Log.i(TAG,"开启数据指令");
+                        mLeService.send(connecMac, Constant.openDataTransmitOrder,true);  //开启数据传输
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    mLeService.send(connecMac, Constant.openDataTransmitOrder,true);  //开启数据传输
                 }
             }.start();
-
-
         }
 
         @Override
@@ -210,6 +220,7 @@ public class HealthyDataActivity extends BaseActivity {
                     //带入公式，计算心率
                     heartRate = ECGUtil.countEcgRate(currCalcuEcgRate, currCalcuEcgRate.length, 150);
                     Log.i(TAG,"heartRate0:"+heartRate);
+
                     //更新心率
                     runOnUiThread(new Runnable() {
                         @Override
@@ -218,7 +229,7 @@ public class HealthyDataActivity extends BaseActivity {
                         }
                     });
                     for (int j=0;j<ints.length;j++){
-                        currCalcuEcgRate[currentIndex*10+j] = ints[j];
+                        fourCalcuEcgRate[currentIndex*10+j] = ints[j];
                     }
                 }
                 currentIndex++;
@@ -245,10 +256,7 @@ public class HealthyDataActivity extends BaseActivity {
                         i++;
                     }
 
-                    currentIndex = 0;
-                    for (int n=0;n<currCalcuEcgRate.length;n++){
-                        preCalcuEcgRate[n] = currCalcuEcgRate[n];
-                    }
+
 
                     String data1 = "";
                     for (int j=0;j<currCalcuEcgRate.length;j++){
@@ -268,6 +276,10 @@ public class HealthyDataActivity extends BaseActivity {
                         }
                     });
 
+                    currentIndex = 0;
+                    for (int n=0;n<currCalcuEcgRate.length;n++){
+                        preCalcuEcgRate[n] = currCalcuEcgRate[n];
+                    }
 
                     for (int j=0;j<ints.length;j++){
                         fourCalcuEcgRate[currentIndex*10+j] = ints[j];
@@ -282,6 +294,7 @@ public class HealthyDataActivity extends BaseActivity {
                 temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
                 ints[i] = temp;
             }
+
             //绘图
             runOnUiThread(new Runnable() {
                 @Override
@@ -356,9 +369,14 @@ public class HealthyDataActivity extends BaseActivity {
                     if (leName.equals(deviceListFromSP.get(i).getLEName())){
                         //配对成功
                         connecMac = device.getAddress();
-                        MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
-                        mLeService.connect(device.getAddress(),false);  //链接
-                        Log.i(TAG,"开始连接");
+                        if (!isConnectted && !isConnectting){
+                            //没有链接上，并且没有正在链接
+                            mLeService.connect(device.getAddress(),false);  //链接
+                            isConnectting  = true;
+                            Log.i(TAG,"开始连接");
+                        }
+                        
+                        
                     }
                 }
             }
