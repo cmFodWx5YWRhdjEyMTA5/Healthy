@@ -73,7 +73,7 @@ public class HeartRateActivity extends BaseActivity {
                             }
                         }
                         Log.i(TAG,"ecgDatatext:"+ecgDatatext);
-                        if (!ecgDatatext.equals("")){
+                        /*if (!ecgDatatext.equals("")){
                             String[] allGrounpData = ecgDatatext.split(",");
                             int[] calcuData = new int[allGrounpData.length];
                             for (int i=0;i<allGrounpData.length;i++){
@@ -146,7 +146,7 @@ public class HeartRateActivity extends BaseActivity {
                                 Log.i(TAG,"verl:"+verl);
                             }
 
-                        }
+                        }*/
                     }
                     //分析完成
                     runOnUiThread(new Runnable() {

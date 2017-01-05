@@ -1,174 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:dashboardview="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     tools:context=".activity.MainActivity">
 
-    <include layout="@layout/page_head"
-        android:id="@+id/rl_base_head">
-    </include>
-
-    <!--<com.baidu.mapapi.map.MapView
-        android:id="@+id/mv_main_bmapView"
-        android:layout_below="@id/rl_base_head"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="100dp"
-        android:clickable="true" />-->
 
     <RelativeLayout
+        android:id="@+id/rl_bootm"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/rl_base_head">
-
-    </RelativeLayout>
-
-    <ImageView
-        android:id="@+id/iv_main_elf"
-        android:layout_width="@dimen/x140"
-        android:layout_height="@dimen/y128"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/rl_base_head"
-        android:layout_marginTop="@dimen/x8"
-        android:src="@drawable/elf"
-        />
-
-    <LinearLayout
-        android:id="@+id/ll_main_floatcontent"
-        android:layout_width="@dimen/x1020"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/rl_base_head"
-        android:layout_centerHorizontal="true"
-        android:orientation="horizontal"
-        android:background="@drawable/bg_float_liner"
-        android:divider="@drawable/deiver_vertical_line"
-        android:layout_marginTop="@dimen/y48"
-        android:showDividers="middle"
-        android:visibility="gone">
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="@dimen/y128"
-            android:padding="@dimen/x10"
-            android:src="@drawable/css"/>
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="@dimen/y128"
-            android:gravity="center"
-            android:textSize="@dimen/x112"
-            android:text="28'"/>
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="@dimen/y128"
-            android:gravity="center">
-            <ImageView
-                android:id="@+id/iv_main_hunuidity"
-                android:layout_width="@dimen/x80"
-                android:layout_height="@dimen/x80"
-                android:layout_centerVertical="true"
-                android:src="@drawable/humidity"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/iv_main_hunuidity"
-                android:layout_centerVertical="true"
-                android:text="45"
-                android:textSize="@dimen/x80"/>
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="@dimen/y128"
-            android:gravity="center">
-            <ImageView
-                android:id="@+id/iv_main_uv"
-                android:layout_width="@dimen/x80"
-                android:layout_height="@dimen/x80"
-                android:layout_centerVertical="true"
-                android:src="@drawable/uv_icon"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/iv_main_uv"
-                android:layout_centerVertical="true"
-                android:text="70"
-                android:textSize="@dimen/x80"/>
-        </RelativeLayout>
-
-    </LinearLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/y600"
+        android:layout_height="@dimen/y614"
+        android:layout_marginBottom="11dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="@dimen/y40"
-        >
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="10dp">
         <LinearLayout
-            android:id="@+id/ll_main_horizontallay1"
+            android:id="@+id/ll_1"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/y280"
-            android:background="@drawable/bg_gradient"
-            android:paddingLeft="@dimen/x36"
-            android:paddingRight="@dimen/x36"
-            android:orientation="horizontal">
-            <ImageView
-                android:id="@+id/iv_main_healthdata"
+            android:layout_height="@dimen/y307">
+            <RelativeLayout
+                android:id="@+id/rl_main_healthydata"
                 android:layout_width="0dp"
                 android:layout_weight="1"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/iv1"
+                    android:layout_width="@dimen/x100"
+                    android:layout_height="@dimen/x100"
+                    android:src="@drawable/home_jksj"
+                    android:layout_centerInParent="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="健康数据"
+                    android:layout_below="@+id/iv1"
+                    android:layout_centerInParent="true"/>
+            </RelativeLayout>
+            <View
+                android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/healthy">
+                android:background="#ededed"></View>
 
-            </ImageView>
-
-            <ImageView
-                android:id="@+id/iv_main_action"
+            <RelativeLayout
+                android:id="@+id/rl_main_sportcheck"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/y40"
-                android:src="@drawable/action">
-
-            </ImageView>
-
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/iv2"
+                    android:layout_width="@dimen/x100"
+                    android:layout_height="@dimen/x100"
+                    android:src="@drawable/home_dzjc"
+                    android:layout_centerInParent="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="运动检测"
+                    android:layout_below="@+id/iv2"
+                    android:layout_centerInParent="true"/>
+            </RelativeLayout>
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/ll_main_horizontallay2"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="@dimen/y320"
-            android:background="#FFFFFF"
-            android:orientation="horizontal"
-            android:layout_below="@id/ll_main_horizontallay1"
-            android:paddingLeft="@dimen/x36"
-            android:paddingRight="@dimen/x36"
-            android:paddingTop="@dimen/y40">
-            <ImageView
-                android:id="@+id/iv_main_community"
+            android:layout_height="1dp"
+            android:layout_below="@id/ll_1"
+            android:background="#ededed"></View>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y307"
+            android:layout_below="@+id/ll_1">
+            <RelativeLayout
+                android:id="@+id/rl_main_sportarea"
                 android:layout_width="0dp"
                 android:layout_weight="1"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/iv3"
+                    android:layout_width="@dimen/x100"
+                    android:layout_height="@dimen/x100"
+                    android:src="@drawable/home_ydsq"
+                    android:layout_centerInParent="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="运动社区"
+                    android:layout_below="@+id/iv3"
+                    android:layout_centerInParent="true"/>
+            </RelativeLayout>
+            <View
+                android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/community">
-
-            </ImageView>
-
-            <ImageView
-                android:id="@+id/iv_main_me"
+                android:background="#ededed"></View>
+            <RelativeLayout
+                android:id="@+id/rl_main_me"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_marginLeft="@dimen/y40"
-                android:layout_height="match_parent"
-                android:src="@drawable/my_icon">
-
-            </ImageView>
-
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/iv4"
+                    android:layout_width="@dimen/x100"
+                    android:layout_height="@dimen/x100"
+                    android:src="@drawable/home_wd"
+                    android:layout_centerInParent="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="我的"
+                    android:layout_below="@+id/iv4"
+                    android:layout_centerInParent="true"/>
+            </RelativeLayout>
         </LinearLayout>
 
         <RelativeLayout
+            android:id="@+id/rl_mian_start"
             android:layout_width="@dimen/x228"
             android:layout_height="@dimen/x228"
             android:background="@drawable/bg_center_circle"
@@ -178,9 +126,165 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="开始"
+                android:textSize="@dimen/x40"
+                android:textColor="#1f1f1f"
                 android:layout_centerInParent="true"/>
         </RelativeLayout>
 
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#0c64b5"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/rl_bootm">
+        <RelativeLayout
+            android:id="@+id/rl_main_top"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y148"
+            android:background="#0c64b5">
+
+            <ImageView
+                android:id="@+id/iv_base_weather"
+                android:layout_width="@dimen/x72"
+                android:layout_height="@dimen/x72"
+                android:layout_marginRight="@dimen/x36"
+                android:src="@drawable/home_tjsb_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+
+            <ImageView
+                android:id="@+id/iv_base_adddevice"
+                android:layout_width="@dimen/x72"
+                android:layout_height="@dimen/x72"
+                android:layout_marginRight="@dimen/x72"
+                android:src="@drawable/home_tq_icon"
+                android:layout_toLeftOf="@+id/iv_base_weather"
+                android:layout_centerVertical="true"/>
+
+            <TextView
+                android:id="@+id/tv_base_centerText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="倾听体语"
+                android:textSize="@dimen/x48"
+                android:textColor="#FFFFFF"
+                android:layout_marginLeft="@dimen/x36"
+                android:layout_alignTop="@+id/iv_base_weather"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="9dp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_main_age"
+            android:layout_width="@dimen/x764"
+            android:layout_height="@dimen/x577"
+            android:layout_below="@+id/rl_main_top"
+            android:layout_centerHorizontal="true">
+            <com.amsu.healthy.view.DashboardView
+                android:id="@+id/dv_main_compass"
+                android:layout_width="@dimen/x764"
+                android:layout_height="@dimen/x577"
+                dashboardview:big_circle_radius="@dimen/x330"
+                dashboardview:small_circle_radius="@dimen/x230"
+                dashboardview:long_dials="@dimen/x52"
+                dashboardview:short_dials="@dimen/x40"
+                dashboardview:text_color="#FFFFFF"
+                dashboardview:text_size="@dimen/x16"
+                dashboardview:small_point_radius="@dimen/x16"
+                dashboardview:width_dials="@dimen/x4"
+                />
+
+            <TextView
+                android:id="@+id/tv_text1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="生理年龄"
+                android:textSize="@dimen/x36"
+                android:textColor="#FFFFFF"
+                android:layout_centerInParent="true"/>
+
+            <TextView
+                android:id="@+id/tv_main_age"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="58"
+                android:layout_below="@+id/tv_text1"
+                android:textSize="@dimen/x128"
+                android:textColor="#FFFFFF"
+                android:layout_centerInParent="true"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_main_healthyindex"
+            android:layout_width="@dimen/x228"
+            android:layout_height="@dimen/x228"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="@dimen/x100"
+            android:layout_marginLeft="@dimen/x100">
+            <com.amsu.healthy.view.CircleRingView
+                android:id="@+id/cv_mian_index"
+                android:layout_width="@dimen/x228"
+                android:layout_height="@dimen/x228"
+                dashboardview:circlering_width="@dimen/x18"/>
+            <TextView
+                android:id="@+id/tv_main_indexvalue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="96"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/x91"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/x40"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="健康指标"
+                android:textColor="#FEFEFE"
+                android:layout_below="@+id/tv_main_indexvalue"
+                android:layout_centerHorizontal="true"
+                android:textSize="@dimen/x28"
+                android:layout_marginTop="-5dp"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_main_warringindex"
+            android:layout_width="@dimen/x228"
+            android:layout_height="@dimen/x228"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="@dimen/x100"
+            android:layout_marginRight="@dimen/x100">
+            <com.amsu.healthy.view.CircleRingView
+                android:id="@+id/cv_mian_warring"
+                android:layout_width="@dimen/x228"
+                android:layout_height="@dimen/x228"
+                dashboardview:circlering_width="@dimen/x18"/>
+            <ImageView
+                android:id="@+id/tv_main_warring"
+                android:layout_width="@dimen/x72"
+                android:layout_height="@dimen/x72"
+                android:src="@drawable/home_xin"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/x60"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="预警指标"
+                android:textColor="#FEFEFE"
+                android:layout_below="@+id/tv_main_warring"
+                android:layout_centerHorizontal="true"
+                android:textSize="@dimen/x28"
+                android:layout_marginTop="@dimen/x12"/>
+
+        </RelativeLayout>
 
     </RelativeLayout>
 

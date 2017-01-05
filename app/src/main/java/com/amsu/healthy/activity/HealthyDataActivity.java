@@ -33,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -48,6 +49,9 @@ public class HealthyDataActivity extends BaseActivity {
     private EcgView pv_healthydata_path;
     private FileOutputStream fileOutputStream;
 
+
+    private int groupCalcuLength = 100; //
+    private int[] calcuEcgRate = new int[groupCalcuLength*10]; //1000条数据
 
     private int preGroupCalcuLength = 12*15; //有多少组数据就进行计算心率，12s一次，每秒15次，共12*15组
     private int fourGroupCalcuLength = 4*15; //有多少组数据就进行更新，4s更新一次，每秒15次，共4*15组
@@ -160,7 +164,7 @@ public class HealthyDataActivity extends BaseActivity {
             // 接收到从机数据
             String uuid = c.getUuid().toString();
             String hexData = DataUtil.byteArrayToHex(c.getValue());
-            //Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
+            Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
 
             //4.2写配置信息   onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 81 05 00 16
             //4.5App读主机设备的版本号  onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 84 07 88 88 00 16
@@ -182,9 +186,7 @@ public class HealthyDataActivity extends BaseActivity {
             for (int i=0;i<ints.length;i++){
                 data += ints[i]+",";
             }
-            //Log.i(TAG,"onCharacteristicChanged滤波前:"+data);
-
-
+            Log.i(TAG,"onCharacteristicChanged滤波前:"+data);
 
             test += data;
             //Log.i(TAG,"onCharacteristicChanged滤波后:"+data);
@@ -193,32 +195,35 @@ public class HealthyDataActivity extends BaseActivity {
             //Log.i(TAG,"currentIndex:"+currentIndex);
             if (isFirstCalcu){
                 //第一次计算，连续12秒数据
-                if (currentIndex<preGroupCalcuLength){
+                if (currentIndex<groupCalcuLength){
                     //未到12s
                     for (int j=0;j<ints.length;j++){
-                        currCalcuEcgRate[currentIndex*10+j] = ints[j];
+                        calcuEcgRate[currentIndex*10+j] = ints[j];
                     }
                 }
                 else{
+                    String ecgFileNameDependFormatTime = MyUtil.getECGFileNameDependFormatTime(new Date());
+                    Log.i(TAG,"ecgFileNameDependFormatTime:"+ecgFileNameDependFormatTime);
                     //到12s
                     Log.i(TAG,"test:"+test);
                     test = "";
-                    isFirstCalcu = false;
+                    //isFirstCalcu = false;
                     currentIndex = 0;
-                    for (int n=0;n<currCalcuEcgRate.length;n++){
+
+                    /*for (int n=0;n<currCalcuEcgRate.length;n++){
                         preCalcuEcgRate[n] = currCalcuEcgRate[n];
                     }
-
+*/
                     String data0 = "";
-                    for (int j=0;j<currCalcuEcgRate.length;j++){
-                        data0 += currCalcuEcgRate[j]+",";
+                    for (int j=0;j<calcuEcgRate.length;j++){
+                        data0 += calcuEcgRate[j]+",";
                     }
                     Log.i(TAG,"data0:"+data0);
-                    Log.i(TAG,"currCalcuEcgRate.length:"+currCalcuEcgRate.length);
+                    Log.i(TAG,"calcuEcgRate.length:"+calcuEcgRate.length);
 
 
                     //带入公式，计算心率
-                    heartRate = ECGUtil.countEcgRate(currCalcuEcgRate, currCalcuEcgRate.length, 150);
+                    heartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, 150);
                     Log.i(TAG,"heartRate0:"+heartRate);
 
                     //更新心率
@@ -229,7 +234,7 @@ public class HealthyDataActivity extends BaseActivity {
                         }
                     });
                     for (int j=0;j<ints.length;j++){
-                        fourCalcuEcgRate[currentIndex*10+j] = ints[j];
+                        calcuEcgRate[currentIndex*10+j] = ints[j];
                     }
                 }
                 currentIndex++;
@@ -312,7 +317,7 @@ public class HealthyDataActivity extends BaseActivity {
             //写到文件里
             try {
                 if (fileOutputStream==null){
-                    String filePath = getCacheDir()+"/"+System.currentTimeMillis();  //随机生成一个文件
+                    String filePath = getCacheDir()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";  //随机生成一个文件
                     fileOutputStream = new FileOutputStream(filePath,true);
                     MyUtil.putStringValueFromSP("cacheFileName",filePath);
                 }

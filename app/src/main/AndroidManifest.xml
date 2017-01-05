@@ -58,7 +58,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".activity.BaseActivity" />
 
         <meta-data
@@ -91,13 +90,10 @@
         <activity android:name=".activity.AboutUsActivity" />
         <activity android:name=".activity.DeviceRunActivity" />
         <activity android:name=".activity.AppUpdateActivity" />
-        <activity android:name=".activity.TestActivity">
-
-        </activity>
-        <activity android:name=".activity.HealthIndicatorAssessActivity">
-
-
-        </activity>
+        <activity android:name=".activity.TestActivity" />
+        <activity android:name=".activity.HealthIndicatorAssessActivity" />
+        <activity android:name=".activity.PhysicalAgeActivity" />
+        <activity android:name=".activity.IndexWarringActivity"></activity>
     </application>
 
 </manifest>

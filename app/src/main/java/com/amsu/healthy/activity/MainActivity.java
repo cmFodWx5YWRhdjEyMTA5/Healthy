@@ -16,6 +16,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
@@ -23,6 +25,8 @@ import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.ShowLocationOnMap;
+import com.amsu.healthy.view.CircleRingView;
+import com.amsu.healthy.view.DashboardView;
 import com.baidu.mapapi.map.MapView;
 import com.ble.ble.BleService;
 
@@ -35,6 +39,9 @@ public class MainActivity extends BaseActivity {
     private LinearLayout ll_main_floatcontent;
     public static BluetoothAdapter mBluetoothAdapter;
     private static final int REQUEST_ENABLE_BT = 2;
+    private DashboardView dv_main_compass;
+    private CircleRingView cv_mian_index;
+    private CircleRingView cv_mian_warring;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +52,53 @@ public class MainActivity extends BaseActivity {
         //mv_main_bmapView.onCreate(this,savedInstanceState);
 
         initView();
-        initValue();
         initData();
 
 
 
     }
+
+
+    private void initView() {
+        dv_main_compass = (DashboardView) findViewById(R.id.dv_main_compass);
+        cv_mian_index = (CircleRingView) findViewById(R.id.cv_mian_index);
+        cv_mian_warring = (CircleRingView) findViewById(R.id.cv_mian_warring);
+        RelativeLayout rl_mian_start = (RelativeLayout) findViewById(R.id.rl_mian_start);
+        RelativeLayout rl_main_healthydata = (RelativeLayout) findViewById(R.id.rl_main_healthydata);
+        RelativeLayout rl_main_sportcheck = (RelativeLayout) findViewById(R.id.rl_main_sportcheck);
+        RelativeLayout rl_main_sportarea = (RelativeLayout) findViewById(R.id.rl_main_sportarea);
+        RelativeLayout rl_main_me = (RelativeLayout) findViewById(R.id.rl_main_me);
+        RelativeLayout rl_main_age = (RelativeLayout) findViewById(R.id.rl_main_age);
+        RelativeLayout rl_main_healthyindex = (RelativeLayout) findViewById(R.id.rl_main_healthyindex);
+        RelativeLayout rl_main_warringindex = (RelativeLayout) findViewById(R.id.rl_main_warringindex);
+
+        TextView tv_main_age = (TextView) findViewById(R.id.tv_main_age);
+        TextView tv_main_indexvalue = (TextView) findViewById(R.id.tv_main_indexvalue);
+
+
+        MyOnClickListener myOnClickListener = new MyOnClickListener();
+
+        rl_mian_start.setOnClickListener(myOnClickListener);
+        cv_mian_index.setOnClickListener(myOnClickListener);
+        cv_mian_warring.setOnClickListener(myOnClickListener);
+
+        rl_main_healthydata.setOnClickListener(myOnClickListener);
+        rl_main_sportcheck.setOnClickListener(myOnClickListener);
+        rl_main_sportarea.setOnClickListener(myOnClickListener);
+        rl_main_me.setOnClickListener(myOnClickListener);
+        rl_main_age.setOnClickListener(myOnClickListener);
+        rl_main_healthyindex.setOnClickListener(myOnClickListener);
+        rl_main_warringindex.setOnClickListener(myOnClickListener);
+
+
+
+    }
+
+    private void initData() {
+        checkAndOpenBLEFeature();
+
+    }
+
 
     @Override
     protected void onStart() {
@@ -69,39 +117,10 @@ public class MainActivity extends BaseActivity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
+        cv_mian_index.setValue(170);
+        cv_mian_warring.setValue(270);
+        dv_main_compass.setAgeData(50);
     }
-
-    private void initView() {
-        initHeadView();
-        iv_main_elf = (ImageView) findViewById(R.id.iv_main_elf);
-        ll_main_floatcontent = (LinearLayout) findViewById(R.id.ll_main_floatcontent);
-        ImageView iv_main_healthdata = (ImageView) findViewById(R.id.iv_main_healthdata);
-        ImageView iv_main_action = (ImageView) findViewById(R.id.iv_main_action);
-        ImageView iv_main_community = (ImageView) findViewById(R.id.iv_main_community);
-        ImageView iv_main_me = (ImageView) findViewById(R.id.iv_main_me);
-
-        MyOnClickListener myOnClickListener = new MyOnClickListener();
-        iv_main_elf.setOnClickListener(myOnClickListener);
-        ll_main_floatcontent.setOnClickListener(myOnClickListener);
-        iv_main_healthdata.setOnClickListener(myOnClickListener);
-        iv_main_action.setOnClickListener(myOnClickListener);
-        iv_main_community.setOnClickListener(myOnClickListener);
-        iv_main_me.setOnClickListener(myOnClickListener);
-
-    }
-
-    private void initValue() {
-
-    }
-
-    private void initData() {
-        setCenterText("倾听体语");
-        setRightText("我的设备");
-
-        checkAndOpenBLEFeature();
-
-    }
-
 
 
     //检查是否支持蓝牙
@@ -143,15 +162,7 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()){
-                case R.id.iv_main_elf:
-                    iv_main_elf.setVisibility(View.INVISIBLE);
-                    ll_main_floatcontent.setVisibility(View.VISIBLE);
-                    break;
-                case R.id.ll_main_floatcontent:
-
-                    break;
-
-                case R.id.iv_main_healthdata:
+                case R.id.rl_main_healthydata:
                     boolean isLogin = MyUtil.getBooleanValueFromSP("isLogin");
                     if (isLogin){
                         boolean isPrefectInfo = MyUtil.getBooleanValueFromSP("isPrefectInfo");
@@ -176,14 +187,26 @@ public class MainActivity extends BaseActivity {
 
 
                     break;
-                case R.id.iv_main_action:
+                case R.id.rl_main_sportcheck:
 
                     break;
-                case R.id.iv_main_community:
+                case R.id.rl_main_sportarea:
 
                     break;
-                case R.id.iv_main_me:
+                case R.id.rl_main_me:
                     startActivity(new Intent(MainActivity.this,MeActivity.class));
+                    break;
+                case R.id.rl_mian_start:
+
+                    break;
+                case R.id.rl_main_age:
+                    startActivity(new Intent(MainActivity.this,PhysicalAgeActivity.class));
+                    break;
+                case R.id.rl_main_healthyindex:
+                    startActivity(new Intent(MainActivity.this,HealthIndicatorAssessActivity.class));
+                    break;
+                case R.id.rl_main_warringindex:
+                    startActivity(new Intent(MainActivity.this,IndexWarringActivity.class));
                     break;
 
 

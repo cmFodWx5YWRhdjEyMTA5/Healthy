@@ -15,4 +15,23 @@
         <attr name="weekTextSize" format="dimension" />
         <attr name="cellHeight" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="DashboardView">
+        <attr name="big_circle_radius" format="dimension" />
+        <attr name="small_circle_radius" format="dimension" />
+        <attr name="small_point_radius" format="dimension" />
+        <attr name="long_dials" format="dimension" />
+        <attr name="short_dials" format="dimension" />
+        <attr name="width_dials" format="dimension"></attr>
+        <attr name="text_color" format="color" />
+        <attr name="text_size" format="dimension" />
+        <attr name="width" format="dimension" />
+        <attr name="height" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="CircleRingView">
+        <attr name="circlering_width" format="dimension" />
+
+    </declare-styleable>
+
 </resources>
