@@ -69,7 +69,7 @@ public class MainActivity extends BaseActivity {
         RelativeLayout rl_main_sportarea = (RelativeLayout) findViewById(R.id.rl_main_sportarea);
         RelativeLayout rl_main_me = (RelativeLayout) findViewById(R.id.rl_main_me);
         RelativeLayout rl_main_age = (RelativeLayout) findViewById(R.id.rl_main_age);
-        RelativeLayout rl_main_healthyindex = (RelativeLayout) findViewById(R.id.rl_main_healthyindex);
+        RelativeLayout rl_main_healthyvalue = (RelativeLayout) findViewById(R.id.rl_main_healthyvalue);
         RelativeLayout rl_main_warringindex = (RelativeLayout) findViewById(R.id.rl_main_warringindex);
 
         TextView tv_main_age = (TextView) findViewById(R.id.tv_main_age);
@@ -79,17 +79,19 @@ public class MainActivity extends BaseActivity {
         MyOnClickListener myOnClickListener = new MyOnClickListener();
 
         rl_mian_start.setOnClickListener(myOnClickListener);
-        cv_mian_index.setOnClickListener(myOnClickListener);
-        cv_mian_warring.setOnClickListener(myOnClickListener);
 
         rl_main_healthydata.setOnClickListener(myOnClickListener);
         rl_main_sportcheck.setOnClickListener(myOnClickListener);
         rl_main_sportarea.setOnClickListener(myOnClickListener);
         rl_main_me.setOnClickListener(myOnClickListener);
         rl_main_age.setOnClickListener(myOnClickListener);
-        rl_main_healthyindex.setOnClickListener(myOnClickListener);
+
+        rl_main_healthyvalue.setOnClickListener(myOnClickListener);
         rl_main_warringindex.setOnClickListener(myOnClickListener);
 
+        int id = rl_main_healthyvalue.getId();
+
+        Log.i(TAG,"id:"+id);
 
 
     }
@@ -161,6 +163,7 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onClick(View v) {
+            Log.i(TAG,"onClick:"+v.getId());
             switch (v.getId()){
                 case R.id.rl_main_healthydata:
                     boolean isLogin = MyUtil.getBooleanValueFromSP("isLogin");
@@ -168,7 +171,7 @@ public class MainActivity extends BaseActivity {
                         boolean isPrefectInfo = MyUtil.getBooleanValueFromSP("isPrefectInfo");
                         if (isPrefectInfo){
                             List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
-                            if (deviceListFromSP.size()==0){
+                            if (deviceListFromSP.size()!=0){
                                 //没有绑定设备，提示用户去绑定
                                 startActivity(new Intent(MainActivity.this,MyDeviceActivity.class));
                             }
@@ -188,24 +191,24 @@ public class MainActivity extends BaseActivity {
 
                     break;
                 case R.id.rl_main_sportcheck:
-
                     break;
                 case R.id.rl_main_sportarea:
-
+                    startActivity(new Intent(MainActivity.this,SportCommunityActivity.class));
                     break;
                 case R.id.rl_main_me:
                     startActivity(new Intent(MainActivity.this,MeActivity.class));
                     break;
                 case R.id.rl_mian_start:
-
                     break;
                 case R.id.rl_main_age:
                     startActivity(new Intent(MainActivity.this,PhysicalAgeActivity.class));
                     break;
-                case R.id.rl_main_healthyindex:
+                case R.id.rl_main_healthyvalue:
+
                     startActivity(new Intent(MainActivity.this,HealthIndicatorAssessActivity.class));
                     break;
                 case R.id.rl_main_warringindex:
+
                     startActivity(new Intent(MainActivity.this,IndexWarringActivity.class));
                     break;
 

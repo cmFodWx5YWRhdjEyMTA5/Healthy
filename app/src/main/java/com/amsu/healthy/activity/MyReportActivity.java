@@ -3,18 +3,15 @@ import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.fragment.MouthReprtFragment;
-import com.amsu.healthy.fragment.QuarterReprtFragment;
-import com.amsu.healthy.fragment.YearReprtFragment;
+import com.amsu.healthy.fragment.report.MouthReprtFragment;
+import com.amsu.healthy.fragment.report.QuarterReprtFragment;
+import com.amsu.healthy.fragment.report.YearReprtFragment;
 
 public class MyReportActivity extends BaseActivity {
 

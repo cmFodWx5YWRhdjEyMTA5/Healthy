@@ -221,11 +221,12 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/rl_main_healthyindex"
+            android:id="@+id/rl_main_healthyvalue"
             android:layout_width="@dimen/x228"
             android:layout_height="@dimen/x228"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="@dimen/x100"
+            android:clickable="true"
             android:layout_marginLeft="@dimen/x100">
             <com.amsu.healthy.view.CircleRingView
                 android:id="@+id/cv_mian_index"
@@ -260,6 +261,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_marginBottom="@dimen/x100"
+            android:clickable="true"
             android:layout_marginRight="@dimen/x100">
             <com.amsu.healthy.view.CircleRingView
                 android:id="@+id/cv_mian_warring"

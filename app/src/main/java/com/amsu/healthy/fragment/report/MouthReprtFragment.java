@@ -1,5 +1,6 @@
-package com.amsu.healthy.fragment;
+package com.amsu.healthy.fragment.report;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -126,24 +127,40 @@ public class MouthReprtFragment extends Fragment implements View.OnClickListener
                 tv_report_text2.setBackgroundResource(R.drawable.bg_noselest_text);
                 tv_report_text3.setBackgroundResource(R.drawable.bg_noselest_text);
                 tv_report_text4.setBackgroundResource(R.drawable.bg_noselest_text);
+                tv_report_text1.setTextColor(Color.parseColor("#0c64b5"));
+                tv_report_text2.setTextColor(Color.parseColor("#999999"));
+                tv_report_text3.setTextColor(Color.parseColor("#999999"));
+                tv_report_text4.setTextColor(Color.parseColor("#999999"));
                 break;
             case 1:
                 tv_report_text1.setBackgroundResource(R.drawable.bg_noselest_text);
                 tv_report_text2.setBackgroundResource(R.drawable.bg_select_text);
                 tv_report_text3.setBackgroundResource(R.drawable.bg_noselest_text);
                 tv_report_text4.setBackgroundResource(R.drawable.bg_noselest_text);
+                tv_report_text1.setTextColor(Color.parseColor("#999999"));
+                tv_report_text2.setTextColor(Color.parseColor("#0c64b5"));
+                tv_report_text3.setTextColor(Color.parseColor("#999999"));
+                tv_report_text4.setTextColor(Color.parseColor("#999999"));
                 break;
             case 2:
                 tv_report_text1.setBackgroundResource(R.drawable.bg_noselest_text);
                 tv_report_text2.setBackgroundResource(R.drawable.bg_noselest_text);
                 tv_report_text3.setBackgroundResource(R.drawable.bg_select_text);
                 tv_report_text4.setBackgroundResource(R.drawable.bg_noselest_text);
+                tv_report_text1.setTextColor(Color.parseColor("#999999"));
+                tv_report_text2.setTextColor(Color.parseColor("#999999"));
+                tv_report_text3.setTextColor(Color.parseColor("#0c64b5"));
+                tv_report_text4.setTextColor(Color.parseColor("#999999"));
                 break;
             case 3:
                 tv_report_text1.setBackgroundResource(R.drawable.bg_noselest_text);
                 tv_report_text2.setBackgroundResource(R.drawable.bg_noselest_text);
                 tv_report_text3.setBackgroundResource(R.drawable.bg_noselest_text);
                 tv_report_text4.setBackgroundResource(R.drawable.bg_select_text);
+                tv_report_text1.setTextColor(Color.parseColor("#999999"));
+                tv_report_text2.setTextColor(Color.parseColor("#999999"));
+                tv_report_text3.setTextColor(Color.parseColor("#999999"));
+                tv_report_text4.setTextColor(Color.parseColor("#0c64b5"));
                 break;
         }
     }

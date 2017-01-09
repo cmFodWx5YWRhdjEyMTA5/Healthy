@@ -18,7 +18,7 @@ public class IndexWarringActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("生理年龄");
+        setCenterText("健康预警");
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override

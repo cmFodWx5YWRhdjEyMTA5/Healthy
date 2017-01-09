@@ -2,12 +2,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.amsu.healthy.fragment.analysis.HRVFragment">
+    tools:context="com.amsu.healthy.fragment.community.NewsFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="HRV" />
+        android:text="新闻" />
 
 </FrameLayout>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="@dimen/x400"
+    android:layout_height="@dimen/x568"
+    android:background="@drawable/jkzb_tc_bg">
+
+
+    <ListView
+        android:id="@+id/lv_slt_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x20"
+        android:layout_marginLeft="@dimen/x30"
+        android:layout_marginRight="@dimen/x30"
+        android:divider="@drawable/deiver_horiz_line">
+
+    </ListView>
+
+
+</LinearLayout>

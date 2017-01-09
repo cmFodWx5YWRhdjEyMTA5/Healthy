@@ -1,4 +1,4 @@
-package com.amsu.healthy.fragment;
+package com.amsu.healthy.fragment.report;
 
 
 import android.graphics.Color;

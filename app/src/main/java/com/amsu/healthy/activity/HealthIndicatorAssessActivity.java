@@ -1,47 +1,31 @@
 package com.amsu.healthy.activity;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
-import android.graphics.Color;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.utils.MyUtil;
-import com.github.mikephil.charting.animation.Easing;
-import com.github.mikephil.charting.charts.RadarChart;
-import com.github.mikephil.charting.components.AxisBase;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.RadarData;
-import com.github.mikephil.charting.data.RadarDataSet;
-import com.github.mikephil.charting.data.RadarEntry;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
-import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.interfaces.datasets.IRadarDataSet;
-import com.github.mikephil.charting.listener.ChartTouchListener;
-import com.github.mikephil.charting.listener.OnChartGestureListener;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.mob.tools.gui.ViewPagerAdapter;
-
-import java.util.ArrayList;
+import com.amsu.healthy.view.RadarView;
+import com.amsu.healthy.view.SelectDialog;
 
 public class HealthIndicatorAssessActivity extends BaseActivity {
 
     private static final String TAG = "HealthIndicatorAssess";
-    private RadarChart mChart;
+    private RadarView rc_assess_radar;
+    private View shape_point_blue;
+    private float pointMargin;
+    private float pointWidth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +39,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("设备运行");
+        setCenterText("健康指标评分");
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,101 +52,66 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final SelectDialog selectDialog = new SelectDialog(HealthIndicatorAssessActivity.this,R.style.dialog);//创建Dialog并设置样式主题
+
+                //设置尺寸
+                Window win = selectDialog.getWindow();
+                WindowManager.LayoutParams params = win.getAttributes();
+                win.setGravity(Gravity.RIGHT | Gravity.TOP);
+                params.x = new Float(HealthIndicatorAssessActivity.this.getResources().getDimension(R.dimen.x28)).intValue() ;//设置x坐标
+                params.y =  new Float(HealthIndicatorAssessActivity.this.getResources().getDimension(R.dimen.x148)).intValue();//设置y坐标
+                win.setAttributes(params);
+
+                String[] data = {"11月第1周","11月第2周","11月第3周","11月第4周","12月第1周"};
+                selectDialog.setData(data);
+
+                selectDialog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Log.i(TAG,"position:"+position);
+                        selectDialog.dismiss();
+
+
+                    }
+                });
+
+
+
+                selectDialog.setCanceledOnTouchOutside(true);//设置点击Dialog外部任意区域关闭Dialog
+                selectDialog.show();
 
             }
         });
 
-        initRadarView();
+        rc_assess_radar = (RadarView) findViewById(R.id.rc_assess_radar);
+
+        float[] data1 = {170, 180, 160, 170, 180,100,120};
+        float[] data2 = {80, 120, 140, 170, 150,140,100};
+        float[] data3 = {170, 180,100,120,170, 180, 160};
+
+        rc_assess_radar.setDatas(data1,data2,data3);
+
+        rc_assess_radar.setMyItemOnClickListener(new RadarView.MyItemOnClickListener() {
+            @Override
+            public void onClick(int i) {
+                Log.i(TAG,"onClick:"+i);
+                showAssessDialog(i);
+            }
+        });
+        
+        
+        
+
     }
 
-    private void initRadarView() {
-        mChart = (RadarChart) findViewById(R.id.rc_assess_radar);
-        mChart.setBackgroundColor(Color.WHITE);
-
-        mChart.getDescription().setEnabled(false);
+    @Override
+    protected void onResume() {
+        super.onResume();
 
 
-        mChart.setWebLineWidth(1f);
-        mChart.setWebColor(Color.GRAY);
-        mChart.setWebLineWidthInner(1f);
-        mChart.setWebColorInner(Color.GRAY);
-        //mChart.setWebAlpha(100);
-
-        mChart.setRotationEnabled(false);
-        setData();
-
-        mChart.animateXY(1400, 1400, Easing.EasingOption.EaseInOutQuad, Easing.EasingOption.EaseInOutQuad);
-
-        mChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-            @Override
-            public void onValueSelected(Entry e, Highlight h) {
-                Log.i(TAG,"onValueSelected:"+e.toString()+",h:"+h.toString());
-
-                int x = (int) h.getX();
-                showAssessDialog(x);
-            }
-
-            @Override
-            public void onNothingSelected() {
-
-            }
-        });
-
-
-
-
-
-        XAxis xAxis = mChart.getXAxis();
-
-        xAxis.setTextSize(9f);
-        xAxis.setYOffset(0f);
-        xAxis.setXOffset(5f);
-
-
-
-
-
-        xAxis.setValueFormatter(new IAxisValueFormatter() {
-
-            private String[] mActivities = new String[]{"BMI", "储备心率", "恢复心率", "心率变异", "过缓/过速","早搏/晨搏","健康储备"};
-
-            @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                return mActivities[(int) value % mActivities.length];
-            }
-
-        });
-        //xAxis.setTextColor(Color.WHITE);
-
-        YAxis yAxis = mChart.getYAxis();
-
-
-        yAxis.setLabelCount(5, false);
-        yAxis.setTextSize(9f);
-        yAxis.setAxisMinimum(2f);
-        yAxis.setAxisMaximum(100f);
-        yAxis.setDrawLabels(false);
-
-        Legend l = mChart.getLegend();
-        //l.setEnabled(false);
-        l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
-        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
-        //l.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-
-
-
-        //l.setPosition(Legend.LegendPosition.BELOW_CHART_CENTER);
-        l.setDrawInside(false);
-        l.setXEntrySpace(MyUtil.dp2px(this,10));
-        l.setYEntrySpace(5f);
-        //l.setTextColor(Color.WHITE);
     }
 
     private void showAssessDialog(int x) {
-        MyUtil.showToask(HealthIndicatorAssessActivity.this,"选择了"+x);
-        //Dialog dialog = new Dialog(this);
-
-        int dialog_assess_type = R.layout.dialog_assess_type;
         View inflate = View.inflate(this, R.layout.dialog_assess_type, null);
         ViewPager vp_assess_float = (ViewPager) inflate.findViewById(R.id.vp_assess_float);
         vp_assess_float.setAdapter(new MyViewPageAdapter());
@@ -170,26 +119,66 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         AlertDialog alertDialog = new AlertDialog.Builder(this).setView(inflate).create();
         alertDialog.show();
 
-        alertDialog.getWindow().setLayout(800,1000);
+        float width = getResources().getDimension(R.dimen.x800);
+        float height = getResources().getDimension(R.dimen.x860);
+
+        alertDialog.getWindow().setLayout(new Float(width).intValue(),new Float(height).intValue());
 
 
 
+        LinearLayout ll_point_group = (LinearLayout) inflate.findViewById(R.id.ll_point_group);
+        shape_point_blue = inflate.findViewById(R.id.view_blue_point);
 
-        /*switch (x){
-            case 0:
-                MyUtil.showToask(HealthIndicatorAssessActivity.this,"选择了"+x);
-                break;
-            case 1:
-                MyUtil.showToask(HealthIndicatorAssessActivity.this,"选择了"+x);
-                break;
-            case 2:
-                MyUtil.showToask(HealthIndicatorAssessActivity.this,"选择了"+x);
-                break;
-            case 3:
-                MyUtil.showToask(HealthIndicatorAssessActivity.this,"选择了"+x);
-                break;
 
-        }*/
+        //初始化引导页的小圆点
+        for (int i=0;i<7;i++ ){
+            View point = new View(this);
+            point.setBackgroundResource(R.drawable.shape_point_gray);
+            pointWidth = getResources().getDimension(R.dimen.x16);
+            pointMargin = getResources().getDimension(R.dimen.x12);
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(new Float(pointWidth).intValue(),new Float(pointWidth).intValue());
+            if (i>0){
+                //设置圆点间隔
+                params.leftMargin = new Float(pointMargin).intValue() ;
+            }
+            //设置圆点大小
+            point.setLayoutParams(params);
+            //将圆点添加给线性布局
+            ll_point_group.addView(point);
+        }
+
+
+        vp_assess_float.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                int marginFloat = new Float(pointMargin).intValue() + new Float(pointWidth).intValue();
+
+                int len =  (int) (marginFloat * positionOffset) + position*marginFloat;
+                //获取当前红点的布局参数
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) shape_point_blue.getLayoutParams();
+                //设置左边距
+                params.leftMargin = len ;
+
+                //重新给小蓝点设置布局参数
+                shape_point_blue.setLayoutParams(params);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 7 -1){
+                    //bt_start.setVisibility(View.VISIBLE);
+                }else {
+                    //bt_start.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
     }
 
     class MyViewPageAdapter extends PagerAdapter {
@@ -207,6 +196,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             View inflate = View.inflate(HealthIndicatorAssessActivity.this, R.layout.view_viewpage_item,null);
+
             container.addView(inflate);
             return inflate;
         }
@@ -215,70 +205,6 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         public void destroyItem(ViewGroup container, int position, Object object) {
             container.removeView((View) object);
         }
-    }
-
-
-    public void setData() {
-        float mult = 80;
-        float min = 30;
-        int cnt = 7;
-
-        ArrayList<RadarEntry> entries1 = new ArrayList<RadarEntry>();
-        ArrayList<RadarEntry> entries2 = new ArrayList<RadarEntry>();
-        ArrayList<RadarEntry> entries3 = new ArrayList<RadarEntry>();
-
-        // NOTE: The order of the entries when being added to the entries array determines their position around the center of
-        // the chart.
-        for (int i = 0; i < cnt; i++) {
-            float val1 = (float) (Math.random() * mult) + min;
-            entries1.add(new RadarEntry(val1));
-
-            float val2 = (float) (Math.random() * mult) + min;
-            entries2.add(new RadarEntry(val2));
-
-            float val3 = (float) (Math.random() * mult) + min;
-            entries3.add(new RadarEntry(val3));
-        }
-
-        RadarDataSet set1 = new RadarDataSet(entries1, "本周");
-        set1.setColor(Color.rgb(103, 110, 129));
-        set1.setFillColor(Color.rgb(103, 110, 129));
-        set1.setDrawFilled(true);
-        set1.setFillAlpha(180);
-        set1.setLineWidth(2f);
-        set1.setDrawHighlightCircleEnabled(true);
-        set1.setDrawHighlightIndicators(false);
-
-        RadarDataSet set2 = new RadarDataSet(entries2, "上周");
-        set2.setColor(Color.rgb(121, 162, 175));
-        set2.setFillColor(Color.rgb(121, 162, 175));
-        set2.setDrawFilled(true);
-        set2.setFillAlpha(180);
-        set2.setLineWidth(2f);
-        set2.setDrawHighlightCircleEnabled(true);
-        set2.setDrawHighlightIndicators(false);
-
-        RadarDataSet set3 = new RadarDataSet(entries3, "上上周");
-        set3.setColor(Color.rgb(21, 212, 115));
-        set3.setFillColor(Color.rgb(21, 212, 115));
-        set3.setDrawFilled(true);
-        set3.setFillAlpha(180);
-        set3.setLineWidth(2f);
-        set3.setDrawHighlightCircleEnabled(true);
-        set3.setDrawHighlightIndicators(false);
-
-        ArrayList<IRadarDataSet> sets = new ArrayList<IRadarDataSet>();
-        sets.add(set1);
-        sets.add(set2);
-        sets.add(set3);
-
-        RadarData data = new RadarData(sets);
-        data.setValueTextSize(8f);
-        data.setDrawValues(false);
-        data.setValueTextColor(Color.WHITE);
-
-        mChart.setData(data);
-        mChart.invalidate();
     }
 
 }

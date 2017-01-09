@@ -1,20 +1,19 @@
-package com.amsu.healthy.fragment;
+package com.amsu.healthy.fragment.analysis;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.view.FoldLineView;
 
 public class HeartRateFragment extends Fragment {
 
     private View inflate;
-    private TextView tv_rate_rate;
+    private FoldLineView fv_rate_line;
 
     @Nullable
     @Override
@@ -26,16 +25,21 @@ public class HeartRateFragment extends Fragment {
     }
 
     private void initView() {
-        tv_rate_rate = (TextView) inflate.findViewById(R.id.tv_rate_rate);
+        fv_rate_line = (FoldLineView) inflate.findViewById(R.id.fv_rate_line);
+
+
+
     }
 
     private void initData() {
-        Intent intent = getActivity().getIntent();
-        int ecgRate = intent.getIntExtra("ecgRate",0);
-
-        tv_rate_rate.setText(ecgRate+"");
 
     }
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        int[] datas = {67,99,78,77,55,80,81};  //心率数据
+        int max  = 100;  //心率的最大值，待定，需要根据实际情况调整（曲线的调整）
+        fv_rate_line.setData(datas,max);
+    }
 }

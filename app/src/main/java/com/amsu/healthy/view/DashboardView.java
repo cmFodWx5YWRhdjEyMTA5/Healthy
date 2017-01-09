@@ -3,6 +3,7 @@ package com.amsu.healthy.view;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -68,14 +69,15 @@ public class DashboardView extends View {
         mPaint.setStrokeWidth(width_dials);
 
         mTextPaint = new Paint();  //文字
-        mTextPaint.setStyle(Paint.Style.STROKE);
+        mTextPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mTextPaint.setColor(text_color);
         //mTextPaint.setStrokeWidth(2);
         mTextPaint.setTextSize(text_size);
 
         mPointPaint = new Paint();  //小红点
-        mPointPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        mPaint.setStyle(Paint.Style.STROKE);
         mPointPaint.setColor(Color.RED);
+        mPointPaint.setMaskFilter(new BlurMaskFilter(20, BlurMaskFilter.Blur.SOLID));
 
         mBigRadius = big_circle_radius;
         mLargeLength = long_dials;

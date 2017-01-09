@@ -12,8 +12,9 @@
         <clip>
             <shape>
                 <gradient
-                    android:startColor="#8CC24B"
-                    android:endColor="#CA1557"
+                    android:startColor="@android:color/holo_green_dark"
+                    android:centerColor="@android:color/holo_orange_light"
+                    android:endColor="@android:color/holo_red_dark"
                     android:angle="0" />  <!--设置方向-->
             </shape>
         </clip>

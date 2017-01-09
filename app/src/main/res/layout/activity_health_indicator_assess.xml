@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:radarview="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_health_indicator_assess"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,17 +12,131 @@
         android:id="@+id/rl_base_head">
     </include>
 
-    <com.github.mikephil.charting.charts.RadarChart
-        android:id="@+id/rc_assess_radar"
-        android:layout_width="match_parent"
-        android:layout_height="350dp"
-        android:layout_below="@+id/rl_base_head"/>
 
+    <RelativeLayout
+        android:id="@+id/rl_assess_top"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x1041"
+        android:background="#FFFFFF"
+        android:layout_below="@+id/rl_base_head"
+        android:layout_alignParentStart="true">
+        <RelativeLayout
+            android:id="@+id/rl_assess_radar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x900">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true">
+                <TextView
+                    android:id="@+id/tv_text2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#545454"
+                    android:textSize="@dimen/x40"
+                    android:text="健康指标"
+                    android:layout_centerHorizontal="true"/>
+                <TextView
+                    android:id="@+id/tv_assess_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#545454"
+                    android:textSize="@dimen/x168"
+                    android:text="0"
+                    android:layout_below="@+id/tv_text2"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="-10dp"/>
+            </RelativeLayout>
+
+            <com.amsu.healthy.view.RadarView
+                android:id="@+id/rc_assess_radar"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/x900"
+                radarview:background_radar="#EEF3F7"
+                radarview:background_region1="#1dab91"
+                radarview:background_region2="#3374c4"
+                radarview:background_region3="#01a415"
+                radarview:title_text_size="@dimen/x40"
+                radarview:title_text_color="#545454"
+                radarview:radius_radar="@dimen/x320"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="@dimen/x800"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/rl_assess_radar"
+            android:layout_centerHorizontal="true">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal">
+                <ImageView
+                    android:id="@+id/iv_image1"
+                    android:layout_width="@dimen/x36"
+                    android:layout_height="@dimen/x36"
+                    android:src="@drawable/bg_rec_radar1"
+                    android:layout_centerVertical="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="本周"
+                    android:layout_toRightOf="@+id/iv_image1"
+                    android:layout_marginLeft="3dp"
+                    android:layout_centerVertical="true"/>
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal">
+                <ImageView
+                    android:id="@+id/iv_image2"
+                    android:layout_width="@dimen/x36"
+                    android:layout_height="@dimen/x36"
+                    android:src="@drawable/bg_rec_radar2"
+                    android:layout_centerVertical="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="上周"
+                    android:layout_toRightOf="@+id/iv_image2"
+                    android:layout_marginLeft="3dp"
+                    android:layout_centerVertical="true"/>
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal">
+                <ImageView
+                    android:id="@+id/iv_image3"
+                    android:layout_width="@dimen/x36"
+                    android:layout_height="@dimen/x36"
+                    android:src="@drawable/bg_rec_radar3"
+                    android:layout_centerVertical="true"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="上上周"
+                    android:layout_toRightOf="@+id/iv_image3"
+                    android:layout_marginLeft="3dp"
+                    android:layout_centerVertical="true"/>
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/rc_assess_radar"
+        android:layout_below="@id/rl_assess_top"
         android:background="#FFFFFF"
         android:paddingLeft="@dimen/x36"
         android:paddingRight="@dimen/x36"

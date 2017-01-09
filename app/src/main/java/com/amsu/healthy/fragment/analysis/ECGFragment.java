@@ -1,4 +1,4 @@
-package com.amsu.healthy.fragment;
+package com.amsu.healthy.fragment.analysis;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

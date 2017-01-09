@@ -31,7 +31,23 @@
 
     <declare-styleable name="CircleRingView">
         <attr name="circlering_width" format="dimension" />
+    </declare-styleable>
 
+    <declare-styleable name="RadarView">
+        <attr name="background_radar" format="color" />
+        <attr name="background_region1" format="color" />
+        <attr name="background_region2" format="color" />
+        <attr name="background_region3" format="color" />
+        <attr name="title_text_color" format="color"/>
+        <attr name="title_text_size" format="dimension"/>
+        <attr name="radius_radar" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="FoldLineView">
+        <attr name="line_color" format="color" />
+        <attr name="point_color" format="color" />
+        <attr name="line_width" format="dimension"/>
+        <attr name="radius_point" format="dimension"/>
     </declare-styleable>
 
 </resources>
