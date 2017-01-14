@@ -1,13 +1,18 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.amsu.healthy.fragment.community.MyCommunityFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ListView
+        android:id="@+id/lv_clubs_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="MyCommunityFragment" />
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/x36"
+        android:paddingRight="@dimen/x36"
+        android:background="#FFFFFF"
+        android:dividerHeight="@dimen/x1"
+        android:headerDividersEnabled="false">
+    </ListView>
 
-</FrameLayout>
+</RelativeLayout>

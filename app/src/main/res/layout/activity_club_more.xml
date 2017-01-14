@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_club_more"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.amsu.healthy.activity.ClubMoreActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rl_base_head"
+        android:divider="@drawable/deiver_horiz_line"
+        android:showDividers="middle"
+        android:orientation="vertical"
+        android:background="#FFFFFF">
+
+        <RelativeLayout
+            android:id="@+id/rl_clubmore_info"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/y140"
+            android:clickable="true"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="会员信息"
+                android:textColor="#030303"
+                android:textSize="@dimen/x48"
+                android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_1"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_clubmore_reginfo"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/y140"
+            android:clickable="true"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="报名信息"
+                android:textColor="#030303"
+                android:textSize="@dimen/x48"
+                android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_2"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/rl_clubmore_shareclub"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/y140"
+            android:clickable="true"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="分析俱乐部"
+                android:textColor="#030303"
+                android:textSize="@dimen/x48"
+                android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_3"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

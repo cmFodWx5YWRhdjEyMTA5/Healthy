@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/x212">
+    <com.amsu.healthy.view.CircleImageView
+        android:id="@+id/iv_activity_image"
+        android:layout_width="@dimen/x144"
+        android:layout_height="@dimen/x144"
+        android:layout_marginTop="@dimen/x34"
+        android:layout_marginBottom="@dimen/x34"/>
+
+    <TextView
+        android:id="@+id/tv_activity_name"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="@dimen/x34"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/x32"
+        android:layout_toRightOf="@id/iv_activity_image"
+        android:text="比赛名称"
+        android:textColor="#333333"
+        android:maxLines="2"
+        android:textSize="@dimen/x48" />
+
+    <TextView
+        android:id="@+id/tv_activity_typeview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/iv_activity_image"
+        android:text="类型："
+        android:layout_marginLeft="@dimen/x32"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="@dimen/x30"
+        android:textColor="#999999"
+        android:textSize="@dimen/x28" />
+    <TextView
+        android:id="@+id/tv_activity_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/tv_activity_typeview"
+        android:text="铁人三项"
+        android:layout_marginLeft="@dimen/x32"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="@dimen/x30"
+        android:textColor="#999999"
+        android:textSize="@dimen/x28" />
+
+    <TextView
+        android:id="@+id/tv_activity_jion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/tv_activity_type"
+        android:text="0/100"
+        android:layout_marginLeft="@dimen/x80"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="@dimen/x30"
+        android:textColor="#999999"
+        android:textSize="@dimen/x28" />
+
+    <TextView
+        android:id="@+id/tv_activity_timeview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/iv_activity_image"
+        android:text="时间："
+        android:layout_marginLeft="@dimen/x32"
+        android:layout_below="@id/tv_activity_name"
+        android:layout_marginTop="@dimen/x10"
+        android:textColor="#999999"
+        android:textSize="@dimen/x28" />
+    <TextView
+        android:id="@+id/tv_activity_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/tv_activity_timeview"
+        android:text="2016-01-01"
+        android:layout_below="@id/tv_activity_name"
+        android:layout_marginTop="@dimen/x10"
+        android:textColor="#999999"
+        android:textSize="@dimen/x28" />
+
+    <TextView
+        android:id="@+id/tv_activity_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/tv_activity_date"
+        android:text="2016-01-01"
+        android:layout_below="@id/tv_activity_name"
+        android:layout_marginTop="@dimen/x10"
+        android:layout_marginLeft="@dimen/x10"
+        android:textColor="#999999"
+        android:textSize="@dimen/x28" />
+
+
+</RelativeLayout>

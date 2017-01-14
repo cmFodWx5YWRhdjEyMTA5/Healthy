@@ -1,13 +1,20 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.amsu.healthy.fragment.community.NewsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <com.amsu.healthy.view.LastMsgListView
+        android:id="@+id/lv_news_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="新闻" />
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:dividerHeight="@dimen/x1"
+        android:divider="@drawable/divider_listview"
+        android:headerDividersEnabled="false"
+        android:footerDividersEnabled="false">
+    </com.amsu.healthy.view.LastMsgListView>
 
-</FrameLayout>
+
+
+</RelativeLayout>

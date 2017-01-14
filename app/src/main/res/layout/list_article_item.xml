@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/x260"
+    android:paddingLeft="@dimen/x60"
+    android:paddingRight="@dimen/x60">
+    <ImageView
+        android:id="@+id/iv_readlist_artcileimage"
+        android:layout_width="@dimen/x264"
+        android:layout_height="@dimen/x204"
+        android:layout_marginTop="@dimen/x28"
+        android:layout_marginBottom="@dimen/x28"
+        android:scaleType="fitXY"
+        android:background="@android:color/darker_gray"
+         />
+
+    <TextView
+        android:id="@+id/tv_readlist_title"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="@dimen/x36"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/x32"
+        android:layout_toRightOf="@id/iv_readlist_artcileimage"
+        android:text="标题"
+        android:textColor="#555555"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:textStyle="bold"
+        android:textSize="@dimen/x48" />
+
+    <TextView
+        android:id="@+id/tv_readlist_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/iv_readlist_artcileimage"
+        android:text="类型"
+        android:layout_marginLeft="@dimen/x32"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="@dimen/x30"
+        android:textColor="#999999"
+        android:textSize="@dimen/x36" />
+
+    <TextView
+        android:id="@+id/tv_readlist_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/tv_readlist_type"
+        android:text="时间"
+        android:layout_marginLeft="@dimen/x28"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="@dimen/x30"
+        android:textColor="#999999"
+        android:textSize="@dimen/x36" />
+
+</RelativeLayout>

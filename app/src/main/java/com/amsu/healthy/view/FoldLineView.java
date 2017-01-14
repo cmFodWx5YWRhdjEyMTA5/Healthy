@@ -60,7 +60,7 @@ public class FoldLineView extends View {
         mPaint.setStyle(Paint.Style.STROKE);
 
         mPointPaint = new Paint();
-        mPointPaint.setColor(Color.BLACK);
+        mPointPaint.setColor(line_color);
         mPointPaint.setStyle(Paint.Style.FILL_AND_STROKE);
     }
 

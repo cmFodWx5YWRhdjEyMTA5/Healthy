@@ -82,8 +82,7 @@ public class HealthyDataActivity extends BaseActivity {
 
         initView();
         initData();
-        //绑定蓝牙，获取蓝牙服务
-        bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
+
 
        /* double []test = {45,40,67,89,23,45,56,65,45,45,33,66,77.80,80};
         HeartRateResult ecgResult = DiagnosisNDK.getEcgResult(test, test.length, 15);
@@ -408,7 +407,11 @@ public class HealthyDataActivity extends BaseActivity {
         });
 
         deviceListFromSP = MyUtil.getDeviceListFromSP();
+
         MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
+
+        //绑定蓝牙，获取蓝牙服务
+        bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
     }
 
 

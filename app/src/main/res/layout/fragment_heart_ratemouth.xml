@@ -1,15 +1,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:foldlineview="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="5dp"
-    android:background="#FFFFFF"
+    android:layout_height="wrap_content"
     tools:context="com.amsu.healthy.fragment.report.HeartRatemouthFragment">
 
     <RelativeLayout
         android:id="@+id/rl_ecgmouth_text"
         android:layout_width="match_parent"
         android:layout_height="@dimen/x140"
+        android:paddingLeft="@dimen/x36"
+        android:paddingRight="@dimen/x36"
         android:background="@drawable/list_item_background">
         <TextView
             android:layout_width="wrap_content"
@@ -32,16 +33,26 @@
     <View
         android:id="@+id/view"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/x2"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
         android:layout_below="@id/rl_ecgmouth_text"
         android:background="#d3d3d3"></View>
 
-    <com.github.mikephil.charting.charts.LineChart
+    <com.amsu.healthy.view.FoldLineViewWithText
         android:id="@+id/spread_line_chart"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/y1100"
-        android:layout_centerHorizontal="true"
+        android:layout_height="@dimen/y820"
         android:layout_below="@+id/view"
-        android:layout_marginTop="@dimen/x86"/>
+        android:background="#FFFFFF"
+        foldlineview:line_color="#FF0000"
+        foldlineview:line_width="@dimen/x6"
+        foldlineview:radius_point="@dimen/x12"
+        foldlineview:undertext_size="@dimen/x32"
+        foldlineview:abovertext_size="@dimen/x32"
+        foldlineview:abovertext_margin="@dimen/x12"
+        foldlineview:undertext_margin="@dimen/x40"
+        foldlineview:undertext_color="#000000"
+        foldlineview:abovertext_color="#8e8e8e"/>
 
 </RelativeLayout>

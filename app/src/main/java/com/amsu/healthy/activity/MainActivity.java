@@ -199,6 +199,7 @@ public class MainActivity extends BaseActivity {
                     startActivity(new Intent(MainActivity.this,MeActivity.class));
                     break;
                 case R.id.rl_mian_start:
+                    startActivity(new Intent(MainActivity.this,StartRunActivity.class));
                     break;
                 case R.id.rl_main_age:
                     startActivity(new Intent(MainActivity.this,PhysicalAgeActivity.class));

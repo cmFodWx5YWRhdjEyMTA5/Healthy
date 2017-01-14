@@ -53,13 +53,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activity.MainActivity"
-            android:hardwareAccelerated="false">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:hardwareAccelerated="false" />
         <activity android:name=".activity.BaseActivity" />
 
         <meta-data
@@ -70,7 +64,7 @@
         <activity android:name=".activity.HealthyDataActivity" />
         <activity android:name=".activity.MoveStateActivity" />
         <activity android:name=".activity.HeartRateActivity" />
-        <activity android:name=".activity.RateAnalysisActivity"></activity>
+        <activity android:name=".activity.RateAnalysisActivity" />
         <activity android:name=".activity.SupplyPersionDataActivity" />
         <activity android:name=".activity.LoginActivity" />
         <activity android:name=".activity.PersionDataActivity" />
@@ -93,10 +87,36 @@
         <activity android:name=".activity.DeviceRunActivity" />
         <activity android:name=".activity.AppUpdateActivity" />
         <activity android:name=".activity.TestActivity" />
-        <activity android:name=".activity.HealthIndicatorAssessActivity"></activity>
+        <activity android:name=".activity.HealthIndicatorAssessActivity" />
         <activity android:name=".activity.PhysicalAgeActivity" />
         <activity android:name=".activity.IndexWarringActivity" />
-        <activity android:name=".activity.SportCommunityActivity"></activity>
+        <activity android:name=".activity.SportCommunityActivity" />
+        <activity android:name=".activity.StartRunActivity" />
+        <activity android:name=".activity.NewsDetialActivity" />
+        <activity android:name=".activity.ShowCommentActivity" />
+        <activity android:name=".activity.ClubHomePageActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.ClubGroupActivity" />
+        <activity android:name=".activity.ClubCampaignActivity" />
+        <activity android:name=".activity.ClubDetialActivity" />
+        <activity android:name=".activity.SetupCampaignActivity" />
+        <activity android:name=".activity.EditProtocolActivity" />
+        <activity android:name=".activity.ClubGroupDetialActivity" />
+        <activity android:name=".activity.ApplyJoinGroupActivity" />
+        <activity android:name=".activity.SetupGroupActivity" />
+        <activity android:name=".activity.ClubNumberActivity" />
+        <activity android:name=".activity.ClubNumberDetialActivity" />
+        <activity android:name=".activity.ClubNumberRankActivity" />
+        <activity android:name=".activity.SetupClubActivity" />
+        <activity android:name=".activity.ClubInfomationActivity" />
+        <activity android:name=".activity.ApplyJionClubActivity" />
+        <activity android:name=".activity.ClubMoreActivity" />
+        <activity android:name=".activity.ClubMyEnterInfoActivity"></activity>
     </application>
 
 </manifest>

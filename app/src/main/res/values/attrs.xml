@@ -48,6 +48,20 @@
         <attr name="point_color" format="color" />
         <attr name="line_width" format="dimension"/>
         <attr name="radius_point" format="dimension"/>
+        <attr name="undertext_size" format="dimension"/>
+        <attr name="abovertext_size" format="dimension"/>
+        <attr name="undertext_color" format="color" />
+        <attr name="abovertext_color" format="color" />
+        <attr name="abovertext_margin" format="dimension"/>
+        <attr name="undertext_margin" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="PieChart">
+        <attr name="part1_color" format="color" />
+        <attr name="part2_color" format="color" />
+        <attr name="part3_color" format="color" />
+        <attr name="part4_color" format="color" />
+        <attr name="ring_width" format="dimension"/>
     </declare-styleable>
 
 </resources>

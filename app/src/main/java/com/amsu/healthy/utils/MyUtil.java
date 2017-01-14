@@ -162,6 +162,13 @@ public class MyUtil {
         return format.format(date);
     }
 
+    public static String getSpecialFormatTime(String stringFormat,Date date){
+        //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd H:m:s");
+        SimpleDateFormat format = new SimpleDateFormat(stringFormat, Locale.CHINA);  //07-12 15:10
+        return format.format(date);
+    }
+
+
     public static String getECGFileNameDependFormatTime(Date date){
         //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd H:m:s");
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA);  //07-12 15:10

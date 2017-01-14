@@ -313,7 +313,7 @@
         android:layout_marginTop="@dimen/y72"
         android:textColor="#f5f5f5"
         android:textSize="@dimen/x48"
-        android:background="@drawable/bg_bt_rec"
+        android:background="@drawable/bg_bt_rec_roundangle"
         android:layout_marginBottom="10dp"
         android:text="保存"/>
 </RelativeLayout>

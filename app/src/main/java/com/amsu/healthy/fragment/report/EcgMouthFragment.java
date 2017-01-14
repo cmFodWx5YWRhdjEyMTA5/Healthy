@@ -9,14 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.utils.MyUtil;
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
-
-import java.util.ArrayList;
+import com.amsu.healthy.view.PieChart;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,7 +18,7 @@ public class EcgMouthFragment extends Fragment {
 
 
     private static final String TAG = "EcgMouthFragment";
-    private PieChart mChart;
+    private PieChart pc_ecg_chart;
     private View inflate;
 
     @Override
@@ -38,13 +31,18 @@ public class EcgMouthFragment extends Fragment {
     }
 
     private void initView() {
-        mChart = (PieChart) inflate.findViewById(R.id.spread_pie_chart);
-        PieData mPieData = getPieData();
-        showChart(mChart, mPieData);
+        pc_ecg_chart = (PieChart) inflate.findViewById(R.id.pc_ecg_chart);
+        //PieData mPieData = getPieData();
+       // showChart(mChart, mPieData);
+
+        int[] datas = {16,5,7,2};
+        pc_ecg_chart.setDatas(datas);
+
+
     }
 
 
-    private void showChart(PieChart pieChart, PieData pieData) {
+    /*private void showChart(PieChart pieChart, PieData pieData) {
         pieChart.setHoleRadius(40f);  //半径
         //pieChart.setCenterTextRadiusPercent(dimen1);
         pieChart.setTransparentCircleRadius(0); // 半透明圈
@@ -95,9 +93,9 @@ public class EcgMouthFragment extends Fragment {
 //      mLegend.setForm(LegendForm.LINE);  //设置比例图的形状，默认是方形
         mLegend.setXEntrySpace(20f);
         mLegend.setYEntrySpace(5f);
-        /*mLegend.setFormSize(MyUtil.getDimen(getActivity(),R.dimen.x40));
+        *//*mLegend.setFormSize(MyUtil.getDimen(getActivity(),R.dimen.x40));
         mLegend.setTextSize(MyUtil.getDimen(getActivity(),R.dimen.x40));
-        mLegend.setTextColor(Color.parseColor("#6b6b6b"));*/
+        mLegend.setTextColor(Color.parseColor("#6b6b6b"));*//*
 
         pieChart.animateXY(1000, 1000);  //设置动画
         // mChart.spin(2000, 0, 360);
@@ -116,7 +114,7 @@ public class EcgMouthFragment extends Fragment {
         yValues.add(new PieEntry(quarterly4, "早搏"));
 
         //y轴的集合
-        PieDataSet pieDataSet = new PieDataSet(yValues, "");/*显示在比例图上*/
+        PieDataSet pieDataSet = new PieDataSet(yValues, "");*//*显示在比例图上*//*
         pieDataSet.setSliceSpace(0f); //设置个饼状图之间的距离
 
         ArrayList<Integer> colors = new ArrayList<>();
@@ -129,13 +127,13 @@ public class EcgMouthFragment extends Fragment {
         pieDataSet.setColors(colors);
 
 
-        /*DisplayMetrics metrics = getResources().getDisplayMetrics();
+        *//*DisplayMetrics metrics = getResources().getDisplayMetrics();
         float px = 5 * (metrics.densityDpi / 160f);
-        pieDataSet.setSelectionShift(px); // 选中态多出的长度*/
+        pieDataSet.setSelectionShift(px); // 选中态多出的长度*//*
 
         PieData pieData = new PieData( pieDataSet);
 
 
         return pieData;
-    }
+    }*/
 }

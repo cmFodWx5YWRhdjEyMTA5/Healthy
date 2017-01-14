@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context="com.amsu.healthy.activity.PhysicalAgeActivity">
 
-    <include layout="@layout/page_head"
+    <include layout="@layout/page_head_special"
         android:id="@+id/rl_base_head">
     </include>
 

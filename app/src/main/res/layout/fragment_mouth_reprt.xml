@@ -10,9 +10,8 @@
     <android.support.v4.view.ViewPager
         android:id="@+id/vp_report_content"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/x820"
+        android:layout_height="match_parent"
         android:layout_marginTop="@dimen/x64"
-        android:background="#FFFFFF"
         android:layout_below="@+id/ll_report_head">
     </android.support.v4.view.ViewPager>
 
