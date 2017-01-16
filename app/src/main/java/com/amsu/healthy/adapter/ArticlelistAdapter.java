@@ -46,19 +46,40 @@ public class ArticlelistAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final News news = newsList.get(position);
-        View inflate = View.inflate(context, R.layout.list_article_item,null);
-        ImageView iv_readlist_artcileimage = (ImageView) inflate.findViewById(R.id.iv_readlist_artcileimage);
-        TextView tv_readlist_title = (TextView) inflate.findViewById(R.id.tv_readlist_title);
-        TextView tv_readlist_time = (TextView) inflate.findViewById(R.id.tv_readlist_time);
-        TextView tv_readlist_type = (TextView) inflate.findViewById(R.id.tv_readlist_type);
+        View inflate;
+        MyHolder myHolder;
+        if (convertView!=null){
+            inflate = convertView;
+            myHolder = (MyHolder) inflate.getTag();
+        }
+        else {
+            inflate = View.inflate(context, R.layout.list_article_item, null);
+            myHolder = new MyHolder();
+            myHolder.iv_readlist_artcileimage = (ImageView) inflate.findViewById(R.id.iv_readlist_artcileimage);
+            myHolder.tv_readlist_title = (TextView) inflate.findViewById(R.id.tv_readlist_title);
+            myHolder.tv_readlist_time = (TextView) inflate.findViewById(R.id.tv_readlist_time);
+            myHolder.tv_readlist_type = (TextView) inflate.findViewById(R.id.tv_readlist_type);
+            inflate.setTag(myHolder);
+        }
+
 
         String imageurl = news.getSmallPictureUrl();
-        bitmapUtils.display(iv_readlist_artcileimage,imageurl);
+        bitmapUtils.display(myHolder.iv_readlist_artcileimage, imageurl);
 
-        tv_readlist_title.setText(news.getTitle());
-        tv_readlist_time.setText(news.getTime());
-        tv_readlist_type.setText(news.getType());
+        myHolder.tv_readlist_title.setText(news.getTitle());
+        myHolder.tv_readlist_time.setText(news.getTime());
+        myHolder.tv_readlist_type.setText(news.getType());
 
         return inflate;
     }
+
+    class MyHolder {
+        ImageView iv_readlist_artcileimage;
+        TextView tv_readlist_title;
+        TextView tv_readlist_time;
+        TextView tv_readlist_type;
+    }
+
+
+
 }

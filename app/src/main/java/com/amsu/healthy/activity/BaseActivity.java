@@ -15,6 +15,7 @@ public class BaseActivity extends FragmentActivity {
     public TextView tv_base_rightText;
     public TextView tv_base_centerText;
     public ImageView iv_base_rightimage;
+    private TextView tv_base_lefttext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +29,7 @@ public class BaseActivity extends FragmentActivity {
     public void initHeadView() {
         iv_base_leftimage = (ImageView) findViewById(R.id.iv_base_leftimage);
         tv_base_centerText = (TextView) findViewById(R.id.tv_base_centerText);
+        tv_base_lefttext = (TextView) findViewById(R.id.tv_base_lefttext);
         tv_base_rightText = (TextView) findViewById(R.id.tv_base_rightText);
         iv_base_rightimage = (ImageView) findViewById(R.id.iv_base_rightimage);
     }
@@ -47,6 +49,11 @@ public class BaseActivity extends FragmentActivity {
         tv_base_centerText.setText(text);
     }
 
+    public void setLeftText(String text) {
+        tv_base_lefttext.setText(text);
+        tv_base_lefttext.setVisibility(View.VISIBLE);
+    }
+
     public void setRightText(String text) {
         tv_base_rightText.setText(text);
         tv_base_rightText.setVisibility(View.VISIBLE);
@@ -60,6 +67,11 @@ public class BaseActivity extends FragmentActivity {
     public void setIv_base_leftimage(ImageView iv_base_leftimage) {
         this.iv_base_leftimage = iv_base_leftimage;
     }
+
+    public TextView getTv_base_leftText() {
+        return tv_base_lefttext;
+    }
+
 
     public TextView getTv_base_rightText() {
         return tv_base_rightText;

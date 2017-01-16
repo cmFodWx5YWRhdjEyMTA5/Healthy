@@ -14,7 +14,7 @@
         android:paddingRight="@dimen/x70"
         android:src="@drawable/back_icon"
         android:layout_centerVertical="true"
-        />
+        android:visibility="gone"/>
     <TextView
         android:id="@+id/tv_base_centerText"
         android:layout_width="wrap_content"
@@ -23,6 +23,16 @@
         android:textSize="@dimen/x52"
         android:textColor="#FFFFFF"
         android:layout_centerInParent="true" />
+    <TextView
+        android:id="@+id/tv_base_lefttext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="left"
+        android:layout_marginLeft="@dimen/x36"
+        android:textSize="@dimen/x48"
+        android:textColor="#FFFFFF"
+        android:layout_centerVertical="true"
+        android:visibility="gone"/>
     <TextView
         android:id="@+id/tv_base_rightText"
         android:layout_width="wrap_content"

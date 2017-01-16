@@ -1,18 +1,19 @@
 package com.amsu.healthy.activity;
 
 import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
 
-public class ClubMyEnterInfoActivity extends BaseActivity {
+public class ClubMyEnterInfoEditActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_club_my_enter_info);
+        setContentView(R.layout.activity_club_my_enter_info_edit);
         initView();
         initData();
 
@@ -22,7 +23,7 @@ public class ClubMyEnterInfoActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("我的报名信息");
+        setCenterText("修改报名信息");
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -30,14 +31,14 @@ public class ClubMyEnterInfoActivity extends BaseActivity {
                 finish();
             }
         });
-
-        setRightText("编辑");
+        setRightText("完成");
         getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(ClubMyEnterInfoActivity.this,ClubMyEnterInfoEditActivity.class));
+
             }
         });
+
 
 
         TextView tv_mynumberinfo_name = (TextView) findViewById(R.id.tv_mynumberinfo_name);

@@ -22,27 +22,5 @@
         android:headerDividersEnabled="false">
     </ListView>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/x128"
-        android:layout_alignParentBottom="true"
-        android:onClick="jionClub"
-        android:background="@drawable/bg_bt_rec">
-        <TextView
-            android:id="@+id/tv_club_detial_jion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="加入小组"
-            android:layout_centerInParent="true"
-            android:textColor="#FFFFFF"/>
-        <ImageView
-            android:layout_width="@dimen/x50"
-            android:layout_height="@dimen/x50"
-            android:src="@drawable/home_tjsb_icon"
-            android:layout_toLeftOf="@+id/tv_club_detial_jion"
-            android:layout_centerInParent="true"
-            android:layout_marginRight="@dimen/x2"/>
-    </RelativeLayout>
-
 
 </RelativeLayout>

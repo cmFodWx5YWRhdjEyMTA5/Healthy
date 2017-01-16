@@ -9,8 +9,7 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.ClubNumber;
 
-public class ClubNumberDetialActivity extends BaseActivity {
-
+public class ClubMyInfoActivity extends BaseActivity {
     private TextView tv_numberdetial_name;
     private TextView tv_numberdetial_sex;
     private TextView tv_numberdetial_phone;
@@ -20,16 +19,17 @@ public class ClubNumberDetialActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_club_number_detial);
+        setContentView(R.layout.activity_club_my_info);
         initView();
         initData();
     }
 
 
 
+
     private void initView() {
         initHeadView();
-        setCenterText("成员管理");
+        setCenterText("我的会员信息");
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -38,18 +38,29 @@ public class ClubNumberDetialActivity extends BaseActivity {
             }
         });
 
+        setRightText("编辑");
+        getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ClubMyInfoActivity.this,ClubMyInfoEditActivity.class));
+            }
+        });
+
+
         tv_numberdetial_name = (TextView) findViewById(R.id.tv_numberdetial_name);
         tv_numberdetial_sex = (TextView) findViewById(R.id.tv_numberdetial_sex);
         tv_numberdetial_phone = (TextView) findViewById(R.id.tv_numberdetial_phone);
         tv_numberdetial_realname = (TextView) findViewById(R.id.tv_numberdetial_realname);
         tv_numberdetial_description = (TextView) findViewById(R.id.tv_numberdetial_description);
-
-
     }
+
     private void initData() {
         Intent intent = getIntent();
         Bundle bundle = intent.getBundleExtra("bundle");
-        ClubNumber clubNumber =  bundle.getParcelable("clubNumber");
+        ClubNumber clubNumber = null;
+        if (bundle!=null){
+            clubNumber =  bundle.getParcelable("clubNumber");
+        }
 
         if (clubNumber!=null){
             tv_numberdetial_name.setText(clubNumber.getPickName());
@@ -59,14 +70,6 @@ public class ClubNumberDetialActivity extends BaseActivity {
             tv_numberdetial_description.setText(clubNumber.getIntroduction());
 
         }
-
     }
 
-    public void removeClub(View view) {
-
-    }
-
-    public void inviteToCoach(View view) {
-
-    }
 }

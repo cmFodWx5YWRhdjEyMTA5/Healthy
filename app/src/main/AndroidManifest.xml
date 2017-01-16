@@ -53,7 +53,14 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activity.MainActivity"
-            android:hardwareAccelerated="false" />
+            android:hardwareAccelerated="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".activity.BaseActivity" />
 
         <meta-data
@@ -90,17 +97,13 @@
         <activity android:name=".activity.HealthIndicatorAssessActivity" />
         <activity android:name=".activity.PhysicalAgeActivity" />
         <activity android:name=".activity.IndexWarringActivity" />
-        <activity android:name=".activity.SportCommunityActivity" />
+        <activity android:name=".activity.SportCommunityActivity">
+
+        </activity>
         <activity android:name=".activity.StartRunActivity" />
         <activity android:name=".activity.NewsDetialActivity" />
         <activity android:name=".activity.ShowCommentActivity" />
-        <activity android:name=".activity.ClubHomePageActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".activity.ClubHomePageActivity" />
         <activity android:name=".activity.ClubGroupActivity" />
         <activity android:name=".activity.ClubCampaignActivity" />
         <activity android:name=".activity.ClubDetialActivity" />
@@ -116,7 +119,12 @@
         <activity android:name=".activity.ClubInfomationActivity" />
         <activity android:name=".activity.ApplyJionClubActivity" />
         <activity android:name=".activity.ClubMoreActivity" />
-        <activity android:name=".activity.ClubMyEnterInfoActivity"></activity>
+        <activity android:name=".activity.ClubMyEnterInfoActivity" />
+        <activity android:name=".activity.ClubMyInfoActivity" />
+        <activity android:name=".activity.ClubMyInfoEditActivity" />
+        <activity android:name=".activity.ClubMyEnterInfoEditActivity" />
+        <activity android:name=".activity.ClubDynamicsDetialActivity" />
+        <activity android:name=".activity.AddDynamicsActivity"></activity>
     </application>
 
 </manifest>

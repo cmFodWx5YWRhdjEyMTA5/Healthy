@@ -61,11 +61,11 @@ public class ClubGroupDetialActivity extends BaseActivity {
 
     }
 
-    //加入小组
+    /*//加入小组
     public void jionClub(View view) {
         startActivity(new Intent(this,ApplyJoinGroupActivity.class));
 
 
 
-    }
+    }*/
 }

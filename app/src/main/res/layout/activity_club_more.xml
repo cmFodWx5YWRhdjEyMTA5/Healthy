@@ -11,6 +11,7 @@
     </include>
 
     <LinearLayout
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/rl_base_head"
@@ -79,7 +80,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="分析俱乐部"
+                android:text="分享俱乐部"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -93,5 +94,18 @@
         </RelativeLayout>
 
     </LinearLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x128"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:onClick="quitClub"
+        android:textColor="#f5f5f5"
+        android:textSize="@dimen/x48"
+        android:background="@drawable/bg_bt_rec_roundangle_red"
+        android:layout_below="@+id/content"
+        android:layout_marginTop="@dimen/x94"
+        android:text="退出俱乐部"/>
 
 </RelativeLayout>

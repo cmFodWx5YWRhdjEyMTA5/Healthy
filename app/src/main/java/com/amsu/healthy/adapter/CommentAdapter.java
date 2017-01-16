@@ -20,7 +20,7 @@ public class CommentAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return 5;
+        return 8;
     }
 
     @Override

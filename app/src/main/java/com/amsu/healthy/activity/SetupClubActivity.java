@@ -1,6 +1,7 @@
 package com.amsu.healthy.activity;
 
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -43,6 +44,21 @@ public class SetupClubActivity extends BaseActivity {
         et_setpclub_sporttype = (EditText) findViewById(R.id.et_setpclub_sporttype);
         et_setpclub_clubtype = (EditText) findViewById(R.id.et_setpclub_clubtype);
         et_setpclub_description = (EditText) findViewById(R.id.et_setpclub_description);
+
+
+
+        Intent intent = getIntent();
+        if (intent!=null){
+            Bundle bundle = intent.getBundleExtra("bundle");
+            if (bundle!=null){
+                Club club = bundle.getParcelable("club");
+                et_setpclub_name.setText(club.getName());
+                et_setpclub_sporttype.setText(club.getType());
+                et_setpclub_clubtype.setText(club.getType());
+                et_setpclub_description.setText("描述.....");
+            }
+        }
+
 
 
     }

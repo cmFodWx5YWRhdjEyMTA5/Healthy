@@ -34,7 +34,7 @@ public class ClubInfomationActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("创建俱乐部");
+        setCenterText("俱乐部信息查看");
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,6 +44,12 @@ public class ClubInfomationActivity extends BaseActivity {
         });
 
         setRightText("编辑");
+        getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
         iv_setpclub_addiocn = (RoundRectImageView) findViewById(R.id.iv_setpclub_addiocn);
         tv_setpclub_name = (TextView) findViewById(R.id.tv_setpclub_name);
@@ -56,7 +62,7 @@ public class ClubInfomationActivity extends BaseActivity {
 
     private void initData() {
         Intent intent = getIntent();
-        Bundle bundle = intent.getBundleExtra("bundle");
+        final Bundle bundle = intent.getBundleExtra("bundle");
         Club club =  bundle.getParcelable("club");
 
         if (club!=null){
@@ -69,6 +75,15 @@ public class ClubInfomationActivity extends BaseActivity {
            bitmapUtils.display(iv_setpclub_addiocn,club.getSimallImageUrl());
         }
 
+
+        getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent1 = new Intent(ClubInfomationActivity.this,SetupClubActivity.class);
+                intent1.putExtra("bundle",bundle);
+                startActivity(intent1);
+            }
+        });
     }
 
 

@@ -4,15 +4,15 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="@dimen/x150"
-    android:paddingTop="@dimen/x20"
+    android:paddingTop="@dimen/x32"
     android:background="#FFFFFF"
-    android:paddingBottom="@dimen/x20">
+    android:paddingBottom="@dimen/x32">
 
     <com.amsu.healthy.view.CircleImageView
         android:id="@+id/iv_itemcom_icon"
         android:layout_width="@dimen/x96"
         android:layout_height="@dimen/x96"
-        android:layout_marginLeft="@dimen/x24"
+        android:layout_marginLeft="@dimen/x32"
         app:border_width2="0dp"
         android:src="@drawable/widget_dface"/>
 
@@ -22,7 +22,7 @@
         android:text="昵称"
         android:layout_toRightOf="@+id/iv_itemcom_icon"
         android:layout_marginLeft="@dimen/x24"
-        android:textSize="@dimen/x40"
+        android:textSize="@dimen/x28"
         android:textColor="#555555"/>
 
     <TextView
@@ -32,7 +32,7 @@
         android:layout_toRightOf="@+id/iv_itemcom_icon"
         android:layout_marginLeft="@dimen/x24"
         android:layout_alignParentBottom="true"
-        android:textSize="@dimen/x40"
+        android:textSize="@dimen/x28"
         android:textColor="#555555"/>
 
     <TextView
@@ -41,7 +41,7 @@
         android:text="1天前"
         android:layout_alignParentRight="true"
         android:layout_marginRight="@dimen/x24"
-        android:textSize="@dimen/x40"
+        android:textSize="@dimen/x28"
         android:textColor="#999999"/>
 
 

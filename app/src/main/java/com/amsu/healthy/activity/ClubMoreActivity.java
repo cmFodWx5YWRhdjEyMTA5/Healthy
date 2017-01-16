@@ -1,5 +1,6 @@
 package com.amsu.healthy.activity;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -18,6 +19,16 @@ public class ClubMoreActivity extends BaseActivity {
     }
 
     private void initView() {
+        initHeadView();
+        setCenterText("更多");
+        setLeftImage(R.drawable.back_icon);
+        getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         RelativeLayout rl_clubmore_info = (RelativeLayout) findViewById(R.id.rl_clubmore_info);
         RelativeLayout rl_clubmore_reginfo = (RelativeLayout) findViewById(R.id.rl_clubmore_reginfo);
         RelativeLayout rl_clubmore_shareclub = (RelativeLayout) findViewById(R.id.rl_clubmore_shareclub);
@@ -28,6 +39,10 @@ public class ClubMoreActivity extends BaseActivity {
         rl_clubmore_shareclub.setOnClickListener(myOnClickListener);
     }
 
+    public void quitClub(View view) {
+
+    }
+
 
     class MyOnClickListener implements View.OnClickListener{
 
@@ -35,10 +50,11 @@ public class ClubMoreActivity extends BaseActivity {
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.rl_clubmore_info:
+                    startActivity(new Intent(ClubMoreActivity.this,ClubMyInfoActivity.class));
 
                 break;
                 case R.id.rl_clubmore_reginfo:
-
+                    startActivity(new Intent(ClubMoreActivity.this,ClubMyEnterInfoActivity.class));
                     break;
                 case R.id.rl_clubmore_shareclub:
 
