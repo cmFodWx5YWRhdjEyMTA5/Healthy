@@ -72,6 +72,7 @@ public class MyCommunityFragment extends Fragment {
 
                 } else {
                     Intent intent = new Intent(getActivity(), ClubHomePageActivity.class);
+                    intent.putExtra("isJioned",true);
                     startActivity(intent);
                 }
             }

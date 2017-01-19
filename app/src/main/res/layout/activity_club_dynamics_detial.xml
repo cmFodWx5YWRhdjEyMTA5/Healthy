@@ -44,7 +44,7 @@
             android:paddingLeft="@dimen/x20"
             android:background="@drawable/bg_et_input"
             android:layout_centerVertical="true"
-             />
+            />
 
         <com.amsu.healthy.view.CircleImageView
             android:id="@+id/iv_itemcom_icon1"

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -23,6 +24,8 @@ public class ClubHomePageActivity extends BaseActivity {
     private static final String TAG = "ClubHomePageActivity";
     private ListView lv_homepage_list;
     private List<Dynamics> dynamicsList;
+    private RelativeLayout rl_base_head_club_top;
+    private boolean mIsJioned;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,8 @@ public class ClubHomePageActivity extends BaseActivity {
             getWindow().addFlags( WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
 
+
+
         View inflate = View.inflate(this, R.layout.view_top_club_dynamics, null);
         lv_homepage_list = (ListView) findViewById(R.id.lv_homepage_list);
         lv_homepage_list.addHeaderView(inflate);
@@ -50,11 +55,29 @@ public class ClubHomePageActivity extends BaseActivity {
         RelativeLayout rl_detial_group = (RelativeLayout) inflate.findViewById(R.id.rl_detial_group);
         RelativeLayout rl_detial_more = (RelativeLayout) inflate.findViewById(R.id.rl_detial_more);
         RelativeLayout rl_homepage_rank = (RelativeLayout) inflate.findViewById(R.id.rl_homepage_rank);
-        ImageView iv_clubhome_back = (ImageView) inflate.findViewById(R.id.iv_clubhome_back);
-        ImageView iv_clubhome_notice = (ImageView) inflate.findViewById(R.id.iv_clubhome_notice);
+
+        //ImageView iv_clubhome_back = (ImageView) inflate.findViewById(R.id.iv_clubhome_back);
+        //ImageView iv_clubhome_notice = (ImageView) inflate.findViewById(R.id.iv_clubhome_notice);
 
         RelativeLayout rl_homepage_add = (RelativeLayout) findViewById(R.id.rl_homepage_add);
+        RelativeLayout rl_homepage_jionclub = (RelativeLayout) findViewById(R.id.rl_homepage_jionclub);
 
+        rl_base_head_club_top = (RelativeLayout) findViewById(R.id.rl_base_head_club_top);
+        rl_base_head_club_top.getBackground().setAlpha(0);
+
+        ImageView iv_base_leftimage = (ImageView) findViewById(R.id.iv_base_leftimage);
+        ImageView iv_base_rightimage = (ImageView) findViewById(R.id.iv_base_rightimage);
+
+        Intent intent = getIntent();
+        mIsJioned = intent.getBooleanExtra("isJioned", false);
+        if (!mIsJioned){
+            rl_homepage_jionclub.setVisibility(View.VISIBLE);
+            rl_homepage_add.setVisibility(View.GONE);
+        }
+        else {
+            rl_homepage_jionclub.setVisibility(View.GONE);
+            rl_homepage_add.setVisibility(View.VISIBLE);
+        }
 
         MyOnClickListener myOnClickListener = new MyOnClickListener();
         rl_detial_number.setOnClickListener(myOnClickListener);
@@ -62,10 +85,13 @@ public class ClubHomePageActivity extends BaseActivity {
         rl_detial_group.setOnClickListener(myOnClickListener);
         rl_detial_more.setOnClickListener(myOnClickListener);
         rl_homepage_rank.setOnClickListener(myOnClickListener);
-        iv_clubhome_back.setOnClickListener(myOnClickListener);
-        iv_clubhome_notice.setOnClickListener(myOnClickListener);
+        iv_base_leftimage.setOnClickListener(myOnClickListener);
+        iv_base_rightimage.setOnClickListener(myOnClickListener);
         rl_homepage_add.setOnClickListener(myOnClickListener);
+        rl_homepage_add.setOnClickListener(myOnClickListener);
+        rl_homepage_jionclub.setOnClickListener(myOnClickListener);
     }
+
 
     private void initData() {
         dynamicsList = new ArrayList<>();
@@ -89,6 +115,9 @@ public class ClubHomePageActivity extends BaseActivity {
         lv_homepage_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (!mIsJioned){
+                    return;
+                }
                 if (position==0){
                     return;
                 }
@@ -100,6 +129,44 @@ public class ClubHomePageActivity extends BaseActivity {
                 intent.putExtra("bundle",bundle);
                 intent.putExtra("type",1);
                 startActivity(intent);
+            }
+            });
+
+        lv_homepage_list.setOnScrollListener(new AbsListView.OnScrollListener() {
+            boolean isBlack = false;
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                Log.i(TAG,"onScroll:"+firstVisibleItem);
+                if (firstVisibleItem == 0) {
+                    //头部透明度动态改变
+                    View childAt = view.getChildAt(0);
+                    if (childAt != null) {
+                        // 获取头布局现在的最上部的位置的相反数
+                        int top = -childAt.getTop();
+                        // 获取头布局的高度
+                        int headerHeight = childAt.getHeight() - 200;
+                        //Log.i(TAG,"top:"+top);
+                        //Log.i(TAG,"headerHeight:"+headerHeight);
+                        // 满足这个条件的时候，是头布局在XListview的最上面第一个控件的时候，只有这个时候，我们才调整透明度
+                        if (top <= headerHeight && top >= 0) {
+                            // 获取当前位置占头布局高度的百分比
+                            float pencent = (float) top /headerHeight;
+                            //Log.i(TAG,"pencent:"+pencent);
+                            rl_base_head_club_top.getBackground().setAlpha((int) (pencent * 255));
+                        }
+                    }
+                    isBlack = false;
+                }
+                else if (firstVisibleItem>0 && !isBlack){
+                    Log.i(TAG,"isBlack:"+isBlack);
+                    rl_base_head_club_top.getBackground().setAlpha(255);
+                    isBlack = true;
+                }
             }
         });
     }
@@ -125,16 +192,25 @@ public class ClubHomePageActivity extends BaseActivity {
                 case R.id.rl_homepage_rank:
                     startActivity(new Intent(ClubHomePageActivity.this,ClubNumberRankActivity.class));
                     break;
-                case R.id.iv_clubhome_back:
+                case R.id.iv_base_leftimage:
                     finish();
                     break;
-                case R.id.iv_clubhome_notice:
+                case R.id.iv_base_rightimage:
                     //finish();
                     break;
                 case R.id.rl_homepage_add:
                     startActivity(new Intent(ClubHomePageActivity.this,AddDynamicsActivity.class));
                     break;
+                case R.id.rl_homepage_jionclub:
+                    startActivity(new Intent(ClubHomePageActivity.this,ApplyJionClubActivity.class));
+                    break;
             }
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        rl_base_head_club_top.getBackground().setAlpha(255);
     }
 }

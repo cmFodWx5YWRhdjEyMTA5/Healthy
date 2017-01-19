@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.animation.Interpolator;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.utils.Constant;
 
 /**
  * Created by HP on 2017/1/4.
@@ -144,9 +145,10 @@ public class DashboardView extends View {
     }
 
     public void setAgeData(int age){
+        currentAge = 0;
         //加速器
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(currentAge, age);
-        valueAnimator.setDuration(1000);
+        valueAnimator.setDuration(Constant.AnimatorDuration);
         valueAnimator.setInterpolator(new Interpolator() {
             @Override
             public float getInterpolation(float v) {

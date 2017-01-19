@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -21,17 +22,17 @@ import com.lidroid.xutils.BitmapUtils;
 
 public class ClubDynamicsDetialActivity extends BaseActivity {
 
+    private ImageView iv_item_image1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_club_dynamics_detial);
 
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);  //影藏输入键盘
         initView();
         initData();
     }
-
-
-
 
     private void initView() {
         initHeadView();
@@ -54,7 +55,7 @@ public class ClubDynamicsDetialActivity extends BaseActivity {
         TextView tv_item_username = (TextView) inflate.findViewById(R.id.tv_item_username);
         TextView tv_item_time = (TextView) inflate.findViewById(R.id.tv_item_time);
         TextView tv_item_text = (TextView) inflate.findViewById(R.id.tv_item_text);
-        ImageView iv_item_image1 = (ImageView) inflate.findViewById(R.id.iv_item_image1);
+        iv_item_image1 = (ImageView) inflate.findViewById(R.id.iv_item_image1);
         ImageView iv_item_image2 = (ImageView) inflate.findViewById(R.id.iv_item_image2);
         ImageView iv_item_image3 = (ImageView) inflate.findViewById(R.id.iv_item_image3);
         ImageView iv_item_surname = (ImageView) inflate.findViewById(R.id.iv_item_surname);
@@ -72,7 +73,7 @@ public class ClubDynamicsDetialActivity extends BaseActivity {
         if (intent!=null){
             BitmapUtils bitmapUtils = new BitmapUtils(this);
             Bundle bundle = intent.getBundleExtra("bundle");
-            Dynamics dynamics = bundle.getParcelable("dynamics");
+            final Dynamics dynamics = bundle.getParcelable("dynamics");
 
             bitmapUtils.display(cv_item_usericon,dynamics.getUserIconurl());
             tv_item_username.setText(dynamics.getUsername());
@@ -107,14 +108,22 @@ public class ClubDynamicsDetialActivity extends BaseActivity {
 
             if (type==0){
                 //显示评论页
+                getWindow().setSoftInputMode(   WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);  //显示输入键盘
 
             }
             else if (type==1){
-                //显示详情页
-                et_detial_commentinput.setFocusable(false);
-
 
             }
+
+            //查看图片，测试
+            iv_item_image1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent1 = new Intent(ClubDynamicsDetialActivity.this,LookupPictureActivity.class);
+                    intent1.putExtra("imageUrl",dynamics.getImageList()[0]);
+                    startActivity(intent1);
+                }
+            });
         }
 
     }
@@ -122,5 +131,15 @@ public class ClubDynamicsDetialActivity extends BaseActivity {
     private void initData() {
 
 
+    }
+
+    class MyOnClickListener implements View.OnClickListener{
+
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()){
+
+            }
+        }
     }
 }

@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/x432"
         android:background="@drawable/asport">
-        <ImageView
+
+        <!--<ImageView
             android:id="@+id/iv_clubhome_back"
             android:layout_width="@dimen/y148"
             android:layout_height="@dimen/y148"
@@ -27,7 +28,7 @@
             android:padding="@dimen/y48"
             android:layout_marginTop="@dimen/x20"
             android:layout_alignParentRight="true"
-            android:src="@drawable/jul_tz"/>
+            android:src="@drawable/jul_tz"/>-->
 
         <TextView
             android:id="@+id/tv_clubhome_number"
@@ -185,4 +186,11 @@
                 android:layout_centerHorizontal="true"/>
         </RelativeLayout>
     </LinearLayout>
+
+    <View
+        android:id="@+id/view_bg"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x36"
+        android:background="#F3F3F3"
+        android:layout_below="@+id/ll_detial_bottom"></View>
 </RelativeLayout>

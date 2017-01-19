@@ -1,5 +1,6 @@
 package com.amsu.healthy.activity;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.ShowLocationOnMap;
 import com.amsu.healthy.view.CircleRingView;
@@ -42,6 +44,7 @@ public class MainActivity extends BaseActivity {
     private DashboardView dv_main_compass;
     private CircleRingView cv_mian_index;
     private CircleRingView cv_mian_warring;
+    private ValueAnimator mValueAnimator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +79,7 @@ public class MainActivity extends BaseActivity {
         TextView tv_main_indexvalue = (TextView) findViewById(R.id.tv_main_indexvalue);
 
 
+        setAgeTextAnimator(tv_main_age,0,60);
         MyOnClickListener myOnClickListener = new MyOnClickListener();
 
         rl_mian_start.setOnClickListener(myOnClickListener);
@@ -94,6 +98,18 @@ public class MainActivity extends BaseActivity {
         Log.i(TAG,"id:"+id);
 
 
+    }
+
+    //给文本年龄设置文字动画
+    private void setAgeTextAnimator(final TextView textView,int startAge,int endAge) {
+        mValueAnimator = ValueAnimator.ofInt(startAge, endAge);
+        mValueAnimator.setDuration(Constant.AnimatorDuration);
+        mValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                textView.setText(animation.getAnimatedValue().toString());
+            }
+        });
     }
 
     private void initData() {
@@ -119,6 +135,7 @@ public class MainActivity extends BaseActivity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
+        mValueAnimator.start();
         cv_mian_index.setValue(170);
         cv_mian_warring.setValue(270);
         dv_main_compass.setAgeData(50);
@@ -171,7 +188,7 @@ public class MainActivity extends BaseActivity {
                         boolean isPrefectInfo = MyUtil.getBooleanValueFromSP("isPrefectInfo");
                         if (isPrefectInfo){
                             List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
-                            if (deviceListFromSP.size()!=0){
+                            if (deviceListFromSP.size()==0){
                                 //没有绑定设备，提示用户去绑定
                                 startActivity(new Intent(MainActivity.this,MyDeviceActivity.class));
                             }

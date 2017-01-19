@@ -12,6 +12,7 @@ import android.widget.ListView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.ClubGroupDetialActivity;
+import com.amsu.healthy.activity.ClubHomePageActivity;
 import com.amsu.healthy.activity.ClubInfomationActivity;
 import com.amsu.healthy.activity.SetupClubActivity;
 import com.amsu.healthy.adapter.AllClubsAdapter;
@@ -72,11 +73,8 @@ public class ClubsFragment extends Fragment {
         lv_clubs_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Club club = clubList.get(position);
-                Intent intent = new Intent(getActivity(), ClubInfomationActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("club",club);
-                intent.putExtra("bundle",bundle);
+                Intent intent = new Intent(getActivity(), ClubHomePageActivity.class);
+                intent.putExtra("isJioned",false);
                 startActivity(intent);
             }
         });

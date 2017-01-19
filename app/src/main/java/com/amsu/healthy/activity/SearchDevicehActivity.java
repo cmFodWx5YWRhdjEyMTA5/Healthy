@@ -37,8 +37,6 @@ public class SearchDevicehActivity extends BaseActivity {
 
     }
 
-
-
     private void initView() {
         ImageView iv_heartrate_rotateimage = (ImageView) findViewById(R.id.iv_heartrate_rotateimage);
         tv_search_state = (TextView) findViewById(R.id.tv_search_state);
@@ -53,7 +51,9 @@ public class SearchDevicehActivity extends BaseActivity {
     }
 
     private void initDate() {
-        MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
+        boolean b = MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
+
+        Log.i(TAG,"startLeScan:"+b);
 
         /*new Thread(){
             @Override

@@ -206,4 +206,9 @@ public class NewsFragment extends Fragment {
         super.onPause();
         isNeedLooperPicture = false;
     }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+    }
 }

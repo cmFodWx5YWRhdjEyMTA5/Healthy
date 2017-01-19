@@ -60,7 +60,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".activity.BaseActivity" />
 
         <meta-data
@@ -97,13 +96,11 @@
         <activity android:name=".activity.HealthIndicatorAssessActivity" />
         <activity android:name=".activity.PhysicalAgeActivity" />
         <activity android:name=".activity.IndexWarringActivity" />
-        <activity android:name=".activity.SportCommunityActivity">
-
-        </activity>
+        <activity android:name=".activity.SportCommunityActivity"></activity>
         <activity android:name=".activity.StartRunActivity" />
         <activity android:name=".activity.NewsDetialActivity" />
         <activity android:name=".activity.ShowCommentActivity" />
-        <activity android:name=".activity.ClubHomePageActivity" />
+        <activity android:name=".activity.ClubHomePageActivity"></activity>
         <activity android:name=".activity.ClubGroupActivity" />
         <activity android:name=".activity.ClubCampaignActivity" />
         <activity android:name=".activity.ClubDetialActivity" />
@@ -124,7 +121,8 @@
         <activity android:name=".activity.ClubMyInfoEditActivity" />
         <activity android:name=".activity.ClubMyEnterInfoEditActivity" />
         <activity android:name=".activity.ClubDynamicsDetialActivity" />
-        <activity android:name=".activity.AddDynamicsActivity"></activity>
+        <activity android:name=".activity.AddDynamicsActivity" />
+        <activity android:name=".activity.LookupPictureActivity"></activity>
     </application>
 
 </manifest>

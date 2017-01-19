@@ -8,10 +8,9 @@
         android:id="@+id/lv_clubs_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/x36"
-        android:paddingRight="@dimen/x36"
         android:background="#FFFFFF"
         android:dividerHeight="@dimen/x1"
+        android:divider="@drawable/divider_listview_club"
         android:headerDividersEnabled="false">
     </ListView>
 

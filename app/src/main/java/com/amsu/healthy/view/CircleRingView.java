@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.animation.Interpolator;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.utils.Constant;
 
 /**
  * Created by HP on 2017/1/5.
@@ -63,8 +64,9 @@ public class CircleRingView extends View{
     }
 
     public void setValue(float value) {
+        currentValue = 0;
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(currentValue, value);
-        valueAnimator.setDuration(1000);
+        valueAnimator.setDuration(Constant.AnimatorDuration);
         valueAnimator.setInterpolator(new Interpolator() {
             @Override
             public float getInterpolation(float v) {

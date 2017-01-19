@@ -9,7 +9,8 @@
         android:scaleType="fitXY"
         android:layout_marginTop="@dimen/x34"
         android:layout_marginBottom="@dimen/x34"
-        android:src="@drawable/a"/>
+        android:layout_marginLeft="@dimen/x36"
+        android:src="@drawable/home_wd"/>
 
     <TextView
         android:id="@+id/tv_clubs_name"

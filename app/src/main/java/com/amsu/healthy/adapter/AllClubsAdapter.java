@@ -49,27 +49,41 @@ public class AllClubsAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
         Club club = clubList.get(position);
-
-        View inflate = View.inflate(context, R.layout.list_clubs_item, null);
-        RoundRectImageView iv_clubs_image = (RoundRectImageView) inflate.findViewById(R.id.iv_clubs_image);
-        TextView tv_clubs_name = (TextView) inflate.findViewById(R.id.tv_clubs_name);
-        TextView tv_clubs_number = (TextView) inflate.findViewById(R.id.tv_clubs_number);
-        TextView tv_clubs_type = (TextView) inflate.findViewById(R.id.tv_clubs_type);
-
-        if (!MyUtil.isEmpty(club.getSimallImageUrl())){
-            bitmapUtils.display(iv_clubs_image,club.getSimallImageUrl());
+        View inflate ;
+        MyHolder myHolder;
+        if (convertView!=null){
+            inflate = convertView;
+            myHolder  = (MyHolder) inflate.getTag();
+        }
+        else {
+            inflate = View.inflate(context, R.layout.list_clubs_item, null);
+            myHolder = new MyHolder();
+            myHolder.iv_clubs_image = (RoundRectImageView) inflate.findViewById(R.id.iv_clubs_image);
+            myHolder.tv_clubs_name = (TextView) inflate.findViewById(R.id.tv_clubs_name);
+            myHolder.tv_clubs_number = (TextView) inflate.findViewById(R.id.tv_clubs_number);
+            myHolder.tv_clubs_type = (TextView) inflate.findViewById(R.id.tv_clubs_type);
+            inflate.setTag(myHolder);
         }
 
-        tv_clubs_name.setText(club.getName());
-        tv_clubs_number.setText(club.getNumber());
-        tv_clubs_type.setText(club.getType());
+        if (!MyUtil.isEmpty(club.getSimallImageUrl())){
+            bitmapUtils.display(myHolder.iv_clubs_image,club.getSimallImageUrl());
+        }
 
-
-
+        myHolder.tv_clubs_name.setText(club.getName());
+        myHolder.tv_clubs_number.setText(club.getNumber());
+        myHolder.tv_clubs_type.setText(club.getType());
         return inflate;
     }
 
+    class MyHolder {
+        RoundRectImageView iv_clubs_image;
+        TextView tv_clubs_name ;
+        TextView tv_clubs_number;
+        TextView tv_clubs_type ;
+
+    }
 
     //往clubList里添加数据
     public void addClubGroup(Club clubGroup) {

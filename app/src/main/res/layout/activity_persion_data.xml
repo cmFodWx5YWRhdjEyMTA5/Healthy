@@ -16,6 +16,7 @@
         android:divider="@drawable/deiver_horiz_line"
         android:showDividers="middle"
         android:orientation="vertical"
+        android:dividerPadding="@dimen/x36"
         android:background="#FFFFFF">
         <RelativeLayout
             android:id="@+id/rl_persiondata_headicon"

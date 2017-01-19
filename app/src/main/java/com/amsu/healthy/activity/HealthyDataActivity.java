@@ -53,11 +53,11 @@ public class HealthyDataActivity extends BaseActivity {
     private int groupCalcuLength = 100; //
     private int[] calcuEcgRate = new int[groupCalcuLength*10]; //1000条数据
 
-    private int preGroupCalcuLength = 12*15; //有多少组数据就进行计算心率，12s一次，每秒15次，共12*15组
+    /*private int preGroupCalcuLength = 12*15; //有多少组数据就进行计算心率，12s一次，每秒15次，共12*15组
     private int fourGroupCalcuLength = 4*15; //有多少组数据就进行更新，4s更新一次，每秒15次，共4*15组
     private int[] preCalcuEcgRate = new int[preGroupCalcuLength*10]; //前一次数的数据，12s
     private int[] currCalcuEcgRate = new int[preGroupCalcuLength*10]; //当前的数据，12s
-    private int[] fourCalcuEcgRate = new int[fourGroupCalcuLength*10]; //4s的数据
+    private int[] fourCalcuEcgRate = new int[fourGroupCalcuLength*10]; //4s的数据*/
     private boolean isFirstCalcu = true;  //是否是第一次计算心率，第一次要连续12秒的数据
    private int currentIndex = 0;   //组的索引
 
@@ -66,7 +66,6 @@ public class HealthyDataActivity extends BaseActivity {
     private Queue<Integer> data0Q = new LinkedList<Integer>();
     private int heartRate;   //心率
     private TextView tv_healthydata_rate;
-
 
     private String test ="";
     private List<Device> deviceListFromSP;
@@ -88,6 +87,37 @@ public class HealthyDataActivity extends BaseActivity {
         HeartRateResult ecgResult = DiagnosisNDK.getEcgResult(test, test.length, 15);
         Log.i(TAG,"ecgResult:"+ecgResult.toString());*/
 
+    }
+
+    private void initView() {
+        initHeadView();
+        setCenterText("健康数据");
+        setRightText("我的设备");
+        setLeftImage(R.drawable.back_icon);
+
+        getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(HealthyDataActivity.this,MyDeviceActivity.class));
+            }
+        });
+
+        pv_healthydata_path = (EcgView) findViewById(R.id.pv_healthydata_path);
+        tv_healthydata_rate = (TextView) findViewById(R.id.tv_healthydata_rate);
+    }
+
+    private void initData() {
+        deviceListFromSP = MyUtil.getDeviceListFromSP();
+        MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
+
+        //绑定蓝牙，获取蓝牙服务
+        bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
     }
 
     // ble数据交互的关键参数
@@ -163,7 +193,7 @@ public class HealthyDataActivity extends BaseActivity {
             // 接收到从机数据
             String uuid = c.getUuid().toString();
             String hexData = DataUtil.byteArrayToHex(c.getValue());
-            Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
+            //Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
 
             //4.2写配置信息   onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 81 05 00 16
             //4.5App读主机设备的版本号  onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 84 07 88 88 00 16
@@ -185,7 +215,7 @@ public class HealthyDataActivity extends BaseActivity {
             for (int i=0;i<ints.length;i++){
                 data += ints[i]+",";
             }
-            Log.i(TAG,"onCharacteristicChanged滤波前:"+data);
+            //Log.i(TAG,"onCharacteristicChanged滤波前:"+data);
 
             test += data;
             //Log.i(TAG,"onCharacteristicChanged滤波后:"+data);
@@ -202,9 +232,9 @@ public class HealthyDataActivity extends BaseActivity {
                 }
                 else{
                     String ecgFileNameDependFormatTime = MyUtil.getECGFileNameDependFormatTime(new Date());
-                    Log.i(TAG,"ecgFileNameDependFormatTime:"+ecgFileNameDependFormatTime);
+                    //Log.i(TAG,"ecgFileNameDependFormatTime:"+ecgFileNameDependFormatTime);
                     //到12s
-                    Log.i(TAG,"test:"+test);
+                    //Log.i(TAG,"test:"+test);
                     test = "";
                     //isFirstCalcu = false;
                     currentIndex = 0;
@@ -217,13 +247,13 @@ public class HealthyDataActivity extends BaseActivity {
                     for (int j=0;j<calcuEcgRate.length;j++){
                         data0 += calcuEcgRate[j]+",";
                     }
-                    Log.i(TAG,"data0:"+data0);
-                    Log.i(TAG,"calcuEcgRate.length:"+calcuEcgRate.length);
-
+                    Log.i(TAG,"data:"+data0);
+                    //Log.i(TAG,"calcuEcgRate.length:"+calcuEcgRate.length);
 
                     //带入公式，计算心率
                     heartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, 150);
                     Log.i(TAG,"heartRate0:"+heartRate);
+                    //calcuEcgRate = new int[groupCalcuLength*10];
 
                     //更新心率
                     runOnUiThread(new Runnable() {
@@ -238,7 +268,8 @@ public class HealthyDataActivity extends BaseActivity {
                 }
                 currentIndex++;
             }
-            else {
+
+            /*else {
                 //第二次进来，采集4s数据
                 if (currentIndex<fourGroupCalcuLength){
                     //未到4s
@@ -291,7 +322,7 @@ public class HealthyDataActivity extends BaseActivity {
                 }
                 currentIndex++;
             }
-
+*/
             //滤波处理
             for (int i=0;i<ints.length;i++){
                 int temp = EcgFilterUtil.miniEcgFilterLp(ints[i], 0);
@@ -387,32 +418,7 @@ public class HealthyDataActivity extends BaseActivity {
         }
     };
 
-    private void initView() {
-        initHeadView();
-        pv_healthydata_path = (EcgView) findViewById(R.id.pv_healthydata_path);
-        tv_healthydata_rate = (TextView) findViewById(R.id.tv_healthydata_rate);
 
-    }
-
-    private void initData() {
-        setCenterText("健康数据");
-        setRightText("我的设备");
-        setLeftImage(R.drawable.back_icon);
-
-        getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
-        deviceListFromSP = MyUtil.getDeviceListFromSP();
-
-        MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
-
-        //绑定蓝牙，获取蓝牙服务
-        bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
-    }
 
 
     public void startSoS(View view) {
@@ -435,28 +441,6 @@ public class HealthyDataActivity extends BaseActivity {
         unbindService(mConnection);
         MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
     }
-
-    public void scanBel(View view) {
-        //mBluetoothAdapter.startLeScan(mLeScanCallback);
-    }
-
-    public void sendOrder1(View view) {
-        mLeService.send("44:A6:E5:1F:C5:E4","FF010A100C080E010016",true);
-    }
-
-    public void sendOrder2(View view) {
-        mLeService.send("44:A6:E5:1F:C5:E4","FF0206010016",true);
-    }
-    public void sendOrder3(View view) {
-        mLeService.send("44:A6:E5:1F:C5:E4","FF0206000016",true);
-    }
-
-    public void connect(View view) {
-        Log.i(TAG,"链接");
-        mLeService.connect("44:A6:E5:1F:C5:E4",false);
-    }
-
-
 
     public void test(View view) {
         loadDatas();

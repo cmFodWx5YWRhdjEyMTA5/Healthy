@@ -38,6 +38,9 @@ public class SportCommunityActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
+        setLeftImage(R.drawable.back_icon);
+        setCenterText("运动社区");
+
         vp_sport_content = (ViewPager) findViewById(R.id.vp_sport_content);
         v_sport_select = findViewById(R.id.v_sport_select);
         tv_sport_news = (TextView) findViewById(R.id.tv_sport_news);
@@ -49,8 +52,7 @@ public class SportCommunityActivity extends BaseActivity {
         tv_sport_clubs.setOnClickListener(myClickListener);
         tv_sport_mycommunity.setOnClickListener(myClickListener);
 
-        setLeftImage(R.drawable.back_icon);
-        setCenterText("运动社区");
+
 
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override

@@ -29,4 +29,6 @@ public class Constant {
 
     public static String checkAppUpdateURL = "https://bodylistener.amsu-new.com/intellingence/VersionController/getLastVersion";
 
+    public static long AnimatorDuration = 2000;  //动画时长，2s
+
 }

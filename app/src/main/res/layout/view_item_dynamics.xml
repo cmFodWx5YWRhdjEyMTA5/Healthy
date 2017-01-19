@@ -4,6 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#FFFFFF">
+
+
     <RelativeLayout
         android:id="@+id/rl_item_top"
         android:layout_width="match_parent"
@@ -14,7 +16,7 @@
             android:id="@+id/cv_item_usericon"
             android:layout_width="@dimen/x104"
             android:layout_height="@dimen/x104"
-            android:src="@drawable/a"
+            android:src="@drawable/home_wd"
             android:layout_centerVertical="true"/>
         <TextView
             android:id="@+id/tv_item_username"
@@ -63,13 +65,13 @@
             android:layout_weight="1"
             android:layout_height="@dimen/x328"
             android:scaleType="centerCrop"
-            android:src="@drawable/shape_8"/>
+            android:src="@drawable/home_wd"/>
         <ImageView
             android:id="@+id/iv_item_image2"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="@dimen/x328"
-            android:src="@drawable/shape_8"
+            android:src="@drawable/home_wd"
             android:scaleType="centerCrop"
             android:layout_marginLeft="@dimen/x12"/>
         <ImageView
@@ -77,7 +79,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="@dimen/x328"
-            android:src="@drawable/shape_8"
+            android:src="@drawable/home_wd"
             android:scaleType="centerCrop"
             android:layout_marginLeft="@dimen/x12"
             />
@@ -171,11 +173,12 @@
 
 
     </LinearLayout>
+
     <View
+        android:id="@+id/view_bg"
         android:layout_width="match_parent"
         android:layout_height="@dimen/x36"
-        android:layout_below="@+id/ll_bt"
-        android:background="#F3F3F3"></View>
-
+        android:background="#F3F3F3"
+        android:layout_below="@+id/ll_bt"></View>
 
 </RelativeLayout>

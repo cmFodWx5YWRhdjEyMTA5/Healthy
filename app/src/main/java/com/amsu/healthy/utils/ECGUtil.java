@@ -136,11 +136,12 @@ public class ECGUtil {
             }
             int avel = sum / size;
             int rate = 60 * s_rate / avel;
-            if (rate > 60 && rate < 100) {
-                result = rate;
+            result = rate;
+            /*if (rate > 60 && rate < 100) {
+
             } else {
                 result = 0;
-            }
+            }*/
 
         } catch (Exception e) {
             result = 0;
