@@ -46,14 +46,15 @@
                 android:layout_centerInParent="true"/>
 
             <TextView
+                android:id="@+id/tv_physical_age"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="58"
+                android:text="--"
                 android:textSize="@dimen/x128"
                 android:textColor="#FFFFFF"
                 android:layout_below="@+id/tv_text1"
                 android:layout_alignStart="@+id/tv_text1"
-                android:id="@+id/textView" />
+                />
 
         </RelativeLayout>
 
@@ -67,9 +68,10 @@
             android:background="@drawable/bg_healthyplan_top">
 
             <TextView
+                android:id="@+id/tv_physical_agereal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="实际年龄30"
+                android:text="实际年龄--"
                 android:textColor="#FFFFFF"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"

@@ -44,6 +44,7 @@ public class MyDeviceActivity extends BaseActivity {
 
         ListView lv_device_devicelist = (ListView) findViewById(R.id.lv_device_devicelist);
         deviceList = MyUtil.getDeviceListFromSP();;
+        Log.i(TAG,"deviceList:"+deviceList.toString());
 
         /*List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
         if (deviceListFromSP!=null){

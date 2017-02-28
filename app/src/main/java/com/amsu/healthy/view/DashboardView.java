@@ -67,11 +67,13 @@ public class DashboardView extends View {
         mPaint = new Paint(); //刻度盘
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setColor(Color.WHITE);
+        mPaint.setAntiAlias(true);
         mPaint.setStrokeWidth(width_dials);
 
         mTextPaint = new Paint();  //文字
         mTextPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mTextPaint.setColor(text_color);
+        mTextPaint.setAntiAlias(true);
         //mTextPaint.setStrokeWidth(2);
         mTextPaint.setTextSize(text_size);
 

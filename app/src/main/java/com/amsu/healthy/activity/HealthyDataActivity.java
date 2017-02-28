@@ -6,13 +6,17 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +32,8 @@ import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
 import com.ble.ble.BleService;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -52,6 +58,7 @@ public class HealthyDataActivity extends BaseActivity {
 
     private int groupCalcuLength = 100; //
     private int[] calcuEcgRate = new int[groupCalcuLength*10]; //1000条数据
+    private boolean isNext = false;
 
     /*private int preGroupCalcuLength = 12*15; //有多少组数据就进行计算心率，12s一次，每秒15次，共12*15组
     private int fourGroupCalcuLength = 4*15; //有多少组数据就进行更新，4s更新一次，每秒15次，共4*15组
@@ -59,9 +66,10 @@ public class HealthyDataActivity extends BaseActivity {
     private int[] currCalcuEcgRate = new int[preGroupCalcuLength*10]; //当前的数据，12s
     private int[] fourCalcuEcgRate = new int[fourGroupCalcuLength*10]; //4s的数据*/
     private boolean isFirstCalcu = true;  //是否是第一次计算心率，第一次要连续12秒的数据
-   private int currentIndex = 0;   //组的索引
+    private int currentIndex = 0;   //组的索引
 
     private List<Integer> datas = new ArrayList<>();
+
 
     private Queue<Integer> data0Q = new LinkedList<Integer>();
     private int heartRate;   //心率
@@ -72,6 +80,10 @@ public class HealthyDataActivity extends BaseActivity {
     private String connecMac;
     private boolean isConnectted  =false;
     private boolean isConnectting  =false;
+    private List<Integer> heartRateDates = new ArrayList<>();
+    private boolean isThreeMit = false;
+    private Timer mDrawWareTimer;
+    private boolean isStartEcgData;
 
 
     @Override
@@ -110,14 +122,21 @@ public class HealthyDataActivity extends BaseActivity {
 
         pv_healthydata_path = (EcgView) findViewById(R.id.pv_healthydata_path);
         tv_healthydata_rate = (TextView) findViewById(R.id.tv_healthydata_rate);
+
+        startTiming();  //开始计时，测试
     }
 
     private void initData() {
         deviceListFromSP = MyUtil.getDeviceListFromSP();
-        MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
+        if (MainActivity.mBluetoothAdapter!=null){
+            MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
 
-        //绑定蓝牙，获取蓝牙服务
-        bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
+            //绑定蓝牙，获取蓝牙服务
+            bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
+        }
+
+
+
     }
 
     // ble数据交互的关键参数
@@ -164,11 +183,11 @@ public class HealthyDataActivity extends BaseActivity {
                 public void run() {
                     super.run();
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(2000);
                         Log.i(TAG,"写配置");
                         mLeService.send(connecMac, Constant.writeConfigureOrder,true);  //开启数据传输
 
-                        Thread.sleep(1000);
+                        Thread.sleep(2000);
                         Log.i(TAG,"开启数据指令");
                         mLeService.send(connecMac, Constant.openDataTransmitOrder,true);  //开启数据传输
                     } catch (InterruptedException e) {
@@ -193,7 +212,7 @@ public class HealthyDataActivity extends BaseActivity {
             // 接收到从机数据
             String uuid = c.getUuid().toString();
             String hexData = DataUtil.byteArrayToHex(c.getValue());
-            //Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
+            Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
 
             //4.2写配置信息   onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 81 05 00 16
             //4.5App读主机设备的版本号  onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 84 07 88 88 00 16
@@ -209,65 +228,78 @@ public class HealthyDataActivity extends BaseActivity {
             if (hexData.length()<40){
                 return;
             }
-            final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
 
-            String data = "";
-            for (int i=0;i<ints.length;i++){
-                data += ints[i]+",";
-            }
-            //Log.i(TAG,"onCharacteristicChanged滤波前:"+data);
+            startTiming();
 
-            test += data;
-            //Log.i(TAG,"onCharacteristicChanged滤波后:"+data);
-            //cacheText += data;
+            if(hexData.startsWith("FF 83 0F")){
+                //心电数据
+                //Log.i(TAG,"心电hexData:"+hexData);
+                final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
 
-            //Log.i(TAG,"currentIndex:"+currentIndex);
-            if (isFirstCalcu){
-                //第一次计算，连续12秒数据
-                if (currentIndex<groupCalcuLength){
-                    //未到12s
-                    for (int j=0;j<ints.length;j++){
-                        calcuEcgRate[currentIndex*10+j] = ints[j];
-                    }
+                String data = "";
+                for (int i=0;i<ints.length;i++){
+                    data += ints[i]+",";
                 }
-                else{
-                    String ecgFileNameDependFormatTime = MyUtil.getECGFileNameDependFormatTime(new Date());
-                    //Log.i(TAG,"ecgFileNameDependFormatTime:"+ecgFileNameDependFormatTime);
-                    //到12s
-                    //Log.i(TAG,"test:"+test);
-                    test = "";
-                    //isFirstCalcu = false;
-                    currentIndex = 0;
+                //Log.i(TAG,"onCharacteristicChanged滤波前:"+data);
+                //滤波处理
+                for (int i=0;i<ints.length;i++){
+                    int temp = EcgFilterUtil.miniEcgFilterLp(ints[i], 0);
+                    temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
+                    ints[i] = temp;
+                }
+                test += data;
+                //Log.i(TAG,"onCharacteristicChanged滤波后:"+data);
+                //cacheText += data;
+
+
+                //Log.i(TAG,"currentIndex:"+currentIndex);
+                if (isFirstCalcu){
+                    //第一次计算，连续12秒数据
+                    if (currentIndex<groupCalcuLength){
+                        //未到12s
+                        for (int j=0;j<ints.length;j++){
+                            calcuEcgRate[currentIndex*10+j] = ints[j];
+                        }
+                    }
+                    else{
+                        String ecgFileNameDependFormatTime = MyUtil.getECGFileNameDependFormatTime(new Date());
+                        //Log.i(TAG,"ecgFileNameDependFormatTime:"+ecgFileNameDependFormatTime);
+                        //到12s
+                        //Log.i(TAG,"test:"+test);
+                        test = "";
+                        //isFirstCalcu = false;
+                        currentIndex = 0;
 
                     /*for (int n=0;n<currCalcuEcgRate.length;n++){
                         preCalcuEcgRate[n] = currCalcuEcgRate[n];
                     }
 */
-                    String data0 = "";
-                    for (int j=0;j<calcuEcgRate.length;j++){
-                        data0 += calcuEcgRate[j]+",";
-                    }
-                    Log.i(TAG,"data:"+data0);
-                    //Log.i(TAG,"calcuEcgRate.length:"+calcuEcgRate.length);
-
-                    //带入公式，计算心率
-                    heartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, 150);
-                    Log.i(TAG,"heartRate0:"+heartRate);
-                    //calcuEcgRate = new int[groupCalcuLength*10];
-
-                    //更新心率
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            tv_healthydata_rate.setText(heartRate+"");
+                        String data0 = "";
+                        for (int j=0;j<calcuEcgRate.length;j++){
+                            data0 += calcuEcgRate[j]+",";
                         }
-                    });
-                    for (int j=0;j<ints.length;j++){
-                        calcuEcgRate[currentIndex*10+j] = ints[j];
+                        //Log.i(TAG,"data:"+data0);
+                        //Log.i(TAG,"calcuEcgRate.length:"+calcuEcgRate.length);
+
+                        //带入公式，计算心率
+                        heartRate = ECGUtil.countEcgRate1(calcuEcgRate, calcuEcgRate.length, 150);
+                        //Log.i(TAG,"heartRate0:"+heartRate);
+                        //calcuEcgRate = new int[groupCalcuLength*10];
+                        heartRateDates.add(heartRate);
+
+                        //更新心率
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tv_healthydata_rate.setText(heartRate+"");
+                            }
+                        });
+                        for (int j=0;j<ints.length;j++){
+                            calcuEcgRate[currentIndex*10+j] = ints[j];
+                        }
                     }
+                    currentIndex++;
                 }
-                currentIndex++;
-            }
 
             /*else {
                 //第二次进来，采集4s数据
@@ -323,46 +355,119 @@ public class HealthyDataActivity extends BaseActivity {
                 currentIndex++;
             }
 */
-            //滤波处理
-            for (int i=0;i<ints.length;i++){
-                int temp = EcgFilterUtil.miniEcgFilterLp(ints[i], 0);
-                temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
-                ints[i] = temp;
-            }
 
-            //绘图
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    pv_healthydata_path.addEcgOnGroupData(ints);
+
+                //绘图
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        pv_healthydata_path.addEcgOnGroupData(ints);
+                    }
+                });
+
+                //写入文件时用到，以逗号分隔
+                data = "";
+                for (int i=0;i<ints.length;i++){
+                    data += ints[i]+",";
                 }
-            });
 
-            //写入文件时用到，以逗号分隔
-            data = "";
-            for (int i=0;i<ints.length;i++){
-                data += ints[i]+",";
-            }
+                //写到文件里
+                try {
+                    if (fileOutputStream==null){
+                        String filePath = getCacheDir()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";  //随机生成一个文件
+                        //String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";
 
-            //写到文件里
-            try {
-                if (fileOutputStream==null){
-                    String filePath = getCacheDir()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";  //随机生成一个文件
-                    fileOutputStream = new FileOutputStream(filePath,true);
-                    MyUtil.putStringValueFromSP("cacheFileName",filePath);
+                        fileOutputStream = new FileOutputStream(filePath,true);
+                        MyUtil.putStringValueFromSP("cacheFileName",filePath);
+                    }
+                    byte[] bytes = data.getBytes();
+                    fileOutputStream.write(bytes,0,bytes.length);
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                byte[] bytes = data.getBytes();
-                fileOutputStream.write(bytes,0,bytes.length);
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+            else if(hexData.startsWith("FF 86 11")){
+                //加速度数据
+                //Log.i(TAG,"加速度hexData:"+hexData);
+                final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 12); //一次的数据，12位
+                //FF 42 04 77 0F 93 FF 26 04 74 0F 47
+                int xACC = 0;
+                int yACC = 0;
+                int zACC = 0;
+                for (int i=0;i<ints.length;i++){
+                    if (i==0 || i==6){
+                        //X
+                        if(ints[i]>127)
+                        {
+                            xACC=ints[i]*256+ints[i+1]-65536;
+                        }
+                        else
+                        {
+                            xACC=ints[i]*256+ints[i+1];
+                        }
+                        //Log.i(TAG,"xACC:"+xACC);
+
+                    }
+                    else if (i==2 || i==8){
+                        //Y
+
+                        if(ints[i]>127)
+                        {
+                            yACC=ints[i]*256+ints[i+1]-65536;
+                        }
+                        else
+                        {
+                            yACC=ints[i]*256+ints[i+1];
+                        }
+                        //Log.i(TAG,"xACC:"+yACC);
+                    }
+                    else if (i==4 || i==10){
+                        //Z
+
+                        if(ints[i]>127)
+                        {
+                            zACC=ints[i]*256+ints[i+1]-65536;
+                        }
+                        else
+                        {
+                            zACC=ints[i]*256+ints[i+1];
+                        }
+                        //Log.i(TAG,"xACC:"+zACC);
+                    }
+                }
+                Log.i(TAG,"xACC:"+xACC+",yACC:"+yACC+",zACC:"+zACC);
+
+
+
+
+            }
+
+
+
 
         }
 
     };
+
+    //开始三分钟计时
+    public void startTiming(){
+        if (!isStartEcgData){
+            isStartEcgData = true;
+            final Timer timer = new Timer();
+            TimerTask tt=new TimerTask() {
+                @Override
+                public void run() {
+                    Log.i(TAG,"TimerTask:到点了");
+                    isThreeMit = true;
+                    timer.cancel();
+                }
+            };
+            timer.schedule(tt, 1000*60*3);
+        }
+    }
 
 
 
@@ -426,20 +531,188 @@ public class HealthyDataActivity extends BaseActivity {
     }
 
     public void startAnalysis(View view) {
-        startActivity(new Intent(this,MoveStateActivity.class));
+        Log.i(TAG,"startAnalysis");
+        if (!isThreeMit){
+            Log.i(TAG,"!isThreeMit");
+            View inflate = View.inflate(this, R.layout.view_dialog_showchoose, null);
+            TextView bt_choose_cancel = (TextView) inflate.findViewById(R.id.bt_choose_cancel);
+            TextView bt_choose_ok = (TextView) inflate.findViewById(R.id.bt_choose_ok);
+
+
+            final AlertDialog alertDialog = new AlertDialog.Builder(HealthyDataActivity.this)
+                    .setView(inflate)
+                    .create();
+            alertDialog.show();
+            float width = getResources().getDimension(R.dimen.x800);
+            float height = getResources().getDimension(R.dimen.x500);
+
+            alertDialog.getWindow().setLayout(new Float(width).intValue(),new Float(height).intValue());
+
+                    /*.setTitle("采集未满3分钟，无法分析出HRV的值，是否要继续采集？")
+                    .setPositiveButton("继续采集", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .setNegativeButton("直接分析", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            startActivity(new Intent(HealthyDataActivity.this,MoveStateActivity.class));
+                            isNext = true;
+                            if (heartRateDates.size()>0){
+                                String heartData = "";
+                                for (int i=0;i<heartRateDates.size();i++){
+                                    heartData += heartRateDates.get(i)+",";
+                                    MyUtil.putStringValueFromSP("heartData",heartData);
+                                }
+                            }
+
+                        }
+                    })
+                    .create();*/
+
+            bt_choose_cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alertDialog.dismiss();
+                }
+            });
+
+            bt_choose_ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(HealthyDataActivity.this,MoveStateActivity.class));
+                    isNext = true;
+                    if (heartRateDates.size()>0){
+                        String heartData = "";
+                        for (int i=0;i<heartRateDates.size();i++){
+                            heartData += heartRateDates.get(i)+",";
+                            MyUtil.putStringValueFromSP("heartData",heartData);
+                        }
+                    }
+                    alertDialog.dismiss();
+                }
+            });
+
+            //alertDialog.setCanceledOnTouchOutside(false);
+
+        }
+        else{
+            startActivity(new Intent(HealthyDataActivity.this,MoveStateActivity.class));
+            if (heartRateDates.size()>0){
+                String heartData = "";
+                for (int i=0;i<heartRateDates.size();i++){
+                    heartData += heartRateDates.get(i)+",";
+                    MyUtil.putStringValueFromSP("heartData",heartData);
+                }
+            }
+        }
+
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
+        deviceListFromSP = MyUtil.getDeviceListFromSP();  //界面可见时重新获取设备列表，以更新，以便蓝牙扫描时在设备列表里
+
+        //测试(模拟器上演示)
+        /*FileInputStream fileInputStream = null;
+        String ecgDatatext = "";
+        String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";
+        Log.i(TAG,"cacheFileName:"+cacheFileName);
+        if (!cacheFileName.equals("")){
+            try {
+                if (fileInputStream==null){
+                    File file = new File(cacheFileName);
+                    if (file.exists()){
+                        fileInputStream = new FileInputStream(cacheFileName);
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (fileInputStream!=null){
+            byte [] mybyte = new byte[1024];
+            int length=0;
+            try {
+                while (true) {
+                    length = fileInputStream.read(mybyte,0,mybyte.length);
+                    Log.i(TAG,"length:"+length);
+                    if (length!=-1) {
+                        String s = new String(mybyte,0,length);
+                        ecgDatatext +=s;
+                    }else {
+                        break;
+                    }
+                }
+                Log.i(TAG,"ecgDatatext:"+ecgDatatext);
+                if (!ecgDatatext.equals("")){
+                    //此处的数据是滤波之后的，无需再进行滤波
+                    String[] allGrounpData = ecgDatatext.split(",");
+                    for (int i=0;i<allGrounpData.length;i++) {
+                        datas.add(Integer.parseInt(allGrounpData[i]));
+                    }
+                    data0Q.addAll(datas);
+                    startDrawSimulator();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            finally {
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }*/
+
+    }
+
+    //开始画线
+    private void startDrawSimulator(){
+        mDrawWareTimer = new Timer();
+        mDrawWareTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(EcgView.isRunning){
+                    if(data0Q.size() > 0){
+                        pv_healthydata_path.addEcgCacheData(data0Q.poll());
+                    }
+                }
+            }
+        }, 0, 2);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mDrawWareTimer!=null){
+            mDrawWareTimer.cancel();
+            mDrawWareTimer = null;
+        }
+        /*if (mUpdateThread!=null){
+            try {
+                mUpdateThread.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }*/
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mConnection);
-        MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+        //unbindService(mConnection);
+        //MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+
+
     }
 
     public void test(View view) {

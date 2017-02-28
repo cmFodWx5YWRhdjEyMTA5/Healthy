@@ -12,22 +12,22 @@
         android:paddingRight="@dimen/x12"
         android:background="#FFFFFF">
         <TextView
-            android:id="@+id/tv_rate_text1"
+            android:id="@+id/tv_hrr_text1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/y64"
-            android:text="心理恢复能力"
+            android:text="心率恢复能力"
             android:textColor="#9a9a9a"
             android:textSize="@dimen/x48"
             android:layout_centerHorizontal="true" />
 
         <TextView
-            android:id="@+id/tv_rate_text2"
+            android:id="@+id/tv_hrr_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tv_rate_text1"
+            android:layout_below="@id/tv_hrr_text1"
             android:layout_marginTop="@dimen/y10"
-            android:text="98"
+            android:text="--"
             android:textColor="#000000"
             android:textSize="@dimen/x259"
             android:layout_centerHorizontal="true" />
@@ -36,7 +36,7 @@
             android:id="@+id/tv_rate_text3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tv_rate_text2"
+            android:layout_below="@id/tv_hrr_value"
             android:layout_marginTop="@dimen/y20"
             android:text="BMP"
             android:textColor="#9a9a9a"
@@ -89,7 +89,7 @@
             android:textSize="@dimen/x32"
             android:text="关于HRR"/>
         <TextView
-            android:id="@+id/tv_hrv_ala2"
+            android:id="@+id/tv_hrr_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_hrv_ala1"
@@ -102,13 +102,13 @@
             android:id="@+id/tv_hrv_ala3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tv_hrv_ala2"
+            android:layout_below="@id/tv_hrr_state"
             android:layout_marginTop="@dimen/y24"
             android:textColor="#9e9e9e"
             android:textSize="@dimen/x48"
             android:text="健康意见"/>
         <TextView
-            android:id="@+id/tv_hrv_ala4"
+            android:id="@+id/tv_hrr_suggestion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_hrv_ala3"
@@ -123,6 +123,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="@dimen/y54">
             <Button
+                android:id="@+id/bt_hrv_history"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="@dimen/y124"
@@ -131,6 +132,7 @@
                 android:background="@drawable/bg_bt_bigcircle"
                 android:text="历史记录"/>
             <Button
+                android:id="@+id/bt_hrv_myreport"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="@dimen/y124"

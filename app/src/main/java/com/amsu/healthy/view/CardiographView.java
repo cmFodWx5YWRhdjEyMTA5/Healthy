@@ -9,6 +9,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import com.amsu.healthy.R;
+
 /**
  * Created by wing on 16/3/30.
  */
@@ -27,11 +29,11 @@ public class CardiographView extends View {
     //自身的大小
     protected int mWidth,mHeight;
 
-    //网格宽度
-    protected int mGridWidth = 75;
-    //小网格的宽度
-    protected int mSGridWidth = 15;
 
+    //小网格的宽度
+    protected int mSGridWidth = (int) getResources().getDimension(R.dimen.x10);
+    //网格宽度
+    protected int mGridWidth = mSGridWidth*5;
 
     protected int mHorSmiallGridCount ;  //小网格的个数
     protected int mVirGigGridCount ;  //小网格的个数
@@ -81,7 +83,10 @@ public class CardiographView extends View {
         //横线个数
         int hSNum = mHeight/mSGridWidth-(mHeight/mSGridWidth)%5;
         mPaint.setColor(mSGridColor);
-        mPaint.setStrokeWidth(2);
+
+        float smallGridWidth = getResources().getDimension(R.dimen.x1);
+        mPaint.setStrokeWidth(smallGridWidth);
+
         //画竖线
         for(int i = 0;i<vSNum+1;i++){
             canvas.drawLine(i*mSGridWidth,0,i*mSGridWidth,hSNum*mSGridWidth,mPaint);
@@ -98,7 +103,8 @@ public class CardiographView extends View {
         int hNum = mHeight / mGridWidth;
 
         mPaint.setColor(mGridColor);
-        mPaint.setStrokeWidth(2);
+        float bigGridWidth = getResources().getDimension(R.dimen.x2);
+        mPaint.setStrokeWidth(bigGridWidth);
 
         //画竖线
         for(int i = 0;i<vNum+1;i++){

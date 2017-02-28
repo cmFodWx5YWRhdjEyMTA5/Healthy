@@ -16,4 +16,5 @@ public class DeviceList{
     public void setDeviceList(List<Device> deviceList) {
         this.deviceList = deviceList;
     }
+
 }

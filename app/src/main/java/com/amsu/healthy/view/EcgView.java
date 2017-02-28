@@ -32,13 +32,13 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     public static boolean isRunning;
     private Canvas mCanvas;
 
-    private float ecgMax = 255;//心电的最大值
+    private float ecgMax = 255/3;//心电的最大值
     private int sleepTime = 1000/15; //每次锁屏的时间间距，单位:ms
     private float lockWidth;//每次锁屏需要画的
     private static int ecgPerCount = 10;//每次画心电数据的个数，心电每秒有500个数据包
 
     private static Queue<Integer> ecgDatas = new LinkedList<Integer>();
-    private static Queue<Integer> ecgOneGroupData = new LinkedList<Integer>();
+    private static Queue<Integer> ecgOneGroupData = new LinkedList<>();
 
     private Paint mLinePaint;//背景
     private Paint mWavePaint;//画波形图的画笔
@@ -50,7 +50,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
     private int startX;//每次画线的X坐标起点
     private double ecgXOffset;//每次X坐标偏移的像素
-    private int blankLineWidth = 30;//右侧空白点的宽度
+    private float blankLineWidth = getResources().getDimension(R.dimen.x40);;//右侧空白点的宽度
 
     private static SoundPool soundPool;
     private static int soundId;//心跳提示音
@@ -60,17 +60,22 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     protected int mLineColor = Color.parseColor("#ff3b30");
     //网格颜色
     protected int mGridColor = Color.parseColor("#C9C9C9");
+    //protected int mGridColor = Color.parseColor("#C9C9C9");
     //小网格颜色
     protected int mSGridColor = Color.parseColor("#E8E8E8");
+    //protected int mSGridColor = Color.parseColor("#E8E8E8");
     //背景颜色
     protected int mBackgroundColor = Color.WHITE;
-    //网格宽度
-    protected int mGridWidth = 75;
+
     //小网格的宽度
-    protected int mSGridWidth = 15;
+    //protected int mSGridWidth = 15;
+    protected float mSGridWidth = getResources().getDimension(R.dimen.x10);
+    //网格宽度
+    protected float mGridWidth = mSGridWidth*5;
     protected int mHorSmiallGridCount ;  //小网格的个数
     protected int mVirGigGridCount ;  //小网格的个数
     private boolean isStartCacheDrawLine = false;
+
 
 
     public EcgView(Context context, AttributeSet attrs){
@@ -86,7 +91,10 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         mLinePaint = new Paint();
         mWavePaint = new Paint();
         mWavePaint.setColor(mLineColor);
-        mWavePaint.setStrokeWidth(6);
+        mWavePaint.setAntiAlias(true);
+        float waveWidth = getResources().getDimension(R.dimen.x3);
+        Log.i(TAG,"waveWidth:"+waveWidth);
+        mWavePaint.setStrokeWidth(waveWidth);
 
         soundPool = new SoundPool(1, AudioManager.STREAM_RING, 0);
         soundId = soundPool.load(mContext, R.raw.heartbeat, 1);
@@ -94,10 +102,12 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         ecgXOffset = lockWidth / ecgPerCount;
         startY0 = mHeight * (1 / 2);//波1初始Y坐标是控件高度的1/2
         ecgYRatio = mHeight / ecgMax;
+
+        Log.i(TAG,"mSGridWidth:"+mSGridWidth);
     }
 
     private void converXOffset(){
-        lockWidth = (float)5*(mSGridWidth/3);
+        lockWidth = 7*(mSGridWidth/3);
         Log.i(TAG,"lockWidth:"+lockWidth);
     }
 
@@ -120,10 +130,11 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         mWidth = w;
         mHeight = h ;
         isRunning = true;
+
         init();
 
-        mHorSmiallGridCount = mWidth/mSGridWidth;
-        mVirGigGridCount = mHeight / mGridWidth;
+        mHorSmiallGridCount = (int) (mWidth/mSGridWidth);
+        mVirGigGridCount = (int) (mHeight / mGridWidth);
         Log.i("onSizeChanged","==mWidth:"+mWidth+",mHeight:"+mHeight);
         super.onSizeChanged(w, h, oldw, oldh);
     }
@@ -202,7 +213,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
                  * 因为有数据一次画ecgPerCount个数，那么无数据时候就应该画ecgPercount倍数长度的中线
                  */
                 int newX = (int) (mStartX + ecgXOffset * ecgPerCount);
-                int newY = ecgConver((int) (ecgMax / 2));
+                int newY = ecgConver((int) (ecgMax / 6));
                 mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
                 startY0 = newY;
             }
@@ -229,10 +240,10 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
                  * 如果没有数据
                  * 因为有数据一次画ecgPerCount个数，那么无数据时候就应该画ecgPercount倍数长度的中线
                  */
-                int newX = (int) (mStartX + ecgXOffset * ecgPerCount);
+               /* int newX = (int) (mStartX + ecgXOffset * ecgPerCount);
                 int newY = ecgConver((int) (ecgMax / 2));
                 mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
-                startY0 = newY;
+                startY0 = newY;*/
             }
         }catch (NoSuchElementException e){
             e.printStackTrace();
@@ -245,10 +256,15 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
      * @return
      */
     private int ecgConver(int data){
-        /*data = (int) (ecgMax - data);
-        data = (int) (data * ecgYRatio);*/
-        int i = data * 5 + mHeight / 2;
-        return i;
+        data = (int) (data * ecgYRatio);
+
+        return data+ mHeight / 2;
+        /*if (data==1){
+            return data+ mHeight / 2;
+        }*/
+
+        /*int i = data * 4 + mHeight / 2;
+        return i;*/
 
 
     }
@@ -262,6 +278,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
     //添加一组的数据
     public void addEcgOnGroupData(int[] data){
+        //soundPool.play(soundId, 0.8f, 0.8f,1, 0, 1.0f);
         for (int i=0;i<data.length;i++){
             ecgOneGroupData.add(data[i]);
         }
@@ -283,12 +300,20 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
         //画小网格
         //竖线个数
-        int vSNum = mWidth /mSGridWidth;
+        int vSNum = (int) (mWidth /mSGridWidth);
 
         //横线个数
-        int hSNum = mHeight/mSGridWidth-(mHeight/mSGridWidth)%5;
+        int hSNum = (int) (mHeight/mSGridWidth-(mHeight/mSGridWidth)%5);
         mLinePaint.setColor(mSGridColor);
-        mLinePaint.setStrokeWidth(2);
+        float smallGridWidth = getResources().getDimension(R.dimen.x2);
+
+        if (smallGridWidth<1.0){
+            mLinePaint.setStrokeWidth(1);
+        }
+        else {
+            mLinePaint.setStrokeWidth(smallGridWidth);
+        }
+
         //画竖线
         for(int i = 0;i<vSNum+1;i++){
             canvas.drawLine(i*mSGridWidth,0,i*mSGridWidth,hSNum*mSGridWidth,mLinePaint);
@@ -300,12 +325,12 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
         //画大网格
         //竖线个数
-        int vNum = mWidth / mGridWidth;
+        int vNum = (int) (mWidth / mGridWidth);
         //横线个数
-        int hNum = mHeight / mGridWidth;
+        int hNum = (int) (mHeight / mGridWidth);
 
         mLinePaint.setColor(mGridColor);
-        mLinePaint.setStrokeWidth(2);
+        mLinePaint.setStrokeWidth(1);
 
         //画竖线
         for(int i = 0;i<vNum+1;i++){

@@ -18,7 +18,7 @@ import com.amsu.healthy.R;
  */
 
 public class FoldLineView extends View {
-    private int[] mYIndex ;
+    private float[] mYIndex ;
     private int mGridHeight;
     private int mGrigWidth;
     private Paint mPaint;  //曲线画笔
@@ -43,9 +43,10 @@ public class FoldLineView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mGridHeight = h / 5;   //每一行所占的高度
-        mGrigWidth = w / mYIndex.length;   //每一个数据所占得宽度
-
+        mGridHeight = h / 100;   //每一行所占的高度
+        if (mYIndex!=null){
+            mGrigWidth = w / mYIndex.length;   //每一个数据所占得宽度
+        }
     }
 
     private void init(Context context, AttributeSet attrs){
@@ -90,10 +91,12 @@ public class FoldLineView extends View {
     }
 
     public void setData(int[] datas,int maxRate){
-        mYIndex = new int[datas.length];
+        mYIndex = new float[datas.length];
         for (int i=0;i<datas.length;i++){
             float percent = (float) datas[i] / maxRate;   //计算心率所占的百分比，然后将心率分类，分为5类
-            if (percent<0.6){
+            mYIndex[i] = percent*100;
+
+            /*if (percent<0.6){
                 mYIndex[i] = 4;
             }
             else if (percent>=0.6 && percent<0.7){
@@ -107,7 +110,7 @@ public class FoldLineView extends View {
             }
             else if (percent>=0.9 && percent<1){
                 mYIndex[i] = 0;
-            }
+            }*/
         }
         invalidate();
     }

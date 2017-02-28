@@ -9,18 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.view.FoldLineView;
 import com.amsu.healthy.view.FoldLineViewWithText;
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -49,9 +39,10 @@ public class HeartRatemouthFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        int[] datas = {67,79,144,77,85,80,81};  //心率数据
+        int[] datas =    {67,59,54,67,60,60,61};  //心率数据
+        int[] data_max = {97,71,67,89,95,80,75};
         String[] labels = {"2日","4日","5日","6日","9日","10日","12日"};  //心率数据，需要保证数据长度的一致
-        mLineChart.setData(datas,labels);
+        mLineChart.setData(datas,data_max,labels);
     }
 
 

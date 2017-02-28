@@ -11,6 +11,7 @@
         android:layout_width="@dimen/x400"
         android:layout_height="@dimen/x400"
         android:text="静止"
+        android:clickable="true"
         android:layout_marginTop="@dimen/y346"
         android:layout_centerHorizontal="true"
         android:gravity="center"
@@ -22,6 +23,7 @@
     <TextView
         android:id="@+id/tv_movestate_sport"
         android:layout_width="@dimen/x400"
+        android:clickable="true"
         android:layout_height="@dimen/x400"
         android:layout_below="@id/tv_movestate_static"
         android:text="运动"

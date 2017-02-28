@@ -19,11 +19,18 @@ public class MoveStateActivity extends BaseActivity {
         finish();
     }
 
-    public void sportDump(View view) {
-        startActivity(new Intent(this,HeartRateActivity.class));
-    }
 
+    //静态情况
     public void staticDump(View view) {
         startActivity(new Intent(this,HeartRateActivity.class));
+        finish();
+    }
+
+    //运动情况，要计算恢复心率
+    public void sportDump(View view) {
+        Intent intent = new Intent(this, HeartRateActivity.class);
+        intent.putExtra("isSport",true);
+        startActivity(intent);
+        finish();
     }
 }

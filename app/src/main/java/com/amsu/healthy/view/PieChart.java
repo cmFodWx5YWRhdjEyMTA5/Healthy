@@ -59,6 +59,7 @@ public class PieChart extends View {
         mPaint = new Paint();
         mPaint.setStrokeWidth(ring_width);
         mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setAntiAlias(true);
     }
 
     @Override

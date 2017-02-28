@@ -307,7 +307,7 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
             @Override
             public void onSelect(int position) {
                 Log.i(TAG,"选择了"+grade.get(position));
-                heightValue = position+"";
+                heightValue = grade.get(position)+"";
             }
         });
         //显示对话框

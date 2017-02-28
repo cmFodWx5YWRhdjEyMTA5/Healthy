@@ -1,18 +1,24 @@
 package com.amsu.healthy.fragment.analysis;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.activity.HistoryRecordActivity;
+import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.EcgView;
 import com.amsu.healthy.view.PathView;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -36,6 +42,7 @@ public class ECGFragment extends Fragment {
     private List<Integer> datas = new ArrayList<>();
 
     private Queue<Integer> data0Q = new LinkedList<Integer>();
+    private Timer mDrawWareTimer;
 
     @Nullable
     @Override
@@ -50,11 +57,15 @@ public class ECGFragment extends Fragment {
     private void initView() {
         pv_ecg_path = (EcgView) inflate.findViewById(R.id.pv_ecg_path);
 
-        String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
+        //String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
+        String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";  //测试
         if (!cacheFileName.equals("")){
             try {
                 if (fileInputStream==null){
-                    fileInputStream = new FileInputStream(cacheFileName);
+                    File file = new File(cacheFileName);
+                    if (file.exists()){
+                        fileInputStream = new FileInputStream(cacheFileName);
+                    }
                 }
 
             } catch (FileNotFoundException e) {
@@ -62,12 +73,29 @@ public class ECGFragment extends Fragment {
             }
         }
 
+        Button bt_hrv_history = (Button) inflate.findViewById(R.id.bt_hrv_history);
+        Button bt_hrv_myreport = (Button) inflate.findViewById(R.id.bt_hrv_myreport);
+
+        bt_hrv_history.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), HistoryRecordActivity.class));
+            }
+        });
+        bt_hrv_myreport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), MyReportActivity.class));
+            }
+        });
+
     }
 
 
     @Override
     public void onResume() {
         super.onResume();
+
         if (fileInputStream!=null){
             byte [] mybyte = new byte[1024];
             int length=0;
@@ -100,7 +128,8 @@ public class ECGFragment extends Fragment {
 
     //开始画线
     private void startDrawSimulator(){
-        new Timer().schedule(new TimerTask() {
+        mDrawWareTimer = new Timer();
+        mDrawWareTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 if(EcgView.isRunning){
@@ -110,5 +139,14 @@ public class ECGFragment extends Fragment {
                 }
             }
         }, 0, 2);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mDrawWareTimer!=null){
+            mDrawWareTimer.cancel();
+            mDrawWareTimer = null;
+        }
     }
 }

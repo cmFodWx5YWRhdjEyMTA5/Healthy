@@ -14,9 +14,11 @@ import android.widget.Toast;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.DeviceList;
+import com.amsu.healthy.bean.HeartRateList;
 import com.amsu.healthy.bean.User;
 import com.google.gson.Gson;
 import com.lidroid.xutils.http.RequestParams;
+import com.test.objects.HeartRateResult;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import java.util.Locale;
  */
 
 public class MyUtil {
+    private static final String TAG = "MyUtil";
     private static ProgressDialog dialog;
 
     public static void showDialog(String message,Context context){
@@ -100,7 +103,7 @@ public class MyUtil {
         String email = getStringValueFromSP("email");
         String icon = getStringValueFromSP("icon");
         User user = null;
-        if (!phone.equals("")){
+        if (!phone.equals("") && !username.equals("")){
             user = new User(phone,username,birthday,sex,weight,height,area,email,icon);
         }
 
@@ -182,6 +185,7 @@ public class MyUtil {
         Gson gson = new Gson();
 
         DeviceList deviceList = gson.fromJson(stringValueFromSP, DeviceList.class);
+
         if (deviceList!=null){
             return deviceList.getDeviceList();
         }
@@ -196,6 +200,39 @@ public class MyUtil {
         MyUtil.putStringValueFromSP("devicelist",listString);
     }
 
+
+    public static int[] getHeartRateListFromSP(){
+        String name = "heartData";
+        String stringValueFromSP = MyUtil.getStringValueFromSP(name);
+        Log.i(TAG,"heartData:"+stringValueFromSP);
+        if (!stringValueFromSP.equals("")){
+            String[] split = stringValueFromSP.split(",");
+            int []heartData = null;
+            if (split.length>0){
+                heartData = new int[split.length];
+                for (int i=0;i<split.length;i++){
+                    heartData[i] = Integer.parseInt(split[i]);
+                }
+            }
+            return heartData;
+        }
+
+        return null;
+
+    }
+
+    public static HeartRateResult getHeartRateResultFromSP(){
+        String gsonHeartRateResult = MyUtil.getStringValueFromSP("gsonHeartRateResult");
+        Gson gson = new Gson();
+        HeartRateResult heartRateResult = gson.fromJson(gsonHeartRateResult, HeartRateResult.class);
+        return heartRateResult;
+    }
+
+    public static void putHeartRateListToSP(List<Integer> arry){
+        Gson gson = new Gson();
+        String  listString = gson.toJson(arry);
+        MyUtil.putStringValueFromSP("heartRateList",listString);
+    }
 
     //获取app的版本名称
     public static String getVersionName(Context context) {

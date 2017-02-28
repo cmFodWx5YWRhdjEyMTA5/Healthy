@@ -157,13 +157,16 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
 
             String birthday = userFromSP.getBirthday();  //	1998/12/21  ===1999-11-11
+            tv_persiondata_birthday.setText(birthday);
+            upLoadbirthday = birthday;
+
             Log.i(TAG,"birthday:"+birthday);
-            if (!birthday.equals("")){
+            /*if (!birthday.equals("")){
                 String[] split = birthday.split("-");
                 String newBirthday = split[0]+"-"+split[1]+"-"+split[2];
                 tv_persiondata_birthday.setText(newBirthday);
                 upLoadbirthday = split[0]+"-"+split[1]+"-"+split[2];
-            }
+            }*/
 
             String sex = userFromSP.getSex();
             if (sex.equals("1")){
@@ -207,8 +210,9 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         int day = date.getDate();
 
         Log.i(TAG,"onDateSet:"+year+","+month+","+day);
-        tv_persiondata_birthday.setText(year+"/"+month+"/"+day);   //          1998/12/21
-        upLoadbirthday = year+"/"+month+"/"+day;
+        tv_persiondata_birthday.setText(year+"-"+month+"-"+day);   //          1998/12/21
+        upLoadbirthday = year+"-"+month+"-"+day;
+        Log.i(TAG,"upLoadbirthday:"+upLoadbirthday);
     }
 
     class MyOnClickListener implements View.OnClickListener {
@@ -546,7 +550,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
             @Override
             public void onSelect(int position) {
                 Log.i(TAG,"选择了"+grade.get(position));
-                upLoadheightValue = position+"";
+                upLoadheightValue = grade.get(position)+"";
             }
         });
         //显示对话框

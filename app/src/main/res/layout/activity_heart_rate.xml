@@ -59,14 +59,15 @@
             android:textSize="@dimen/x28"
             android:layout_centerHorizontal="true"/>
 
+        <ImageView
+            android:id="@+id/iv_heartrate_rotateimage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/loading_03"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="60dp"/>
     </RelativeLayout>
-    <ImageView
-        android:id="@+id/iv_heartrate_rotateimage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/loading"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="60dp"/>
+
     <ImageView
         android:layout_width="@dimen/x80"
         android:layout_height="@dimen/x80"

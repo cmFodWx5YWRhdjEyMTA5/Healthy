@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "com.amsu.healthy"
         minSdkVersion 18
-        targetSdkVersion 22
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
     }
@@ -37,7 +37,6 @@ dependencies {
     compile(name: 'SMSSDKGUI-2.1.2', ext: 'aar')
     compile files('libs/AndroidBleApi_V1.1.0.jar')
     compile files('libs/gson-2.5.jar')
-    compile project(path: ':MPChartLib')
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:design:23.4.0'
     compile 'com.android.support:support-v4:23.4.0'

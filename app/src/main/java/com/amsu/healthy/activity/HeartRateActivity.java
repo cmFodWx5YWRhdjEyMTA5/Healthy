@@ -2,6 +2,7 @@ package com.amsu.healthy.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -12,9 +13,11 @@ import android.widget.ImageView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.MyUtil;
+import com.google.gson.Gson;
 import com.test.objects.HeartRateResult;
 import com.test.utils.DiagnosisNDK;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,7 +27,7 @@ public class HeartRateActivity extends BaseActivity {
     private static final String TAG = "HeartRateActivity";
     private Animation animation;
     private FileInputStream fileInputStream;
-    private String ecgDatatext = "";;
+    private String ecgDatatext = "";
     private int ecgRate;
 
 
@@ -56,10 +59,24 @@ public class HeartRateActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(1000);  //模拟下载数据 耗时
+                    Thread.sleep(2000);  //模拟下载数据 耗时
                     String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
+                    //String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";
+                    //String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170223160327.ecg";
                     if (!cacheFileName.equals("")){
-                        fileInputStream = new FileInputStream(cacheFileName);
+                        try {
+                            if (fileInputStream==null){
+                                File file = new File(cacheFileName);
+                                if (file.exists()){
+                                    fileInputStream = new FileInputStream(cacheFileName);
+                                }
+                            }
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if (fileInputStream!=null){
                         byte [] mybyte = new byte[1024];
                         int length=0;
                         while (true) {
@@ -73,21 +90,33 @@ public class HeartRateActivity extends BaseActivity {
                             }
                         }
                         Log.i(TAG,"ecgDatatext:"+ecgDatatext);
-                        /*if (!ecgDatatext.equals("")){
+
+                        if (!ecgDatatext.equals("")){
                             String[] allGrounpData = ecgDatatext.split(",");
                             int[] calcuData = new int[allGrounpData.length];
                             for (int i=0;i<allGrounpData.length;i++){
                                 calcuData[i] = Integer.parseInt(allGrounpData[i]);
                             }
+                            /*String ddd = "";
+                            for (int i=0;i<calcuData.length;i++){
+                                ddd+=calcuData[i]+",";
+                            }
+                            Log.i(TAG,"ddd:"+ddd);*/
 
                             //进行计算，分析
-                            ecgRate = ECGUtil.countEcgRate(calcuData, calcuData.length, 150);
+                            ecgRate = ECGUtil.countEcgRate1(calcuData, calcuData.length, 150);
                             Log.i(TAG,"ecgRate:"+ecgRate);
 
-                            HeartRateResult res = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, 150);
-                            Log.i(TAG,"res:"+res.toString());
+                            HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, 150);
+                            Log.i(TAG,"heartRateResult:"+heartRateResult.toString());
+                            //转化成json并存在sp里
+                            Gson gson = new Gson();
+                            String gsonHeartRateResult = gson.toJson(heartRateResult);
+                            MyUtil.putStringValueFromSP("gsonHeartRateResult",gsonHeartRateResult);
 
-                            int[] RR = res.RR_list.clone();// Diagnosis.R_RR_interval(ecg, num,
+
+
+                            /*int[] RR = res.RR_list.clone();// Diagnosis.R_RR_interval(ecg, num,
                             Log.i(TAG,"RR.length:"+RR.length);
                             // ECGSampleRate).RR;
                             if (RR.length > 10) {
@@ -144,9 +173,9 @@ public class HeartRateActivity extends BaseActivity {
                                 }
                                 verl = verl / RR_Heart_Rate.length;
                                 Log.i(TAG,"verl:"+verl);
-                            }
+                            }*/
 
-                        }*/
+                        }
                     }
                     //分析完成
                     runOnUiThread(new Runnable() {
@@ -156,6 +185,7 @@ public class HeartRateActivity extends BaseActivity {
                             Intent intent = new Intent(HeartRateActivity.this, RateAnalysisActivity.class);
                             intent.putExtra("ecgRate", ecgRate);
                             startActivity(intent);
+                            finish();
                         }
                     });
                 } catch (InterruptedException e) {

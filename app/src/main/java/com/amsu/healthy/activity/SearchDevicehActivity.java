@@ -126,7 +126,7 @@ public class SearchDevicehActivity extends BaseActivity {
                 else {
                     boolean isAdded = false;
                     for (int i=0;i<deviceListFromSP.size();i++){
-                        if (!deviceListFromSP.get(i).getLEName().equals(leName)){
+                        if (deviceListFromSP.get(i).getLEName().equals(leName)){
                             isAdded  = true;
                         }
                     }

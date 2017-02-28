@@ -24,7 +24,9 @@ import android.widget.Toast;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.ShowLocationOnMap;
 import com.amsu.healthy.view.CircleRingView;
@@ -32,6 +34,7 @@ import com.amsu.healthy.view.DashboardView;
 import com.baidu.mapapi.map.MapView;
 import com.ble.ble.BleService;
 
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends BaseActivity {
@@ -45,6 +48,10 @@ public class MainActivity extends BaseActivity {
     private CircleRingView cv_mian_index;
     private CircleRingView cv_mian_warring;
     private ValueAnimator mValueAnimator;
+    private TextView tv_main_age;
+    private TextView tv_main_indexvalue;
+    private int physicalAge;
+    private int scoreALL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,11 +82,11 @@ public class MainActivity extends BaseActivity {
         RelativeLayout rl_main_healthyvalue = (RelativeLayout) findViewById(R.id.rl_main_healthyvalue);
         RelativeLayout rl_main_warringindex = (RelativeLayout) findViewById(R.id.rl_main_warringindex);
 
-        TextView tv_main_age = (TextView) findViewById(R.id.tv_main_age);
-        TextView tv_main_indexvalue = (TextView) findViewById(R.id.tv_main_indexvalue);
+        tv_main_age = (TextView) findViewById(R.id.tv_main_age);
+        tv_main_indexvalue = (TextView) findViewById(R.id.tv_main_indexvalue);
 
 
-        setAgeTextAnimator(tv_main_age,0,60);
+
         MyOnClickListener myOnClickListener = new MyOnClickListener();
 
         rl_mian_start.setOnClickListener(myOnClickListener);
@@ -115,6 +122,23 @@ public class MainActivity extends BaseActivity {
     private void initData() {
         checkAndOpenBLEFeature();
 
+
+        //生理年龄
+        physicalAge = HealthyIndexUtil.calculatePhysicalAge();
+        physicalAge = 21;
+        Log.i(TAG,"physicalAge:"+ physicalAge);
+        if (physicalAge>0){
+            setAgeTextAnimator(tv_main_age,0, physicalAge);
+        }
+
+        //健康指标
+        scoreALL = HealthyIndexUtil.calculateIndexvalue();
+        if (scoreALL >0){
+            tv_main_indexvalue.setText(scoreALL +"");
+        }
+
+
+
     }
 
 
@@ -130,15 +154,20 @@ public class MainActivity extends BaseActivity {
         super.onResume();
         Log.i(TAG,"onResume");
 
-        if (!mBluetoothAdapter.isEnabled()) {
+        if (mBluetoothAdapter!=null && !mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
+        if (mValueAnimator!=null){
+            mValueAnimator.start();
+            cv_mian_index.setValue(170);
+            cv_mian_warring.setValue(270);
+            if (scoreALL >0){
+                dv_main_compass.setAgeData(physicalAge-10);
+            }
 
-        mValueAnimator.start();
-        cv_mian_index.setValue(170);
-        cv_mian_warring.setValue(270);
-        dv_main_compass.setAgeData(50);
+        }
+
     }
 
 
@@ -181,33 +210,31 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onClick(View v) {
             Log.i(TAG,"onClick:"+v.getId());
+            boolean isLogin = MyUtil.getBooleanValueFromSP("isLogin");
+            boolean isPrefectInfo = MyUtil.getBooleanValueFromSP("isPrefectInfo");
+            if (!isLogin){
+                showdialogToLogin();
+                return;
+            }
+            else if (!isPrefectInfo){
+                showdialogToSupplyData();
+                return;
+            }
+
             switch (v.getId()){
                 case R.id.rl_main_healthydata:
-                    boolean isLogin = MyUtil.getBooleanValueFromSP("isLogin");
-                    if (isLogin){
-                        boolean isPrefectInfo = MyUtil.getBooleanValueFromSP("isPrefectInfo");
-                        if (isPrefectInfo){
-                            List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
-                            if (deviceListFromSP.size()==0){
-                                //没有绑定设备，提示用户去绑定
-                                startActivity(new Intent(MainActivity.this,MyDeviceActivity.class));
-                            }
-                            else {
-                                startActivity(new Intent(MainActivity.this,HealthyDataActivity.class));
-                            }
-
-                        }
-                        else {
-                            showdialogToSupplyData();
-                        }
+                    List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
+                    if (deviceListFromSP.size()==0){
+                        //没有绑定设备，提示用户去绑定
+                        //startActivity(new Intent(MainActivity.this,MyDeviceActivity.class));
+                        startActivity(new Intent(MainActivity.this,HealthyDataActivity.class));  //测试
                     }
                     else {
-                        showdialogToLogin();
+                        startActivity(new Intent(MainActivity.this,HealthyDataActivity.class));
                     }
-
-
                     break;
                 case R.id.rl_main_sportcheck:
+
                     break;
                 case R.id.rl_main_sportarea:
                     startActivity(new Intent(MainActivity.this,SportCommunityActivity.class));
@@ -219,11 +246,14 @@ public class MainActivity extends BaseActivity {
                     startActivity(new Intent(MainActivity.this,StartRunActivity.class));
                     break;
                 case R.id.rl_main_age:
-                    startActivity(new Intent(MainActivity.this,PhysicalAgeActivity.class));
+                    Intent intent = new Intent(MainActivity.this, PhysicalAgeActivity.class);
+                    intent.putExtra("physicalAge",physicalAge);
+                    startActivity(intent);
                     break;
                 case R.id.rl_main_healthyvalue:
-
-                    startActivity(new Intent(MainActivity.this,HealthIndicatorAssessActivity.class));
+                    Intent intent1 = new Intent(MainActivity.this, HealthIndicatorAssessActivity.class);
+                    intent1.putExtra("scoreALL",scoreALL);
+                    startActivity(intent1);
                     break;
                 case R.id.rl_main_warringindex:
 
@@ -268,6 +298,7 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         startActivity(new Intent(MainActivity.this,SupplyPersionDataActivity.class));
+                        //finish();
                     }
                 })
                 .show();

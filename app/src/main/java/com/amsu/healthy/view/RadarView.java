@@ -36,7 +36,7 @@ public class RadarView extends View {
     //中心Y坐标
     private int centerY;
     //各维度标题
-    private String[] titles = {"过缓/过速", "早搏晨搏", "健康储备", "BMI", "储备心率","恢复心率","心率变异"};
+    private String[] titles = {"过缓/过速", "早搏漏搏", "健康储备", "BMI", "储备心率","恢复心率","抗疲劳指数"};
     //各维度图标
 
     //各维度分值
@@ -46,7 +46,7 @@ public class RadarView extends View {
 
     List<Point> points = new ArrayList<>();
     //数据最大值
-    private float maxValue = 190;
+    private float maxValue = 100+2;
     //雷达图与标题的间距
     private int radarMargin = (int) MyUtil.dp2px(getContext(), 40);
     //雷达区画笔
@@ -139,9 +139,18 @@ public class RadarView extends View {
         super.draw(canvas);
         drawPolygon(canvas);
         drawLines(canvas);
-        drawRegion(canvas,value1Paint,data1);
-        drawRegion(canvas,value2Paint,data2);
-        drawRegion(canvas,value3Paint,data3);
+        if (data1!=null){
+            drawRegion(canvas,value1Paint,data1);
+
+        }
+        if (data2!=null){
+            drawRegion(canvas,value2Paint,data2);
+
+        }
+        if (data3!=null){
+            drawRegion(canvas,value3Paint,data3);
+
+        }
         drawTitle(canvas);
     }
 
@@ -179,12 +188,17 @@ public class RadarView extends View {
      */
     private void drawLines(Canvas canvas) {
         Path path = new Path();
-        mainPaint.setColor(Color.parseColor("#CDC5BF"));
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(1f);
+        paint.setColor(Color.parseColor("#CDC5BF"));
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+
         for (int i = 0; i < dataCount; i++) {
             path.reset();
             path.moveTo(centerX, centerY);
             path.lineTo(getPoint(i).x, getPoint(i).y);
-            canvas.drawPath(path, mainPaint);
+            canvas.drawPath(path, paint);
         }
     }
 

@@ -49,7 +49,7 @@
         foldlineview:line_width="@dimen/x6"
         foldlineview:radius_point="@dimen/x12"
         foldlineview:undertext_size="@dimen/x32"
-        foldlineview:abovertext_size="@dimen/x32"
+        foldlineview:abovertext_size="@dimen/x20"
         foldlineview:abovertext_margin="@dimen/x12"
         foldlineview:undertext_margin="@dimen/x40"
         foldlineview:undertext_color="#000000"

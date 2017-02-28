@@ -47,7 +47,7 @@
     <application
         android:name=".appication.MyApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/logo_icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -92,15 +92,14 @@
         <activity android:name=".activity.AboutUsActivity" />
         <activity android:name=".activity.DeviceRunActivity" />
         <activity android:name=".activity.AppUpdateActivity" />
-        <activity android:name=".activity.TestActivity" />
         <activity android:name=".activity.HealthIndicatorAssessActivity" />
         <activity android:name=".activity.PhysicalAgeActivity" />
         <activity android:name=".activity.IndexWarringActivity" />
-        <activity android:name=".activity.SportCommunityActivity"></activity>
+        <activity android:name=".activity.SportCommunityActivity" />
         <activity android:name=".activity.StartRunActivity" />
         <activity android:name=".activity.NewsDetialActivity" />
         <activity android:name=".activity.ShowCommentActivity" />
-        <activity android:name=".activity.ClubHomePageActivity"></activity>
+        <activity android:name=".activity.ClubHomePageActivity" />
         <activity android:name=".activity.ClubGroupActivity" />
         <activity android:name=".activity.ClubCampaignActivity" />
         <activity android:name=".activity.ClubDetialActivity" />
@@ -122,7 +121,8 @@
         <activity android:name=".activity.ClubMyEnterInfoEditActivity" />
         <activity android:name=".activity.ClubDynamicsDetialActivity" />
         <activity android:name=".activity.AddDynamicsActivity" />
-        <activity android:name=".activity.LookupPictureActivity"></activity>
+        <activity android:name=".activity.LookupPictureActivity" />
+        <activity android:name=".activity.HistoryRecordActivity"></activity>
     </application>
 
 </manifest>

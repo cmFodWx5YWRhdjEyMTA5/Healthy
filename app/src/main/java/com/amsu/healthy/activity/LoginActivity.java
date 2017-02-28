@@ -318,6 +318,21 @@ public class LoginActivity extends BaseActivity {
                                         "Icon": "http://xxxxx.com:83/xxx/xxx.jpg"    //例子
                                     }
                                 }
+
+                                {
+                                    "ret": "0",
+                                    "errDesc": {
+                                        "UserName": "手机用户_ZUzf1",
+                                        "Sex": null,
+                                        "Birthday": null,
+                                        "Weight": null,
+                                        "Height": null,
+                                        "Address": "",
+                                        "Phone": "15321758382",
+                                        "Email": "",
+                                        "Icon": "http://119.29.201.120:83/"
+                                    }
+                                }
                                 * */
                                 try {
                                     JSONObject jsonObject = new JSONObject(result);
@@ -325,15 +340,15 @@ public class LoginActivity extends BaseActivity {
                                     String errDesc = jsonObject.getString("errDesc");
                                     if (ret==0){
                                         JSONObject jsonObject1 = new JSONObject(errDesc);
+                                        String birthday = jsonObject1.getString("Birthday");
+                                        String weight = jsonObject1.getString("Weight");
                                         String userName = jsonObject1.getString("UserName");
-                                        if (userName.equals("")){
+                                        if (birthday.equals("null") && weight.equals("null")){
                                             //没有完善个人信息
                                             showdialog();
                                         }
                                         else {
                                             String sex = jsonObject1.getString("Sex");
-                                            String birthday = jsonObject1.getString("Birthday");
-                                            String weight = jsonObject1.getString("Weight");
                                             String height = jsonObject1.getString("Height");
                                             String address = jsonObject1.getString("Address");
                                             String email = jsonObject1.getString("Email");
@@ -382,6 +397,7 @@ public class LoginActivity extends BaseActivity {
         id,9
         token,66-7550512929-106-27-7353-46-269-33-31-109
         userParam,1481855331071*/
+
         //保存Cookie
         DefaultHttpClient httpClient = (DefaultHttpClient) httpUtils.getHttpClient();
         CookieStore cookieStore = httpClient.getCookieStore();

@@ -11,6 +11,8 @@ import java.io.IOException;
 
 public class DiagnosisNDK {
 
+	private static final String TAG = "DiagnosisNDK";
+
 	static {
 		System.loadLibrary("ecg");// shangguan ecg
 		// System.loadLibrary("Wu");//wubo ppg
@@ -57,11 +59,17 @@ public class DiagnosisNDK {
 	public static HeartRateResult AnalysisEcg(int[] source, int len, int s_rate) {
 		double[] ecg = new double[len];
 
-		ecg = fir(source);
+		//ecg = fir(source);
+		for (int i=0;i<len;i++){
+			ecg[i] = source[i];
+		}
 
 		Log.d("before ndk's c++", "len=" + len + " s_rate=" + s_rate);
 
 		HeartRateResult result = getEcgResult(ecg, (long) len, s_rate);
+		Log.i(TAG,"result："+result.toString());
+		Log.i(TAG,"result："+result.RR_PNN50+","+result.RR_SDNN+","+result.RR_HRVI);
+
 
 		int abnormal = result.RR_Apb + result.RR_Pvc + result.RR_Iovp
 				+ result.RR_Boleakage + result.RR_Kuanbo + result.RR_2

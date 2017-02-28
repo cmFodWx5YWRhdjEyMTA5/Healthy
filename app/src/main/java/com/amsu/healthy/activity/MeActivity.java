@@ -15,6 +15,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.CircleImageView;
 import com.lidroid.xutils.BitmapUtils;
@@ -89,14 +90,9 @@ public class MeActivity extends BaseActivity {
                 tv_me_city.setText(areas[1]);
             }
 
-            String birthday = userFromSP.getBirthday(); //  1998/12/21
-            if (!birthday.equals("")){
-                String[] split = birthday.split("-");
-                Date date = new Date();
-                int age = 1900+date.getYear() - Integer.parseInt(split[0]);
-                Log.i(TAG,"age:"+age);
-                tv_me_age.setText(age+"");
-            }
+            int userAge = HealthyIndexUtil.getUserAge();
+
+            tv_me_age.setText(userAge+"");
 
             String iconUrl = userFromSP.getIcon();
             if (!iconUrl.equals("")){
