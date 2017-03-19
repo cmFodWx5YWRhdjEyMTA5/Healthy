@@ -32,7 +32,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     public static boolean isRunning;
     private Canvas mCanvas;
 
-    private float ecgMax = 255/3;//心电的最大值
+    private float ecgMax = 255;//心电的最大值
     private int sleepTime = 1000/15; //每次锁屏的时间间距，单位:ms
     private float lockWidth;//每次锁屏需要画的
     private static int ecgPerCount = 10;//每次画心电数据的个数，心电每秒有500个数据包
@@ -75,6 +75,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     protected int mHorSmiallGridCount ;  //小网格的个数
     protected int mVirGigGridCount ;  //小网格的个数
     private boolean isStartCacheDrawLine = false;
+    public static double rateLineR = 2.0;
 
 
 
@@ -256,7 +257,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
      * @return
      */
     private int ecgConver(int data){
-        data = (int) (data * ecgYRatio);
+        data = (int) (rateLineR*data * ecgYRatio);
 
         return data+ mHeight / 2;
         /*if (data==1){
@@ -267,6 +268,10 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         return i;*/
 
 
+    }
+
+    public void setRateLineR(double rateLineR){
+        this.rateLineR = rateLineR;
     }
 
     public static float normalizationMethod(int value){

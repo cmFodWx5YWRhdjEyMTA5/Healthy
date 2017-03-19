@@ -11,16 +11,35 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.bean.IndicatorAssess;
+import com.amsu.healthy.bean.RateRecord;
+import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.db.DbAdapter;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
+import com.amsu.healthy.utils.HealthyIndexUtil;
+import com.amsu.healthy.utils.MyBitMapUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.Gson;
+import com.lidroid.xutils.HttpUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
 import com.test.objects.HeartRateResult;
 import com.test.utils.DiagnosisNDK;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class HeartRateActivity extends BaseActivity {
 
@@ -29,7 +48,7 @@ public class HeartRateActivity extends BaseActivity {
     private FileInputStream fileInputStream;
     private String ecgDatatext = "";
     private int ecgRate;
-
+    private UploadRecord uploadRecord = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,10 +78,24 @@ public class HeartRateActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(2000);  //模拟下载数据 耗时
-                    String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
+                    String heartData = MyUtil.getStringValueFromSP("heartData");
+
+                    if (!heartData.equals("")){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                animation.cancel();
+                                Intent intent = new Intent(HeartRateActivity.this, RateAnalysisActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
+                        return;
+                    }
+                    Thread.sleep(1000);  //模拟下载数据 耗时
+                    //String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
                     //String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";
-                    //String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170223160327.ecg";
+                    String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170223160327.ecg";
                     if (!cacheFileName.equals("")){
                         try {
                             if (fileInputStream==null){
@@ -81,7 +114,7 @@ public class HeartRateActivity extends BaseActivity {
                         int length=0;
                         while (true) {
                             length = fileInputStream.read(mybyte,0,mybyte.length);
-                            Log.i(TAG,"length:"+length);
+                            //Log.i(TAG,"length:"+length);
                             if (length!=-1) {
                                 String s = new String(mybyte,0,length);
                                 ecgDatatext +=s;
@@ -90,104 +123,31 @@ public class HeartRateActivity extends BaseActivity {
                             }
                         }
                         Log.i(TAG,"ecgDatatext:"+ecgDatatext);
-
                         if (!ecgDatatext.equals("")){
                             String[] allGrounpData = ecgDatatext.split(",");
                             int[] calcuData = new int[allGrounpData.length];
                             for (int i=0;i<allGrounpData.length;i++){
                                 calcuData[i] = Integer.parseInt(allGrounpData[i]);
                             }
-                            /*String ddd = "";
-                            for (int i=0;i<calcuData.length;i++){
-                                ddd+=calcuData[i]+",";
-                            }
-                            Log.i(TAG,"ddd:"+ddd);*/
-
-                            //进行计算，分析
-                            ecgRate = ECGUtil.countEcgRate1(calcuData, calcuData.length, 150);
-                            Log.i(TAG,"ecgRate:"+ecgRate);
-
-                            HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, 150);
-                            Log.i(TAG,"heartRateResult:"+heartRateResult.toString());
-                            //转化成json并存在sp里
-                            Gson gson = new Gson();
-                            String gsonHeartRateResult = gson.toJson(heartRateResult);
-                            MyUtil.putStringValueFromSP("gsonHeartRateResult",gsonHeartRateResult);
-
-
-
-                            /*int[] RR = res.RR_list.clone();// Diagnosis.R_RR_interval(ecg, num,
-                            Log.i(TAG,"RR.length:"+RR.length);
-                            // ECGSampleRate).RR;
-                            if (RR.length > 10) {
-                                //int len = RR.length;
-                                int len = RR.length;
-                                int[] RR_Heart_Rate = new int[len];;
-
-                                //测试时长
-                                int sumTime = 0;
-                                int num = 0;
-                                for (int i = 0; i < len; i++) {
-                                    if(RR[i] > 0 && 60 * 1000 / RR[i] > 0 && 60 * 1000 / RR[i] < 200){
-                                        RR_Heart_Rate[num++] = 60 * 1000 / RR[i];
-                                        sumTime += RR[i];
-                                    }
-                                }
-
-
-                                //最小心率
-                                int xtime = 0;
-                                int min = RR_Heart_Rate[1];
-                                int mintime = 0;
-                                for (int i = 1; i < RR_Heart_Rate.length; i++) {
-                                    if(min>RR_Heart_Rate[i]) {
-                                        min = RR_Heart_Rate[i];
-                                        xtime = i;
-                                    }
-                                }
-                                for (int j = 0; j < xtime; j++) {
-                                    mintime += RR[j];
-                                }
-                                Log.i(TAG,"min:"+min);
-
-
-                                //最大心率
-                                int max = RR_Heart_Rate[1];
-                                xtime = 0;
-                                int maxtime = 0;
-                                for (int i = 1; i < RR_Heart_Rate.length; i++) {
-                                    if(max<RR_Heart_Rate[i]) {
-                                        max = RR_Heart_Rate[i];
-                                        xtime = i;
-                                    }
-                                }
-                                for (int j = 0; j < xtime; j++) {
-                                    maxtime += RR[j];
-                                }
-                                Log.i(TAG,"max:"+max);
-
-                                //平均心率
-                                int verl = 0;
-                                for (int i = 0; i < RR_Heart_Rate.length; i++) {
-                                    verl += RR_Heart_Rate[i];
-                                }
-                                verl = verl / RR_Heart_Rate.length;
-                                Log.i(TAG,"verl:"+verl);
-                            }*/
-
+                            analysisAndUpload(calcuData);
                         }
+
                     }
                     //分析完成
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             animation.cancel();
-                            Intent intent = new Intent(HeartRateActivity.this, RateAnalysisActivity.class);
-                            intent.putExtra("ecgRate", ecgRate);
-                            startActivity(intent);
-                            finish();
                         }
                     });
+                    Intent intent = new Intent(HeartRateActivity.this, RateAnalysisActivity.class);
+                    if (uploadRecord!=null){
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable("uploadRecord",uploadRecord);
+                        intent.putExtra("bundle",bundle);
+                    }
+                    startActivity(intent);
+                    finish();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -195,6 +155,136 @@ public class HeartRateActivity extends BaseActivity {
                 }
             }
         }.start();
+    }
+
+    private void analysisAndUpload(int[] calcuData) {
+        HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, 150);
+        Log.i(TAG,"heartRateResult:"+heartRateResult.toString());
+        //转化成json并存在sp里
+        Gson gson = new Gson();
+        String gsonHeartRateResult = gson.toJson(heartRateResult);
+        //MyUtil.putStringValueFromSP("gsonHeartRateResult",gsonHeartRateResult);
+
+        /*DbAdapter dbAdapter = new DbAdapter(HeartRateActivity.this);
+        dbAdapter.open();
+        String specialFormatTime = MyUtil.getSpecialFormatTime("yyyy-MM-dd H:m:s", new Date());
+        dbAdapter.createRecord(specialFormatTime, (int) (heartRateResult.LF/heartRateResult.HF),heartRateResult.RR_SDNN,heartData,cacheFileName,
+                0,heartRateResult.RR_Normal,heartRateResult.RR_Sum-heartRateResult.RR_Normal,heartRateResult.RR_Boleakage,heartRateResult.RR_Apb+heartRateResult.RR_Pvc);
+
+        List<RateRecord> rateRecords = dbAdapter.queryRecordAll();
+        Log.i(TAG,"rateRecords.size()"+rateRecords.size());
+        dbAdapter.close();
+        for (int i=0;i<rateRecords.size();i++){
+            Log.i(TAG,rateRecords.get(i).toString());
+        }*/
+        IndicatorAssess indicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex((int) (heartRateResult.LF / heartRateResult.HF));
+        String ES = String.valueOf(indicatorAssess.getPercent());
+        IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateSDNNPressureIndex(heartRateResult.RR_SDNN);
+        String PI = String.valueOf(indicatorAssess1.getPercent());
+        IndicatorAssess indicatorAssess2 = HealthyIndexUtil.calculateSDNNSportIndex(heartRateResult.RR_SDNN);
+        String FI = String.valueOf(indicatorAssess2.getPercent());
+
+        String HRVs = indicatorAssess.getSuggestion()+indicatorAssess1.getSuggestion()+indicatorAssess2.getSuggestion();
+
+        //int[] datas = MyUtil.getHeartRateListFromSP();
+        int[] datas = new int[]{65,66,54,73,71,68,77,55,56,93,65,68,64,62,61,64,67,66,40,70,65};
+        int MaxHR=datas[0];
+        int MinHR=datas[0];
+        int sum = 0;
+        for (int i=0;i<datas.length;i++){
+            if (datas[i]>MaxHR){
+                MaxHR =datas[i];
+            }
+            if (datas[i]<MinHR){
+                MinHR = datas[i];
+            }
+            sum += datas[i];
+        }
+        String AHR = String.valueOf(sum/datas.length);
+
+       /* List<List<Integer>> sList = new ArrayList<>();
+        List<Integer> temp = new ArrayList<>();
+        for (int i=0;i<calcuData.length;i++){
+            temp = new ArrayList<>();
+            temp.add(i+1);
+            temp.add(calcuData[i]);
+            sList.add(temp);
+        }*/
+        String  EC = "[";
+        for (int i=0;i<datas.length;i++){
+            EC += "["+i+","+calcuData[i]+"],";
+        }
+        EC += "]";
+
+        String ECr = "1";
+        if (heartRateResult.RR_Kuanbo>0){  //漏博
+            ECr = "3";
+        }
+        else if (heartRateResult.RR_Apb+heartRateResult.RR_Pvc>0){ //早搏
+            ECr="4";
+        }
+        String RA = "90";  //心率恢复能力
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String datatime = MyUtil.getSpecialFormatTime("yyyy/MM/dd H:m:s", new Date());
+
+        uploadRecord = new UploadRecord(FI,ES,PI,"10","xxxxx",HRVs,AHR,String.valueOf(MaxHR),String.valueOf(MinHR),"xxxx","xxxx",EC,ECr,"xxxx",RA,timestamp,datatime);
+        Log.i(TAG,"uploadRecord:"+uploadRecord);
+        uploadData(uploadRecord);
+    }
+
+    private void uploadData(UploadRecord uploadRecord) {
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+        MyUtil.addCookieForHttp(params);
+
+        params.addBodyParameter("FI",uploadRecord.FI);
+        params.addBodyParameter("ES",uploadRecord.ES);
+        params.addBodyParameter("PI",uploadRecord.PI);
+        params.addBodyParameter("CC",uploadRecord.CC);
+        params.addBodyParameter("HRVr",uploadRecord.HRVr);
+        params.addBodyParameter("HRVs",uploadRecord.HRVs);
+        params.addBodyParameter("AHR",uploadRecord.AHR);
+        params.addBodyParameter("MaxHR",uploadRecord.MaxHR);
+        params.addBodyParameter("MinHR",uploadRecord.MinHR);
+        params.addBodyParameter("HRr",uploadRecord.HRr);
+        params.addBodyParameter("HRs",uploadRecord.HRs);
+        params.addBodyParameter("EC",uploadRecord.EC);
+        params.addBodyParameter("ECr",uploadRecord.ECr);
+        params.addBodyParameter("ECs",uploadRecord.ECs);
+        params.addBodyParameter("RA",uploadRecord.RA);
+        params.addBodyParameter("timestamp",uploadRecord.timestamp);
+        params.addBodyParameter("datatime",uploadRecord.datatime);
+
+
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.uploadReportURL, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                Log.i(TAG,"onSuccess==result:"+result);
+                    /*{
+                         {
+                            "ret": "0",
+                            "errDesc":"数据上传成！"
+                          }
+                    }*/
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(result);
+                    int ret = jsonObject.getInt("ret");
+                    String errDesc = jsonObject.getString("errDesc");
+                    if (ret==0){
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                Log.i(TAG,"onFailure==s:"+s);
+            }
+        });
     }
 
     public void close(View view) {

@@ -4,10 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -17,14 +20,17 @@ import com.amsu.healthy.activity.HistoryRecordActivity;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.utils.HealthyIndexUtil;
+import com.amsu.healthy.utils.MyUtil;
 
 public class HRVFragment extends Fragment {
 
+    private static final String TAG = "HRVFragment";
     private View inflate;
     private TextView tv_hrv_suggestion;
     private ProgressBar pb_hrv_tired;
-    private ProgressBar pb_hrv_mood;
-    private ProgressBar pb_hrv_resist;
+    private ImageView iv_hrv_tired;
+    private ImageView iv_hrv_resist;
+    private ImageView iv_hrv_mood;
 
     @Nullable
     @Override
@@ -37,9 +43,9 @@ public class HRVFragment extends Fragment {
     }
 
     private void initView() {
-        pb_hrv_tired = (ProgressBar) inflate.findViewById(R.id.pb_hrv_tired);
-        pb_hrv_mood = (ProgressBar) inflate.findViewById(R.id.pb_hrv_mood);
-        pb_hrv_resist = (ProgressBar) inflate.findViewById(R.id.pb_hrv_resist);
+        iv_hrv_tired = (ImageView) inflate.findViewById(R.id.iv_hrv_tired);
+        iv_hrv_resist = (ImageView) inflate.findViewById(R.id.iv_hrv_resist);
+        iv_hrv_mood = (ImageView) inflate.findViewById(R.id.iv_hrv_mood);
 
         tv_hrv_suggestion = (TextView) inflate.findViewById(R.id.tv_hrv_suggestion);
         Button bt_hrv_history = (Button) inflate.findViewById(R.id.bt_hrv_history);
@@ -57,38 +63,47 @@ public class HRVFragment extends Fragment {
                 startActivity(new Intent(getActivity(), MyReportActivity.class));
             }
         });
-
     }
 
 
     private void initData() {
+        float progressWidth = MyUtil.getScreeenWidth(getActivity()) - 2 * getResources().getDimension(R.dimen.x12);
         String suggestion = "";
-        IndicatorAssess calculateMoodIndex = HealthyIndexUtil.calculateMoodBySDNNIndex();
-        IndicatorAssess calculateSDNNIndex = HealthyIndexUtil.calculateSDNNIndex();
-        IndicatorAssess calculateSDNNIndex1 = HealthyIndexUtil.calculateSDNNIndex1();
-        if (calculateMoodIndex!=null){
-            int scre = calculateMoodIndex.getScre();
-            pb_hrv_mood.setProgress(scre);
-            suggestion += calculateMoodIndex.getSuggestion();
+        IndicatorAssess lFHFMood = HealthyIndexUtil.calculateLFHFMoodIndex();
+        IndicatorAssess sDNNPressure = HealthyIndexUtil.calculateSDNNPressureIndex();
+        IndicatorAssess sDNNSport = HealthyIndexUtil.calculateSDNNSportIndex();
+
+        LinearLayout.LayoutParams layoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
+        if (lFHFMood!=null){
+           int scre = lFHFMood.getPercent();
+            int v = (int) ((scre / 100.0) * progressWidth);
+            Log.i(TAG,"v:"+v);
+            layoutParams.setMargins(v, (int) -getResources().getDimension(R.dimen.x23),0,0);
+            iv_hrv_tired.setLayoutParams(layoutParams);
+            suggestion += lFHFMood.getSuggestion();
         }
 
-        if (calculateSDNNIndex!=null){
-            int scre = calculateSDNNIndex.getScre();
-            //scre =30;
-            pb_hrv_resist.setProgress(scre);
+        if (sDNNPressure!=null){
+            int scre = sDNNPressure.getPercent();
+            int v = (int) ((scre / 100.0) * progressWidth);
+            Log.i(TAG,"v:"+v);
+            layoutParams.setMargins(v, (int) -getResources().getDimension(R.dimen.x23),0,0);
+            iv_hrv_resist.setLayoutParams(layoutParams);
         }
 
-        if (calculateSDNNIndex1!=null){
-            int scre = calculateSDNNIndex1.getScre();
-            pb_hrv_tired.setProgress(scre);
-
-            suggestion += calculateSDNNIndex1.getSuggestion();
+        if (sDNNSport!=null){
+            int scre = sDNNSport.getPercent();
+            int v = (int) ((scre / 100.0) * progressWidth);
+            Log.i(TAG,"v:"+v);
+            layoutParams.setMargins(v, (int) -getResources().getDimension(R.dimen.x23),0,0);
+            iv_hrv_resist.setLayoutParams(layoutParams);
+            suggestion += sDNNSport.getSuggestion();
         }
 
         tv_hrv_suggestion.setText(suggestion);
 
 
-
+        //LF=1075.28, HF=431.35  测试
 
     }
 }

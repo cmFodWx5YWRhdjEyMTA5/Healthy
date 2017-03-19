@@ -417,6 +417,7 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
         params.addBodyParameter("Address",area);
         params.addBodyParameter("Phone",phone);
         params.addBodyParameter("Email","");
+        params.addBodyParameter("RestingHeartRate","");
 
         MyUtil.addCookieForHttp(params);
 
@@ -445,6 +446,7 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    MyUtil.showToask(SupplyPersionDataActivity.this,"解析错误");
                 }
             }
 

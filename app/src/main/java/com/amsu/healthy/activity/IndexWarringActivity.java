@@ -102,22 +102,22 @@ public class IndexWarringActivity extends BaseActivity {
 
         if (indicatorAssess1!=null){
             indicatorAssesses.add(indicatorAssess1);
-            setState(indicatorAssess1.getScre(),pb_hrv_ratelow,tv_warring_state_slow);
+            setState(indicatorAssess1.getPercent(),pb_hrv_ratelow,tv_warring_state_slow);
             mSuggestion += indicatorAssess1.getSuggestion();
         }
         if (indicatorAssess2!=null){
             indicatorAssesses.add(indicatorAssess2);
-            setState(indicatorAssess2.getScre(),pb_hrv_rateover,tv_warring_state_over);
+            setState(indicatorAssess2.getPercent(),pb_hrv_rateover,tv_warring_state_over);
             mSuggestion += indicatorAssess2.getSuggestion();
         }
         if (indicatorAssess3!=null){
             indicatorAssesses.add(indicatorAssess3);
-            setState(indicatorAssess3.getScre(),pb_hrv_morningrate,tv_warring_state_morningrate);
+            setState(indicatorAssess3.getPercent(),pb_hrv_morningrate,tv_warring_state_morningrate);
             mSuggestion += indicatorAssess3.getSuggestion();
         }
         if (indicatorAssess4!=null){
             indicatorAssesses.add(indicatorAssess4);
-            setState(indicatorAssess4.getScre(),pb_hrv_leaverate,tv_warring_state_leaverate);
+            setState(indicatorAssess4.getPercent(),pb_hrv_leaverate,tv_warring_state_leaverate);
             mSuggestion += indicatorAssess4.getSuggestion();
         }
 
@@ -267,7 +267,7 @@ public class IndexWarringActivity extends BaseActivity {
             TextView tv_item_typeName = (TextView) inflate.findViewById(R.id.tv_item_typeName);
             TextView tv_item_suggestion = (TextView) inflate.findViewById(R.id.tv_item_suggestion);
 
-            /*int score = indicatorAssess.getScre();
+            /*int score = indicatorAssess.getPercent();
             String warring = "";
             if (score==0){
                 warring = "正常";
@@ -279,8 +279,8 @@ public class IndexWarringActivity extends BaseActivity {
                 warring = "红色预警";
             }*/
             if (indicatorAssess!=null){
-                tv_item_value.setText(indicatorAssess.getState());
-                tv_item_typeName.setText(indicatorAssess.getTypeName());
+                tv_item_value.setText(indicatorAssess.getEvaluate());
+                tv_item_typeName.setText(indicatorAssess.getName());
                 tv_item_suggestion.setText(indicatorAssess.getSuggestion());
             }
 

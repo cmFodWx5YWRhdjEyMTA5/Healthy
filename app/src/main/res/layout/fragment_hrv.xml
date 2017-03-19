@@ -22,6 +22,13 @@
             android:progressDrawable="@drawable/bg_progressbar_hor"
             android:layout_centerInParent="true"
             android:max="100"
+            android:progress="100"/>
+        <ImageView
+            android:id="@+id/iv_hrv_tired"
+            android:layout_width="@dimen/x37"
+            android:layout_height="@dimen/x37"
+            android:src="@drawable/huakuai"
+            android:layout_marginTop="-8dp"
             />
         <TextView
             android:id="@+id/tv_hrv_text1"
@@ -49,7 +56,13 @@
             android:progressDrawable="@drawable/bg_progressbar_hor"
             android:layout_centerInParent="true"
             android:max="100"
-            />
+            android:progress="100"/>
+        <ImageView
+            android:id="@+id/iv_hrv_resist"
+            android:layout_width="@dimen/x37"
+            android:layout_height="@dimen/x37"
+            android:src="@drawable/huakuai"
+            android:layout_marginTop="-8dp"/>
         <TextView
             android:id="@+id/tv_hrv_text4"
             android:layout_width="wrap_content"
@@ -77,7 +90,13 @@
             android:progressDrawable="@drawable/bg_progressbar_hor"
             android:layout_centerInParent="true"
             android:max="100"
-            />
+            android:progress="100"/>
+        <ImageView
+            android:id="@+id/iv_hrv_mood"
+            android:layout_width="@dimen/x37"
+            android:layout_height="@dimen/x37"
+            android:src="@drawable/huakuai"
+            android:layout_marginTop="-8dp"/>
         <TextView
             android:id="@+id/tv_hrv_text2"
             android:layout_width="wrap_content"

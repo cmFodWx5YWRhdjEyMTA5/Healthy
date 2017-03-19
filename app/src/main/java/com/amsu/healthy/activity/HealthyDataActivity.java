@@ -10,13 +10,21 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +33,7 @@ import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.EcgFilterUtil;
+import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.EcgView;
 import com.amsu.healthy.view.PathView;
@@ -40,8 +49,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -84,7 +95,13 @@ public class HealthyDataActivity extends BaseActivity {
     private boolean isThreeMit = false;
     private Timer mDrawWareTimer;
     private boolean isStartEcgData;
-
+    private BottomSheetDialog bottomSheetDialog;
+    private TextView tv_healthdaydata_adjust;
+    HashMap<Integer, Integer> rateLineRItemCount = new HashMap<>();
+    private int calcutRateLineRCount=0;
+    private boolean isStartTimeTask;
+    private MyTimeTask mMyTimeTask;
+    private boolean isFirstAdjust = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,8 +139,65 @@ public class HealthyDataActivity extends BaseActivity {
 
         pv_healthydata_path = (EcgView) findViewById(R.id.pv_healthydata_path);
         tv_healthydata_rate = (TextView) findViewById(R.id.tv_healthydata_rate);
+        //RelativeLayout rl_healyhdata_adjust = (RelativeLayout) findViewById(R.id.rl_healyhdata_adjust);
+        tv_healthdaydata_adjust = (TextView) findViewById(R.id.tv_healthdaydata_adjust);
 
         startTiming();  //开始计时，测试
+
+
+        /*else {
+            clo = 0;
+            tv_healthdaydata_adjust.setTextColor(Color.BLUE);
+        }*/
+
+
+        //myTimeTask.startTime();
+
+
+        rateLineRItemCount.put(0,0);
+        rateLineRItemCount.put(1,0);
+        rateLineRItemCount.put(2,0);
+        rateLineRItemCount.put(3,0);
+    }
+    private void startTimeTask(){
+        isStartTimeTask = true;
+        if (mMyTimeTask==null){
+            mMyTimeTask = new MyTimeTask(500, new TimerTask() {
+                int clo;
+                @Override
+                public void run() {
+                    if (!isStartTimeTask){
+                        return;
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (clo == 0) {
+                                clo = 1;
+                                tv_healthdaydata_adjust.setTextColor(Color.TRANSPARENT);
+                            } else {
+                                if (clo == 1) {
+
+                                    clo = 2;
+                                    tv_healthdaydata_adjust.setTextColor(Color.BLACK);
+                                } else if (clo == 2) {
+
+                                    clo = 0;
+                                    tv_healthdaydata_adjust.setTextColor(Color.RED);
+
+                                } /*else {
+                                clo = 0;
+                                tv_healthdaydata_adjust.setTextColor(Color.BLUE);
+                            }*/
+                            }
+                        }
+                    });
+
+                }
+            });
+            mMyTimeTask.startTime();
+        }
+
     }
 
     private void initData() {
@@ -212,7 +286,7 @@ public class HealthyDataActivity extends BaseActivity {
             // 接收到从机数据
             String uuid = c.getUuid().toString();
             String hexData = DataUtil.byteArrayToHex(c.getValue());
-            Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
+            //Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
 
             //4.2写配置信息   onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 81 05 00 16
             //4.5App读主机设备的版本号  onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 84 07 88 88 00 16
@@ -283,9 +357,14 @@ public class HealthyDataActivity extends BaseActivity {
 
                         //带入公式，计算心率
                         heartRate = ECGUtil.countEcgRate1(calcuEcgRate, calcuEcgRate.length, 150);
-                        //Log.i(TAG,"heartRate0:"+heartRate);
+                        Log.i(TAG,"heartRate0:"+heartRate);
                         //calcuEcgRate = new int[groupCalcuLength*10];
                         heartRateDates.add(heartRate);
+
+                        int ecgAmpSum = ECGUtil.countEcgR(calcuEcgRate, calcuEcgRate.length, 150);
+                        Log.i(TAG,"calcuEcgRate.length:"+calcuEcgRate.length);
+                        Log.i(TAG,"ecgAmpSum:"+ecgAmpSum);
+                        setReteLineR(ecgAmpSum);
 
                         //更新心率
                         runOnUiThread(new Runnable() {
@@ -438,19 +517,68 @@ public class HealthyDataActivity extends BaseActivity {
                         //Log.i(TAG,"xACC:"+zACC);
                     }
                 }
-                Log.i(TAG,"xACC:"+xACC+",yACC:"+yACC+",zACC:"+zACC);
-
-
-
-
+                //Log.i(TAG,"xACC:"+xACC+",yACC:"+yACC+",zACC:"+zACC);
             }
-
-
-
-
         }
 
     };
+
+    private void setReteLineR(int ecgAmpSum) {
+        /*
+        *   在 ecgAmpSum < 5时 放大4倍
+            在 5<=ecgAmpSum<12 时放大2倍
+            在 12<=ecgAmpSum<26 时 不放大大不缩小。
+            在ecgAmpSum>=26时 缩小两倍*/
+        calcutRateLineRCount++;
+        if (ecgAmpSum>=26){
+            rateLineRItemCount.put(0,rateLineRItemCount.get(0)+1);
+        }
+        else if (12<=ecgAmpSum && ecgAmpSum<26){
+            rateLineRItemCount.put(1,rateLineRItemCount.get(1)+1);
+        }
+        else if (5<=ecgAmpSum && ecgAmpSum<12){
+            rateLineRItemCount.put(2,rateLineRItemCount.get(2)+1);
+        }
+        else if (ecgAmpSum<5){
+            rateLineRItemCount.put(3,rateLineRItemCount.get(3)+1);
+        }
+
+        if (calcutRateLineRCount>=5){
+            boolean spangled = false;
+            double adjustKey = -1;
+            for (int i=0;i<rateLineRItemCount.size();i++){
+                double value = rateLineRItemCount.get(i);
+                if (calcutRateLineRCount<10 && value==calcutRateLineRCount){
+                    spangled = true;
+                    adjustKey = i;
+                }
+                if (calcutRateLineRCount>=10){
+                    if (value/calcutRateLineRCount>0.7){
+                        //开始
+                        spangled = true;
+                        adjustKey = i;
+                    }
+                }
+            }
+            if (spangled){
+                if (isFirstAdjust){
+                    if (adjustKey != 1){
+                        startTimeTask();
+                        isFirstAdjust = false;
+                    }
+                }else {
+                    startTimeTask();
+                }
+
+            }
+            Log.i(TAG,"calcutRateLineRCount:"+calcutRateLineRCount+",spangled:"+spangled+",isFirstAdjust:"+isFirstAdjust);
+            String a= "";
+            for (int i=0;i<rateLineRItemCount.size();i++){
+                a += i+":"+rateLineRItemCount.get(i)+",";
+            }
+            Log.i(TAG,"map:"+a);
+        }
+    }
 
     //开始三分钟计时
     public void startTiming(){
@@ -589,8 +717,8 @@ public class HealthyDataActivity extends BaseActivity {
                         String heartData = "";
                         for (int i=0;i<heartRateDates.size();i++){
                             heartData += heartRateDates.get(i)+",";
-                            MyUtil.putStringValueFromSP("heartData",heartData);
                         }
+                        MyUtil.putStringValueFromSP("heartData",heartData);
                     }
                     alertDialog.dismiss();
                 }
@@ -709,10 +837,10 @@ public class HealthyDataActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //unbindService(mConnection);
-        //MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
-
-
+        unbindService(mConnection);
+        if (MainActivity.mBluetoothAdapter!=null){
+            MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+        }
     }
 
     public void test(View view) {
@@ -770,6 +898,81 @@ public class HealthyDataActivity extends BaseActivity {
 
             data0Q.addAll(datas);
         }catch (Exception e){}
+
+    }
+
+    public void adjustLine(View view) {
+        choosePicture();
+    }
+
+    private void choosePicture() {
+        if (bottomSheetDialog==null){
+            bottomSheetDialog = new BottomSheetDialog(HealthyDataActivity.this);
+            View inflate = LayoutInflater.from(this).inflate(R.layout.view_adjustline, null);
+
+            bottomSheetDialog.setContentView(inflate);
+            Window window = bottomSheetDialog.getWindow();
+            window.setGravity(Gravity.BOTTOM);  //此处可以设置dialog显示的位置
+            window.setWindowAnimations(R.style.mystyle);  //添加动画
+
+            SeekBar sb_adjust = (SeekBar) inflate.findViewById(R.id.sb_adjust);
+            sb_adjust.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                int startProgress = 0;
+                double currentType=1;
+
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    Log.i(TAG,"onProgressChanged:"+progress);
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                    Log.i(TAG,"onStart:"+seekBar.getProgress());
+                    startProgress = seekBar.getProgress();
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    Log.i(TAG,"onStop:"+seekBar.getProgress());
+                    int endProgress = seekBar.getProgress();
+                    //endProgress-startProgress
+                    double type = 2;
+                     /*
+                    *  可以在 ecgAmpSum < 5时 放大4倍
+                        在 5<=ecgAmpSum<12 时放大2倍
+                        在 12<=ecgAmpSum<26 时 不放大大不缩小。
+                        在ecgAmpSum>=26时 缩小两倍
+                    * */
+                    Log.i(TAG,"currentType:"+currentType);
+                    if (endProgress<10){
+                        type = 0.5;
+                    }
+                    else if(10<=endProgress&&endProgress<20){
+                        type = 1;
+                    }
+                    else if(20<=endProgress&&endProgress<30){
+                        type = 2;
+                    }
+                    else if(30<=endProgress&&endProgress<=40){
+                        type = 4;
+                    }
+
+                    if (type!=currentType){
+                        currentType = type;
+                        //重新绘图
+                        Log.i(TAG,"重新绘图");
+                        pv_healthydata_path.setRateLineR(type);
+                        calcutRateLineRCount = 0;
+                        isStartTimeTask = false;
+                    }
+                }
+            });
+        }
+
+        bottomSheetDialog.show();
+
+
+
 
     }
 }

@@ -214,7 +214,6 @@ public class LoginActivity extends BaseActivity {
                     bt_login_getcode.setTextSize(10);
                     bt_login_getcode.setBackgroundResource(R.drawable.bg_button_verifycode);
                 }
-
                 else {
                     bt_login_getcode.setText(time+"");
                 }
@@ -346,6 +345,7 @@ public class LoginActivity extends BaseActivity {
                                         if (birthday.equals("null") && weight.equals("null")){
                                             //没有完善个人信息
                                             showdialog();
+                                            startActivity(new Intent(LoginActivity.this,SupplyPersionDataActivity.class));
                                         }
                                         else {
                                             String sex = jsonObject1.getString("Sex");
@@ -412,7 +412,7 @@ public class LoginActivity extends BaseActivity {
                 sb.append(value + ";" );
             }
         }
-        //Log. i("Cookie", sb.toString());
+        Log. i("Cookie", sb.toString());
         MyUtil.putStringValueFromSP("Cookie", sb.toString());
     }
 

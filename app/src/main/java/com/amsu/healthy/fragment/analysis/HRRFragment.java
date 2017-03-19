@@ -58,7 +58,7 @@ public class HRRFragment extends Fragment {
         IndicatorAssess indicatorAssess = HealthyIndexUtil.calculateScoreHRR();
         if (indicatorAssess!=null){
             tv_hrr_value.setText(indicatorAssess.getValue()+"");  //注意：此处的是恢复数值，不是分数
-            tv_hrr_state.setText(indicatorAssess.getState());
+            tv_hrr_state.setText(indicatorAssess.getPercent()+"");
             tv_hrr_suggestion.setText(indicatorAssess.getSuggestion());
         }
 

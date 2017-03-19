@@ -94,16 +94,16 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                         if (position==0){
                             //测试
                             if (indicatorAssesses.size()==7){
-                                indicatorAssesses.get(0).setScre(60);
-                                indicatorAssesses.get(1).setScre(40);
-                                indicatorAssesses.get(2).setScre(70);
-                                indicatorAssesses.get(3).setScre(50);
-                                indicatorAssesses.get(4).setScre(20);
-                                indicatorAssesses.get(5).setScre(70);
-                                indicatorAssesses.get(6).setScre(80);
+                                indicatorAssesses.get(0).setPercent(60);
+                                indicatorAssesses.get(1).setPercent(40);
+                                indicatorAssesses.get(2).setPercent(70);
+                                indicatorAssesses.get(3).setPercent(50);
+                                indicatorAssesses.get(4).setPercent(20);
+                                indicatorAssesses.get(5).setPercent(70);
+                                indicatorAssesses.get(6).setPercent(80);
                                 float data1[] = new float[7];
                                 for (int i=0;i<indicatorAssesses.size();i++){
-                                    data1[i] = indicatorAssesses.get(i).getScre();
+                                    data1[i] = indicatorAssesses.get(i).getPercent();
                                 }
                                 rc_assess_radar.setDatas(data1,null,null);
                             }
@@ -112,16 +112,16 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                         else {
                             //测试
                             if (indicatorAssesses.size()==7){
-                                indicatorAssesses.get(0).setScre(60);
-                                indicatorAssesses.get(1).setScre(80);
-                                indicatorAssesses.get(2).setScre(70);
-                                indicatorAssesses.get(3).setScre(50);
-                                indicatorAssesses.get(4).setScre(40);
-                                indicatorAssesses.get(5).setScre(70);
-                                indicatorAssesses.get(6).setScre(40);
+                                indicatorAssesses.get(0).setPercent(60);
+                                indicatorAssesses.get(1).setPercent(80);
+                                indicatorAssesses.get(2).setPercent(70);
+                                indicatorAssesses.get(3).setPercent(50);
+                                indicatorAssesses.get(4).setPercent(40);
+                                indicatorAssesses.get(5).setPercent(70);
+                                indicatorAssesses.get(6).setPercent(40);
                                 float data1[] = new float[7];
                                 for (int i=0;i<indicatorAssesses.size();i++){
-                                    data1[i] = indicatorAssesses.get(i).getScre();
+                                    data1[i] = indicatorAssesses.get(i).getPercent();
                                 }
                                 rc_assess_radar.setDatas(data1,null,null);
                             }
@@ -214,7 +214,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         if (indicatorAssesses.size()==7){
             float[] data1 = new float[7];
             for (int i=0;i<indicatorAssesses.size();i++){
-                data1[i] = indicatorAssesses.get(i).getScre();
+                data1[i] = indicatorAssesses.get(i).getPercent();
             }
 
             float[] data2 = {80, 120, 140, 170, 150,140,100};
@@ -341,21 +341,21 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             TextView tv_item_unit = (TextView) inflate.findViewById(R.id.tv_item_unit);
 
             if (indicatorAssess!=null){
-                if (indicatorAssess.getTypeName().equals("储备心率") || indicatorAssess.getTypeName().equals("恢复心率(HRR)")){
+                if (indicatorAssess.getName().equals("储备心率") || indicatorAssess.getName().equals("恢复心率(HRR)")){
                     tv_item_unit.setText("bpm");
                     tv_item_value.setText(indicatorAssess.getValue()+"");
                 }
-                else if (indicatorAssess.getTypeName().equals("BMI")){
+                else if (indicatorAssess.getName().equals("BMI")){
                     tv_item_unit.setText("bmi");
                     tv_item_value.setText(indicatorAssess.getValue()+"");
                 }
                 else {
                     tv_item_unit.setText("分");
-                    tv_item_value.setText(indicatorAssess.getScre()+"");
+                    tv_item_value.setText(indicatorAssess.getPercent()+"");
                 }
 
 
-                tv_item_typeName.setText(indicatorAssess.getTypeName());
+                tv_item_typeName.setText(indicatorAssess.getName());
                 tv_item_suggestion.setText(indicatorAssess.getSuggestion());
             }
 

@@ -151,6 +151,7 @@ public class MyUtil {
     //添加Cookie
     public static void addCookieForHttp(RequestParams requestParams){
         String cookie = getStringValueFromSP("Cookie");
+        Log.i(TAG,"cookie:"+cookie);
         if (!MyUtil.isEmpty(cookie)){
             requestParams.addHeader("Cookie",cookie);
         }

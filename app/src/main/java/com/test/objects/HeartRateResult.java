@@ -2,6 +2,8 @@ package com.test.objects;
 
 import java.util.Arrays;
 
+import android.util.Log;
+
 /**
  * 该类用于记录心电分析的结果
  */
@@ -109,6 +111,9 @@ public class HeartRateResult {
 	 * 三角指数
 	 */
 	public int RR_HRVI = 0;
+	
+	public double LF = 0.0;
+	public double HF = 0.0;
 
 	public int[] RR_list;
 
@@ -146,7 +151,8 @@ public class HeartRateResult {
 				", RR_PNN50=" + RR_PNN50 +
 				", RR_SDNN=" + RR_SDNN +
 				", RR_HRVI=" + RR_HRVI +
-				", RR_list=" + Arrays.toString(RR_list) +
+				", LF=" + LF +
+				", HF=" + HF +
 				'}';
 	}
 }

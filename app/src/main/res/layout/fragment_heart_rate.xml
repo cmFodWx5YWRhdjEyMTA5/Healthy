@@ -215,7 +215,7 @@
         android:paddingLeft="@dimen/x36"
         android:paddingRight="@dimen/x36"
         android:layout_marginTop="@dimen/y52">
-        <TextView
+        <!--<TextView
             android:id="@+id/tv_hrv_ala3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -231,7 +231,7 @@
             android:layout_marginTop="@dimen/y18"
             android:textColor="#333333"
             android:textSize="@dimen/x40"
-            android:text="您的心率较高，如果增加有氧训练时间，提升心肺能力，可以逐渐下降。"/>
+            android:text="您的心率较高，如果增加有氧训练时间，提升心肺能力，可以逐渐下降。"/>-->
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -5,47 +5,34 @@ package com.amsu.healthy.bean;
  */
 
 public class IndicatorAssess {
-    private int scre;
-    private String typeName;
-    private String state;
+    private int value;
+    private int percent;
+    private String name;
     private String suggestion;
-    private String value;
+    private String evaluate;
 
-    public IndicatorAssess(int scre, String typeName, String suggestion) {
-        this.scre = scre;
-        this.typeName = typeName;
-        this.suggestion = suggestion;
+    public int getValue() {
+        return value;
     }
 
-    public IndicatorAssess(int scre, String typeName, String state, String suggestion) {
-        this.scre = scre;
-        this.typeName = typeName;
-        this.state = state;
-        this.suggestion = suggestion;
-    }
-
-    public IndicatorAssess(int scre, String typeName, String state, String suggestion, String value) {
-        this.scre = scre;
-        this.typeName = typeName;
-        this.state = state;
-        this.suggestion = suggestion;
+    public void setValue(int value) {
         this.value = value;
     }
 
-    public int getScre() {
-        return scre;
+    public int getPercent() {
+        return percent;
     }
 
-    public void setScre(int scre) {
-        this.scre = scre;
+    public void setPercent(int percent) {
+        this.percent = percent;
     }
 
-    public String getTypeName() {
-        return typeName;
+    public String getName() {
+        return name;
     }
 
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getSuggestion() {
@@ -56,19 +43,39 @@ public class IndicatorAssess {
         this.suggestion = suggestion;
     }
 
-    public String getState() {
-        return state;
+    public String getEvaluate() {
+        return evaluate;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setEvaluate(String evaluate) {
+        this.evaluate = evaluate;
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
+    public IndicatorAssess(int value, String name, String suggestion) {
         this.value = value;
+        this.name = name;
+        this.suggestion = suggestion;
+    }
+
+    public IndicatorAssess(int value, int percent, String name, String suggestion, String evaluate) {
+        this.value = value;
+        this.percent = percent;
+        this.name = name;
+        this.suggestion = suggestion;
+        this.evaluate = evaluate;
+    }
+
+    public IndicatorAssess(int value, int percent, String name, String suggestion) {
+        this.value = value;
+        this.percent = percent;
+        this.name = name;
+        this.suggestion = suggestion;
+    }
+
+    public IndicatorAssess(int value, String name, String suggestion, String evaluate) {
+        this.value = value;
+        this.name = name;
+        this.suggestion = suggestion;
+        this.evaluate = evaluate;
     }
 }

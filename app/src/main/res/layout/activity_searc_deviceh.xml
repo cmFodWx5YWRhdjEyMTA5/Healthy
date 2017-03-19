@@ -39,9 +39,9 @@
 
     <ImageView
         android:id="@+id/iv_heartrate_rotateimage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/loading"
+        android:layout_width="@dimen/y500"
+        android:layout_height="@dimen/y500"
+        android:src="@drawable/loading_03"
         android:layout_centerInParent="true"
         android:layout_marginTop="60dp"/>
     <ImageView

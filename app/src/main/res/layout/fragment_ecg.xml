@@ -29,7 +29,7 @@
         android:paddingRight="@dimen/x36"
         android:layout_marginTop="@dimen/y52">
 
-        <TextView
+       <!-- <TextView
             android:id="@+id/tv_hrv_ala3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
             android:textColor="#333333"
             android:textSize="@dimen/x40"
             android:text="发现1次早搏，漏搏2次， 偶尔的早搏可见于正常人，漏博次数较多，如果没有诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。可以适当进行有氧训练，提升心肺能力。"/>
-
+-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

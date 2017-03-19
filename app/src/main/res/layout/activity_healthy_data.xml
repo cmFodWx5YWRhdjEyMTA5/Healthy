@@ -61,6 +61,35 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <RelativeLayout
+            android:id="@+id/rl_healyhdata_adjust"
+            android:layout_width="@dimen/x184"
+            android:layout_height="@dimen/y88"
+            android:background="#CCFFFFFF"
+            android:onClick="adjustLine"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="@dimen/y32"
+            android:layout_marginRight="@dimen/x40">
+            <ImageView
+                android:id="@+id/image0"
+                android:layout_width="@dimen/x40"
+                android:layout_height="@dimen/x40"
+                android:src="@drawable/tiaozhen"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/x20"/>
+            <TextView
+                android:id="@+id/tv_healthdaydata_adjust"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/image0"
+                android:text="调整"
+                android:layout_marginLeft="@dimen/y24"
+                android:layout_centerVertical="true"
+                android:textColor="#666666"
+                android:textSize="@dimen/x40"/>
+        </RelativeLayout>
+
     </RelativeLayout>
 
     <Button

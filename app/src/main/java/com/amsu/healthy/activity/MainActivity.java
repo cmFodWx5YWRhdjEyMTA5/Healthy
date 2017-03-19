@@ -25,6 +25,8 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.IndicatorAssess;
+import com.amsu.healthy.bean.RateRecord;
+import com.amsu.healthy.db.DbAdapter;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
@@ -33,9 +35,13 @@ import com.amsu.healthy.view.CircleRingView;
 import com.amsu.healthy.view.DashboardView;
 import com.baidu.mapapi.map.MapView;
 import com.ble.ble.BleService;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends BaseActivity {
 
@@ -63,6 +69,21 @@ public class MainActivity extends BaseActivity {
 
         initView();
         initData();
+
+
+        int[] calcuData = {3,5,7,8,9};
+        List<List<Integer>> sList = new ArrayList<>();
+        for (int i=0;i<calcuData.length;i++){
+            List<Integer> temp = new ArrayList<Integer>();
+            temp.add(i+1);
+            temp.add(calcuData[i]);
+            sList.add(temp);
+        }
+
+        Gson gson = new Gson();
+        String  listString = gson.toJson(sList);
+        Log.i(TAG,"listString:"+listString);
+
 
 
 
@@ -125,7 +146,6 @@ public class MainActivity extends BaseActivity {
 
         //生理年龄
         physicalAge = HealthyIndexUtil.calculatePhysicalAge();
-        physicalAge = 21;
         Log.i(TAG,"physicalAge:"+ physicalAge);
         if (physicalAge>0){
             setAgeTextAnimator(tv_main_age,0, physicalAge);
@@ -216,10 +236,10 @@ public class MainActivity extends BaseActivity {
                 showdialogToLogin();
                 return;
             }
-            else if (!isPrefectInfo){
+            /*else if (!isPrefectInfo){   测试
                 showdialogToSupplyData();
                 return;
-            }
+            }*/
 
             switch (v.getId()){
                 case R.id.rl_main_healthydata:
