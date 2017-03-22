@@ -4,14 +4,34 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.bean.HealthyPlan;
+import com.amsu.healthy.bean.JsonBase;
+import com.amsu.healthy.bean.JsonHealthyList;
+import com.amsu.healthy.bean.Report;
 import com.amsu.healthy.fragment.report.MouthReprtFragment;
 import com.amsu.healthy.fragment.report.QuarterReprtFragment;
 import com.amsu.healthy.fragment.report.YearReprtFragment;
+import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.MyUtil;
+import com.google.gson.Gson;
+import com.lidroid.xutils.HttpUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Date;
+import java.util.List;
 
 public class MyReportActivity extends BaseActivity {
 
@@ -33,8 +53,11 @@ public class MyReportActivity extends BaseActivity {
         setContentView(R.layout.activity_my_report);
 
         initView();
+        iniData();
 
     }
+
+
 
     private void initView() {
         initHeadView();
@@ -71,6 +94,53 @@ public class MyReportActivity extends BaseActivity {
         //addOrShowFragment(fragmentTransaction,mouthReprtFragment);
 
 
+    }
+
+    private void iniData() {
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+        String formatTime = MyUtil.getSpecialFormatTime("yyyy-MM",new Date());
+        params.addBodyParameter("reportType","FULL");
+        params.addBodyParameter("reportTime",formatTime);
+        MyUtil.addCookieForHttp(params);
+
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadMonthReportURL, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                Log.i(TAG,"上传onSuccess==result:"+result);
+                /*Gson gson = new Gson();
+                JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+                Log.i(TAG,"jsonBase:"+jsonBase);
+                if (jsonBase.getRet()==0){
+                    Report report = gson.fromJson(result, Report.class);
+                    Log.i(TAG,"report:"+report.toString());
+                }*/
+                /*JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(result);
+                    int ret = jsonObject.getInt("ret");
+                    JSONObject errDesc = (JSONObject) jsonObject.get("errDesc");
+                    JSONObject hRrep = errDesc.getJSONObject("HRrep");
+                    JSONObject ECrep = errDesc.getJSONObject("ECrep");
+                    JSONObject HRRrep = errDesc.getJSONObject("HRRrep");
+                    JSONObject HRVrep = errDesc.getJSONObject("HRVrep");
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }*/
+
+
+
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                MyUtil.hideDialog();
+                Log.i(TAG,"上传onFailure==s:"+s);
+            }
+        });
     }
 
     //Fragment切换

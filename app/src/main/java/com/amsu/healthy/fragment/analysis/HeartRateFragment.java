@@ -13,6 +13,8 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.HistoryRecordActivity;
 import com.amsu.healthy.activity.MyReportActivity;
+import com.amsu.healthy.activity.RateAnalysisActivity;
+import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineView;
 
@@ -66,23 +68,32 @@ public class HeartRateFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        int[] datas = MyUtil.getHeartRateListFromSP();
-        //int[] datas = new int[]{65,66,54,73,71,68,77,55,56,93,65,68,64,62,61,64,67,66,40,70,65};  //测试
-        if (datas!=null && datas.length>0){
-            int max  = datas[0];
-            int average = 0;
-            int sum = 0;
-            for (int i=0;i<datas.length;i++){
-                if (max<datas[i]){
-                    max = datas[i];
-                }
-                sum += datas[i];
-            }
-            average = sum/datas.length;
-            fv_rate_line.setData(datas,max);
-            tv_rate_max.setText(max+"");
-            tv_rate_average.setText(average+"");
+        UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
+        if (mUploadRecord!=null){
+            tv_rate_max.setText(mUploadRecord.MaxHR+"");
+            tv_rate_average.setText(mUploadRecord.MinHR+"");
+            //fv_rate_line.setData(datas,max);
         }
+        else {
+            int[] datas = MyUtil.getHeartRateListFromSP();
+            //int[] datas = new int[]{65,66,54,73,71,68,77,55,56,93,65,68,64,62,61,64,67,66,40,70,65};  //测试
+            if (datas!=null && datas.length>0){
+                int max  = datas[0];
+                int average = 0;
+                int sum = 0;
+                for (int i=0;i<datas.length;i++){
+                    if (max<datas[i]){
+                        max = datas[i];
+                    }
+                    sum += datas[i];
+                }
+                average = sum/datas.length;
+                fv_rate_line.setData(datas,max);
+                tv_rate_max.setText(max+"");
+                tv_rate_average.setText(average+"");
+            }
+        }
+
 
 
     }

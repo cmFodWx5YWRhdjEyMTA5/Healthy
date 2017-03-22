@@ -41,12 +41,16 @@ import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
 import com.ble.ble.BleService;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -88,7 +92,7 @@ public class HealthyDataActivity extends BaseActivity {
 
     private String test ="";
     private List<Device> deviceListFromSP;
-    private String connecMac;
+    private static String connecMac;
     private boolean isConnectted  =false;
     private boolean isConnectting  =false;
     private List<Integer> heartRateDates = new ArrayList<>();
@@ -102,6 +106,11 @@ public class HealthyDataActivity extends BaseActivity {
     private boolean isStartTimeTask;
     private MyTimeTask mMyTimeTask;
     private boolean isFirstAdjust = true;
+    public static final String action = "jason.broadcast.action";
+    private boolean isDrawEcg = true;
+    private DataOutputStream dataOutputStream;
+    private ByteBuffer byteBuffer;
+    public static long ecgFiletimeMillis =-1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,11 +119,6 @@ public class HealthyDataActivity extends BaseActivity {
 
         initView();
         initData();
-
-
-       /* double []test = {45,40,67,89,23,45,56,65,45,45,33,66,77.80,80};
-        HeartRateResult ecgResult = DiagnosisNDK.getEcgResult(test, test.length, 15);
-        Log.i(TAG,"ecgResult:"+ecgResult.toString());*/
 
     }
 
@@ -143,15 +147,6 @@ public class HealthyDataActivity extends BaseActivity {
         tv_healthdaydata_adjust = (TextView) findViewById(R.id.tv_healthdaydata_adjust);
 
         startTiming();  //开始计时，测试
-
-
-        /*else {
-            clo = 0;
-            tv_healthdaydata_adjust.setTextColor(Color.BLUE);
-        }*/
-
-
-        //myTimeTask.startTime();
 
 
         rateLineRItemCount.put(0,0);
@@ -213,6 +208,10 @@ public class HealthyDataActivity extends BaseActivity {
 
     }
 
+    public static void stopTransmitData(){
+        mLeService.send(connecMac, Constant.stopDataTransmitOrder,true);  //关闭数据传输
+    }
+
     // ble数据交互的关键参数
     private final BleCallBack mBleCallBack = new BleCallBack() {
 
@@ -257,11 +256,11 @@ public class HealthyDataActivity extends BaseActivity {
                 public void run() {
                     super.run();
                     try {
-                        Thread.sleep(2000);
+                        Thread.sleep(1000);
                         Log.i(TAG,"写配置");
                         mLeService.send(connecMac, Constant.writeConfigureOrder,true);  //开启数据传输
 
-                        Thread.sleep(2000);
+                        Thread.sleep(1000);
                         Log.i(TAG,"开启数据指令");
                         mLeService.send(connecMac, Constant.openDataTransmitOrder,true);  //开启数据传输
                     } catch (InterruptedException e) {
@@ -310,9 +309,28 @@ public class HealthyDataActivity extends BaseActivity {
                 //Log.i(TAG,"心电hexData:"+hexData);
                 final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
 
-                String data = "";
-                for (int i=0;i<ints.length;i++){
-                    data += ints[i]+",";
+                //写到文件里，二进制方式写入
+                try {
+                    if (fileOutputStream==null){
+                        ecgFiletimeMillis = System.currentTimeMillis();
+                        String filePath = MyUtil.generateECGFilePath(HealthyDataActivity.this, ecgFiletimeMillis); //随机生成一个ecg格式文件
+                        //String filePath = getCacheDir()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";  //随机生成一个文件
+                        //String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";
+                        fileOutputStream = new FileOutputStream(filePath,true);
+                        MyUtil.putStringValueFromSP("cacheFileName",filePath);
+                        //  RandomAccessFile
+                        dataOutputStream = new DataOutputStream(fileOutputStream);
+                        byteBuffer = ByteBuffer.allocate(2);
+                    }
+                    for (int anInt : ints) {
+                        byteBuffer.clear();
+                        byteBuffer.putShort((short) anInt);
+                        dataOutputStream.writeByte(byteBuffer.get(1));
+                        dataOutputStream.writeByte(byteBuffer.get(0));
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
                 //Log.i(TAG,"onCharacteristicChanged滤波前:"+data);
                 //滤波处理
@@ -321,10 +339,6 @@ public class HealthyDataActivity extends BaseActivity {
                     temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
                     ints[i] = temp;
                 }
-                test += data;
-                //Log.i(TAG,"onCharacteristicChanged滤波后:"+data);
-                //cacheText += data;
-
 
                 //Log.i(TAG,"currentIndex:"+currentIndex);
                 if (isFirstCalcu){
@@ -360,6 +374,10 @@ public class HealthyDataActivity extends BaseActivity {
                         Log.i(TAG,"heartRate0:"+heartRate);
                         //calcuEcgRate = new int[groupCalcuLength*10];
                         heartRateDates.add(heartRate);
+
+                        Intent intent = new Intent(action);
+                        intent.putExtra("data", heartRate);
+                        sendBroadcast(intent);
 
                         int ecgAmpSum = ECGUtil.countEcgR(calcuEcgRate, calcuEcgRate.length, 150);
                         Log.i(TAG,"calcuEcgRate.length:"+calcuEcgRate.length);
@@ -434,38 +452,14 @@ public class HealthyDataActivity extends BaseActivity {
                 currentIndex++;
             }
 */
-
-
-                //绘图
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        pv_healthydata_path.addEcgOnGroupData(ints);
-                    }
-                });
-
-                //写入文件时用到，以逗号分隔
-                data = "";
-                for (int i=0;i<ints.length;i++){
-                    data += ints[i]+",";
-                }
-
-                //写到文件里
-                try {
-                    if (fileOutputStream==null){
-                        String filePath = getCacheDir()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";  //随机生成一个文件
-                        //String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";
-
-                        fileOutputStream = new FileOutputStream(filePath,true);
-                        MyUtil.putStringValueFromSP("cacheFileName",filePath);
-                    }
-                    byte[] bytes = data.getBytes();
-                    fileOutputStream.write(bytes,0,bytes.length);
-
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (isDrawEcg){
+                    //绘图
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pv_healthydata_path.addEcgOnGroupData(ints);
+                        }
+                    });
                 }
             }
             else if(hexData.startsWith("FF 86 11")){
@@ -711,15 +705,16 @@ public class HealthyDataActivity extends BaseActivity {
             bt_choose_ok.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    isDrawEcg = false;
                     startActivity(new Intent(HealthyDataActivity.this,MoveStateActivity.class));
                     isNext = true;
+                    String heartData = "";
                     if (heartRateDates.size()>0){
-                        String heartData = "";
                         for (int i=0;i<heartRateDates.size();i++){
                             heartData += heartRateDates.get(i)+",";
                         }
-                        MyUtil.putStringValueFromSP("heartData",heartData);
                     }
+                    MyUtil.putStringValueFromSP("heartData",heartData);
                     alertDialog.dismiss();
                 }
             });
@@ -728,14 +723,15 @@ public class HealthyDataActivity extends BaseActivity {
 
         }
         else{
+            isDrawEcg = false;
             startActivity(new Intent(HealthyDataActivity.this,MoveStateActivity.class));
+            String heartData = "";
             if (heartRateDates.size()>0){
-                String heartData = "";
                 for (int i=0;i<heartRateDates.size();i++){
                     heartData += heartRateDates.get(i)+",";
-                    MyUtil.putStringValueFromSP("heartData",heartData);
                 }
             }
+            MyUtil.putStringValueFromSP("heartData",heartData);
         }
 
 

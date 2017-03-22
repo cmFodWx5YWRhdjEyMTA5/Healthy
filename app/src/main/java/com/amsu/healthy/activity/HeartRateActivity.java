@@ -12,13 +12,10 @@ import android.widget.ImageView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.IndicatorAssess;
-import com.amsu.healthy.bean.RateRecord;
 import com.amsu.healthy.bean.UploadRecord;
-import com.amsu.healthy.db.DbAdapter;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.ECGUtil;
+import com.amsu.healthy.utils.EcgFilterUtil;
 import com.amsu.healthy.utils.HealthyIndexUtil;
-import com.amsu.healthy.utils.MyBitMapUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.Gson;
 import com.lidroid.xutils.HttpUtils;
@@ -33,10 +30,12 @@ import com.test.utils.DiagnosisNDK;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -77,87 +76,115 @@ public class HeartRateActivity extends BaseActivity {
         new Thread(){
             @Override
             public void run() {
-                try {
-                    String heartData = MyUtil.getStringValueFromSP("heartData");
+                String heartData = MyUtil.getStringValueFromSP("heartData");
+                Log.i(TAG,"heartData:"+heartData);
 
-                    if (!heartData.equals("")){
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                animation.cancel();
-                                Intent intent = new Intent(HeartRateActivity.this, RateAnalysisActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
-                        });
-                        return;
-                    }
-                    Thread.sleep(1000);  //模拟下载数据 耗时
-                    //String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
-                    //String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";
-                    String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170223160327.ecg";
-                    if (!cacheFileName.equals("")){
-                        try {
-                            if (fileInputStream==null){
-                                File file = new File(cacheFileName);
-                                if (file.exists()){
-                                    fileInputStream = new FileInputStream(cacheFileName);
-                                }
-                            }
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    if (fileInputStream!=null){
-                        byte [] mybyte = new byte[1024];
-                        int length=0;
-                        while (true) {
-                            length = fileInputStream.read(mybyte,0,mybyte.length);
-                            //Log.i(TAG,"length:"+length);
-                            if (length!=-1) {
-                                String s = new String(mybyte,0,length);
-                                ecgDatatext +=s;
-                            }else {
-                                break;
-                            }
-                        }
-                        Log.i(TAG,"ecgDatatext:"+ecgDatatext);
-                        if (!ecgDatatext.equals("")){
-                            String[] allGrounpData = ecgDatatext.split(",");
-                            int[] calcuData = new int[allGrounpData.length];
-                            for (int i=0;i<allGrounpData.length;i++){
-                                calcuData[i] = Integer.parseInt(allGrounpData[i]);
-                            }
-                            analysisAndUpload(calcuData);
-                        }
-
-                    }
-                    //分析完成
+                if (heartData.equals("")){
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             animation.cancel();
+                            Intent intent = new Intent(HeartRateActivity.this, RateAnalysisActivity.class);
+                            startActivity(intent);
+                            finish();
                         }
                     });
-                    Intent intent = new Intent(HeartRateActivity.this, RateAnalysisActivity.class);
-                    if (uploadRecord!=null){
-                        Bundle bundle = new Bundle();
-                        bundle.putParcelable("uploadRecord",uploadRecord);
-                        intent.putExtra("bundle",bundle);
-                    }
-                    startActivity(intent);
-                    finish();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    return;
                 }
+                //Thread.sleep(1000);  //模拟下载数据 耗时
+                String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
+                //String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";
+                //String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170223160327.ecg";
+
+                String fileBase64 = "";
+                if (!cacheFileName.equals("")){
+                    File file = new File(cacheFileName);
+                    try {
+                        if (file.exists()){
+                            fileBase64 = MyUtil.fileToBase64(file);
+                            if (fileInputStream==null){
+                                fileInputStream = new FileInputStream(cacheFileName);
+                            }
+                        }
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+                Log.i(TAG,"fileBase64:"+fileBase64);
+
+                if (fileInputStream!=null){
+                    DataInputStream dataInputStream = new DataInputStream(fileInputStream); //读取二进制文件
+                    List<Integer> calcuData = new ArrayList<Integer>();
+                    byte[] bytes = new byte[2];
+                    ByteBuffer buffer=  ByteBuffer.wrap(bytes);
+                    byte b;
+                    try {
+                        while ((b = (byte) dataInputStream.read()) != -1 ){
+                            //int readByte = dataInputStream.readShort();
+                            bytes[1] =b;
+                            bytes[0] =(byte)dataInputStream.read();
+                            short readCsharpInt = buffer.getShort();
+                            buffer.clear();
+                            //Log.i(TAG,"readByte:"+readByte);
+                            //滤波处理
+                            int temp = EcgFilterUtil.miniEcgFilterLp(readCsharpInt, 0);
+                            temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
+                            calcuData.add(temp);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Log.i(TAG,"over");
+                    analysisAndUpload(calcuData,fileBase64);
+
+
+                    /*byte [] mybyte = new byte[1024];
+                    int length=0;
+                    while (true) {
+                        length = fileInputStream.read(mybyte,0,mybyte.length);
+                        //Log.i(TAG,"length:"+length);
+                        if (length!=-1) {
+                            String s = new String(mybyte,0,length);
+                            ecgDatatext +=s;
+                        }else {
+                            break;
+                        }
+                    }
+                    Log.i(TAG,"ecgDatatext:"+ecgDatatext);
+                    if (!ecgDatatext.equals("")){
+                        String[] allGrounpData = ecgDatatext.split(",");
+                        int[] calcuData = new int[allGrounpData.length];
+                        for (int i=0;i<allGrounpData.length;i++){
+                            calcuData[i] = Integer.parseInt(allGrounpData[i]);
+                        }
+                        analysisAndUpload(calcuData);
+                    }*/
+
+                }
+                //分析完成
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        animation.cancel();
+                    }
+                });
+                Intent intent = new Intent(HeartRateActivity.this, RateAnalysisActivity.class);
+                if (uploadRecord!=null){
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable("uploadRecord",uploadRecord);
+                    intent.putExtra("bundle",bundle);
+                }
+                startActivity(intent);
+                finish();
             }
         }.start();
     }
 
-    private void analysisAndUpload(int[] calcuData) {
+    private void analysisAndUpload(List<Integer> rateData,String fileBase64) {
+        int[] calcuData = new int[rateData.size()];
+        for (int i=0;i<rateData.size();i++ ){
+            calcuData[i] = rateData.get(i);
+        }
         HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, 150);
         Log.i(TAG,"heartRateResult:"+heartRateResult.toString());
         //转化成json并存在sp里
@@ -177,17 +204,17 @@ public class HeartRateActivity extends BaseActivity {
         for (int i=0;i<rateRecords.size();i++){
             Log.i(TAG,rateRecords.get(i).toString());
         }*/
-        IndicatorAssess indicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex((int) (heartRateResult.LF / heartRateResult.HF));
-        String ES = String.valueOf(indicatorAssess.getPercent());
-        IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateSDNNPressureIndex(heartRateResult.RR_SDNN);
-        String PI = String.valueOf(indicatorAssess1.getPercent());
-        IndicatorAssess indicatorAssess2 = HealthyIndexUtil.calculateSDNNSportIndex(heartRateResult.RR_SDNN);
-        String FI = String.valueOf(indicatorAssess2.getPercent());
+        IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex((int) (heartRateResult.LF / heartRateResult.HF));
+        String ES = String.valueOf(ESIndicatorAssess.getPercent());
+        IndicatorAssess PIIndicatorAssess = HealthyIndexUtil.calculateSDNNPressureIndex(heartRateResult.RR_SDNN);
+        String PI = String.valueOf(PIIndicatorAssess.getPercent());
+        IndicatorAssess FIIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(heartRateResult.RR_SDNN);
+        String FI = String.valueOf(FIIndicatorAssess.getPercent());
 
-        String HRVs = indicatorAssess.getSuggestion()+indicatorAssess1.getSuggestion()+indicatorAssess2.getSuggestion();
+        String HRVs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
 
-        //int[] datas = MyUtil.getHeartRateListFromSP();
-        int[] datas = new int[]{65,66,54,73,71,68,77,55,56,93,65,68,64,62,61,64,67,66,40,70,65};
+        int[] datas = MyUtil.getHeartRateListFromSP();
+        //int[] datas = new int[]{65,66,44,73,119,105,77,55,56,111,65,68,64,62,61,45,67,22,40,99,145};
         int MaxHR=datas[0];
         int MinHR=datas[0];
         int sum = 0;
@@ -201,20 +228,8 @@ public class HeartRateActivity extends BaseActivity {
             sum += datas[i];
         }
         String AHR = String.valueOf(sum/datas.length);
-
-       /* List<List<Integer>> sList = new ArrayList<>();
-        List<Integer> temp = new ArrayList<>();
-        for (int i=0;i<calcuData.length;i++){
-            temp = new ArrayList<>();
-            temp.add(i+1);
-            temp.add(calcuData[i]);
-            sList.add(temp);
-        }*/
-        String  EC = "[";
-        for (int i=0;i<datas.length;i++){
-            EC += "["+i+","+calcuData[i]+"],";
-        }
-        EC += "]";
+        //String  EC = MyUtil.encodeBase64String(calcuDataString);
+        String  EC = fileBase64;
 
         String ECr = "1";
         if (heartRateResult.RR_Kuanbo>0){  //漏博
@@ -223,11 +238,21 @@ public class HeartRateActivity extends BaseActivity {
         else if (heartRateResult.RR_Apb+heartRateResult.RR_Pvc>0){ //早搏
             ECr="4";
         }
-        String RA = "90";  //心率恢复能力
+        String RA = "0";  //心率恢复能力
+        String HRs = "未测出恢复心率";  //心率恢复能力健康意见
+        Intent intent = getIntent();
+        if (intent!=null){
+            int hrr = intent.getIntExtra("hrr", 0);
+            if (hrr>0){
+                IndicatorAssess hrrIndicatorAssess = HealthyIndexUtil.calculateScoreHRR(hrr);
+                HRs = hrrIndicatorAssess.getSuggestion();
+            }
+            RA = hrr+"";
+        }
         String timestamp = String.valueOf(System.currentTimeMillis());
         String datatime = MyUtil.getSpecialFormatTime("yyyy/MM/dd H:m:s", new Date());
 
-        uploadRecord = new UploadRecord(FI,ES,PI,"10","xxxxx",HRVs,AHR,String.valueOf(MaxHR),String.valueOf(MinHR),"xxxx","xxxx",EC,ECr,"xxxx",RA,timestamp,datatime);
+        uploadRecord = new UploadRecord(FI,ES,PI,"10","xx",HRVs,AHR,String.valueOf(MaxHR),String.valueOf(MinHR),"xxxx",HRs,EC,ECr,"xxxx",RA,timestamp,datatime);
         Log.i(TAG,"uploadRecord:"+uploadRecord);
         uploadData(uploadRecord);
     }

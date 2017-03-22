@@ -119,6 +119,9 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
         Log.i(TAG,"onDateSet:"+ year +","+ month +","+ day);
         tv_step2_birthday.setText(year +"-"+ month +"-"+ day);   //          1998/12/21
         birthday = year +"-"+ month +"-"+ day;
+        if (month<10){
+            birthday = year+"-0"+month+"-"+day;
+        }
     }
 
     class MyOnclickListener implements View.OnClickListener{
@@ -417,7 +420,7 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
         params.addBodyParameter("Address",area);
         params.addBodyParameter("Phone",phone);
         params.addBodyParameter("Email","");
-        params.addBodyParameter("RestingHeartRate","");
+        params.addBodyParameter("RestingHeartRate","70");
 
         MyUtil.addCookieForHttp(params);
 

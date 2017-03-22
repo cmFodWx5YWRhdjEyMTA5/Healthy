@@ -84,4 +84,14 @@ public class HealthyPlan implements Parcelable {
             return new HealthyPlan[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "HealthyPlan{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", date='" + date + '\'' +
+                '}';
+    }
 }

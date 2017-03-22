@@ -18,7 +18,9 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.HistoryRecordActivity;
 import com.amsu.healthy.activity.MyReportActivity;
+import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.bean.IndicatorAssess;
+import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 
@@ -67,43 +69,26 @@ public class HRVFragment extends Fragment {
 
 
     private void initData() {
-        float progressWidth = MyUtil.getScreeenWidth(getActivity()) - 2 * getResources().getDimension(R.dimen.x12);
-        String suggestion = "";
-        IndicatorAssess lFHFMood = HealthyIndexUtil.calculateLFHFMoodIndex();
-        IndicatorAssess sDNNPressure = HealthyIndexUtil.calculateSDNNPressureIndex();
-        IndicatorAssess sDNNSport = HealthyIndexUtil.calculateSDNNSportIndex();
+        int progressWidth = (int) (MyUtil.getScreeenWidth(getActivity()) - 2 * getResources().getDimension(R.dimen.x12));
+        UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
+        Log.i(TAG,"mUploadRecord:"+mUploadRecord);
+        if (mUploadRecord!=null){
+            int FI = Integer.parseInt(mUploadRecord.FI);//运动疲劳
+            int PI = Integer.parseInt(mUploadRecord.PI);//抗压指数
+            int ES = Integer.parseInt(mUploadRecord.ES);//情绪指数
 
-        LinearLayout.LayoutParams layoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
-        if (lFHFMood!=null){
-           int scre = lFHFMood.getPercent();
-            int v = (int) ((scre / 100.0) * progressWidth);
-            Log.i(TAG,"v:"+v);
-            layoutParams.setMargins(v, (int) -getResources().getDimension(R.dimen.x23),0,0);
+            LinearLayout.LayoutParams layoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
+
+            layoutParams.setMargins((FI/100)*progressWidth, (int) -getResources().getDimension(R.dimen.x23),0,0);
             iv_hrv_tired.setLayoutParams(layoutParams);
-            suggestion += lFHFMood.getSuggestion();
+
+            layoutParams.setMargins((PI/100)*progressWidth, (int) -getResources().getDimension(R.dimen.x23),0,0);
+            iv_hrv_tired.setLayoutParams(layoutParams);
+
+            layoutParams.setMargins((ES/100)*progressWidth, (int) -getResources().getDimension(R.dimen.x23),0,0);
+            iv_hrv_tired.setLayoutParams(layoutParams);
+
+            tv_hrv_suggestion.setText(mUploadRecord.HRVs);
         }
-
-        if (sDNNPressure!=null){
-            int scre = sDNNPressure.getPercent();
-            int v = (int) ((scre / 100.0) * progressWidth);
-            Log.i(TAG,"v:"+v);
-            layoutParams.setMargins(v, (int) -getResources().getDimension(R.dimen.x23),0,0);
-            iv_hrv_resist.setLayoutParams(layoutParams);
-        }
-
-        if (sDNNSport!=null){
-            int scre = sDNNSport.getPercent();
-            int v = (int) ((scre / 100.0) * progressWidth);
-            Log.i(TAG,"v:"+v);
-            layoutParams.setMargins(v, (int) -getResources().getDimension(R.dimen.x23),0,0);
-            iv_hrv_resist.setLayoutParams(layoutParams);
-            suggestion += sDNNSport.getSuggestion();
-        }
-
-        tv_hrv_suggestion.setText(suggestion);
-
-
-        //LF=1075.28, HF=431.35  测试
-
     }
 }

@@ -43,15 +43,12 @@ public class PhysicalAgeActivity extends BaseActivity {
 
         Intent intent = getIntent();
         physicalAge = intent.getIntExtra("physicalAge", 0);
-        physicalAge = 21;
         if (physicalAge >0){
-            int userAge = HealthyIndexUtil.getUserAge();
-            tv_physical_agereal.setText("实际年龄"+userAge);
             dv_main_compass.setAgeData(physicalAge -10);
             setAgeTextAnimator(tv_physical_age,0, physicalAge);
         }
-
-
+        int userAge = HealthyIndexUtil.getUserAge();
+        tv_physical_agereal.setText("实际年龄"+userAge);
     }
 
     @Override

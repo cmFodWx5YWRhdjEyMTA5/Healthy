@@ -227,6 +227,73 @@ public class HealthyIndexUtil {
         return indicatorAssess;
     }
 
+
+    //恢复心率HRR
+    public static IndicatorAssess calculateScoreHRR(int hrr){
+        /*
+        *   分值域描述	分数区域	恢复心率
+            Bpm	恢复心率
+            参考标准计算方法	建议
+            完美	100	>65	100分	你是最棒的，要坚持
+            非凡	99	61-65	99分	你是最棒的，要坚持
+            优秀	87-98	49-60	1分/1bpm	请保持训练强度
+            非常好	75-86	37-48	1分/1bpm	请保持训练强度
+            好	63-74	25-36	1分/1bpm	请保持锻炼习惯
+            平均水平	51-62	13-24	1分/1bpm	请提高训练强度
+            差	3-50	1-12	1分/4bpm	请适度增加有氧训练
+                0-2	0
+        * */
+        String suggestion = "";
+        String state = "";
+
+        int scoreHRR = 0;
+        if (hrr>65){
+            scoreHRR = 100;
+            suggestion = "您是最棒的，坚持下去，没有什么人能超过您了";
+            state = "完美";
+        }
+        else if (61<=hrr && hrr<=65){
+            //99
+            scoreHRR = 99;
+            suggestion = "您是最棒的，坚持下去，没有什么人能超过您了";
+            state = "非凡";
+        }
+        else if (49<=hrr && hrr<=60){
+            //87-98
+            scoreHRR = (int) (87+(hrr-49)*(float)((98.0-87.0)/(60.0-49.0)));
+            suggestion = "棒棒的，请保持训练强度，后面的人会追上来的呦！";
+            state = "优秀";
+        }
+        else if (37<=hrr && hrr<=48){
+            //75-86
+            scoreHRR = (int) (75+(hrr-37)*(float)((86.0-75.0)/(48.0-37.0)));
+            suggestion = "您比较突出了，但是保持训练强度，还是有可能提高的。";
+            state = "优秀";
+        }
+        else if (25<=hrr && hrr<=36){
+            //63-74
+            scoreHRR = (int) (63+(hrr-25)*(float)((74.0-63.0)/(36.0-25.0)));
+            suggestion = "您已经超过一般人了，但是要保持锻炼习惯才不会下滑哦！";
+            state = "较好 ";
+        }
+        else if (13<=hrr && hrr<=24){
+            //51-62
+            scoreHRR = (int) (51+(hrr-13)*(float)((62.0-51.0)/(24.0-13.0)));
+            suggestion = "您处于一般水平，还有很大提升空间呢！赶快提高训练强度吧！";
+            state = "一般";
+        }
+        else if (1<=hrr && hrr<=12){
+            //3-50
+            scoreHRR = (int) (3+(hrr-1)*(float)((50.0-3.0)/(12.0-1.0)));
+            suggestion = "不要让人把您看扁了，请适度增加有氧训练，路漫漫其修远兮，吾将上下而求索！";
+            state = "差";
+        }
+
+        IndicatorAssess indicatorAssess = new IndicatorAssess(hrr,scoreHRR,"恢复心率(HRR)",suggestion,state);
+
+        return indicatorAssess;
+    }
+
     //抗疲劳指数HRV(心电分析算法得出)
     public static IndicatorAssess calculateScoreHRV(){
         /*

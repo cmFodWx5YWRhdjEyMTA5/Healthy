@@ -1,7 +1,9 @@
 package com.amsu.healthy.activity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -11,11 +13,22 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.AnalysisRateAdapter;
+import com.amsu.healthy.bean.HistoryRecord;
+import com.amsu.healthy.bean.JsonBase;
+import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.fragment.analysis.ECGFragment;
 import com.amsu.healthy.fragment.analysis.HRRFragment;
 import com.amsu.healthy.fragment.analysis.HRVFragment;
 import com.amsu.healthy.fragment.analysis.HeartRateFragment;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
+import com.google.gson.Gson;
+import com.lidroid.xutils.HttpUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,29 +45,23 @@ public class RateAnalysisActivity extends BaseActivity {
     private TextView tv_analysis_ecg;
     private TextView tv_analysis_hrr;
     private View v_analysis_select;
+    public static UploadRecord mUploadRecord;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rate_analysis);
-
         initView();
-
-
         initData();
-
-
-
 
     }
 
     private void initView() {
         initHeadView();
+        setLeftImage(R.drawable.back_icon);
         vp_analysis_content = (ViewPager) findViewById(R.id.vp_analysis_content);
         v_analysis_select = findViewById(R.id.v_analysis_select);
-
-        setLeftImage(R.drawable.back_icon);
-        setCenterText("16/09/08 14:32");
+        mUploadRecord = null;
 
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,7 +120,55 @@ public class RateAnalysisActivity extends BaseActivity {
         vp_analysis_content.setAdapter(new AnalysisRateAdapter(getSupportFragmentManager(),fragmentList));
 
 
+        Intent intent = getIntent();
+        if (intent!=null){
+            Bundle bundle = intent.getParcelableExtra("bundle");
+            if (bundle!=null){
+                HistoryRecord historyRecord = bundle.getParcelable("historyRecord");
+                if (historyRecord!=null){
+                    //根据历史记录id进行网络查询
+                    setCenterText(historyRecord.getDatatime());  // 2016-10-28 10:56:04
 
+                    HttpUtils httpUtils = new HttpUtils();
+                    RequestParams params = new RequestParams();
+                    params.addBodyParameter("id",historyRecord.getID());
+                    MyUtil.addCookieForHttp(params);
+
+                    httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHistoryReportDetailURL, params, new RequestCallBack<String>() {
+                        @Override
+                        public void onSuccess(ResponseInfo<String> responseInfo) {
+                            String result = responseInfo.result;
+                            Log.i(TAG,"上传onSuccess==result:"+result);
+                            Gson gson = new Gson();
+                            JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+                            Log.i(TAG,"jsonBase:"+jsonBase);
+                            if (jsonBase.getRet()==1){
+                                UploadRecordObject uUploadRecordObject = gson.fromJson(result, UploadRecordObject.class);
+                                mUploadRecord = uUploadRecordObject.errDesc;
+                                Log.i(TAG,"查询uploadRecord:"+mUploadRecord);
+
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(HttpException e, String s) {
+                            MyUtil.hideDialog();
+                            Log.i(TAG,"上传onFailure==s:"+s);
+                        }
+                    });
+                }
+                else {
+                    //当前分析结果，直接显示
+                    mUploadRecord = bundle.getParcelable("uploadRecord");
+                    Log.i(TAG,"直接显示uploadRecord:"+mUploadRecord);
+                    //Log.i(TAG,"EC:"+mUploadRecord.EC);
+                }
+            }
+        }
+    }
+
+    class UploadRecordObject{
+        UploadRecord errDesc;
     }
 
     class MyClickListener implements View.OnClickListener{

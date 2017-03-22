@@ -37,6 +37,7 @@ public class HealthyPlanActivity extends BaseActivity {
     private ListView lv_healthplan_plan;
     private List<HealthyPlan> healthyPlanList;
     private HealthyPlanDataAdapter healthyPlanDataAdapter;
+    private int mClickPositon = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,9 +71,6 @@ public class HealthyPlanActivity extends BaseActivity {
 
 
         lv_healthplan_plan = (ListView) findViewById(R.id.lv_healthplan_plan);
-
-
-
     }
 
     private void initData() {
@@ -82,17 +80,20 @@ public class HealthyPlanActivity extends BaseActivity {
         lv_healthplan_plan.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mClickPositon = position;
                 HealthyPlan healthyPlan = healthyPlanList.get(position);
                 String healthyPlanId = healthyPlan.getId();
                 Intent intent = new Intent(HealthyPlanActivity.this,LookupHealthPlanActivity.class);
                 intent.putExtra("id",healthyPlanId);
-                startActivity(intent);
+                startActivityForResult(intent,111);
             }
         });
 
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
-        String formatTime = MyUtil.getFormatTime(new Date());
+        Date date = new Date();
+        date.setMonth(date.getMonth()-1);
+        String formatTime = MyUtil.getFormatTime(date);
         params.addBodyParameter("date",formatTime);
         params.addBodyParameter("page","1");
         MyUtil.addCookieForHttp(params);
@@ -132,13 +133,29 @@ public class HealthyPlanActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i(TAG,"onActivityResult");
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode==120 && resultCode==RESULT_OK){
             Bundle bundle = data.getBundleExtra("bundle");
             HealthyPlan healthyPlan = bundle.getParcelable("healthyPlan");
             healthyPlanList.add(healthyPlan);
             healthyPlanDataAdapter.notifyDataSetChanged();
-        }
 
+            Log.i(TAG,"add");
+        }
+        else if (requestCode==111 && resultCode==RESULT_OK){
+            Bundle bundle = data.getBundleExtra("bundle");
+            HealthyPlan healthyPlan = bundle.getParcelable("healthyPlan");
+
+            healthyPlanDataAdapter.notifyDataSetChanged();
+            if (mClickPositon!=-1){
+                healthyPlanList.get(mClickPositon).setTitle(healthyPlan.getTitle());
+                healthyPlanList.get(mClickPositon).setContent(healthyPlan.getContent());
+                healthyPlanList.get(mClickPositon).setDate(healthyPlan.getDate());
+
+            }
+
+            Log.i(TAG,"add:"+healthyPlan.toString());
+        }
     }
 }

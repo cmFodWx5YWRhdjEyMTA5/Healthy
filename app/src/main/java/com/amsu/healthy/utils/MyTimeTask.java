@@ -35,4 +35,21 @@ public class MyTimeTask {
         }
     }
 
+    public static void startCountDown(long mAllTime, final OnTimeOutListener onTimeOutListener){
+        final Timer timer = new Timer();
+        TimerTask tt=new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("到点啦！");
+                onTimeOutListener.onTomeOut();
+                timer.cancel();
+            }
+        };
+        timer.schedule(tt, mAllTime);
+    }
+
+    public interface OnTimeOutListener{
+        void onTomeOut();
+    }
+
 }

@@ -25,6 +25,8 @@ import com.amsu.healthy.view.RadarView;
 import com.amsu.healthy.view.SelectDialog;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class HealthIndicatorAssessActivity extends BaseActivity {
@@ -81,8 +83,17 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                 params.y =  new Float(HealthIndicatorAssessActivity.this.getResources().getDimension(R.dimen.x148)).intValue();//设置y坐标
                 win.setAttributes(params);
 
-                String[] data = {"11月第1周","11月第2周","11月第3周","11月第4周","12月第1周"};
+                List<String> weekStringList = MyUtil.getWeekStringList(10);
+                String[] data = new String[weekStringList.size()];
+
+                int i=0;
+                for (String s:weekStringList){
+                    data[i++] = s;
+                }
+
                 selectDialog.setData(data);
+
+
 
                 //切换周数据
                 selectDialog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -155,6 +166,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         
 
     }
+
 
     private void initData() {
         indicatorAssesses = new ArrayList<>();

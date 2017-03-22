@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.util.Base64;
+import android.util.Base64InputStream;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -20,8 +22,16 @@ import com.google.gson.Gson;
 import com.lidroid.xutils.http.RequestParams;
 import com.test.objects.HeartRateResult;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -264,6 +274,149 @@ public class MyUtil {
     public static float getDimen(Context context,int resource){
         float dimension = context.getResources().getDimension(resource);
         return dimension;
+    }
+
+    /*
+    * 编码：
+        String oneBaseEncoder = Base64.encode(msg.getBytes());
+    解码：
+        String oneBaseDecoder = new String(Base64.decode(msg));
+    * */
+    public static String encodeBase64String(String text){
+        String oneBaseEncoder = Base64.encodeToString(text.getBytes(),Base64.DEFAULT);
+        return oneBaseEncoder;
+    }
+
+    public static String decodeBase64String(String text){
+        String oneBaseDecoder = new String(Base64.decode(text,Base64.DEFAULT));
+        return oneBaseDecoder;
+    }
+
+    public static String fileToBase64(File file) {
+        String base64 = null;
+        InputStream in = null;
+        try {
+            in = new FileInputStream(file);
+            byte[] bytes = new byte[in.available()];
+            int length = in.read(bytes);
+            base64 = Base64.encodeToString(bytes, 0, length, Base64.DEFAULT);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (in!=null){
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return base64;
+    }
+
+    public static File base64ToFile(String base64, String fileName) {
+        File file= null;
+        FileOutputStream out = null;
+        try {
+            file= new File(fileName);
+            if (!file.exists()) { // 文件夹
+                file.createNewFile();
+            }
+            //byte[] bytes = new BASE64Decoder().decodeBuffer(base64);
+            byte[] bytes = Base64.decode(base64,Base64.DEFAULT);
+            ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+            byte[] buffer = new byte[1024];
+            out = new FileOutputStream(file);
+            int bytesum = 0;
+            int byteread = 0;
+            while ((byteread = in.read(buffer)) != -1) {
+                bytesum += byteread;
+                out.write(buffer, 0, byteread); // 文件写操作
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        } finally {
+            if (out!=null){
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return file;
+    }
+
+    //根据当前时间生成一个ecg格式文件
+    public static String generateECGFilePath(Context context,Long timeMillis){
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA);  //07-12 15:10
+        String fileName = format.format(new Date(timeMillis));
+        return context.getCacheDir()+"/"+fileName+".ecg";
+    }
+
+    public static  List<String> getWeekStringList(int weekCount) {
+        List<String> weekStringLiStrings = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+        int onWeekDayCount = 7;
+
+        int weekOfDay = calendar.get(Calendar.DAY_OF_WEEK)-1;  //星期几
+        int day = calendar.get(Calendar.DAY_OF_MONTH);   //哪一日
+        int currMouth = calendar.get(Calendar.MONTH)+1;
+        int currYear = calendar.get(Calendar.YEAR);
+
+        int weekFirstDay = day-(weekOfDay-1);
+        int weeklistDay = day-weekOfDay+1+6;
+
+        int preWeekFirstDay ;
+        int pretWeekListDay ;
+        int preWeekFirstDayMouth = currMouth ;
+        int preWeekListDayMouth = currMouth ;
+
+        String preWeekString = "";
+
+        for (int i = 0; i < weekCount; i++) {
+            int currDayOfPreMouth = getDaysByYearMonth(currYear, currMouth-1);
+            preWeekFirstDay = weekFirstDay -onWeekDayCount;
+            pretWeekListDay = weeklistDay -onWeekDayCount;
+            int tempMouth = currMouth;
+            if (preWeekFirstDay<=0) {
+                preWeekFirstDay = currDayOfPreMouth +preWeekFirstDay;
+                preWeekFirstDayMouth = tempMouth-1;
+            }
+
+            if (pretWeekListDay<=0) {
+                pretWeekListDay = currDayOfPreMouth + pretWeekListDay;
+                preWeekListDayMouth = tempMouth-1;
+                currMouth = currMouth-1;
+            }
+
+            if (currMouth==1) {
+                currYear = currYear-1;
+                currMouth = 13;
+            }
+
+            weekFirstDay = preWeekFirstDay;
+            weeklistDay = pretWeekListDay;
+
+            preWeekString =+preWeekFirstDayMouth+"."+preWeekFirstDay+" - "+preWeekListDayMouth+"."+pretWeekListDay; // 3.13-3.19
+            weekStringLiStrings.add(preWeekString);
+        }
+        for(String w:weekStringLiStrings){
+            System.out.println(w);
+        }
+        return weekStringLiStrings;
+    }
+
+    public static int getDaysByYearMonth(int year, int month) {
+        Calendar a = Calendar.getInstance();
+        a.set(Calendar.YEAR, year);
+        a.set(Calendar.MONTH, month - 1);
+        a.set(Calendar.DATE, 1);
+        a.roll(Calendar.DATE, -1);
+        int maxDate = a.get(Calendar.DATE);
+        return maxDate;
     }
 
 }

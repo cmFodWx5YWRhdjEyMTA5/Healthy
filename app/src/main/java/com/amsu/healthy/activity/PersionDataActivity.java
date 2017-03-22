@@ -212,6 +212,10 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         Log.i(TAG,"onDateSet:"+year+","+month+","+day);
         tv_persiondata_birthday.setText(year+"-"+month+"-"+day);   //          1998/12/21
         upLoadbirthday = year+"-"+month+"-"+day;
+        if (month<10){
+            upLoadbirthday = year+"-0"+month+"-"+day;
+        }
+
         Log.i(TAG,"upLoadbirthday:"+upLoadbirthday);
     }
 
@@ -225,17 +229,24 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     break;
                 case R.id.rl_persiondata_name:
                     intent.putExtra("modifyType", Constant.MODIFY_USERNSME);
-                    intent.putExtra("modifyValue",userFromSP.getUsername());
+                    if (userFromSP!=null){
+                        intent.putExtra("modifyValue",userFromSP.getUsername());
+                    }
+
                     startActivityForResult(intent,100);
                     break;
                 case R.id.rl_persiondata_sex:
                     intent.putExtra("modifyType", Constant.MODIFY_SEX);
-                    intent.putExtra("modifyValue",userFromSP.getSex());
+                    if (userFromSP!=null) {
+                        intent.putExtra("modifyValue", userFromSP.getSex());
+                    }
                     startActivityForResult(intent,100);
                     break;
                 case R.id.rl_persiondata_email:
                     intent.putExtra("modifyType", Constant.MODIFY_EMAIL);
-                    intent.putExtra("modifyValue",userFromSP.getEmail());
+                    if (userFromSP!=null) {
+                        intent.putExtra("modifyValue", userFromSP.getEmail());
+                    }
                     startActivityForResult(intent,100);
                     break;
                 case R.id.rl_persiondata_birthday:
@@ -628,6 +639,14 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
     private void registerToDB() {
         String username = tv_persiondata_name.getText().toString();
         String email = tv_persiondata_email.getText().toString();
+        String sex = tv_persiondata_sex.getText().toString();
+        if (sex.equals("男")){
+            upLoadSex = "1";
+        }
+        else if (sex.equals("女")){
+            upLoadSex = "0";
+        }
+
 
         if (username.isEmpty()){
             Toast.makeText(this,"昵称", Toast.LENGTH_SHORT).show();
@@ -672,6 +691,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         params.addBodyParameter("Address",area);
         params.addBodyParameter("Phone",phone);
         params.addBodyParameter("Email",email);
+        params.addBodyParameter("RestingHeartRate","0");
 
         MyUtil.addCookieForHttp(params);
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.duploadPersionDataURL,params, new RequestCallBack<String>() {

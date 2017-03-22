@@ -71,22 +71,10 @@ public class MainActivity extends BaseActivity {
         initData();
 
 
-        int[] calcuData = {3,5,7,8,9};
-        List<List<Integer>> sList = new ArrayList<>();
-        for (int i=0;i<calcuData.length;i++){
-            List<Integer> temp = new ArrayList<Integer>();
-            temp.add(i+1);
-            temp.add(calcuData[i]);
-            sList.add(temp);
-        }
-
-        Gson gson = new Gson();
-        String  listString = gson.toJson(sList);
-        Log.i(TAG,"listString:"+listString);
-
-
-
-
+        /*String text = MyUtil.encodeBase64String("haha");
+        Log.i(TAG,"text:"+text);
+        String decodeText = MyUtil.decodeBase64String(text);
+        Log.i(TAG,"decodeText:"+decodeText);*/
     }
 
 
@@ -236,10 +224,10 @@ public class MainActivity extends BaseActivity {
                 showdialogToLogin();
                 return;
             }
-            /*else if (!isPrefectInfo){   测试
+            else if (!isPrefectInfo){
                 showdialogToSupplyData();
                 return;
-            }*/
+            }
 
             switch (v.getId()){
                 case R.id.rl_main_healthydata:

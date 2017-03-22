@@ -14,7 +14,8 @@
         android:id="@+id/lv_history_all"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/rl_base_head">
+        android:layout_below="@+id/rl_base_head"
+        android:footerDividersEnabled="true">
     </ListView>
 
 </RelativeLayout>

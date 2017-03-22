@@ -70,7 +70,9 @@
         <activity android:name=".activity.HealthyDataActivity" />
         <activity android:name=".activity.MoveStateActivity" />
         <activity android:name=".activity.HeartRateActivity" />
-        <activity android:name=".activity.RateAnalysisActivity" />
+        <activity android:name=".activity.RateAnalysisActivity">
+
+        </activity>
         <activity android:name=".activity.SupplyPersionDataActivity" />
         <activity android:name=".activity.LoginActivity" />
         <activity android:name=".activity.PersionDataActivity" />
@@ -85,7 +87,9 @@
         <activity android:name=".activity.HealthyPlanCalenActivity" />
         <activity android:name=".activity.AddHeathyPlanActivity" />
         <activity android:name=".activity.LookupHealthPlanActivity" />
-        <activity android:name=".activity.MyReportActivity" />
+        <activity android:name=".activity.MyReportActivity" >
+
+        </activity>
         <activity android:name=".activity.SystemSettingActivity" />
         <activity android:name=".activity.MyDeviceActivity" />
         <activity android:name=".activity.SearchDevicehActivity" />
@@ -122,7 +126,8 @@
         <activity android:name=".activity.ClubDynamicsDetialActivity" />
         <activity android:name=".activity.AddDynamicsActivity" />
         <activity android:name=".activity.LookupPictureActivity" />
-        <activity android:name=".activity.HistoryRecordActivity"></activity>
+        <activity android:name=".activity.HistoryRecordActivity" />
+        <activity android:name=".activity.CalculateHRRProcess"></activity>
     </application>
 
 </manifest>

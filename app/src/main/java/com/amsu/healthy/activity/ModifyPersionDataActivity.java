@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.MyUtil;
 
 public class ModifyPersionDataActivity extends BaseActivity {
 
@@ -75,12 +76,15 @@ public class ModifyPersionDataActivity extends BaseActivity {
         }
         else if (modifyType ==Constant.MODIFY_SEX){
             setCenterText("修改性别");
-            if (modifyValue.equals("1")){
-                cb_modify_man.setChecked(true);
+            if (!MyUtil.isEmpty(modifyValue)){
+                if (modifyValue.equals("1")){
+                    cb_modify_man.setChecked(true);
+                }
+                else {
+                    cb_modify_woman.setChecked(true);
+                }
             }
-            else {
-                cb_modify_woman.setChecked(true);
-            }
+
         }
         else if (modifyType ==Constant.MODIFY_EMAIL){
             setCenterText("修改邮箱");

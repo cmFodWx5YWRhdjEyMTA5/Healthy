@@ -39,6 +39,8 @@
             android:id="@+id/tv_addplan_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingTop="@dimen/x36"
+            android:paddingBottom="@dimen/x36"
             android:layout_gravity="right"
             android:textColor="#a9a9a9"
             android:textSize="@dimen/x46"/>

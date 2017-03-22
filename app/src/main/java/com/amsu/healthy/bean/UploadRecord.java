@@ -199,7 +199,6 @@ public class UploadRecord implements Parcelable {
                 ", MinHR='" + MinHR + '\'' +
                 ", HRr='" + HRr + '\'' +
                 ", HRs='" + HRs + '\'' +
-                ", EC='" + EC + '\'' +
                 ", ECr='" + ECr + '\'' +
                 ", ECs='" + ECs + '\'' +
                 ", RA='" + RA + '\'' +

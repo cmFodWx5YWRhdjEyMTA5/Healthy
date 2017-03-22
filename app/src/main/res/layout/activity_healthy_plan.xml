@@ -45,6 +45,9 @@
         android:id="@+id/lv_healthplan_plan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/rl_healthy_top">
+        android:layout_below="@id/rl_healthy_top"
+        android:background="#FFFFFF"
+        android:footerDividersEnabled="true"
+        android:headerDividersEnabled="true">
     </ListView>
 </RelativeLayout>

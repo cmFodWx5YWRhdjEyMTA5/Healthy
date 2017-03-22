@@ -1,6 +1,7 @@
 package com.amsu.healthy.activity;
 
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,7 +38,7 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
     private int month;
     private int day;
     String time = "";
-
+    private HealthyPlan mHealthyPlan;
 
 
     @Override
@@ -46,6 +47,23 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
         setContentView(R.layout.activity_add_healyh_plan);
 
         initView();
+
+        initData();
+    }
+
+    private void initData() {
+        Intent intent = getIntent();
+        if (intent!=null){
+            Bundle bundle = intent.getBundleExtra("bundle");
+            if (bundle!=null){
+                mHealthyPlan = bundle.getParcelable("mHealthyPlan");
+                if (mHealthyPlan!=null){
+                    et_addplan_title.setText(mHealthyPlan.getTitle());
+                    et_addplan_content.setText(mHealthyPlan.getContent());
+                    tv_addplan_time.setText(mHealthyPlan.getDate());
+                }
+            }
+        }
     }
 
     private void initView() {
@@ -59,6 +77,20 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
                 finish();
             }
         });
+
+        et_addplan_title = (EditText) findViewById(R.id.et_addplan_title);
+        et_addplan_content = (EditText) findViewById(R.id.et_addplan_content);
+        tv_addplan_time = (TextView) findViewById(R.id.tv_addplan_time);
+        dateTimeDialogOnlyYMD = new DateTimeDialogOnlyYMD(this, this, true, true, true);
+
+        tv_addplan_time.setText(MyUtil.getFormatTime(new Date()));
+        tv_addplan_time.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dateTimeDialogOnlyYMD.hideOrShow();
+            }
+        });
+
 
         time = MyUtil.getFormatTime(new Date());
 
@@ -78,7 +110,14 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
                     params.addBodyParameter("date",time);
                     MyUtil.addCookieForHttp(params);
 
-                    httpUtils.send(HttpRequest.HttpMethod.POST, Constant.setHealthyPlanURL, params, new RequestCallBack<String>() {
+                    String url = Constant.setHealthyPlanURL;
+                    if (mHealthyPlan!=null){
+                        //修改数据
+                        url = Constant.modifyHealthyPlanURL;
+                        params.addBodyParameter("id",mHealthyPlan.getId());
+                    }
+
+                    httpUtils.send(HttpRequest.HttpMethod.POST, url, params, new RequestCallBack<String>() {
                         @Override
                         public void onSuccess(ResponseInfo<String> responseInfo) {
                             MyUtil.hideDialog();
@@ -90,7 +129,7 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
                                 int ret = jsonObject.getInt("ret");
                                 String errDesc = jsonObject.getString("errDesc");
                                 if (ret==0){
-                                    MyUtil.showToask(AddHeathyPlanActivity.this,"添加成功");
+                                    MyUtil.showToask(AddHeathyPlanActivity.this,"成功");
                                     healthyPlan.setId(errDesc);
                                     Intent intent = getIntent();
                                     Bundle bundle = new Bundle();
@@ -98,15 +137,12 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
                                     intent.putExtra("bundle",bundle);
                                     setResult(RESULT_OK,intent);
                                     finish();
-
                                 }
                                 else {
                                     MyUtil.showToask(AddHeathyPlanActivity.this,errDesc);
                                 }
                             } catch (JSONException e) {
                             }
-
-
                         }
 
                         @Override
@@ -124,17 +160,6 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
             }
         });
 
-        et_addplan_title = (EditText) findViewById(R.id.et_addplan_title);
-        et_addplan_content = (EditText) findViewById(R.id.et_addplan_content);
-        tv_addplan_time = (TextView) findViewById(R.id.tv_addplan_time);
-        dateTimeDialogOnlyYMD = new DateTimeDialogOnlyYMD(this, this, true, true, true);
-
-        tv_addplan_time.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dateTimeDialogOnlyYMD.hideOrShow();
-            }
-        });
 
 
     }
@@ -148,6 +173,8 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
         Log.i(TAG,"onDateSet:"+ year +","+ month +","+ day);
         tv_addplan_time.setText(year +"-"+ month +"-"+ day);   //
         time = year +"-"+ month +"-"+ day;
-
+        if (month<10){
+            time = year+"-0"+month+"-"+day;
+        }
     }
 }
