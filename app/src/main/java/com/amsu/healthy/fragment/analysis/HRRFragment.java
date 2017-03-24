@@ -71,9 +71,6 @@ public class HRRFragment extends Fragment {
             }
             tv_hrr_suggestion.setText(mUploadRecord.HRs);
         }
-
-
-
     }
 
 

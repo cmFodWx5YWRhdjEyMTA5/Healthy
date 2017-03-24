@@ -112,7 +112,9 @@ public class MainActivity extends BaseActivity {
         int id = rl_main_healthyvalue.getId();
 
         Log.i(TAG,"id:"+id);
-
+        if (!MyApplication.mActivities.contains(this)){
+            MyApplication.mActivities.add(this);
+        }
 
     }
 
@@ -147,7 +149,9 @@ public class MainActivity extends BaseActivity {
 
 
 
+
     }
+
 
 
     @Override
@@ -161,7 +165,6 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         Log.i(TAG,"onResume");
-
         if (mBluetoothAdapter!=null && !mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
@@ -264,7 +267,6 @@ public class MainActivity extends BaseActivity {
                     startActivity(intent1);
                     break;
                 case R.id.rl_main_warringindex:
-
                     startActivity(new Intent(MainActivity.this,IndexWarringActivity.class));
                     break;
 
@@ -311,7 +313,6 @@ public class MainActivity extends BaseActivity {
                 })
                 .show();
     }
-
 
     @Override
     protected void onPause() {

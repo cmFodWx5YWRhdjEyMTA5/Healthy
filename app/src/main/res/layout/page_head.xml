@@ -8,7 +8,7 @@
     <ImageView
         android:id="@+id/iv_base_leftimage"
         android:layout_width="@dimen/y188"
-        android:layout_height="@dimen/y148"
+        android:layout_height="@dimen/y128"
         android:paddingTop="@dimen/y38"
         android:paddingBottom="@dimen/y38"
         android:paddingRight="@dimen/x70"
@@ -46,8 +46,10 @@
         android:visibility="gone"/>
     <ImageView
         android:id="@+id/iv_base_rightimage"
-        android:layout_width="@dimen/x52"
-        android:layout_height="@dimen/x52"
+        android:layout_width="@dimen/y128"
+        android:layout_height="@dimen/y128"
+        android:paddingTop="@dimen/y38"
+        android:paddingBottom="@dimen/y38"
         android:layout_marginRight="@dimen/x36"
         android:src="@drawable/back_icon"
         android:layout_alignParentRight="true"

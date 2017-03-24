@@ -10,6 +10,7 @@
     </include>
 
     <LinearLayout
+        android:id="@+id/ll_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/rl_base_head"
@@ -177,5 +178,23 @@
         </RelativeLayout>
     </LinearLayout>
 
+    <RelativeLayout
+        android:id="@+id/rl_persiondata_exit"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y140"
+        android:layout_below="@+id/ll_item"
+        android:background="@drawable/list_item_background"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="@dimen/x40"
+        android:paddingLeft="@dimen/x36"
+        android:paddingRight="@dimen/x40">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="退出登录"
+            android:textColor="#030303"
+            android:textSize="@dimen/x48"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
 
 </RelativeLayout>

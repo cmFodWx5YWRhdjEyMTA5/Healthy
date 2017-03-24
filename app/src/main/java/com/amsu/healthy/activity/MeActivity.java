@@ -76,7 +76,9 @@ public class MeActivity extends BaseActivity {
         rl_me_help.setOnClickListener(myOnClickListener);
         rl_me_setting.setOnClickListener(myOnClickListener);
 
-
+        if (!MyApplication.mActivities.contains(this)){
+            MyApplication.mActivities.add(this);
+        }
     }
 
     private void initData() {

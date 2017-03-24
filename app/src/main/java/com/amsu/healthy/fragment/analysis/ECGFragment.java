@@ -133,6 +133,50 @@ public class ECGFragment extends Fragment {
                 }
             }
         }
+
+        /*String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";  //测试
+        if (!cacheFileName.equals("")){
+            try {
+                if (fileInputStream==null){
+                    File file = new File(cacheFileName);
+                    if (file.exists()){
+                        fileInputStream = new FileInputStream(cacheFileName);
+                    }
+                }
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        String ecgDatatext = "";
+        if (fileInputStream!=null){
+            byte [] mybyte = new byte[1024];
+            int length=0;
+            try {
+                while (true) {
+                    length = fileInputStream.read(mybyte,0,mybyte.length);
+                    Log.i(TAG,"length:"+length);
+                    if (length!=-1) {
+                        String s = new String(mybyte,0,length);
+                        ecgDatatext +=s;
+                    }else {
+                        break;
+                    }
+                }
+                Log.i(TAG,"ecgDatatext:"+ecgDatatext);
+                if (!ecgDatatext.equals("")){
+                    //此处的数据是滤波之后的，无需再进行滤波
+                    String[] allGrounpData = ecgDatatext.split(",");
+                    for (int i=0;i<allGrounpData.length;i++) {
+                        datas.add(Integer.parseInt(allGrounpData[i]));
+                    }
+                    data0Q.addAll(datas);
+                    startDrawSimulator();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }*/
     }
 
 
@@ -140,8 +184,8 @@ public class ECGFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if (fileInputStream!=null){
 
+        if (fileInputStream!=null){
             Log.i(TAG,"over:开始画图");
             startDrawSimulator();
             /*byte [] mybyte = new byte[1024];

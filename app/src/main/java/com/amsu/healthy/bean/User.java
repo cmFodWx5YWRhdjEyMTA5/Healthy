@@ -14,7 +14,8 @@ public class User {
     private String email;
     private String icon;
 
-
+    public User() {
+    }
 
     public User(String phone, String username, String birthday, String sex, String weight, String height, String area) {
         this.phone = phone;

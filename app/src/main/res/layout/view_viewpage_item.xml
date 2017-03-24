@@ -14,7 +14,7 @@
             android:id="@+id/tv_item_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="100"
+            android:text="--"
             android:textSize="@dimen/x160"
             android:textColor="#131212"
             android:layout_centerHorizontal="true"/>
@@ -22,7 +22,7 @@
             android:id="@+id/tv_item_unit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="40"
+            android:text="--"
             android:textSize="@dimen/x40"
             android:layout_toRightOf="@+id/tv_item_value"
             android:layout_marginTop="@dimen/x100"
@@ -53,7 +53,7 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:layout_below="@+id/tv_item_typeName"
-        android:text="本周BMI指数26，体重偏高，请主要饮食与运动的平衡，每天科学控制饮食，降低晚餐碳水化合物的摄入。"
+        android:text="没有统计结果"
         android:textSize="@dimen/x40"
         android:textColor="#454444"
         android:layout_gravity="center_horizontal"/>

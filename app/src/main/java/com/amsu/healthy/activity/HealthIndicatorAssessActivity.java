@@ -209,19 +209,6 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             indicatorAssesses.add(scoreHRV);
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
         //float[] data1 = {70, 90, 60, 70, 50,30,60};
         if (indicatorAssesses.size()==7){
             float[] data1 = new float[7];
@@ -235,8 +222,6 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             rc_assess_radar.setDatas(data1,null,null);
             //rc_assess_radar.setDatas(data1,data2,data3);
         }
-
-
 
 
     }
@@ -329,7 +314,6 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         });
     }
 
-
     class MyViewPageAdapter extends PagerAdapter {
 
         @Override
@@ -370,9 +354,6 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                 tv_item_typeName.setText(indicatorAssess.getName());
                 tv_item_suggestion.setText(indicatorAssess.getSuggestion());
             }
-
-
-
             container.addView(inflate);
             return inflate;
         }

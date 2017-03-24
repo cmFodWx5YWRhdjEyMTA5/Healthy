@@ -11,6 +11,7 @@ public class Device implements Parcelable {
     String state;
     String mac;
     String LEName;
+    String index;
 
 
     public Device(String name, String state) {
@@ -87,5 +88,13 @@ public class Device implements Parcelable {
 
     public void setLEName(String LEName) {
         this.LEName = LEName;
+    }
+
+    public String getIndex() {
+        return index;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
     }
 }

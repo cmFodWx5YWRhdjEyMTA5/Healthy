@@ -1,5 +1,6 @@
 package com.amsu.healthy.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,6 +8,8 @@ import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.MyUtil;
 
 public class SystemSettingActivity extends BaseActivity implements View.OnClickListener {
@@ -35,14 +38,18 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         RelativeLayout rl_persiondata_running = (RelativeLayout) findViewById(R.id.rl_persiondata_running);
         RelativeLayout rl_persiondata_update = (RelativeLayout) findViewById(R.id.rl_persiondata_update);
         RelativeLayout rl_persiondata_aboutus = (RelativeLayout) findViewById(R.id.rl_persiondata_aboutus);
+        RelativeLayout rl_persiondata_exit = (RelativeLayout) findViewById(R.id.rl_persiondata_exit);
 
         rl_persiondata_persiondata.setOnClickListener(this);
         rl_persiondata_device.setOnClickListener(this);
         rl_persiondata_running.setOnClickListener(this);
         rl_persiondata_update.setOnClickListener(this);
         rl_persiondata_aboutus.setOnClickListener(this);
+        rl_persiondata_exit.setOnClickListener(this);
 
-
+        if (!MyApplication.mActivities.contains(this)){
+            MyApplication.mActivities.add(this);
+        }
     }
 
     @Override
@@ -63,10 +70,17 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
             case R.id.rl_persiondata_aboutus:
                 startActivity(new Intent(SystemSettingActivity.this,AboutUsActivity.class));
                 break;
-
+            case R.id.rl_persiondata_exit:
+                MyUtil.putBooleanValueFromSP("isLogin",false);
+                MyUtil.putBooleanValueFromSP("isPrefectInfo",false);
+                MyUtil.saveUserToSP(new User());
+                startActivity(new Intent(SystemSettingActivity.this,LoginActivity.class));
+                for (Activity activity:MyApplication.mActivities){
+                    activity.finish();
+                }
+                break;
         }
     }
-
 
     private void dumpToPersionData() {
         boolean isLogin = MyUtil.getBooleanValueFromSP("isLogin");

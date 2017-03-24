@@ -79,6 +79,11 @@ public class HeartRateActivity extends BaseActivity {
                 String heartData = MyUtil.getStringValueFromSP("heartData");
                 Log.i(TAG,"heartData:"+heartData);
 
+                /*try {
+                    Thread.sleep(5000);  //模拟下载数据 耗时
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }*/
                 if (heartData.equals("")){
                     runOnUiThread(new Runnable() {
                         @Override
@@ -91,7 +96,7 @@ public class HeartRateActivity extends BaseActivity {
                     });
                     return;
                 }
-                //Thread.sleep(1000);  //模拟下载数据 耗时
+
                 String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
                 //String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";
                 //String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170223160327.ecg";

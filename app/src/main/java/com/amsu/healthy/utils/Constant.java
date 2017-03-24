@@ -14,6 +14,7 @@ public class Constant {
     public static String writeConfigureOrder = "FF010A100C080E010016";
     public static String openDataTransmitOrder = "FF0206010016";
     public static String stopDataTransmitOrder = "FF0206000016";
+    public static String checkIsHaveDataOrder = "FF05050016";  //4.6	查询SD卡是否有数据
 
     //public static String loginURL = "https://bodylistener.amsu-new.com/intellingence/LoginController/phoneVerify";
     public static String loginURL = "http://192.168.0.109:8080/intellingence-web/phoneVerify.jsp";

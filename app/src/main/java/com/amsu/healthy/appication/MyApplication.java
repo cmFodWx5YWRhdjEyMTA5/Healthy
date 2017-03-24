@@ -1,5 +1,6 @@
 package com.amsu.healthy.appication;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.SharedPreferences;
 
@@ -7,6 +8,9 @@ import com.amsu.healthy.utils.LocationService;
 import com.baidu.mapapi.SDKInitializer;
 
 import org.apache.http.client.CookieStore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import cn.smssdk.SMSSDK;
 
@@ -17,6 +21,7 @@ public class MyApplication extends Application{
 
     public static LocationService locationService;
     public static SharedPreferences sharedPreferences;
+    public static List<Activity> mActivities;
 
 
     @Override
@@ -32,6 +37,7 @@ public class MyApplication extends Application{
         locationService = new LocationService(this);
 
         sharedPreferences = getSharedPreferences("userinfo", MODE_PRIVATE);
+        mActivities = new ArrayList<>();
 
     }
 }

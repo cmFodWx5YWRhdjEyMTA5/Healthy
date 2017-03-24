@@ -80,7 +80,7 @@ public class DashboardView extends View {
         mPointPaint = new Paint();  //小红点
         mPaint.setStyle(Paint.Style.STROKE);
         mPointPaint.setColor(Color.RED);
-        mPointPaint.setMaskFilter(new BlurMaskFilter(20, BlurMaskFilter.Blur.SOLID));
+        //mPointPaint.setMaskFilter(new BlurMaskFilter(20, BlurMaskFilter.Blur.SOLID));
 
         mBigRadius = big_circle_radius;
         mLargeLength = long_dials;

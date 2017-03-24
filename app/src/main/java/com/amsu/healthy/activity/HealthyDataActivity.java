@@ -203,9 +203,6 @@ public class HealthyDataActivity extends BaseActivity {
             //绑定蓝牙，获取蓝牙服务
             bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
         }
-
-
-
     }
 
     public static void stopTransmitData(){
@@ -221,6 +218,7 @@ public class HealthyDataActivity extends BaseActivity {
             //ToastUtil.showMsg(HealthyDataActivity.this, R.string.scan_connected, mac + " ");
             mLeService.startReadRssi(mac, 1000);
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+
             isConnectted = true;
             isConnectting = false;
         }
@@ -633,7 +631,7 @@ public class HealthyDataActivity extends BaseActivity {
                         connecMac = device.getAddress();
                         if (!isConnectted && !isConnectting){
                             //没有链接上，并且没有正在链接
-                            mLeService.connect(device.getAddress(),false);  //链接
+                            mLeService.connect(device.getAddress(),true);  //链接
                             isConnectting  = true;
                             Log.i(TAG,"开始连接");
                         }

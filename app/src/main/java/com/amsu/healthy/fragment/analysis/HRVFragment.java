@@ -77,16 +77,17 @@ public class HRVFragment extends Fragment {
             int PI = Integer.parseInt(mUploadRecord.PI);//抗压指数
             int ES = Integer.parseInt(mUploadRecord.ES);//情绪指数
 
-            LinearLayout.LayoutParams layoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
+            LinearLayout.LayoutParams tiredLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
+            tiredLayoutParams.setMargins((int) ((FI/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+            iv_hrv_tired.setLayoutParams(tiredLayoutParams);
 
-            layoutParams.setMargins((FI/100)*progressWidth, (int) -getResources().getDimension(R.dimen.x23),0,0);
-            iv_hrv_tired.setLayoutParams(layoutParams);
+            LinearLayout.LayoutParams resistLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
+            resistLayoutParams.setMargins((int) ((PI/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+            iv_hrv_resist.setLayoutParams(resistLayoutParams);
 
-            layoutParams.setMargins((PI/100)*progressWidth, (int) -getResources().getDimension(R.dimen.x23),0,0);
-            iv_hrv_tired.setLayoutParams(layoutParams);
-
-            layoutParams.setMargins((ES/100)*progressWidth, (int) -getResources().getDimension(R.dimen.x23),0,0);
-            iv_hrv_tired.setLayoutParams(layoutParams);
+            LinearLayout.LayoutParams moodLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
+            tiredLayoutParams.setMargins((int) ((ES/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+            iv_hrv_mood.setLayoutParams(moodLayoutParams);
 
             tv_hrv_suggestion.setText(mUploadRecord.HRVs);
         }

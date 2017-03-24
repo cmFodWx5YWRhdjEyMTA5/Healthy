@@ -112,7 +112,7 @@ public class SearchDevicehActivity extends BaseActivity {
             String leName = device.getName();
             if (leName!=null && leName.startsWith("BLE")){
                 if (deviceListFromSP.size()==0){
-                    deviceListFromSP.add(new Device("智能运动衣","已激活",device.getAddress(), leName));
+                    deviceListFromSP.add(new Device("智能运动衣1","已激活",device.getAddress(), leName));
                     DeviceList deviceList = new DeviceList();
                     deviceList.setDeviceList(deviceListFromSP);
                     MyUtil.putDeviceListToSP(deviceList);
@@ -131,7 +131,8 @@ public class SearchDevicehActivity extends BaseActivity {
                         }
                     }
                     if (!isAdded){
-                        deviceListFromSP.add(new Device("智能运动衣","已激活",device.getAddress(), leName));
+                        String lastIndex = deviceListFromSP.get(deviceListFromSP.size() - 1).getIndex();
+                        deviceListFromSP.add(new Device("智能运动衣"+(lastIndex+1),"已激活",device.getAddress(), leName));
                         DeviceList deviceList = new DeviceList();
                         deviceList.setDeviceList(deviceListFromSP);
                         MyUtil.putDeviceListToSP(deviceList);
