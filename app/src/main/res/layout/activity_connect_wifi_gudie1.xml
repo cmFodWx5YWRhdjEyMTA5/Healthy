@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.amsu.healthy.activity.ConnectToWifiModuleGudieActivity1"
+    android:background="#72D5F4">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <ImageView
+        android:layout_width="@dimen/x720"
+        android:layout_height="@dimen/x720"
+        android:layout_marginTop="@dimen/x180"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/connectwifi_1"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x180"
+        android:layout_gravity="center_horizontal"
+        android:text="设备充电"
+        android:textSize="@dimen/x56"
+        android:textColor="#FFFFFF"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x42"
+        android:layout_gravity="center_horizontal"
+        android:text="设备连接至设备底座充电"
+        android:textSize="@dimen/x56"
+        android:textColor="#FFFFFF"/>
+
+    <Button
+        android:layout_width="@dimen/x694"
+        android:layout_height="@dimen/x140"
+        android:background="@drawable/bg_bt_rec_roundangle_white"
+        android:text="下一步"
+        android:onClick="nextStep"
+        android:textSize="@dimen/x56"
+        android:textColor="#1661a9"
+        android:layout_marginTop="@dimen/x120"
+        android:layout_gravity="center_horizontal"/>
+
+</LinearLayout>

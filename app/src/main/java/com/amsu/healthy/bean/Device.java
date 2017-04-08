@@ -11,7 +11,7 @@ public class Device implements Parcelable {
     String state;
     String mac;
     String LEName;
-    String index;
+    int index;
 
 
     public Device(String name, String state) {
@@ -24,6 +24,15 @@ public class Device implements Parcelable {
         this.name = name;
         this.state = state;
         this.mac = mac;
+    }
+
+
+    public Device(String name, String state, String mac, String LEName, int index) {
+        this.name = name;
+        this.state = state;
+        this.mac = mac;
+        this.LEName = LEName;
+        this.index = index;
     }
 
     public String getName() {
@@ -60,12 +69,14 @@ public class Device implements Parcelable {
         dest.writeString(name);
         dest.writeString(state);
         dest.writeString(mac);
+        dest.writeString(LEName);
+        dest.writeInt(index);
     }
 
-    public static final Parcelable.Creator<Device> CREATOR = new Creator<Device>() {
+    public static final Creator<Device> CREATOR = new Creator<Device>() {
         @Override
         public Device createFromParcel(Parcel source) {
-            return new Device(source.readString(),source.readString(),source.readString());
+            return new Device(source.readString(),source.readString(),source.readString(),source.readString(),source.readInt());
         }
 
         @Override
@@ -90,11 +101,11 @@ public class Device implements Parcelable {
         this.LEName = LEName;
     }
 
-    public String getIndex() {
+    public int getIndex() {
         return index;
     }
 
-    public void setIndex(String index) {
+    public void setIndex(int index) {
         this.index = index;
     }
 }

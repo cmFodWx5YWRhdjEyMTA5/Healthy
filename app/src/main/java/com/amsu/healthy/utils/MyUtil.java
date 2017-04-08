@@ -91,14 +91,33 @@ public class MyUtil {
     public static void saveUserToSP(User user) {
         //将登陆用户信息保存在MyApplication类的sharedPreferences
         SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
-        edit.putString("username",user.getUsername());
-        edit.putString("birthday",user.getBirthday());
-        edit.putString("sex",user.getSex());
-        edit.putString("weight",user.getWeight());
-        edit.putString("height",user.getHeight());
-        edit.putString("area",user.getArea());
-        edit.putString("email",user.getEmail());
-        edit.putString("icon",user.getIcon());
+        if (!MyUtil.isEmpty(user.getUsername())){
+            edit.putString("username",user.getUsername());
+        }
+        if (!MyUtil.isEmpty(user.getBirthday())){
+            edit.putString("birthday",user.getBirthday());
+        }
+        if (!MyUtil.isEmpty(user.getSex())){
+            edit.putString("sex",user.getSex());
+        }
+        if (!MyUtil.isEmpty(user.getWeight())){
+            edit.putString("weight",user.getWeight());
+        }
+        if (!MyUtil.isEmpty(user.getHeight())){
+            edit.putString("height",user.getHeight());
+        }
+        if (!MyUtil.isEmpty(user.getArea())){
+            edit.putString("area",user.getArea());
+        }
+        if (!MyUtil.isEmpty(user.getEmail())){
+            edit.putString("email",user.getEmail());
+        }
+        if (!MyUtil.isEmpty(user.getIcon())){
+            edit.putString("icon",user.getIcon());
+        }
+        if (!MyUtil.isEmpty(user.getStillRate())){
+            edit.putString("stillRate",user.getStillRate());
+        }
         edit.apply();
     }
 
@@ -112,9 +131,10 @@ public class MyUtil {
         String area = getStringValueFromSP("area");
         String email = getStringValueFromSP("email");
         String icon = getStringValueFromSP("icon");
+        String stillRate = getStringValueFromSP("stillRate");
         User user = null;
         if (!phone.equals("") && !username.equals("")){
-            user = new User(phone,username,birthday,sex,weight,height,area,email,icon);
+            user = new User(phone,username,birthday,sex,weight,height,area,email,icon,stillRate);
         }
 
         return user;
@@ -417,6 +437,13 @@ public class MyUtil {
         a.roll(Calendar.DATE, -1);
         int maxDate = a.get(Calendar.DATE);
         return maxDate;
+    }
+
+    public static String getCueMapDate(long time) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss ");
+        Date curDate = new Date(time);
+        String date = formatter.format(curDate);
+        return date;
     }
 
 }

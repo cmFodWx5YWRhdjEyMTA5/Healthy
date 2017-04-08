@@ -16,12 +16,21 @@
         android:orientation="horizontal"
         android:layout_below="@id/rl_base_head">
         <TextView
+            android:id="@+id/tv_analysis_sport"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="运动"
+            android:textColor="#0c64b5"
+            android:gravity="center"
+            android:textSize="@dimen/x48" />
+        <TextView
             android:id="@+id/tv_analysis_hrv"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:text="HRV分析"
-            android:textColor="#0c64b5"
+            android:textColor="#999999"
             android:gravity="center"
             android:textSize="@dimen/x48"/>
         <TextView
@@ -51,6 +60,7 @@
             android:textColor="#999999"
             android:gravity="center"
             android:textSize="@dimen/x48"/>
+
     </LinearLayout>
     <View
         android:layout_width="match_parent"
@@ -59,7 +69,7 @@
         android:background="#e0e0e0"></View>
     <View
         android:id="@+id/v_analysis_select"
-        android:layout_width="@dimen/x270"
+        android:layout_width="@dimen/x216"
         android:layout_height="@dimen/x4"
         android:layout_below="@id/ll_analysis_title"
         android:background="#0c64b5"></View>

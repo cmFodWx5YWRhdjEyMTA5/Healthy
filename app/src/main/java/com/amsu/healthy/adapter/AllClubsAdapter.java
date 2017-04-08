@@ -12,7 +12,6 @@ import com.amsu.healthy.bean.Club;
 import com.amsu.healthy.bean.ClubGroup;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.RoundRectImageView;
-import com.baidu.mapapi.map.Text;
 import com.lidroid.xutils.BitmapUtils;
 
 import java.util.List;

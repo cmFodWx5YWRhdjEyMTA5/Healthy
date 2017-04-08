@@ -353,7 +353,8 @@ public class LoginActivity extends BaseActivity {
                                             String address = jsonObject1.getString("Address");
                                             String email = jsonObject1.getString("Email");
                                             String icon = jsonObject1.getString("Icon");
-                                            User user = new User(phone,userName,birthday,sex,weight,height,address,email,icon);
+                                            String stillRate = jsonObject1.getString("RestingHeartRate");
+                                            User user = new User(phone,userName,birthday,sex,weight,height,address,email,icon,stillRate);
                                             MyUtil.saveUserToSP(user);
                                             MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
                                             startActivity(new Intent(LoginActivity.this,MainActivity.class));

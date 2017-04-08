@@ -11,10 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.ClubGroupDetialActivity;
 import com.amsu.healthy.activity.ClubHomePageActivity;
-import com.amsu.healthy.activity.ClubInfomationActivity;
-import com.amsu.healthy.activity.SetupClubActivity;
 import com.amsu.healthy.adapter.AllClubsAdapter;
 import com.amsu.healthy.bean.Club;
 

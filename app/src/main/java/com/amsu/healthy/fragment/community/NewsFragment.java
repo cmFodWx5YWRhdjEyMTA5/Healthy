@@ -6,15 +6,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
@@ -24,9 +21,7 @@ import com.amsu.healthy.adapter.NewsViewPageAdapter;
 import com.amsu.healthy.bean.News;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.LastMsgListView;
-import com.mob.tools.gui.ViewPagerAdapter;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 

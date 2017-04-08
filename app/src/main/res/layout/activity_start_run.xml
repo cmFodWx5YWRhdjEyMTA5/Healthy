@@ -136,7 +136,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="有氧"
+            android:text="--"
             android:textColor="#000000"
             android:textSize="@dimen/x92"
             android:gravity="center"/>
@@ -223,7 +223,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="0"
+            android:text="--"
             android:textColor="#000000"
             android:textSize="@dimen/x92"
             android:gravity="center"/>
@@ -233,7 +233,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="0.0"
+            android:text="--"
             android:textColor="#000000"
             android:textSize="@dimen/x92"
             android:gravity="center"/>
@@ -242,7 +242,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="0"
+            android:text="--"
             android:textColor="#000000"
             android:textSize="@dimen/x92"
             android:gravity="center"/>
@@ -288,11 +288,57 @@
         android:layout_marginTop="@dimen/x40"></View>
 
     <RelativeLayout
-        android:id="@+id/ll_text7"
+        android:id="@+id/rl_run_lock"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/view3"
+        android:background="#f6f6f6"
+        android:paddingTop="@dimen/x40"
+        android:visibility="gone">
+        <com.amsu.healthy.view.GlideRelativeView
+            android:id="@+id/rl_run_glide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:clickable="true"
+            android:layout_centerHorizontal="true">
+            <ImageView
+                android:id="@+id/iv_image11"
+                android:layout_width="@dimen/x80"
+                android:layout_height="@dimen/x80"
+                android:src="@drawable/suo"
+                android:layout_centerHorizontal="true"/>
+            <TextView
+                android:id="@+id/tv_text11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/iv_image11"
+                android:layout_marginTop="@dimen/x30"
+                android:layout_centerHorizontal="true"
+                android:text="下滑解锁"
+                android:textColor="#85b1da"
+                android:textSize="@dimen/x40"
+                android:gravity="center"/>
+            <ImageView
+                android:id="@+id/iv_image12"
+                android:layout_width="@dimen/x48"
+                android:layout_height="@dimen/x48"
+                android:layout_marginTop="@dimen/x36"
+                android:layout_below="@+id/tv_text11"
+                android:src="@drawable/jiantou"
+                android:layout_centerHorizontal="true"
+                />
+        </com.amsu.healthy.view.GlideRelativeView>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_run_bootom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="@dimen/x80">
+        android:layout_marginBottom="@dimen/x80"
+        >
         <Button
             android:id="@+id/bt_run_start"
             android:layout_width="@dimen/x248"
@@ -305,17 +351,18 @@
             android:gravity="center"/>
 
         <Button
-            android:id="@+id/bt_run_sos"
+            android:id="@+id/bt_run_lock"
             android:layout_width="@dimen/x160"
             android:layout_height="@dimen/x160"
-            android:text="SOS"
+            android:text="锁屏"
             android:textColor="#FFFFFF"
             android:textSize="@dimen/x40"
             android:layout_toLeftOf="@+id/bt_run_start"
             android:layout_marginRight="@dimen/x128"
-            android:background="@drawable/bg_bt_circle_sos"
+            android:background="@drawable/bg_icon_press_lock"
             android:layout_centerVertical="true"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:visibility="gone"/>
 
         <RelativeLayout
             android:id="@+id/bt_run_location"

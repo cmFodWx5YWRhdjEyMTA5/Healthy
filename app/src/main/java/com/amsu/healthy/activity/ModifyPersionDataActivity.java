@@ -94,7 +94,10 @@ public class ModifyPersionDataActivity extends BaseActivity {
             setCenterText("修改手机");
             et_modify_value.setText(modifyValue);
         }
-
+        else if (modifyType ==Constant.MODIFY_STILLRATE){
+            setCenterText("修改静态心率");
+            et_modify_value.setText(modifyValue);
+        }
 
 
         setLeftImage(R.drawable.back_icon);

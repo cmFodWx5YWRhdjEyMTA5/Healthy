@@ -10,30 +10,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.HistoryRecordActivity;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.EcgFilterUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.EcgView;
-import com.amsu.healthy.view.PathView;
 
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -44,14 +42,21 @@ public class ECGFragment extends Fragment {
     private FileInputStream fileInputStream;
     private EcgView pv_ecg_path;
 
-    private List<Integer> datas = new ArrayList<>();
 
-    private Queue<Integer> data0Q = new LinkedList<Integer>();
-    private Timer mDrawWareTimer;
+
+    private List<Integer> datas;
+    private boolean isFirstCreate = true;
+    private ImageView iv_ecg_toggle;
+    private SeekBar sb_ecg_progress;
+    private int mEcgGroupSize;
+    private TextView tv_ecg_protime;
+    private int mAllTimeAtSecond;
+    private String mAllTimeString;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.i(TAG,"onCreateView");
         inflate = inflater.inflate(R.layout.fragment_ecg, null);
 
         initView();
@@ -63,6 +68,9 @@ public class ECGFragment extends Fragment {
         pv_ecg_path = (EcgView) inflate.findViewById(R.id.pv_ecg_path);
         Button bt_hrv_history = (Button) inflate.findViewById(R.id.bt_hrv_history);
         Button bt_hrv_myreport = (Button) inflate.findViewById(R.id.bt_hrv_myreport);
+        iv_ecg_toggle = (ImageView) inflate.findViewById(R.id.iv_ecg_toggle);
+        sb_ecg_progress = (SeekBar) inflate.findViewById(R.id.sb_ecg_progress);
+        tv_ecg_protime = (TextView) inflate.findViewById(R.id.tv_ecg_protime);
 
         bt_hrv_history.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,6 +82,69 @@ public class ECGFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getActivity(), MyReportActivity.class));
+            }
+        });
+
+        iv_ecg_toggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleDrawECG();
+            }
+        });
+
+
+
+        //心电进度监听器
+        pv_ecg_path.setOnEcgProgressChangeListener(new EcgView.OnEcgProgressChangeListener() {
+            int percent;
+            @Override
+            public void onEcgDrawIndexChange(int countIndex) {
+                //Log.i(TAG,"countIndex:"+countIndex);
+                int temp = (int) ((float) countIndex / mEcgGroupSize*100);
+                if (temp!=percent){
+                    percent = temp;
+                    final String currentTimeString = calcuEcgDataTimeAtSecond((int) ((percent / 100.f) * mAllTimeAtSecond));
+                    Log.i(TAG,"percent:"+currentTimeString);
+                    Log.i(TAG,"currentTimeString:"+currentTimeString);
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tv_ecg_protime.setText(currentTimeString+"/"+mAllTimeString);
+                        }
+                    });
+
+                    //Log.i(TAG,"percent:"+percent);
+                    sb_ecg_progress.setProgress(percent);
+                    if (percent==100){ //播放完成，按钮设置为暂停状态
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                iv_ecg_toggle.setImageResource(R.drawable.play_icon);
+                            }
+                        });
+                    }
+                }
+
+
+            }
+        });
+
+        //设置拖动改变进度
+        sb_ecg_progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                setPercent(seekBar.getProgress());
             }
         });
 
@@ -94,12 +165,14 @@ public class ECGFragment extends Fragment {
                             file = MyUtil.base64ToFile(mUploadRecord.EC, eCGFilePath);
                         }
                         if (file.exists()){
+                            datas = new ArrayList<>();
                             fileInputStream = new FileInputStream(eCGFilePath);
                             DataInputStream dataInputStream = new DataInputStream(fileInputStream); //读取二进制文件
                             byte[] bytes = new byte[2];
                             ByteBuffer buffer=  ByteBuffer.wrap(bytes);
-                            byte b;
+
                             try {
+                                /*byte b;
                                 while ((b = (byte) dataInputStream.read()) != -1 ){
                                     bytes[1] =b;
                                     bytes[0] =(byte)dataInputStream.read();
@@ -109,9 +182,22 @@ public class ECGFragment extends Fragment {
                                     //滤波处理
                                     int temp = EcgFilterUtil.miniEcgFilterLp(readCsharpInt, 0);
                                     temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
-                                    data0Q.add(temp);
-                                }
+                                    datas.add(temp);
 
+
+                                }*/
+                                while( dataInputStream.available() >0){
+                                    bytes[1] = dataInputStream.readByte();
+                                    bytes[0] = dataInputStream.readByte();
+                                    short readCsharpInt = buffer.getShort();
+                                    buffer.clear();
+                                    //滤波处理
+                                    int temp = EcgFilterUtil.miniEcgFilterLp(readCsharpInt, 0);
+                                    temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
+                                    datas.add(temp);
+                                }
+                                mEcgGroupSize = datas.size() / 10;
+                                Log.i(TAG,"ecgGroupSize:"+mEcgGroupSize);
                 /*for (int i = 0; i < Integer.MAX_VALUE; i++) {
                     int readByte = 0;
                     readByte = dataInputStream.readInt();
@@ -137,111 +223,160 @@ public class ECGFragment extends Fragment {
         /*String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";  //测试
         if (!cacheFileName.equals("")){
             try {
-                if (fileInputStream==null){
-                    File file = new File(cacheFileName);
-                    if (file.exists()){
-                        fileInputStream = new FileInputStream(cacheFileName);
+
+                File file = new File(cacheFileName);
+                if (file.exists()){
+                    FileInputStream fileInputStream = new FileInputStream(cacheFileName);
+                    String ecgDatatext = "";
+                    byte [] mybyte = new byte[1024];
+                    int length=0;
+                    try {
+                        while (true) {
+                            length = fileInputStream.read(mybyte,0,mybyte.length);
+                            //Log.i(TAG,"length:"+length);
+                            if (length!=-1) {
+                                String s = new String(mybyte,0,length);
+                                ecgDatatext +=s;
+                            }else {
+                                break;
+                            }
+                        }
+                        Log.i(TAG,"ecgDatatext:"+ecgDatatext);
+                        if (!ecgDatatext.equals("")){
+                            //此处的数据是滤波之后的，无需再进行滤波
+                            String[] allGrounpData = ecgDatatext.split(",");
+                *//*List<Integer> datas = new ArrayList<>();
+                datas.clear();*//*
+                            datas = new ArrayList<>();
+                            for (int i=0;i<allGrounpData.length;i++) {
+                                datas.add(Integer.parseInt(allGrounpData[i]));
+                            }
+                            //datas.addAll(datas);
+                            //startDrawSimulator();
+                            mEcgGroupSize = datas.size() / 10;
+                            Log.i(TAG,"ecgGroupSize:"+mEcgGroupSize);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
+
                 }
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-        }
-        String ecgDatatext = "";
-        if (fileInputStream!=null){
-            byte [] mybyte = new byte[1024];
-            int length=0;
-            try {
-                while (true) {
-                    length = fileInputStream.read(mybyte,0,mybyte.length);
-                    Log.i(TAG,"length:"+length);
-                    if (length!=-1) {
-                        String s = new String(mybyte,0,length);
-                        ecgDatatext +=s;
-                    }else {
-                        break;
-                    }
-                }
-                Log.i(TAG,"ecgDatatext:"+ecgDatatext);
-                if (!ecgDatatext.equals("")){
-                    //此处的数据是滤波之后的，无需再进行滤波
-                    String[] allGrounpData = ecgDatatext.split(",");
-                    for (int i=0;i<allGrounpData.length;i++) {
-                        datas.add(Integer.parseInt(allGrounpData[i]));
-                    }
-                    data0Q.addAll(datas);
-                    startDrawSimulator();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }*/
+
+        if (datas!=null && datas.size()>0){
+            mAllTimeAtSecond = (int) (datas.size()/(Constant.oneSecondFrame*1f));  //计算总的时间秒数，1s为150帧，即为150个数据点
+            mAllTimeString = calcuEcgDataTimeAtSecond(mAllTimeAtSecond);
+            tv_ecg_protime.setText("0'0/"+mAllTimeString);
+            Log.i(TAG,"mAllTimeAtSecond:"+mAllTimeAtSecond);
+            Log.i(TAG,"datas.size():"+datas.size());
+        }
+    }
+
+    //将秒数换算成1'57这种时间个格式
+    private String calcuEcgDataTimeAtSecond(int allTimeAtSecond) {
+        int minute = (int) (allTimeAtSecond/60f);
+        int second = (int) (allTimeAtSecond%60f);
+        return minute+"'"+second;
     }
 
 
     @Override
     public void onResume() {
         super.onResume();
+        Log.i(TAG,"onResume");
+        Log.i(TAG,"over:开始画图");
 
-
-        if (fileInputStream!=null){
-            Log.i(TAG,"over:开始画图");
+        if (isFirstCreate){
             startDrawSimulator();
-            /*byte [] mybyte = new byte[1024];
-            int length=0;
-            try {
-                while (true) {
-                    dataInputStream.read
-                    length = dataInputStream.read(mybyte,0,mybyte.length);
-                    Log.i(TAG,"length:"+length);
-                    if (length!=-1) {
-                        String s = new String(mybyte,0,length);
-                        ecgDatatext +=s;
-                    }else {
-                        break;
-                    }
-                }
-                Log.i(TAG,"ecgDatatext:"+ecgDatatext);
-                if (!ecgDatatext.equals("")){
-                    //此处的数据是滤波之后的，无需再进行滤波
-                    String[] allGrounpData = ecgDatatext.split(",");
-                    for (int i=0;i<allGrounpData.length;i++) {
-                        datas.add(Integer.parseInt(allGrounpData[i]));
-                    }
-                    data0Q.addAll(datas);
-                    startDrawSimulator();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.i(TAG,"onPause");
+        pv_ecg_path.stopThread();
+        iv_ecg_toggle.setImageResource(R.drawable.play_icon);
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        Log.i(TAG,"onHiddenChanged");
+
+    }
+
+    //Fragment的是否可见。Fragment的在失去焦点和销毁时不会调用onPause、onStop、onDestroy，而是根据其宿主Activity的生命周期而回调，因此通过setUserVisibleHint（当前是否可见）来主动调用onResume、onPause方法
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (!isFirstCreate){
+            Log.i(TAG,"setUserVisibleHint");
+            Log.i(TAG,"isVisibleToUser:"+isVisibleToUser);
+            if(isVisibleToUser){
+                onResume();
+            }else{
+                onPause();
+            }
+        }
+
     }
 
     //开始画线
     private void startDrawSimulator(){
-        Log.i(TAG,"data0Q:"+data0Q.size());
-        mDrawWareTimer = new Timer();
-        mDrawWareTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if(EcgView.isRunning){
-                    if(data0Q.size() > 0){
-                        Integer poll = data0Q.poll();
-                        Log.i(TAG,"poll:"+poll);
-                        pv_ecg_path.addEcgCacheData(poll);
-                    }
-                }
-            }
-        }, 0, 2);
+        if (datas!=null && datas.size()>0){
+            iv_ecg_toggle.setImageResource(R.drawable.suspend_icon);
+            pv_ecg_path.setEcgDatas(datas);
+            pv_ecg_path.startThread();
+            isFirstCreate = false;
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (mDrawWareTimer!=null){
-            mDrawWareTimer.cancel();
-            mDrawWareTimer = null;
+        Log.i(TAG,"onStop");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG,"onDestroy");
+    }
+
+    //暂停或开始
+    private void toggleDrawECG(){
+        Log.i(TAG,"pv_ecg_path.isRunning:"+pv_ecg_path.isRunning);
+        if (pv_ecg_path.isRunning){
+            iv_ecg_toggle.setImageResource(R.drawable.play_icon);
+            pv_ecg_path.stopThread();
+        }
+        else {
+            if (pv_ecg_path.ecgDatas.size()<10){
+                pv_ecg_path.setEcgDatas(datas);
+                setPercent(0);
+            }
+            iv_ecg_toggle.setImageResource(R.drawable.suspend_icon);
+            if (pv_ecg_path.ecgDatas!=null && pv_ecg_path.ecgDatas.size()>0){
+                if (sb_ecg_progress.getProgress()==100){ //播放结束，则从头开始播放
+                    setPercent(0);
+                }
+                pv_ecg_path.startThread();
+            }
         }
     }
+
+    //设置进度条，通过设置心电文件的ecgDatas的position
+    private void setPercent(int percent){
+        Log.i(TAG,"percent:"+percent);
+        int position = (int) ((percent / 100.0) * mEcgGroupSize);
+        Log.i(TAG,"position:"+position);
+        pv_ecg_path.setCurrentcountIndex(position);
+    }
+
+
 }

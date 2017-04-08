@@ -28,7 +28,7 @@ public class MoveStateActivity extends BaseActivity {
 
     //运动情况，要计算恢复心率
     public void sportDump(View view) {
-        Intent intent = new Intent(this, CalculateHRRProcess.class);
+        Intent intent = new Intent(this, CalculateHRRProcessActivity.class);
         startActivity(intent);
         finish();
     }

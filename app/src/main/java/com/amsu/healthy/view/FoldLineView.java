@@ -90,8 +90,14 @@ public class FoldLineView extends View {
         }
     }
 
-    public void setData(int[] datas,int maxRate){
+    public void setData(int[] datas){
         mYIndex = new float[datas.length];
+        int maxRate = datas[0];
+        for (int d :datas){
+            if (d>maxRate){
+                maxRate = d;
+            }
+        }
         for (int i=0;i<datas.length;i++){
             float percent = (float) datas[i] / maxRate;   //计算心率所占的百分比，然后将心率分类，分为5类
             mYIndex[i] = percent*100;

@@ -46,6 +46,8 @@ public class HistoryRecordAdapter extends BaseAdapter {
 
         TextView tv_history_date = (TextView) inflate.findViewById(R.id.tv_history_date);
         TextView tv_history_time = (TextView) inflate.findViewById(R.id.tv_history_time);
+        TextView tv_history_alstate = (TextView) inflate.findViewById(R.id.tv_history_alstate);
+        TextView tv_history_sportstate = (TextView) inflate.findViewById(R.id.tv_history_sportstate);
 
         //"datatime": "2016-10-28 10:56:04"
         String datatime = historyRecord.getDatatime();
@@ -57,4 +59,6 @@ public class HistoryRecordAdapter extends BaseAdapter {
 
         return inflate;
     }
+
+
 }

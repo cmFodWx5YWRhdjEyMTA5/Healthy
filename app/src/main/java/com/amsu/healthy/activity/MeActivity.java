@@ -171,10 +171,10 @@ public class MeActivity extends BaseActivity {
                     startActivity(new Intent(MeActivity.this,HealthyPlanActivity.class));
                     break;
                 case R.id.rl_me_follow:
-
+                    startActivity(new Intent(MeActivity.this,MotionDetectionActivity.class));
                     break;
                 case R.id.rl_me_help:
-
+                    startActivity(new Intent(MeActivity.this,MotionDetectionActivity.class));
                     break;
                 case R.id.rl_me_setting:
                     startActivity(new Intent(MeActivity.this,SystemSettingActivity.class));

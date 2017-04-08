@@ -32,10 +32,9 @@
             android:minHeight="@dimen/x12"
             android:maxHeight="@dimen/x12"
             android:layout_gravity="center"
-            android:max="40"
             android:progress="25"
             android:progressDrawable="@drawable/po_seekbar"
-            android:thumb="@drawable/slider"
+            android:thumb="@drawable/slider_1"
             />
     </LinearLayout>
 

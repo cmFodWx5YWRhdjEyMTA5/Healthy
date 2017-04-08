@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.MyUtil;
 
 import java.util.List;
 
@@ -46,7 +48,11 @@ public class DeviceAdapter extends BaseAdapter{
         TextView tv_item_state = (TextView) inflate.findViewById(R.id.tv_item_state);
 
         tv_item_name.setText(device.getName());
-        tv_item_state.setText(device.getState());
+        if (MyUtil.getStringValueFromSP(Constant.currectDeviceLEName).equals(device.getLEName())){
+            //正在使用的
+            tv_item_state.setText("已激活");
+        }
         return inflate;
     }
+
 }

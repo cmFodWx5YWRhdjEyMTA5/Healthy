@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -43,6 +44,7 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 	private int dayInWeek;
 	private boolean isNeedDrawCircle;
 	private boolean isNeedDrawBack = true;
+	private int[] planDays;
 
 
 	public MyCalendarView(Context context) {
@@ -78,11 +80,11 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 		surface.width = getResources().getDisplayMetrics().widthPixels;
 		surface.height = (int) (getResources().getDisplayMetrics().heightPixels*2/5);
 
-		if (View.MeasureSpec.getMode(widthMeasureSpec) == View.MeasureSpec.EXACTLY) {
-			surface.width = View.MeasureSpec.getSize(widthMeasureSpec);
+		if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY) {
+			surface.width = MeasureSpec.getSize(widthMeasureSpec);
 		}
-		if (View.MeasureSpec.getMode(heightMeasureSpec) == View.MeasureSpec.EXACTLY) {
-			surface.height = View.MeasureSpec.getSize(heightMeasureSpec);
+		if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY) {
+			surface.height = MeasureSpec.getSize(heightMeasureSpec);
 		}
 		widthMeasureSpec = MeasureSpec.makeMeasureSpec(surface.width, MeasureSpec.EXACTLY);
 		heightMeasureSpec = MeasureSpec.makeMeasureSpec(surface.height, MeasureSpec.EXACTLY);
@@ -93,9 +95,7 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
-		Log.d(TAG, "[onLayout] changed:"
-				+ (changed ? "new size" : "not change") + " left:" + left
-				+ " top:" + top + " right:" + right + " bottom:" + bottom);
+		Log.d(TAG, "[onLayout] changed:" + (changed ? "new size" : "not change") + " left:" + left + " top:" + top + " right:" + right + " bottom:" + bottom);
 		if (changed) {
 			surface.init();
 		}
@@ -133,8 +133,7 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 		
 		// 计算日期
 		calculateDate();
-		// 按下状态，选择状态背景色
-		drawDownOrSelectedBg(canvas);
+
 		// write date number
 		// today index
 		int todayIndex = -1;
@@ -146,6 +145,13 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 			int todayNumber = calendar.get(Calendar.DAY_OF_MONTH);
 			todayIndex = curStartIndex + todayNumber - 1;
 		}
+		// 按下状态，选择状态背景色
+		drawDownOrSelectedBg(canvas);
+		if (todayIndex!=-1){
+			drawCellBg(canvas, todayIndex, surface.cellTodayColor);
+		}
+
+
 		for (int i = 0; i < 42; i++) {
 			int color = surface.textColor;
 			if (isLastMonth(i)) {
@@ -155,16 +161,19 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 				color = surface.borderColor;
 			}
 			else if (todayIndex != -1 && i == todayIndex) {
-				color = surface.todayNumberColor;
+				color = surface.cellSelectedTextColor;
 				drawCellText(canvas, i, date[i] + "", color);
 			}
 			else {
 				if (i%7==0 || (i+1)%7==0){
 					color = surface.cellSelectedColor;
 				}
+				if (i==downIndex){
+					color = surface.cellSelectedTextColor;
+				}
 				drawCellText(canvas, i, date[i] + "", color);
+
 			}
-			
 		}
 		super.onDraw(canvas);
 	}
@@ -182,6 +191,11 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 
 		monthStart -= 1;  //以日为开头-1，以星期一为开头-2
 		curStartIndex = monthStart;
+		if (planDays!=null){
+			for (int i=0;i<planDays.length;i++){
+				planDays[i] = planDays[i]+monthStart-1;
+			}
+		}
 		date[monthStart] = 1;
 		// last month
 		if (monthStart > 0) {
@@ -224,16 +238,24 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 	 * @param text
 	 */
 	private void drawCellText(Canvas canvas, int index, String text, int color) {
+		//Log.i(TAG,"index:"+index);
 		int x = getXByIndex(index);
 		int y = getYByIndex(index);
 		surface.datePaint.setColor(color);
 		float cellY = surface.monthHeight + surface.weekHeight + (y - 1) * surface.cellHeight + surface.cellHeight * 2 / 3f;
 		float cellX = (surface.cellWidth * (x - 1)) + (surface.cellWidth - surface.datePaint.measureText(text)) / 2f;
 		canvas.drawText(text, cellX, cellY, surface.datePaint);
+		if (planDays!=null){
+			for (int i=0;i<planDays.length;i++){
+				if (index==planDays[i]){
+					canvas.drawCircle(cellX+surface.cellWidth/4, cellY+surface.cellHeight/6,getResources().getDimension(R.dimen.x10), surface.mPointPaint);
+				}
+			}
+		}
 	}
 
 	/**
-	 * 
+	 *
 	 * @param canvas
 	 * @param index
 	 * @param color
@@ -261,31 +283,12 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 		if (downDate != null) {
 			drawCellBg(canvas, downIndex, surface.cellSelectedColor);
 		}
-		// selected bg color
-		if (!selectedEndDate.before(showFirstDate)&& !selectedStartDate.after(showLastDate)) {
-			int[] section = new int[] { -1, -1 };
-			calendar.setTime(curDate);
-			calendar.add(Calendar.MONTH, -1);
-			findSelectedIndex(0, curStartIndex, calendar, section);
-			if (section[1] == -1) {
-				calendar.setTime(curDate);
-				findSelectedIndex(curStartIndex, curEndIndex, calendar, section);
-			}
-			if (section[1] == -1) {
-				calendar.setTime(curDate);
-				calendar.add(Calendar.MONTH, 1);
-				findSelectedIndex(curEndIndex, 42, calendar, section);
-			}
-			if (section[0] == -1) {
-				section[0] = 0;
-			}
-			if (section[1] == -1) {
-				section[1] = 41;
-			}
-			for (int i = section[0]; i <= section[1]; i++) {
-				drawCellBg(canvas, i, surface.cellSelectedColor);
-			}
-		}
+	}
+
+	//设置当月有计划的日期列表，然后会在日期下面显示小圆点
+	public void setPlanDays(int[] planDays){
+		this.planDays = planDays;
+		invalidate();
 	}
 
 	private void findSelectedIndex(int startIndex, int endIndex, Calendar calendar, int[] section) {
@@ -343,6 +346,7 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 	
 	//上一月
 	public String clickLeftMonth(){
+		downIndex = -1;
 		isNeedDrawBack = false;
 		calendar.setTime(curDate);
 		calendar.add(Calendar.MONTH, -1);
@@ -352,6 +356,7 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 	}
 	//下一月
 	public String clickRightMonth(){
+		downIndex = -1;
 		isNeedDrawBack = false;
 		calendar.setTime(curDate);
 		calendar.add(Calendar.MONTH, 1);
@@ -498,7 +503,9 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 		private int borderColor = Color.parseColor("#CCCCCC");
 		public int todayNumberColor = Color.RED;
 		public int cellDownColor = Color.parseColor("#CCFFFF");
-		public int cellSelectedColor = Color.parseColor("#b8b8b8");
+		public int cellSelectedColor = Color.parseColor("#9e9e9e");  //选中背景色
+		public int cellTodayColor = Color.parseColor("#ff3b30");  //选中背景色
+		public int cellSelectedTextColor = Color.parseColor("#FFFFFF");  //选中背景色
 		public Paint borderPaint;
 		public Paint monthPaint;
 		public Paint weekPaint;
@@ -509,7 +516,7 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 		//public Path preMonthBtnPath; // 上一月按钮三角形
 		//public Path nextMonthBtnPath; // 下一月按钮三角形
 		public String[] weekText = { "日","一", "二", "三", "四", "五", "六"};
-		//public String[] monthText = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+		public Paint mPointPaint;
 		   
 		public void init() {
 			float temp = height / 7f;
@@ -584,6 +591,11 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 			cellBgPaint.setAntiAlias(true);
 			cellBgPaint.setStyle(Paint.Style.FILL);
 			cellBgPaint.setColor(cellSelectedColor);
+
+			mPointPaint = new Paint();  //小红点
+			mPointPaint.setColor(Color.RED);
+            mPointPaint.setAntiAlias(true);
+
 		}
 	}
 }

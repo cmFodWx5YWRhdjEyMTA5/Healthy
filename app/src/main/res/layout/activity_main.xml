@@ -29,12 +29,12 @@
                     android:id="@+id/iv1"
                     android:layout_width="@dimen/x100"
                     android:layout_height="@dimen/x100"
-                    android:src="@drawable/home_jksj"
+                    android:src="@drawable/home_xindian"
                     android:layout_centerInParent="true"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="健康数据"
+                    android:text="心电数据"
                     android:layout_below="@+id/iv1"
                     android:layout_centerInParent="true"/>
             </RelativeLayout>
@@ -125,8 +125,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="开始"
-                android:textSize="@dimen/x40"
+                android:text="跑步"
+                android:textSize="@dimen/x48"
                 android:textColor="#1f1f1f"
                 android:layout_centerInParent="true"/>
         </RelativeLayout>
@@ -147,7 +147,7 @@
             android:layout_height="@dimen/y148"
             android:background="#0c64b5">
 
-            <ImageView
+            <!--<ImageView
                 android:id="@+id/iv_base_weather"
                 android:layout_width="@dimen/x72"
                 android:layout_height="@dimen/x72"
@@ -163,19 +163,19 @@
                 android:layout_marginRight="@dimen/x72"
                 android:src="@drawable/home_tq_icon"
                 android:layout_toLeftOf="@+id/iv_base_weather"
-                android:layout_centerVertical="true"/>
+                android:layout_centerVertical="true"/>-->
 
             <TextView
                 android:id="@+id/tv_base_centerText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
                 android:text="倾听体语"
                 android:textSize="@dimen/x48"
                 android:textColor="#FFFFFF"
                 android:layout_marginLeft="@dimen/x36"
-                android:layout_alignTop="@+id/iv_base_weather"
-                android:layout_alignParentStart="true"
                 android:layout_marginStart="9dp" />
+
 
         </RelativeLayout>
 

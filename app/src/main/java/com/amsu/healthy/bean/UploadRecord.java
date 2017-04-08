@@ -25,6 +25,15 @@ public class UploadRecord implements Parcelable {
     public String RA;  //心率恢能力（recovery ability）
     public String timestamp;  //
     public String datatime;  //
+    public String HR;  //
+    public String AE;  //
+    public String distance;  //
+    public String time;  //
+    public String cadence;  //
+    public String calorie;  //
+    public String state;  //
+
+
 
 
     public UploadRecord(String FI, String ES, String PI, String CC, String HRVr, String HRVs, String AHR, String maxHR, String minHR, String HRr, String HRs, String EC, String ECr, String ECs, String RA, String timestamp, String datatime) {
@@ -47,7 +56,32 @@ public class UploadRecord implements Parcelable {
         this.datatime = datatime;
     }
 
-
+    public UploadRecord(String FI, String ES, String PI, String CC, String HRVr, String HRVs, String AHR, String maxHR, String minHR, String HRr, String HRs, String EC, String ECr, String ECs, String RA, String timestamp, String datatime, String HR, String AE, String distance, String time, String cadence, String calorie, String state) {
+        this.FI = FI;
+        this.ES = ES;
+        this.PI = PI;
+        this.CC = CC;
+        this.HRVr = HRVr;
+        this.HRVs = HRVs;
+        this.AHR = AHR;
+        MaxHR = maxHR;
+        MinHR = minHR;
+        this.HRr = HRr;
+        this.HRs = HRs;
+        this.EC = EC;
+        this.ECr = ECr;
+        this.ECs = ECs;
+        this.RA = RA;
+        this.timestamp = timestamp;
+        this.datatime = datatime;
+        this.HR = HR;
+        this.AE = AE;
+        this.distance = distance;
+        this.time = time;
+        this.cadence = cadence;
+        this.calorie = calorie;
+        this.state = state;
+    }
 
     public String getFI() {
         return FI;
@@ -185,26 +219,60 @@ public class UploadRecord implements Parcelable {
         this.datatime = datatime;
     }
 
-    @Override
-    public String toString() {
-        return "UploadRecord{" +
-                "FI='" + FI + '\'' +
-                ", ES='" + ES + '\'' +
-                ", PI='" + PI + '\'' +
-                ", CC='" + CC + '\'' +
-                ", HRVr='" + HRVr + '\'' +
-                ", HRVs='" + HRVs + '\'' +
-                ", AHR='" + AHR + '\'' +
-                ", MaxHR='" + MaxHR + '\'' +
-                ", MinHR='" + MinHR + '\'' +
-                ", HRr='" + HRr + '\'' +
-                ", HRs='" + HRs + '\'' +
-                ", ECr='" + ECr + '\'' +
-                ", ECs='" + ECs + '\'' +
-                ", RA='" + RA + '\'' +
-                ", timestamp='" + timestamp + '\'' +
-                ", datatime='" + datatime + '\'' +
-                '}';
+    public String getHR() {
+        return HR;
+    }
+
+    public void setHR(String HR) {
+        this.HR = HR;
+    }
+
+    public String getAE() {
+        return AE;
+    }
+
+    public void setAE(String AE) {
+        this.AE = AE;
+    }
+
+    public String getDistance() {
+        return distance;
+    }
+
+    public void setDistance(String distance) {
+        this.distance = distance;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getCadence() {
+        return cadence;
+    }
+
+    public void setCadence(String cadence) {
+        this.cadence = cadence;
+    }
+
+    public String getCalorie() {
+        return calorie;
+    }
+
+    public void setCalorie(String calorie) {
+        this.calorie = calorie;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     @Override
@@ -231,14 +299,22 @@ public class UploadRecord implements Parcelable {
         dest.writeString(RA);
         dest.writeString(timestamp);
         dest.writeString(datatime);
+        dest.writeString(HR);
+        dest.writeString(AE);
+        dest.writeString(distance);
+        dest.writeString(time);
+        dest.writeString(cadence);
+        dest.writeString(calorie);
+        dest.writeString(state);
     }
 
-    public static final Parcelable.Creator<UploadRecord> CREATOR = new Creator<UploadRecord>() {
+    public static final Creator<UploadRecord> CREATOR = new Creator<UploadRecord>() {
         @Override
         public UploadRecord createFromParcel(Parcel source) {
             return new UploadRecord(source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),
                     source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),
-                    source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString());
+                    source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),
+                    source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString());
         }
 
         @Override
@@ -246,4 +322,34 @@ public class UploadRecord implements Parcelable {
             return new UploadRecord[0];
         }
     };
+
+
+    @Override
+    public String toString() {
+        return "UploadRecord{" +
+                "FI='" + FI + '\'' +
+                ", ES='" + ES + '\'' +
+                ", PI='" + PI + '\'' +
+                ", CC='" + CC + '\'' +
+                ", HRVr='" + HRVr + '\'' +
+                ", HRVs='" + HRVs + '\'' +
+                ", AHR='" + AHR + '\'' +
+                ", MaxHR='" + MaxHR + '\'' +
+                ", MinHR='" + MinHR + '\'' +
+                ", HRr='" + HRr + '\'' +
+                ", HRs='" + HRs + '\'' +
+                ", ECr='" + ECr + '\'' +
+                ", ECs='" + ECs + '\'' +
+                ", RA='" + RA + '\'' +
+                ", timestamp='" + timestamp + '\'' +
+                ", datatime='" + datatime + '\'' +
+                ", HR='" + HR + '\'' +
+                ", AE='" + AE + '\'' +
+                ", distance='" + distance + '\'' +
+                ", time='" + time + '\'' +
+                ", cadence='" + cadence + '\'' +
+                ", calorie='" + calorie + '\'' +
+                ", state='" + state + '\'' +
+                '}';
+    }
 }

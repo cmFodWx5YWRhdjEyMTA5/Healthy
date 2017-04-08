@@ -110,7 +110,7 @@ public class ClubCampaign implements Parcelable{
         dest.writeString(smiallImageUrl);
     }
 
-    public static final Parcelable.Creator<ClubCampaign> CREATOR = new Creator<ClubCampaign>() {
+    public static final Creator<ClubCampaign> CREATOR = new Creator<ClubCampaign>() {
         @Override
         public ClubCampaign createFromParcel(Parcel source) {
             return new ClubCampaign(source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),

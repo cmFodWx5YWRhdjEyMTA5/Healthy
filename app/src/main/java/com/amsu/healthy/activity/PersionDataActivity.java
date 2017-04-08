@@ -82,6 +82,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
     private CircleImageView cv_persiondata_headicon;
     private String iconFilePath;
     private BottomSheetDialog bottomSheetDialog;
+    private TextView tv_persiondata_stillrate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,9 +98,6 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
 
     }
-
-
-
     private void initView() {
         initHeadView();
         setCenterText("个人资料");
@@ -120,6 +118,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         RelativeLayout rl_persiondata_area = (RelativeLayout) findViewById(R.id.rl_persiondata_area);
         RelativeLayout rl_persiondata_phone = (RelativeLayout) findViewById(R.id.rl_persiondata_phone);
         RelativeLayout rl_persiondata_email = (RelativeLayout) findViewById(R.id.rl_persiondata_email);
+        RelativeLayout rl_persiondata_stillrate = (RelativeLayout) findViewById(R.id.rl_persiondata_stillrate);
 
         tv_persiondata_name = (TextView) findViewById(R.id.tv_persiondata_name);
         tv_persiondata_birthday = (TextView) findViewById(R.id.tv_persiondata_birthday);
@@ -129,6 +128,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         tv_persiondata_area = (TextView) findViewById(R.id.tv_persiondata_area);
         tv_persiondata_phone = (TextView) findViewById(R.id.tv_persiondata_phone);
         tv_persiondata_email = (TextView) findViewById(R.id.tv_persiondata_email);
+        tv_persiondata_stillrate = (TextView) findViewById(R.id.tv_persiondata_stillrate);
         cv_persiondata_headicon = (CircleImageView) findViewById(R.id.cv_persiondata_headicon);
 
         Button bt_persion_save = (Button) findViewById(R.id.bt_persion_save);
@@ -145,6 +145,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         rl_persiondata_phone.setOnClickListener(myOnClickListener);
         rl_persiondata_email.setOnClickListener(myOnClickListener);
         bt_persion_save.setOnClickListener(myOnClickListener);
+        rl_persiondata_stillrate.setOnClickListener(myOnClickListener);
 
         dateTimeDialogOnlyYMD = new DateTimeDialogOnlyYMD(this, this, true, true, true);
 
@@ -189,6 +190,10 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
             upLoadweightValue = userFromSP.getWeight();
             area = userFromSP.getArea();
 
+            String stillRate = userFromSP.getStillRate();
+            if (!MyUtil.isEmpty(stillRate)){
+                tv_persiondata_stillrate.setText(stillRate);
+            }
 
             String iconUrl = userFromSP.getIcon();
             if (!iconUrl.equals("")){
@@ -196,11 +201,8 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     BitmapUtils bitmapUtils = new BitmapUtils(this);
                     bitmapUtils.display(cv_persiondata_headicon,iconUrl);
                 }
-
             }
         }
-
-
     }
 
     @Override
@@ -215,7 +217,6 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         if (month<10){
             upLoadbirthday = year+"-0"+month+"-"+day;
         }
-
         Log.i(TAG,"upLoadbirthday:"+upLoadbirthday);
     }
 
@@ -246,6 +247,13 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     intent.putExtra("modifyType", Constant.MODIFY_EMAIL);
                     if (userFromSP!=null) {
                         intent.putExtra("modifyValue", userFromSP.getEmail());
+                    }
+                    startActivityForResult(intent,100);
+                    break;
+                case R.id.rl_persiondata_stillrate:
+                    intent.putExtra("modifyType", Constant.MODIFY_STILLRATE);
+                    if (userFromSP!=null) {
+                        intent.putExtra("modifyValue", userFromSP.getStillRate());
                     }
                     startActivityForResult(intent,100);
                     break;
@@ -342,6 +350,9 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     }
                     else if (modifyType ==Constant.MODIFY_EMAIL){
                         tv_persiondata_email.setText(modifyValue);
+                    }
+                    else if (modifyType ==Constant.MODIFY_STILLRATE){
+                        tv_persiondata_stillrate.setText(modifyValue);
                     }
                     else if (modifyType ==Constant.MODIFY_PHONE){
                         //电话，暂不修改
@@ -640,13 +651,13 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         String username = tv_persiondata_name.getText().toString();
         String email = tv_persiondata_email.getText().toString();
         String sex = tv_persiondata_sex.getText().toString();
+        String stillrate = tv_persiondata_stillrate.getText().toString();
         if (sex.equals("男")){
             upLoadSex = "1";
         }
         else if (sex.equals("女")){
             upLoadSex = "0";
         }
-
 
         if (username.isEmpty()){
             Toast.makeText(this,"昵称", Toast.LENGTH_SHORT).show();
@@ -679,6 +690,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
 
         final User user = new User(phone,username,upLoadbirthday,upLoadSex,upLoadweightValue,upLoadheightValue,area,email);
+        user.setStillRate(stillrate);
         Log.i(TAG,"user:"+user.toString());
 
         HttpUtils httpUtils = new HttpUtils();
@@ -691,7 +703,10 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         params.addBodyParameter("Address",area);
         params.addBodyParameter("Phone",phone);
         params.addBodyParameter("Email",email);
-        params.addBodyParameter("RestingHeartRate","0");
+        if (stillrate.equals("")){
+            stillrate="0";
+        }
+        params.addBodyParameter("RestingHeartRate",stillrate);
 
         MyUtil.addCookieForHttp(params);
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.duploadPersionDataURL,params, new RequestCallBack<String>() {
@@ -707,8 +722,6 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     String errDesc = jsonObject.getString("errDesc");
                     MyUtil.showToask(PersionDataActivity.this,errDesc);
                     if (ret==0){
-                        //个人资料完善成功
-                        MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
                         MyUtil.saveUserToSP(user);
                     }
                 } catch (JSONException e) {

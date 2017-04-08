@@ -15,9 +15,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.activity.HistoryRecordActivity;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.activity.RateAnalysisActivity;
-import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.UploadRecord;
-import com.amsu.healthy.utils.HealthyIndexUtil;
 
 public class HRRFragment extends Fragment {
 

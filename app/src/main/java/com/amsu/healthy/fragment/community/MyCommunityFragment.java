@@ -12,14 +12,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.ClubGroupActivity;
-import com.amsu.healthy.activity.ClubGroupDetialActivity;
 import com.amsu.healthy.activity.ClubHomePageActivity;
 import com.amsu.healthy.activity.SetupClubActivity;
-import com.amsu.healthy.activity.SetupGroupActivity;
 import com.amsu.healthy.adapter.AllClubsAdapter;
 import com.amsu.healthy.bean.Club;
-import com.amsu.healthy.bean.ClubGroup;
 
 import java.util.ArrayList;
 import java.util.List;

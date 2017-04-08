@@ -36,7 +36,7 @@ public class ECGUtil {
             0.0008 };
 
     // 计算心率
-    public static  int countEcgRate(int[] ecg, int len, int s_rate) {
+    /*public static  int countEcgRate(int[] ecg, int len, int s_rate) {
         int result;
         try {
             for (int i = 0; i < len; i++) {
@@ -139,17 +139,17 @@ public class ECGUtil {
             int avel = sum / size;
             int rate = 60 * s_rate / avel;
             result = rate;
-            /*if (rate > 60 && rate < 100) {
+            *//*if (rate > 60 && rate < 100) {
 
             } else {
                 result = 0;
-            }*/
+            }*//*
 
         } catch (Exception e) {
             result = 0;
         }
         return result;
-    }
+    }*/
 
     public static int fir(int d) {
         int i;
@@ -168,7 +168,7 @@ public class ECGUtil {
     }
 
 
-    public static int countEcgRate1(int ecg[], int len, int s_rate) {
+    public static int countEcgRate(int ecg[], int len, int s_rate) {
         int result;
         int datasum = 0;
         try {

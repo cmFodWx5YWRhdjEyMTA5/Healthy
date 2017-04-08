@@ -139,13 +139,8 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
 
                         }
 
-
-
-
                     }
                 });
-
-
 
                 selectDialog.setCanceledOnTouchOutside(true);//设置点击Dialog外部任意区域关闭Dialog
                 selectDialog.show();

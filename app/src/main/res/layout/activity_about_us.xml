@@ -16,7 +16,7 @@
         android:layout_below="@+id/rl_base_head"
         android:layout_marginTop="@dimen/x116"
         android:layout_centerHorizontal="true"
-        android:src="@mipmap/ic_launcher"/>
+        android:src="@drawable/logo_icon"/>
 
     <TextView
         android:id="@+id/name"

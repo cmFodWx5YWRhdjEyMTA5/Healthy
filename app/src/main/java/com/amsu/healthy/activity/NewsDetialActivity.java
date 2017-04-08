@@ -10,7 +10,6 @@ import android.widget.RelativeLayout;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.utils.MyUtil;
-import com.baidu.platform.comapi.map.E;
 
 public class NewsDetialActivity extends BaseActivity {
 

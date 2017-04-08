@@ -10,5 +10,14 @@ public class Apk{
     public String Path;
     public String Remark;
 
-
+    @Override
+    public String toString() {
+        return "Apk{" +
+                "ID='" + ID + '\'' +
+                ", Version=" + Version +
+                ", VersionDateTime='" + VersionDateTime + '\'' +
+                ", Path='" + Path + '\'' +
+                ", Remark='" + Remark + '\'' +
+                '}';
+    }
 }

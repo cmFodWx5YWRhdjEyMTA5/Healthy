@@ -95,9 +95,6 @@ public class IndexWarringActivity extends BaseActivity {
 
         indicatorAssesses = new ArrayList<>();
 
-        mProgressNormal = 20;
-        mProgressYellow = 60;
-        mProgressRed = 80;
         mSuggestion = "";
 
         if (indicatorAssess1!=null){
@@ -120,7 +117,7 @@ public class IndexWarringActivity extends BaseActivity {
             setState(indicatorAssess4.getPercent(),pb_hrv_leaverate,tv_warring_state_leaverate);
             mSuggestion += indicatorAssess4.getSuggestion();
         }
-
+        mSuggestion = "";
         tv_hrv_ala4.setText(mSuggestion);
 
     }
@@ -179,7 +176,7 @@ public class IndexWarringActivity extends BaseActivity {
         View inflate = View.inflate(this, R.layout.dialog_assess_type, null);
         vp_assess_float = (ViewPager) inflate.findViewById(R.id.vp_assess_float);
         vp_assess_float.setAdapter(new MyViewPageAdapter());
-        ;
+
 
         mAlertDialog = new AlertDialog.Builder(this).setView(inflate).create();
         mAlertDialog.show();

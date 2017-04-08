@@ -3,6 +3,7 @@ package com.amsu.healthy.adapter;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.amsu.healthy.page.BasePage;
 
@@ -11,7 +12,7 @@ import java.util.List;
 /**
  * Created by HP on 2016/11/25.
  */
-public class AnalysisRateAdapter extends FragmentPagerAdapter {
+public class AnalysisRateAdapter extends FragmentStatePagerAdapter {
     private List<Fragment> fragmentList;
     //private String titleStrings[];
 
@@ -33,6 +34,8 @@ public class AnalysisRateAdapter extends FragmentPagerAdapter {
     public int getCount() {
         return fragmentList.size();
     }
+
+
 
 
 

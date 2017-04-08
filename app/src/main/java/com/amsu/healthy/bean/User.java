@@ -13,6 +13,7 @@ public class User {
     private String area;
     private String email;
     private String icon;
+    private String stillRate;
 
     public User() {
     }
@@ -38,6 +39,26 @@ public class User {
         this.email = email;
     }
 
+    public User(String phone, String username, String birthday, String sex, String weight, String height, String area, String email, String icon, String stillRate) {
+        this.phone = phone;
+        this.username = username;
+        this.birthday = birthday;
+        this.sex = sex;
+        this.weight = weight;
+        this.height = height;
+        this.area = area;
+        this.email = email;
+        this.icon = icon;
+        this.stillRate = stillRate;
+    }
+
+    public String getStillRate() {
+        return stillRate;
+    }
+
+    public void setStillRate(String stillRate) {
+        this.stillRate = stillRate;
+    }
 
     public String getPhone() {
         return phone;

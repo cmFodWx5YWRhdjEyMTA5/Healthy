@@ -1,0 +1,46 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:showDividers="middle"
+    android:background="#E8E8E8">
+
+    <TextView
+        android:id="@+id/tv_choose_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/y100"
+        android:text="为了准确记录你的运动数据，智能鞋垫需要你开启GPS定位"
+        android:textSize="@dimen/x36"
+        android:layout_centerHorizontal="true"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_choose_tip"
+        android:layout_marginTop="@dimen/x50"
+        android:layout_marginLeft="@dimen/x100"
+        android:layout_marginRight="@dimen/x100"
+        android:layout_marginBottom="@dimen/x100" >
+        <TextView
+            android:id="@+id/bt_opengps_cancel"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_bt_choose_cancel"
+            android:text="取消"
+            android:padding="10dp"
+            android:gravity="center"
+            android:textSize="@dimen/x36"/>
+        <TextView
+            android:id="@+id/bt_opengps_ok"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_bt_choose_ok"
+            android:text="打开"
+            android:padding="10dp"
+            android:gravity="center"
+            android:textSize="@dimen/x36"/>
+    </LinearLayout>
+
+
+</RelativeLayout>

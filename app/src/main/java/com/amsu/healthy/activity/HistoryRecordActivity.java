@@ -48,10 +48,17 @@ public class HistoryRecordActivity extends BaseActivity {
         initHeadView();
         setCenterText("历史记录");
         setLeftImage(R.drawable.back_icon);
+        setRightImage(R.drawable.download_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+        getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(HistoryRecordActivity.this,UploadOfflineFileActivity.class));
             }
         });
         lv_history_all = (ListView) findViewById(R.id.lv_history_all);

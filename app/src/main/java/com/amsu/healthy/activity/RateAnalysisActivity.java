@@ -20,6 +20,7 @@ import com.amsu.healthy.fragment.analysis.ECGFragment;
 import com.amsu.healthy.fragment.analysis.HRRFragment;
 import com.amsu.healthy.fragment.analysis.HRVFragment;
 import com.amsu.healthy.fragment.analysis.HeartRateFragment;
+import com.amsu.healthy.fragment.analysis.SportFragment;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.Gson;
@@ -37,15 +38,17 @@ public class RateAnalysisActivity extends BaseActivity {
 
     private static final String TAG = "RateAnalysisActivity";
     private ViewPager vp_analysis_content;
-    //private TabPageIndicator ti_analysis_indicator;
     private List<Fragment> fragmentList;
-    private String titleStrings[];
     private TextView tv_analysis_hrv;
     private TextView tv_analysis_rate;
     private TextView tv_analysis_ecg;
     private TextView tv_analysis_hrr;
     private View v_analysis_select;
     public static UploadRecord mUploadRecord;
+    private TextView tv_analysis_sport;
+    private AnalysisRateAdapter mAnalysisRateAdapter;
+    private float mOneTableWidth;
+    private int subFormAlCount = 0 ;  //当有四个fragment是为0，有5个fragment时为1
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +56,6 @@ public class RateAnalysisActivity extends BaseActivity {
         setContentView(R.layout.activity_rate_analysis);
         initView();
         initData();
-
     }
 
     private void initView() {
@@ -61,7 +63,6 @@ public class RateAnalysisActivity extends BaseActivity {
         setLeftImage(R.drawable.back_icon);
         vp_analysis_content = (ViewPager) findViewById(R.id.vp_analysis_content);
         v_analysis_select = findViewById(R.id.v_analysis_select);
-        mUploadRecord = null;
 
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,22 +75,25 @@ public class RateAnalysisActivity extends BaseActivity {
         tv_analysis_rate = (TextView) findViewById(R.id.tv_analysis_rate);
         tv_analysis_ecg = (TextView) findViewById(R.id.tv_analysis_ecg);
         tv_analysis_hrr = (TextView) findViewById(R.id.tv_analysis_hrr);
+        tv_analysis_sport = (TextView) findViewById(R.id.tv_analysis_sport);
 
         MyClickListener myClickListener = new MyClickListener();
         tv_analysis_hrv.setOnClickListener(myClickListener);
         tv_analysis_rate.setOnClickListener(myClickListener);
         tv_analysis_ecg.setOnClickListener(myClickListener);
         tv_analysis_hrr.setOnClickListener(myClickListener);
+        tv_analysis_sport.setOnClickListener(myClickListener);
 
 
-        final float oneTableWidth = MyUtil.getScreeenWidth(this)/4;  //每一个小格的宽度
+        //每一个小格的宽度
+        mOneTableWidth = MyUtil.getScreeenWidth(this)/5;
 
         vp_analysis_content.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 //Log.i(TAG,"onPageScrolled===position:"+position+",positionOffset:"+positionOffset+",positionOffsetPixels:"+positionOffsetPixels);
                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) v_analysis_select.getLayoutParams();
-                int floatWidth=  (int) (oneTableWidth*(positionOffset+position));  //view向左的偏移量
+                int floatWidth=  (int) (mOneTableWidth *(positionOffset+position));  //view向左的偏移量
                 layoutParams.setMargins(floatWidth,0,0,0); //4个参数按顺序分别是左上右下
                 v_analysis_select.setLayoutParams(layoutParams);
             }
@@ -106,18 +110,17 @@ public class RateAnalysisActivity extends BaseActivity {
             }
         });
 
-
     }
     private void initData() {
-
         fragmentList = new ArrayList<>();
+        fragmentList.add(new SportFragment());
         fragmentList.add(new HRVFragment());
         fragmentList.add(new HeartRateFragment());
         fragmentList.add(new ECGFragment());
         fragmentList.add(new HRRFragment());
 
-        titleStrings = new String[]{"HRV分析","心率分析","心电分析","HRR分析"};
-        vp_analysis_content.setAdapter(new AnalysisRateAdapter(getSupportFragmentManager(),fragmentList));
+        mAnalysisRateAdapter = new AnalysisRateAdapter(getSupportFragmentManager(), fragmentList);
+        vp_analysis_content.setAdapter(mAnalysisRateAdapter);
 
 
         Intent intent = getIntent();
@@ -160,9 +163,24 @@ public class RateAnalysisActivity extends BaseActivity {
                 else {
                     //当前分析结果，直接显示
                     mUploadRecord = bundle.getParcelable("uploadRecord");
-                    Log.i(TAG,"直接显示uploadRecord:"+mUploadRecord);
+                    Log.i(TAG,"直接显示uploadRecord:"+mUploadRecord.toString());
                     //Log.i(TAG,"EC:"+mUploadRecord.EC);
                 }
+
+                if (mUploadRecord!=null){
+                    if (mUploadRecord.getState().equals("0") && tv_analysis_sport.getVisibility()==View.VISIBLE){ //静止状态&& 可见
+                        fragmentList.remove(0);
+                        tv_analysis_sport.setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            if (intent.getIntExtra(Constant.sportState, -1)==0 && tv_analysis_sport.getVisibility()==View.VISIBLE){
+                fragmentList.remove(0);
+                tv_analysis_sport.setVisibility(View.GONE);
+                mAnalysisRateAdapter.notifyDataSetChanged();
+                mOneTableWidth = MyUtil.getScreeenWidth(this)/4;
+                subFormAlCount = 1;
             }
         }
     }
@@ -176,32 +194,35 @@ public class RateAnalysisActivity extends BaseActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-
-                case R.id.tv_analysis_hrv:
+                case R.id.tv_analysis_sport:
                     setViewPageItem(0,vp_analysis_content.getCurrentItem());
                     break;
-                case R.id.tv_analysis_rate:
+                case R.id.tv_analysis_hrv:
                     setViewPageItem(1,vp_analysis_content.getCurrentItem());
                     break;
-                case R.id.tv_analysis_ecg:
+                case R.id.tv_analysis_rate:
                     setViewPageItem(2,vp_analysis_content.getCurrentItem());
                     break;
-                case R.id.tv_analysis_hrr:
+                case R.id.tv_analysis_ecg:
                     setViewPageItem(3,vp_analysis_content.getCurrentItem());
                     break;
+                case R.id.tv_analysis_hrr:
+                    setViewPageItem(4,vp_analysis_content.getCurrentItem());
+                    break;
+
             }
         }
     }
 
     //点击时设置选中条目
     public void setViewPageItem(int viewPageItem,int currentItem) {
+        viewPageItem = viewPageItem-subFormAlCount;
         if (currentItem==viewPageItem){
             return;
         }
         vp_analysis_content.setCurrentItem(viewPageItem);
-        float oneTableWidth = MyUtil.getScreeenWidth(this)/4;
         RelativeLayout.LayoutParams layoutParams =   (RelativeLayout.LayoutParams) v_analysis_select.getLayoutParams();
-        int floatWidth= (int) (oneTableWidth*viewPageItem);  //view向左的偏移量
+        int floatWidth= (int) (mOneTableWidth*viewPageItem);  //view向左的偏移量
         layoutParams.setMargins(floatWidth,0,0,0); //4个参数按顺序分别是左上右下
         v_analysis_select.setLayoutParams(layoutParams);
 
@@ -213,29 +234,41 @@ public class RateAnalysisActivity extends BaseActivity {
     private void setViewPageTextColor(int viewPageItem) {
         switch (viewPageItem){
             case 0:
+                tv_analysis_hrv.setTextColor(Color.parseColor("#999999"));
+                tv_analysis_rate.setTextColor(Color.parseColor("#999999"));
+                tv_analysis_ecg.setTextColor(Color.parseColor("#999999"));
+                tv_analysis_hrr.setTextColor(Color.parseColor("#999999"));
+                tv_analysis_sport.setTextColor(Color.parseColor("#0c64b5"));
+                break;
+            case 1:
                 tv_analysis_hrv.setTextColor(Color.parseColor("#0c64b5"));
                 tv_analysis_rate.setTextColor(Color.parseColor("#999999"));
                 tv_analysis_ecg.setTextColor(Color.parseColor("#999999"));
                 tv_analysis_hrr.setTextColor(Color.parseColor("#999999"));
+                tv_analysis_sport.setTextColor(Color.parseColor("#999999"));
                 break;
-            case 1:
+            case 2:
                 tv_analysis_hrv.setTextColor(Color.parseColor("#999999"));
                 tv_analysis_rate.setTextColor(Color.parseColor("#0c64b5"));
                 tv_analysis_ecg.setTextColor(Color.parseColor("#999999"));
                 tv_analysis_hrr.setTextColor(Color.parseColor("#999999"));
-                break;
-            case 2:
-                tv_analysis_hrv.setTextColor(Color.parseColor("#999999"));
-                tv_analysis_rate.setTextColor(Color.parseColor("#999999"));
-                tv_analysis_ecg.setTextColor(Color.parseColor("#0c64b5"));
-                tv_analysis_hrr.setTextColor(Color.parseColor("#999999"));
+                tv_analysis_sport.setTextColor(Color.parseColor("#999999"));
                 break;
             case 3:
                 tv_analysis_hrv.setTextColor(Color.parseColor("#999999"));
                 tv_analysis_rate.setTextColor(Color.parseColor("#999999"));
+                tv_analysis_ecg.setTextColor(Color.parseColor("#0c64b5"));
+                tv_analysis_hrr.setTextColor(Color.parseColor("#999999"));
+                tv_analysis_sport.setTextColor(Color.parseColor("#999999"));
+                break;
+            case 4:
+                tv_analysis_hrv.setTextColor(Color.parseColor("#999999"));
+                tv_analysis_rate.setTextColor(Color.parseColor("#999999"));
                 tv_analysis_ecg.setTextColor(Color.parseColor("#999999"));
                 tv_analysis_hrr.setTextColor(Color.parseColor("#0c64b5"));
+                tv_analysis_sport.setTextColor(Color.parseColor("#999999"));
                 break;
+
         }
     }
 

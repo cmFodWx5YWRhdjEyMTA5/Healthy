@@ -157,7 +157,7 @@
             android:layout_marginTop="@dimen/y16"
             android:textColor="#8bc34a"
             android:textSize="@dimen/x48"
-            android:text="60分（12.19-12.25）"/>
+            android:text=""/>
 
         <TextView
             android:id="@+id/tv_hrv_ala3"
@@ -176,7 +176,7 @@
             android:layout_marginTop="@dimen/y18"
             android:textColor="#333333"
             android:textSize="@dimen/x40"
-            android:text="针对采集到的人体静态和动态的心电数据，经由专业的应用程序进行数据分析，把心电数据体现出来的储备心率、恢复心率、抗疲劳指数、心率异常、健康储备等数据进行中和评价得出的身体健康状态评分，分数越高标识身体综合状态越好。"/>
+            android:text=""/>
 
 
     </RelativeLayout>

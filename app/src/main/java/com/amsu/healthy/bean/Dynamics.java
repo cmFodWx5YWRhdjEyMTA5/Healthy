@@ -99,7 +99,7 @@ public class Dynamics implements Parcelable{
         dest.writeString(commentCount);
     }
 
-    public static final Parcelable.Creator<Dynamics> CREATOR = new Creator<Dynamics>() {
+    public static final Creator<Dynamics> CREATOR = new Creator<Dynamics>() {
         @Override
         public Dynamics createFromParcel(Parcel source) {
             return new Dynamics(source.readString(),source.readString(),source.readString(),source.readString(),source.createStringArray(),source.readString(),source.readString());

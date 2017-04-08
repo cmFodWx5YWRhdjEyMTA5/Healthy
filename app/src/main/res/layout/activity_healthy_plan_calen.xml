@@ -14,7 +14,7 @@
         android:id="@+id/rl_healthycalen_top"
         android:layout_width="match_parent"
         android:layout_height="@dimen/x480"
-        android:background="#0E65B5"
+        android:background="#0c64b5"
         android:layout_below="@id/rl_base_head">
         <TextView
             android:id="@+id/tv_healthycalen_day"
@@ -44,7 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/x136"
         android:layout_alignParentBottom="true"
-        android:background="#0E65B5">
+        android:background="#0c64b5">
         <TextView
             android:id="@+id/tv_plancalen_yearndmouth"
             android:layout_width="wrap_content"

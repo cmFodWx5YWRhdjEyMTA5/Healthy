@@ -69,7 +69,6 @@ public class HealthyPlanActivity extends BaseActivity {
             }
         });
 
-
         lv_healthplan_plan = (ListView) findViewById(R.id.lv_healthplan_plan);
     }
 

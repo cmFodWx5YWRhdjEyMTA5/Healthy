@@ -1,13 +1,16 @@
 package com.amsu.healthy.activity;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.umeng.analytics.MobclickAgent;
 
 public class BaseActivity extends FragmentActivity {
 
@@ -95,5 +98,26 @@ public class BaseActivity extends FragmentActivity {
 
     public void setIv_base_rightimage(ImageView iv_base_rightimage) {
         this.iv_base_rightimage = iv_base_rightimage;
+    }
+
+    public void setHeadBackgroudColor(String color) {
+        RelativeLayout rl_base_head = (RelativeLayout) findViewById(R.id.rl_base_head);
+        rl_base_head.setBackgroundColor(Color.parseColor(color));
+    }
+
+    public void setCenterTextColor(String color) {
+        tv_base_centerText.setTextColor(Color.parseColor(color));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 }

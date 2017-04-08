@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.amsu.healthy.R.id.iv_devicerun_switvh;
 
 public class SetupCampaignActivity extends BaseActivity implements DateTimeDialogOnlyYMD.MyOnDateSetListener{
 

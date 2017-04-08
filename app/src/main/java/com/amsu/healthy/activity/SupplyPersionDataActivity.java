@@ -420,7 +420,7 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
         params.addBodyParameter("Address",area);
         params.addBodyParameter("Phone",phone);
         params.addBodyParameter("Email","");
-        params.addBodyParameter("RestingHeartRate","70");
+        params.addBodyParameter("RestingHeartRate","0.0");
 
         MyUtil.addCookieForHttp(params);
 

@@ -10,6 +10,7 @@ public class Constant {
     public static int MODIFY_SEX = 1;
     public static int MODIFY_EMAIL = 2;
     public static int MODIFY_PHONE = 3;
+    public static int MODIFY_STILLRATE = 3;
 
     public static String writeConfigureOrder = "FF010A100C080E010016";
     public static String openDataTransmitOrder = "FF0206010016";
@@ -38,5 +39,13 @@ public class Constant {
     public static String checkAppUpdateURL = "https://bodylistener.amsu-new.com/intellingence/VersionController/getLastVersion";
 
     public static long AnimatorDuration = 2000;  //动画时长，2s
+
+    public static int oneSecondFrame = 150; //帧为150，即1s有150个数据点
+
+    public static String currectDeviceLEName = "currectDeviceLEName";
+
+    public static String sportState = "sportState";
+
+
 
 }

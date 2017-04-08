@@ -15,8 +15,11 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.activity.HealthyDataActivity;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
@@ -29,7 +32,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     private static final String TAG = "EcgView";
     private Context mContext;
     private SurfaceHolder surfaceHolder;
-    public static boolean isRunning;
+    public boolean isRunning;
     private Canvas mCanvas;
 
     private float ecgMax = 255;//心电的最大值
@@ -37,8 +40,8 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     private float lockWidth;//每次锁屏需要画的
     private static int ecgPerCount = 10;//每次画心电数据的个数，心电每秒有500个数据包
 
-    private static Queue<Integer> ecgDatas = new LinkedList<Integer>();
-    private static Queue<Integer> ecgOneGroupData = new LinkedList<>();
+    public List<Integer> ecgDatas = new ArrayList<>();
+    private Queue<Integer> ecgOneGroupData = new LinkedList<>();
 
     private Paint mLinePaint;//背景
     private Paint mWavePaint;//画波形图的画笔
@@ -52,9 +55,9 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     private double ecgXOffset;//每次X坐标偏移的像素
     private float blankLineWidth = getResources().getDimension(R.dimen.x40);;//右侧空白点的宽度
 
-    private static SoundPool soundPool;
+ /*   private static SoundPool soundPool;
     private static int soundId;//心跳提示音
-
+*/
 
     //折现的颜色
     protected int mLineColor = Color.parseColor("#ff3b30");
@@ -75,8 +78,9 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     protected int mHorSmiallGridCount ;  //小网格的个数
     protected int mVirGigGridCount ;  //小网格的个数
     private boolean isStartCacheDrawLine = false;
-    public static double rateLineR = 2.0;
-
+    private double rateLineR = HealthyDataActivity.ECGSCALE_MODE_CURRENT;
+    private int currentcountIndex = 0;
+    private Thread mThread;
 
 
     public EcgView(Context context, AttributeSet attrs){
@@ -97,8 +101,8 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         Log.i(TAG,"waveWidth:"+waveWidth);
         mWavePaint.setStrokeWidth(waveWidth);
 
-        soundPool = new SoundPool(1, AudioManager.STREAM_RING, 0);
-        soundId = soundPool.load(mContext, R.raw.heartbeat, 1);
+        /*soundPool = new SoundPool(1, AudioManager.STREAM_RING, 0);
+        soundId = soundPool.load(mContext, R.raw.heartbeat, 1);*/
 
         ecgXOffset = lockWidth / ecgPerCount;
         startY0 = mHeight * (1 / 2);//波1初始Y坐标是控件高度的1/2
@@ -130,7 +134,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         super.onSizeChanged(w, h, oldw, oldh);
         mWidth = w;
         mHeight = h ;
-        isRunning = true;
+        //isRunning = true;
 
         init();
 
@@ -145,11 +149,18 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         stopThread();
     }
 
-    private void startThread() {
-        new Thread(drawRunnable).start();
+    public void startThread() {
+        Log.i(TAG,"mThread:"+mThread);
+        /*if (mThread==null){
+            mThread = new Thread(drawRunnable);
+            mThread.start();
+        }*/
+        mThread = new Thread(drawRunnable);
+        mThread.start();
+        isRunning = true;
     }
 
-    private void stopThread(){
+    public void stopThread(){
         isRunning = false;
     }
 
@@ -157,10 +168,9 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         @Override
         public void run() {
             while(isRunning){
+                //Log.i(TAG,"isRunning:");
                 long startTime = System.currentTimeMillis();
-
                 startDrawWave();
-
                 long endTime = System.currentTimeMillis();
                 if(endTime - startTime < sleepTime){
                     try {
@@ -227,16 +237,24 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     private void drawCacheWave(){
         try{
             float mStartX = startX;
-            if(ecgDatas.size() > ecgPerCount){
-                for(int i=0;i<ecgPerCount;i++){
-                    float newX = (float) (mStartX + ecgXOffset);
-                    int newY = ecgConver(ecgDatas.poll());
+
+            for(int i=0;i<ecgPerCount;i++){
+                float newX = (float) (mStartX + ecgXOffset);
+                int location = currentcountIndex * ecgPerCount + i;
+                if (location<ecgDatas.size()){
+                    int newY = ecgConver(ecgDatas.get(location));
                     mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
                     mStartX = newX;
                     startY0 = newY;
                 }
+                else {
+                    isRunning = false;
+                }
             }
-            else{
+            currentcountIndex++;
+            onEcgProgressChangeListener.onEcgDrawIndexChange(currentcountIndex);
+
+
                 /**
                  * 如果没有数据
                  * 因为有数据一次画ecgPerCount个数，那么无数据时候就应该画ecgPercount倍数长度的中线
@@ -245,7 +263,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
                 int newY = ecgConver((int) (ecgMax / 2));
                 mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
                 startY0 = newY;*/
-            }
+
         }catch (NoSuchElementException e){
             e.printStackTrace();
         }
@@ -344,6 +362,30 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         //画横线
         for(int i = 0;i<hNum+1;i++){
             canvas.drawLine(0,i*mGridWidth,mWidth,i*mGridWidth,mLinePaint);
+        }
+    }
+
+    public interface OnEcgProgressChangeListener{
+        void onEcgDrawIndexChange(int countIndex);//进度更新，每10个点为一组数据
+    }
+
+    OnEcgProgressChangeListener onEcgProgressChangeListener;
+
+    public void setOnEcgProgressChangeListener(OnEcgProgressChangeListener onEcgProgressChangeListener){
+        this.onEcgProgressChangeListener = onEcgProgressChangeListener;
+    }
+
+    public void setCurrentcountIndex(int currentcountIndex) {
+        this.currentcountIndex = currentcountIndex;
+    }
+
+    public void setEcgDatas(List<Integer> ecgDatas) {
+        if (ecgDatas!=null && ecgDatas.size()>0){
+            this.ecgDatas = ecgDatas;
+            if (!isStartCacheDrawLine){
+                isStartCacheDrawLine = true;
+            }
+            isRunning = true;
         }
     }
 }

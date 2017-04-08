@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +18,14 @@ import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineView;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.List;
 
 public class HeartRateFragment extends Fragment {
 
+    private static final String TAG = "HeartRateFragment";
     private View inflate;
     private FoldLineView fv_rate_line;
     private TextView tv_rate_max;
@@ -69,13 +73,44 @@ public class HeartRateFragment extends Fragment {
         super.onResume();
 
         UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
+
         if (mUploadRecord!=null){
+            Log.i(TAG,"mUploadRecord:"+mUploadRecord.toString());
             tv_rate_max.setText(mUploadRecord.MaxHR+"");
             tv_rate_average.setText(mUploadRecord.MinHR+"");
-            //fv_rate_line.setData(datas,max);
+            String hr = mUploadRecord.getHR();
+
+            if (!MyUtil.isEmpty(hr)){
+                Gson gson = new Gson();
+                List<Integer> heartDatas = gson.fromJson(hr, new TypeToken<List<Integer>>() {
+                }.getType());
+
+                /*String[] split = hr.split(",");
+                int []heartData = null;
+                if (split.length>0){
+                    heartData = new int[split.length];
+                    for (int i=0;i<split.length;i++){
+                        heartData[i] = Integer.parseInt(split[i]);
+                    }
+                }*/
+                int[] a = new int[heartDatas.size()];
+                for(int i=0;i<heartDatas.size();i++) {
+                    a[i] = heartDatas.get(i);
+                }
+                fv_rate_line.setData(a);
+
+            }
+
+
         }
         else {
+            String name = "heartData";
+            String stringValueFromSP = MyUtil.getStringValueFromSP(name);
+            Log.i(TAG,"heartData:"+stringValueFromSP);
+
             int[] datas = MyUtil.getHeartRateListFromSP();
+
+
             //int[] datas = new int[]{65,66,54,73,71,68,77,55,56,93,65,68,64,62,61,64,67,66,40,70,65};  //测试
             if (datas!=null && datas.length>0){
                 int max  = datas[0];
@@ -88,7 +123,7 @@ public class HeartRateFragment extends Fragment {
                     sum += datas[i];
                 }
                 average = sum/datas.length;
-                fv_rate_line.setData(datas,max);
+                fv_rate_line.setData(datas);
                 tv_rate_max.setText(max+"");
                 tv_rate_average.setText(average+"");
             }

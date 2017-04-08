@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 
@@ -13,6 +14,8 @@ import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.MyUtil;
 
 public class SystemSettingActivity extends BaseActivity implements View.OnClickListener {
+
+    private static final String TAG = "SystemSettingActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,14 +38,12 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
 
         RelativeLayout rl_persiondata_persiondata = (RelativeLayout) findViewById(R.id.rl_persiondata_persiondata);
         RelativeLayout rl_persiondata_device = (RelativeLayout) findViewById(R.id.rl_persiondata_device);
-        RelativeLayout rl_persiondata_running = (RelativeLayout) findViewById(R.id.rl_persiondata_running);
         RelativeLayout rl_persiondata_update = (RelativeLayout) findViewById(R.id.rl_persiondata_update);
         RelativeLayout rl_persiondata_aboutus = (RelativeLayout) findViewById(R.id.rl_persiondata_aboutus);
         RelativeLayout rl_persiondata_exit = (RelativeLayout) findViewById(R.id.rl_persiondata_exit);
 
         rl_persiondata_persiondata.setOnClickListener(this);
         rl_persiondata_device.setOnClickListener(this);
-        rl_persiondata_running.setOnClickListener(this);
         rl_persiondata_update.setOnClickListener(this);
         rl_persiondata_aboutus.setOnClickListener(this);
         rl_persiondata_exit.setOnClickListener(this);
@@ -61,9 +62,6 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
             case R.id.rl_persiondata_device:
                 startActivity(new Intent(SystemSettingActivity.this,MyDeviceActivity.class));
                 break;
-            case R.id.rl_persiondata_running:
-                startActivity(new Intent(SystemSettingActivity.this,DeviceRunActivity.class));
-                break;
             case R.id.rl_persiondata_update:
                 startActivity(new Intent(SystemSettingActivity.this,AppUpdateActivity.class));
                 break;
@@ -71,8 +69,12 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
                 startActivity(new Intent(SystemSettingActivity.this,AboutUsActivity.class));
                 break;
             case R.id.rl_persiondata_exit:
+                Log.i(TAG,"isLogin:"+MyUtil.getBooleanValueFromSP("isLogin"));
+                Log.i(TAG,"isPrefectInfo:"+MyUtil.getBooleanValueFromSP("isPrefectInfo"));
                 MyUtil.putBooleanValueFromSP("isLogin",false);
                 MyUtil.putBooleanValueFromSP("isPrefectInfo",false);
+                Log.i(TAG,"isLogin:"+MyUtil.getBooleanValueFromSP("isLogin"));
+                Log.i(TAG,"isPrefectInfo:"+MyUtil.getBooleanValueFromSP("isPrefectInfo"));
                 MyUtil.saveUserToSP(new User());
                 startActivity(new Intent(SystemSettingActivity.this,LoginActivity.class));
                 for (Activity activity:MyApplication.mActivities){
@@ -92,3 +94,8 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         }
     }
 }
+
+
+
+
+

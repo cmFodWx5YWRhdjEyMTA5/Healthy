@@ -45,7 +45,7 @@ public class AppUpdateActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("设备运行");
+        setCenterText("系统更新");
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,6 +78,7 @@ public class AppUpdateActivity extends BaseActivity {
                     Apk errDesc = jsonApk.errDesc;
                     int version = errDesc.Version;
                     String path = errDesc.Path;
+                    Log.i(TAG,"Apk:"+errDesc.toString());
 
                     checkAndUpdateVersion(version,path);
                 }
@@ -95,7 +96,7 @@ public class AppUpdateActivity extends BaseActivity {
     //判断更新状态
     private void checkAndUpdateVersion(int version, final String path) {
         int versionCode = MyUtil.getVersionCode(AppUpdateActivity.this);
-        versionCode = 0;
+        //versionCode = 0;
         if (version>versionCode){
             //有更新
             AlertDialog alertDialog = new AlertDialog.Builder(AppUpdateActivity.this)

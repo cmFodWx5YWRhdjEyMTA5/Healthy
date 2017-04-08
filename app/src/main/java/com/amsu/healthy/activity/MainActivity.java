@@ -5,14 +5,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -24,24 +21,15 @@ import android.widget.Toast;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
-import com.amsu.healthy.bean.IndicatorAssess;
-import com.amsu.healthy.bean.RateRecord;
-import com.amsu.healthy.db.DbAdapter;
+import com.amsu.healthy.bean.DeviceList;
+import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.ShowLocationOnMap;
 import com.amsu.healthy.view.CircleRingView;
 import com.amsu.healthy.view.DashboardView;
-import com.baidu.mapapi.map.MapView;
-import com.ble.ble.BleService;
-import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MainActivity extends BaseActivity {
 
@@ -82,6 +70,7 @@ public class MainActivity extends BaseActivity {
         dv_main_compass = (DashboardView) findViewById(R.id.dv_main_compass);
         cv_mian_index = (CircleRingView) findViewById(R.id.cv_mian_index);
         cv_mian_warring = (CircleRingView) findViewById(R.id.cv_mian_warring);
+
         RelativeLayout rl_mian_start = (RelativeLayout) findViewById(R.id.rl_mian_start);
         RelativeLayout rl_main_healthydata = (RelativeLayout) findViewById(R.id.rl_main_healthydata);
         RelativeLayout rl_main_sportcheck = (RelativeLayout) findViewById(R.id.rl_main_sportcheck);
@@ -109,12 +98,17 @@ public class MainActivity extends BaseActivity {
         rl_main_healthyvalue.setOnClickListener(myOnClickListener);
         rl_main_warringindex.setOnClickListener(myOnClickListener);
 
+
         int id = rl_main_healthyvalue.getId();
 
         Log.i(TAG,"id:"+id);
         if (!MyApplication.mActivities.contains(this)){
             MyApplication.mActivities.add(this);
         }
+
+        //showUploadOffLineData();
+
+        MyUtil.putStringValueFromSP("devicelist","");
 
     }
 
@@ -213,7 +207,6 @@ public class MainActivity extends BaseActivity {
     protected void onStop() {
         super.onStop();
         Log.i(TAG,"onStop");
-        ShowLocationOnMap.stopLocation();  //停止定位服务
     }
 
     class MyOnClickListener implements View.OnClickListener{
@@ -245,7 +238,7 @@ public class MainActivity extends BaseActivity {
                     }
                     break;
                 case R.id.rl_main_sportcheck:
-
+                    startActivity(new Intent(MainActivity.this,MotionDetectionActivity.class));
                     break;
                 case R.id.rl_main_sportarea:
                     startActivity(new Intent(MainActivity.this,SportCommunityActivity.class));
@@ -269,6 +262,7 @@ public class MainActivity extends BaseActivity {
                 case R.id.rl_main_warringindex:
                     startActivity(new Intent(MainActivity.this,IndexWarringActivity.class));
                     break;
+
 
 
             }
@@ -312,6 +306,28 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .show();
+    }
+
+    private void showUploadOffLineData(){
+        ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(this);
+        chooseAlertDialogUtil.setAlertDialogText("发现有离线文件，是否现在进行上传","是","否");
+        chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
+            @Override
+            public void onConfirmClick() {
+                Intent intent = new Intent(MainActivity.this, ConnectToWifiModuleGudieActivity1.class);
+                startActivity(intent);
+
+            }
+        });
+        chooseAlertDialogUtil.setOnCancelClickListener(new ChooseAlertDialogUtil.OnCancelClickListener() {
+            @Override
+            public void onCancelClick() {
+                /*Intent intent = new Intent(MainActivity.this, RateAnalysisActivity.class);
+                startActivity(intent);*/
+
+            }
+        });
+
     }
 
     @Override

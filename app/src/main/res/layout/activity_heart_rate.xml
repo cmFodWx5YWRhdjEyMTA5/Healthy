@@ -32,7 +32,7 @@
         android:layout_height="@dimen/y600"
         android:layout_centerInParent="true"
         android:layout_marginTop="60dp">
-
+<!--
         <TextView
             android:id="@+id/tv_healthydata_txt"
             android:layout_width="wrap_content"
@@ -41,12 +41,12 @@
             android:layout_marginTop="@dimen/y150"
             android:textColor="#666666"
             android:textSize="@dimen/x36"
-            android:layout_centerHorizontal="true"/>
-        <TextView
+            android:layout_centerHorizontal="true"/>-->
+        <!--<TextView
             android:id="@+id/tv_healthydata_rate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="72"
+            android:text="&#45;&#45;"
             android:textColor="#FFFFFF"
             android:textSize="@dimen/x148"
             android:layout_centerInParent="true"/>
@@ -57,7 +57,7 @@
             android:layout_below="@id/tv_healthydata_rate"
             android:textColor="#666666"
             android:textSize="@dimen/x28"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true"/>-->
 
         <ImageView
             android:id="@+id/iv_heartrate_rotateimage"

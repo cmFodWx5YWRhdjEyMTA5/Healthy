@@ -73,7 +73,7 @@ public class HealthyPlan implements Parcelable {
         dest.writeString(date);
     }
 
-    public static final Parcelable.Creator<HealthyPlan> CREATOR = new Creator<HealthyPlan>() {
+    public static final Creator<HealthyPlan> CREATOR = new Creator<HealthyPlan>() {
         @Override
         public HealthyPlan createFromParcel(Parcel source) {
             return new HealthyPlan(source.readString(),source.readString(),source.readString(),source.readString());

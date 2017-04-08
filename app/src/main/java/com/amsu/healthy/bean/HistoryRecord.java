@@ -42,7 +42,7 @@ public class HistoryRecord implements Parcelable{
         dest.writeString(ID);
         dest.writeString(datatime);
     }
-    public static final Parcelable.Creator<HistoryRecord> CREATOR = new Creator<HistoryRecord>() {
+    public static final Creator<HistoryRecord> CREATOR = new Creator<HistoryRecord>() {
         @Override
         public HistoryRecord createFromParcel(Parcel source) {
             return new HistoryRecord(source.readString(),source.readString());

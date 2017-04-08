@@ -77,7 +77,7 @@ public class ClubGroup implements Parcelable {
         dest.writeString(smiallImageUrl);
     }
 
-    public static final Parcelable.Creator<ClubGroup> CREATOR = new Creator<ClubGroup>() {
+    public static final Creator<ClubGroup> CREATOR = new Creator<ClubGroup>() {
         @Override
         public ClubGroup createFromParcel(Parcel source) {
             return new ClubGroup(source.readString(),source.readString(),source.readString(),source.readString(),source.readString());

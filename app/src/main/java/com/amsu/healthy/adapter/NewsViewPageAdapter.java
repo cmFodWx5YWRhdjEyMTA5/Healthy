@@ -14,13 +14,10 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.activity.NewsDetialActivity;
 import com.amsu.healthy.bean.News;
 import com.lidroid.xutils.BitmapUtils;
-import com.lidroid.xutils.HttpUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 /**

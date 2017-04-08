@@ -109,7 +109,7 @@ public class ClubNumber implements Parcelable {
         dest.writeString(smiallImageUrl);
     }
 
-    public static final Parcelable.Creator<ClubNumber> CREATOR = new Creator<ClubNumber>() {
+    public static final Creator<ClubNumber> CREATOR = new Creator<ClubNumber>() {
         @Override
         public ClubNumber createFromParcel(Parcel source) {
             return new ClubNumber(source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString());

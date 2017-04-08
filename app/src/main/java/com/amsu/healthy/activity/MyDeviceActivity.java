@@ -6,12 +6,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.DeviceAdapter;
 import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.Gson;
 
@@ -44,6 +46,8 @@ public class MyDeviceActivity extends BaseActivity {
 
         ListView lv_device_devicelist = (ListView) findViewById(R.id.lv_device_devicelist);
         deviceList = MyUtil.getDeviceListFromSP();
+
+
         Log.i(TAG,"deviceList:"+deviceList.toString());
 
         /*List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
@@ -64,6 +68,19 @@ public class MyDeviceActivity extends BaseActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MyDeviceActivity.this,SearchDevicehActivity.class);
                 startActivityForResult(intent,130);
+            }
+        });
+
+        lv_device_devicelist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Device device = deviceList.get(position);
+                if (!device.getLEName().equals(MyUtil.getStringValueFromSP(Constant.currectDeviceLEName))){
+                    //切换当前设备
+                    MyUtil.putStringValueFromSP(Constant.currectDeviceLEName,device.getLEName());
+                    MyUtil.showToask(MyDeviceActivity.this,"已切换设备");
+                    deviceAdapter.notifyDataSetChanged();
+                }
             }
         });
 

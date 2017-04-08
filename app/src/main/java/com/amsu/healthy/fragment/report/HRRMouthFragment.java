@@ -46,9 +46,18 @@ public class HRRMouthFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        int[] datas =    {67,59,54,77,85,100,61};  //心率数据
-        String[] labels = {"2日","4日","5日","6日","9日","10日","12日"};  //心率数据，需要保证数据长度的一致
-        mLineChart.setData(datas,labels);
+        int[] datas =    {67,59,54,77,85,100,61,67,59,54,77,85,100,61,67,59,54,77,85,100,61,67,59,54,77,85,100,61};  //心率数据
+        int[] data1 = new int[30];
+
+        for (int i=0;i<data1.length;i++){
+            data1[i] = (int) (Math.random()*(85-30) + 30);
+        }
+
+        String[] labels = new String[data1.length];
+        for (int i=0;i<data1.length;i++){
+            labels[i] = i+"日";
+        }
+        mLineChart.setData(data1,labels);
     }
 
 
