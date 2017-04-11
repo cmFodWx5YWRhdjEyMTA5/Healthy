@@ -50,8 +50,9 @@ public class FoldLineViewWithTextOne extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         mHeight = h ;   //每一行所占的高度
-        mGrigWidth = w / datas.length;   //每一个数据所占得宽度
-
+        if (datas!=null && datas.length>0){
+            mGrigWidth = w / datas.length;   //每一个数据所占得宽度
+        }
     }
 
     private void init(Context context, AttributeSet attrs){

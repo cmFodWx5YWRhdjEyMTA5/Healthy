@@ -14,6 +14,10 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.MouthReportAdapter;
+import com.amsu.healthy.fragment.report.mouth.EcgMouthFragment;
+import com.amsu.healthy.fragment.report.mouth.HRRMouthFragment;
+import com.amsu.healthy.fragment.report.mouth.HRVMouthFragment;
+import com.amsu.healthy.fragment.report.mouth.HeartRatemouthFragment;
 
 import java.util.ArrayList;
 import java.util.List;

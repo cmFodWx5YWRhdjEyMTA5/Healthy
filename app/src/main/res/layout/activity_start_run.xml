@@ -40,6 +40,18 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/tv_run_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="test"
+        android:layout_below="@+id/ll_run_point"
+        android:layout_marginTop="@dimen/x80"
+        android:textSize="@dimen/x36"
+        android:textColor="@android:color/holo_red_dark"
+        android:layout_marginRight="@dimen/x100"
+        android:layout_alignParentRight="true"/>
+
+    <TextView
         android:id="@+id/tv_run_text1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -216,7 +228,8 @@
         android:id="@+id/ll_text5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ll_text4">
+        android:layout_below="@+id/ll_text4"
+        android:layout_alignParentStart="true">
 
         <TextView
             android:id="@+id/tv_run_rate"

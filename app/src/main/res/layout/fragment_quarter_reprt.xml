@@ -5,12 +5,15 @@
     android:background="#FFFFFF"
     tools:context="com.amsu.healthy.fragment.report.QuarterReprtFragment">
 
-    <include layout="@layout/head_report"></include>
+    <include layout="@layout/head_report"
+        android:id="@+id/ll_report_head"></include>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="QuarterReprtFragment"
-        android:layout_centerInParent="true"/>
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_report_content_quarter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/x64"
+        android:layout_below="@+id/ll_report_head">
+    </android.support.v4.view.ViewPager>
 
 </RelativeLayout>

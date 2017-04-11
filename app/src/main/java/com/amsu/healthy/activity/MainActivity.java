@@ -189,7 +189,6 @@ public class MainActivity extends BaseActivity {
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, "error_bluetooth_not_supported", Toast.LENGTH_SHORT).show();
             //finish();
-            return;
         }
     }
 
@@ -201,7 +200,6 @@ public class MainActivity extends BaseActivity {
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
-
 
     @Override
     protected void onStop() {
@@ -241,7 +239,8 @@ public class MainActivity extends BaseActivity {
                     startActivity(new Intent(MainActivity.this,MotionDetectionActivity.class));
                     break;
                 case R.id.rl_main_sportarea:
-                    startActivity(new Intent(MainActivity.this,SportCommunityActivity.class));
+                    //startActivity(new Intent(MainActivity.this,SportCommunityActivity.class));
+                    startActivity(new Intent(MainActivity.this,MotionDetectionActivity.class));
                     break;
                 case R.id.rl_main_me:
                     startActivity(new Intent(MainActivity.this,MeActivity.class));
@@ -324,10 +323,8 @@ public class MainActivity extends BaseActivity {
             public void onCancelClick() {
                 /*Intent intent = new Intent(MainActivity.this, RateAnalysisActivity.class);
                 startActivity(intent);*/
-
             }
         });
-
     }
 
     @Override

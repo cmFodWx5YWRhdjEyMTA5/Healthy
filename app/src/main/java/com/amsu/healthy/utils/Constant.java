@@ -43,8 +43,16 @@ public class Constant {
     public static int oneSecondFrame = 150; //帧为150，即1s有150个数据点
 
     public static String currectDeviceLEName = "currectDeviceLEName";
-
     public static String sportState = "sportState";
+    public static String isLookupECGDataFromSport = "isLookupECGDataFromSport";
+    public static String heartDataList_static = "heartDataList_static";
+    public static String heartDataList_athletic = "heartDataList_athletic";
+    public static String sportCreateRecordID = "sportCreateRecordID";
+    public static int SPORTSTATE_STATIC = 0;
+    public static int SPORTSTATE_ATHLETIC = 1;
+    public static String hrr = "hrr";
+    public static String ecgFiletimeMillis = "ecgFiletimeMillis";
+
 
 
 

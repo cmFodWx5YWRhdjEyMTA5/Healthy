@@ -57,6 +57,15 @@ public class HistoryRecordAdapter extends BaseAdapter {
         tv_history_date.setText(date);
         tv_history_time.setText(split[1]);
 
+        if (historyRecord.getState()==1){
+            tv_history_sportstate.setText("动态");
+        }
+        else {
+            tv_history_sportstate.setText("静态");
+        }
+
+
+
         return inflate;
     }
 

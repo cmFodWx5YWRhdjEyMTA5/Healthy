@@ -32,9 +32,40 @@ public class UploadRecord implements Parcelable {
     public String cadence;  //
     public String calorie;  //
     public String state;  //
+    public String zaobo;
+    public String loubo;
+    public String latitude_longitude;
 
 
-
+    public UploadRecord() {
+        FI = "-1";
+        ES = "-1";
+        PI = "-1";
+        CC = "-1";
+        HRVr = "-1";
+        HRVs = "-1";
+        AHR = "-1";
+        MaxHR = "-1";
+        MinHR = "-1";
+        HRr ="-1";
+        HRs ="-1";
+        EC = "-1";
+        ECr ="1";
+        ECs ="-1";
+        RA = "-1";
+        timestamp ="-1";
+        datatime = "-1";
+        HR = "-1";
+        AE = "-1";
+        distance = "-1";
+        time = "-1";
+        cadence = "-1";
+        calorie = "-1";
+        state = "-1";
+        zaobo = "-1";
+        loubo = "-1";
+        latitude_longitude = "-1";
+    }
 
     public UploadRecord(String FI, String ES, String PI, String CC, String HRVr, String HRVs, String AHR, String maxHR, String minHR, String HRr, String HRs, String EC, String ECr, String ECs, String RA, String timestamp, String datatime) {
         this.FI = FI;
@@ -81,6 +112,36 @@ public class UploadRecord implements Parcelable {
         this.cadence = cadence;
         this.calorie = calorie;
         this.state = state;
+    }
+
+    public UploadRecord(String FI, String ES, String PI, String CC, String HRVr, String HRVs, String AHR, String maxHR, String minHR, String HRr, String HRs, String EC, String ECr, String ECs, String RA, String timestamp, String datatime, String HR, String AE, String distance, String time, String cadence, String calorie, String state, String zaobo, String loubo, String latitude_longitude) {
+        this.FI = FI;
+        this.ES = ES;
+        this.PI = PI;
+        this.CC = CC;
+        this.HRVr = HRVr;
+        this.HRVs = HRVs;
+        this.AHR = AHR;
+        MaxHR = maxHR;
+        MinHR = minHR;
+        this.HRr = HRr;
+        this.HRs = HRs;
+        this.EC = EC;
+        this.ECr = ECr;
+        this.ECs = ECs;
+        this.RA = RA;
+        this.timestamp = timestamp;
+        this.datatime = datatime;
+        this.HR = HR;
+        this.AE = AE;
+        this.distance = distance;
+        this.time = time;
+        this.cadence = cadence;
+        this.calorie = calorie;
+        this.state = state;
+        this.zaobo = zaobo;
+        this.loubo = loubo;
+        this.latitude_longitude = latitude_longitude;
     }
 
     public String getFI() {
@@ -275,6 +336,30 @@ public class UploadRecord implements Parcelable {
         this.state = state;
     }
 
+    public String getZaobo() {
+        return zaobo;
+    }
+
+    public void setZaobo(String zaobo) {
+        this.zaobo = zaobo;
+    }
+
+    public String getLoubo() {
+        return loubo;
+    }
+
+    public void setLoubo(String loubo) {
+        this.loubo = loubo;
+    }
+
+    public String getLatitude_longitude() {
+        return latitude_longitude;
+    }
+
+    public void setLatitude_longitude(String latitude_longitude) {
+        this.latitude_longitude = latitude_longitude;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -306,6 +391,9 @@ public class UploadRecord implements Parcelable {
         dest.writeString(cadence);
         dest.writeString(calorie);
         dest.writeString(state);
+        dest.writeString(zaobo);
+        dest.writeString(loubo);
+        dest.writeString(latitude_longitude);
     }
 
     public static final Creator<UploadRecord> CREATOR = new Creator<UploadRecord>() {
@@ -314,7 +402,8 @@ public class UploadRecord implements Parcelable {
             return new UploadRecord(source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),
                     source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),
                     source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),
-                    source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString());
+                    source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),
+                    source.readString(),source.readString(),source.readString(),source.readString());
         }
 
         @Override
@@ -350,6 +439,9 @@ public class UploadRecord implements Parcelable {
                 ", cadence='" + cadence + '\'' +
                 ", calorie='" + calorie + '\'' +
                 ", state='" + state + '\'' +
+                ", zaobo='" + zaobo + '\'' +
+                ", loubo='" + loubo + '\'' +
+                ", latitude_longitude='" + latitude_longitude + '\'' +
                 '}';
     }
 }

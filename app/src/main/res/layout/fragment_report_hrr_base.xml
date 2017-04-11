@@ -1,0 +1,57 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:foldlineview="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:id="@+id/rl_ecgmouth_text"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x140"
+        android:paddingLeft="@dimen/x36"
+        android:paddingRight="@dimen/x36"
+        android:background="@drawable/list_item_background">
+        <TextView
+            android:id="@+id/tv_ecgmouth_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="月度HRR报告"
+            android:textColor="#000000"
+            android:layout_centerVertical="true"
+            android:textSize="@dimen/x46"/>
+        <TextView
+            android:id="@+id/tv_hrrmouth_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2016/12"
+            android:layout_centerVertical="true"
+            android:textColor="#000000"
+            android:layout_alignParentRight="true"
+            android:textSize="@dimen/x46"/>
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x2"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:layout_below="@id/rl_ecgmouth_text"
+        android:background="#d3d3d3"></View>
+
+    <com.amsu.healthy.view.FoldLineViewWithTextOne
+        android:id="@+id/spread_line_chart"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y820"
+        android:layout_below="@+id/view"
+        android:background="#FFFFFF"
+        foldlineview:line_color="#FF0000"
+        foldlineview:line_width="@dimen/x6"
+        foldlineview:radius_point="@dimen/x12"
+        foldlineview:undertext_size="@dimen/x32"
+        foldlineview:abovertext_size="@dimen/x32"
+        foldlineview:abovertext_margin="@dimen/x12"
+        foldlineview:undertext_margin="@dimen/x40"
+        foldlineview:undertext_color="#000000"
+        foldlineview:abovertext_color="#8e8e8e"/>
+
+</RelativeLayout>

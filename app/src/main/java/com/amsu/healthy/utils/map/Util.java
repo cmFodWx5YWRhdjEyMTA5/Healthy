@@ -37,6 +37,21 @@ public class Util {
 		}
 		return traceList;
 	}
+
+	public static List<TraceLocation> parseTraceLocationListByLatLng(List<LatLng> list) {
+		List<TraceLocation> traceList = new ArrayList<TraceLocation>();
+		if (list == null) {
+			return traceList;
+		}
+		for (int i = 0; i < list.size(); i++) {
+			TraceLocation location = new TraceLocation();
+			LatLng latLng = list.get(i);
+			location.setLatitude(latLng.latitude);
+			location.setLongitude(latLng.longitude);
+			traceList.add(location);
+		}
+		return traceList;
+	}
 	public static TraceLocation parseTraceLocation(AMapLocation amapLocation) {
 		TraceLocation location = new TraceLocation();
 		location.setBearing(amapLocation.getBearing());
@@ -103,20 +118,27 @@ public class Util {
 	}
 
     //保存数据到数据库
-    public static long saveRecord(List<AMapLocation> list, String time, Context context, long startTime) {
-        if (list != null && list.size() > 0) {
+    public static long saveRecord(List<AMapLocation> list, String time, Context context, long startTime,double allDistance) {
+        if (list != null ) {
             long mEndTime = System.currentTimeMillis();
             DbAdapter dbAdapter = new DbAdapter(context);
             dbAdapter.open();
             String duration = getDuration(startTime,mEndTime);
-            float distance = getDistance(list);
-            String average = getAverage(distance,startTime,mEndTime);
+            float distance = getDistance(list);  //室外运动总距离
+            //String average = getAverage(distance,startTime,mEndTime);  //室外运动平均速度
+            String average = getAverage((float) allDistance,startTime,mEndTime);
             String pathlineSring = getPathLineString(list);
-            AMapLocation firstLocaiton = list.get(0);
-            AMapLocation lastLocaiton = list.get(list.size() - 1);
-            String stratpoint = amapLocationToString(firstLocaiton);
-            String endpoint = amapLocationToString(lastLocaiton);
-            long createrecord = dbAdapter.createrecord(String.valueOf(distance), duration, average, pathlineSring, stratpoint, endpoint, time);
+			long createrecord;
+			if (list.size()>0){
+				AMapLocation firstLocaiton = list.get(0);
+				AMapLocation lastLocaiton = list.get(list.size() - 1);
+				String stratpoint = amapLocationToString(firstLocaiton);
+				String endpoint = amapLocationToString(lastLocaiton);
+				createrecord = dbAdapter.createrecord(String.valueOf(allDistance), duration, average, pathlineSring, stratpoint, endpoint, time);
+			}
+			else{
+				createrecord = dbAdapter.createrecord(String.valueOf(allDistance), duration, average, pathlineSring, "", "", time);
+			}
             //Log.i(TAG,"createrecord:"+createrecord);
             dbAdapter.close();
             return createrecord;
@@ -147,6 +169,20 @@ public class Util {
         return distance;
     }
 
+	public static float getDistanceByLatLng(List<LatLng> list) {
+		float distance = 0;
+		if (list == null || list.size() == 0) {
+			return distance;
+		}
+		for (int i = 0; i < list.size() - 1; i++) {
+			LatLng firstLatLng = list.get(i);
+			LatLng secondLatLng = list.get(i + 1);
+			double betweenDis = AMapUtils.calculateLineDistance(firstLatLng, secondLatLng);
+			distance = (float) (distance + betweenDis);
+		}
+		return distance;
+	}
+
     public static String getAverage(float distance,long mStartTime,long mEndTime) {
 		// pathRecord:recordSize:103, distance:4.15064m, duration:206.922s
 		//需要速度格式：km/h
@@ -157,6 +193,17 @@ public class Util {
 		String formatSpeed=decimalFormat.format(speed);//format 返回的是字符串
 		return formatSpeed;
     }
+
+	public static String getAverage(float distance,long allScend) {
+		// pathRecord:recordSize:103, distance:4.15064m, duration:206.922s
+		//需要速度格式：km/h
+		float km = distance / 1000f;
+		float time = allScend/ (60 * 60f);
+		float speed = km / time;
+		DecimalFormat decimalFormat=new DecimalFormat("0.00");//构造方法的字符格式这里如果小数不足2位,会以0补足.
+		String formatSpeed=decimalFormat.format(speed);//format 返回的是字符串
+		return formatSpeed;
+	}
 
     public static String getPathLineString(List<AMapLocation> list) {
         if (list == null || list.size() == 0) {

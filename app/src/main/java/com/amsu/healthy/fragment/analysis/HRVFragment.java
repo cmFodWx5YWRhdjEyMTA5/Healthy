@@ -71,23 +71,25 @@ public class HRVFragment extends Fragment {
         UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
         Log.i(TAG,"mUploadRecord:"+mUploadRecord);
         if (mUploadRecord!=null){
-            int FI = Integer.parseInt(mUploadRecord.FI);//运动疲劳
-            int PI = Integer.parseInt(mUploadRecord.PI);//抗压指数
-            int ES = Integer.parseInt(mUploadRecord.ES);//情绪指数
+            if (!MyUtil.isEmpty(mUploadRecord.FI) && !MyUtil.isEmpty(mUploadRecord.PI) && !MyUtil.isEmpty(mUploadRecord.ES) && !mUploadRecord.FI.equals("-1")){
+                int FI = Integer.parseInt(mUploadRecord.FI);//运动疲劳
+                int PI = Integer.parseInt(mUploadRecord.PI);//抗压指数
+                int ES = Integer.parseInt(mUploadRecord.ES);//情绪指数
 
-            LinearLayout.LayoutParams tiredLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
-            tiredLayoutParams.setMargins((int) ((FI/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
-            iv_hrv_tired.setLayoutParams(tiredLayoutParams);
+                LinearLayout.LayoutParams tiredLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
+                tiredLayoutParams.setMargins((int) ((FI/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+                iv_hrv_tired.setLayoutParams(tiredLayoutParams);
 
-            LinearLayout.LayoutParams resistLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
-            resistLayoutParams.setMargins((int) ((PI/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
-            iv_hrv_resist.setLayoutParams(resistLayoutParams);
+                LinearLayout.LayoutParams resistLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
+                resistLayoutParams.setMargins((int) ((PI/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+                iv_hrv_resist.setLayoutParams(resistLayoutParams);
 
-            LinearLayout.LayoutParams moodLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
-            tiredLayoutParams.setMargins((int) ((ES/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
-            iv_hrv_mood.setLayoutParams(moodLayoutParams);
+                LinearLayout.LayoutParams moodLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
+                tiredLayoutParams.setMargins((int) ((ES/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+                iv_hrv_mood.setLayoutParams(moodLayoutParams);
 
-            tv_hrv_suggestion.setText(mUploadRecord.HRVs);
+                tv_hrv_suggestion.setText(mUploadRecord.HRVs);
+            }
         }
     }
 }

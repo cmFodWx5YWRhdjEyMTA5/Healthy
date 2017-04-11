@@ -26,12 +26,13 @@ public class HeightCurveView extends View {
     private Paint mLablePaint;  //文本Lable
     private Paint mCurveLinePaint;
     int[] data ;
-    private float mYOneSpanHeight = getResources().getDimension(R.dimen.y64);  //y轴方向刻度长度
     private float mCoordinateWidth = getResources().getDimension(R.dimen.y935);  //x轴长度
+    private float mYCoordinateHight = getResources().getDimension(R.dimen.y400)-getResources().getDimension(R.dimen.y28);  //x轴长度
+    private float mYOneSpanHeight = mYCoordinateHight/4;  //y轴方向刻度长度
     float mMarginBotom = getResources().getDimension(R.dimen.y48); //坐标线与底部距离
     float mMarginleft ; //坐标线与左侧距离
     private float mOneGridWidth ;  //相邻两个数值之间x方向上的偏移量
-    private int[] yTexts = {40,50,60,70,80};  //y轴lable
+    private int[] yTexts = {50,100,150,200};  //y轴lable
     private int timeLong = 20;  //时间长度
     private float mCoordinateAnixWidth; //坐标轴宽度
     private int fillstart_color;
@@ -113,7 +114,8 @@ public class HeightCurveView extends View {
             x = mMarginleft+(i)*mOneGridWidth+mOneGridWidth/2;
             y = 0;
             if (data[i]>40){
-                y = mHeight-mYOneSpanHeight-mMarginBotom-(mYOneSpanHeight/10)*(data[i]-yTexts[0]);
+                //y = mHeight-mYOneSpanHeight-mMarginBotom-(mYOneSpanHeight/10)*(data[i]-yTexts[0]);
+                y = mHeight-mYOneSpanHeight-mMarginBotom-mYCoordinateHight*((float)data[i]/yTexts[yTexts.length-1]);
                 if (y>yMax){
                     yMax = y;
                 }
@@ -156,35 +158,46 @@ public class HeightCurveView extends View {
         canvas.drawLine(mMarginleft,0,mMarginleft,mHeight-marginBotom1,mCoordinatePaint);  //竖线
         int yText;
 
-
         //纵坐标数值
         for (int i=0;i<yTexts.length;i++){
             yText = yTexts[i];
-            float x = 0;
+
+            float x = mMarginleft;
             float y = mHeight-mMarginBotom- mYOneSpanHeight *(i+1);
+            canvas.drawLine(x,y,x+divideWidth,y,mCoordinatePaint);
+
+            x = 0;
+            y += getResources().getDimension(R.dimen.x14);
             canvas.drawText(String.valueOf(yText),x,y,mLablePaint);
 
-            x = mMarginleft;
-            canvas.drawLine(x,y,x+divideWidth,y,mCoordinatePaint);
+
         }
 
-
         timeLong=timeLong-timeLong%4;
-
 
         //横坐标数值
         for (int i=0;i<5;i++){
             yText = (int) (0.25*i*timeLong);
-            float x = mMarginleft +i*(mCoordinateWidth- getResources().getDimension(R.dimen.y40))/4;
+            /*float x = mMarginleft +i*(mCoordinateWidth- getResources().getDimension(R.dimen.y40))/4;
             float y = mHeight;
             canvas.drawText(String.valueOf(yText),x,y,mLablePaint);
 
+            x -= mLablePaint.measureText(yText+"")/2;
             y = mHeight-mMarginBotom;
+            canvas.drawLine(x,y,x,y-divideWidth,mCoordinatePaint);*/
+
+            float x = mMarginleft +i*(mCoordinateWidth- getResources().getDimension(R.dimen.y40))/4;
+            float y = mHeight-mMarginBotom;
             canvas.drawLine(x,y,x,y-divideWidth,mCoordinatePaint);
+
+            x = x - mLablePaint.measureText(yText+"")/2;
+            y = mHeight;
+            canvas.drawText(String.valueOf(yText),x,y,mLablePaint);
+
         }
     }
 
-    public void setData(int[] data,int time){
+    public void setData(int[] data, int time){
         this.data = data;
         this.timeLong = time;
         invalidate();

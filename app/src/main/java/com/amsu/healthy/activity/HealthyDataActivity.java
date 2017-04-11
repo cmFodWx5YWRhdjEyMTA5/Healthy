@@ -86,7 +86,7 @@ public class HealthyDataActivity extends BaseActivity {
     private static String connecMac;   //当前连接的蓝牙mac地址
     private boolean isConnectted  =false;
     private boolean isConnectting  =false;
-    private List<Integer> heartRateDates = new ArrayList<>();  // 心率数组
+    private ArrayList<Integer> heartRateDates = new ArrayList<>();  // 心率数组
     private boolean isThreeMit = false;   //是否到三分钟
     private boolean isStartThreeMitTimer;  //是否开始三分钟倒计时计时器
     private TextView tv_healthdaydata_adjust;
@@ -99,7 +99,7 @@ public class HealthyDataActivity extends BaseActivity {
     private boolean isNeedDrawEcgData = true; //是否要画心电数据，在跳到下个界面时则不需要画
     private DataOutputStream dataOutputStream;  //二进制文件输出流，写入文件
     private ByteBuffer byteBuffer;
-    public static long ecgFiletimeMillis =-1;  //开始有心电数据时的秒数，作为心电文件命名。静态变量，在其他界面会用到
+    private long ecgFiletimeMillis =-1;  //开始有心电数据时的秒数，作为心电文件命名。静态变量，在其他界面会用到
     private Intent mSendHeartRateBroadcastIntent;
 
     private static double ECGSCALE_MODE_HALF = 0.5;
@@ -139,11 +139,20 @@ public class HealthyDataActivity extends BaseActivity {
         pv_healthydata_path = (EcgView) findViewById(R.id.pv_healthydata_path);
         tv_healthydata_rate = (TextView) findViewById(R.id.tv_healthydata_rate);
         tv_healthdaydata_adjust = (TextView) findViewById(R.id.tv_healthdaydata_adjust);
+        TextView tv_healthydata_analysis = (TextView) findViewById(R.id.tv_healthydata_analysis);
 
         mRateLineRItemCount.put(ECGSCALE_MODE_HALF,0);
         mRateLineRItemCount.put(ECGSCALE_MODE_ORIGINAL,0);
         mRateLineRItemCount.put(ECGSCALE_MODE_DOUBLE,0);
         mRateLineRItemCount.put(ECGSCALE_MODE_QUADRUPLE,0);
+
+        Intent intent = getIntent();
+        if (intent!=null){
+            boolean booleanExtra = intent.getBooleanExtra(Constant.isLookupECGDataFromSport, false);
+            if (booleanExtra){
+                tv_healthydata_analysis.setVisibility(View.GONE);
+            }
+        }
     }
 
     private void initData() {
@@ -374,9 +383,7 @@ public class HealthyDataActivity extends BaseActivity {
                     tv_healthydata_rate.setText(heartRate+"");
                 }
             });
-            for (int j=0;j<ints.length;j++){
-                calcuEcgRate[currentGroupIndex*10+j] = ints[j];
-            }
+            System.arraycopy(ints, 0, calcuEcgRate, currentGroupIndex * 10 + 0, ints.length);
         }
         currentGroupIndex++;
         if (isNeedDrawEcgData){
@@ -672,9 +679,13 @@ public class HealthyDataActivity extends BaseActivity {
     private void jumpToAnalysis() {
         isNeedDrawEcgData = false;
         isStartAdjustLineTimeTask = false;
-        saveHeartRateDatesToSP(heartRateDates);
+        //saveHeartRateDatesToSP(heartRateDates);
         Intent intent = new Intent(HealthyDataActivity.this, HeartRateActivity.class);
-        intent.putExtra(Constant.sportState,0);
+        intent.putExtra(Constant.sportState,Constant.SPORTSTATE_STATIC);
+        if (heartRateDates.size()>0){
+            intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
+            intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
+        }
         startActivity(intent);
     }
 
@@ -693,7 +704,8 @@ public class HealthyDataActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        Log.i(TAG,"onResume");
+        isNeedDrawEcgData = true;
 
         //测试(模拟器上演示)
         /*FileInputStream fileInputStream = null;
@@ -765,9 +777,19 @@ public class HealthyDataActivity extends BaseActivity {
         }, 0, 2);
     }*/
 
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(TAG,"onPause");
+        isNeedDrawEcgData = false;
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
+        Log.i(TAG,"onStop");
         /*if (mDrawWareTimer!=null){
             mDrawWareTimer.cancel();
             mDrawWareTimer = null;
@@ -784,6 +806,7 @@ public class HealthyDataActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.i(TAG,"onDestroy");
         unbindService(mConnection);
         if (MainActivity.mBluetoothAdapter!=null){
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描

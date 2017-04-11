@@ -51,9 +51,13 @@ public class SearchDevicehActivity extends BaseActivity {
     }
 
     private void initDate() {
-        boolean b = MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
+        if (MainActivity.mBluetoothAdapter!=null){
+            boolean b = MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
+            Log.i(TAG,"startLeScan:"+b);
+        }
 
-        Log.i(TAG,"startLeScan:"+b);
+
+
 
         /*new Thread(){
             @Override

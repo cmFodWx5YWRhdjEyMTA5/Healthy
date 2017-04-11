@@ -10,6 +10,7 @@ import android.os.Parcelable;
 public class HistoryRecord implements Parcelable{
     private String ID;
     private String datatime;
+    private int state;
 
     public String getID() {
         return ID;
@@ -32,20 +33,35 @@ public class HistoryRecord implements Parcelable{
         this.datatime = datatime;
     }
 
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
+
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    public HistoryRecord(String ID, String datatime, int state) {
+        this.ID = ID;
+        this.datatime = datatime;
+        this.state = state;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(ID);
         dest.writeString(datatime);
+        dest.writeInt(state);
     }
     public static final Creator<HistoryRecord> CREATOR = new Creator<HistoryRecord>() {
         @Override
         public HistoryRecord createFromParcel(Parcel source) {
-            return new HistoryRecord(source.readString(),source.readString());
+            return new HistoryRecord(source.readString(),source.readString(),source.readInt());
         }
 
         @Override

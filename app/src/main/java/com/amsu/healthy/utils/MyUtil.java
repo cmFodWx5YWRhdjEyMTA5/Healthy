@@ -442,8 +442,67 @@ public class MyUtil {
     public static String getCueMapDate(long time) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss ");
         Date curDate = new Date(time);
+        String date = formatter.format(curDate); new Date("");
+        return date;
+    }
+
+    public static int[] listToIntArray(List<Integer> list){
+        int[] ret = new int[list.size()];
+        for(int i = 0;i < ret.length;i++)
+            ret[i] = list.get(i);
+        return ret;
+    }
+
+    //获取当前季度
+    public static int getCurrentQuertar(){
+        /*第一季度：1月－3月
+        第二季度：4月－6月
+        第三季度：7月－9月
+        第四季度：10月－12月
+        * */
+        Date date = new Date();
+        int mouth = date.getMonth() + 1;
+        if (1<=mouth && mouth<=3){
+            return 1;
+        }
+        else if (4<=mouth && mouth<=6){
+            return 2;
+        }
+        else if (7<=mouth && mouth<=9){
+            return 3;
+        }
+        else {
+            return 4;
+        }
+    }
+
+    //获取年份
+    public static int getCurrentYear(){
+        Calendar calendar = Calendar.getInstance();
+        return calendar.get(Calendar.YEAR);
+    }
+
+    //获取 年 月
+    public static String getCurrentYearAndMouthr(){
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM");
+        Date curDate = new Date();
         String date = formatter.format(curDate);
         return date;
     }
+
+    //获取 年 季度
+    public static String getCurrentYearAndQuarter(){
+        String restult = getCurrentYear()+"第"+getCurrentQuertar()+"季度";
+        return restult;
+    }
+
+    public static String getReportDateStingForMouthAndDay(String datatime) {
+        String[] split = datatime.split(" ");
+        String[] split2 = split[0].split("-");
+        return split2[1]+" "+split2[2];
+    }
+
+
+
 
 }

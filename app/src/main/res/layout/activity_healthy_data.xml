@@ -104,29 +104,19 @@
         android:background="@drawable/bg_bt_sos"
         android:layout_alignParentBottom="true"/>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <TextView
+        android:id="@+id/tv_healthydata_analysis"
+        android:layout_width="@dimen/x248"
+        android:layout_height="@dimen/x248"
+        android:clickable="true"
+        android:text="分析"
+        android:gravity="center"
+        android:textSize="@dimen/x56"
+        android:textColor="#FFFFFF"
+        android:onClick="startAnalysis"
+        android:background="@drawable/bg_center_circle"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="@dimen/x100">
-        <TextView
-            android:layout_width="@dimen/x248"
-            android:layout_height="@dimen/x248"
-            android:clickable="true"
-            android:text="分析"
-            android:gravity="center"
-            android:textSize="@dimen/x56"
-            android:textColor="#FFFFFF"
-            android:onClick="startAnalysis"
-            android:background="@drawable/bg_center_circle"
-            android:layout_centerInParent="true"/>
-
-    </RelativeLayout>
-
-
-
-
-
-
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/x100"/>
 
 </RelativeLayout>

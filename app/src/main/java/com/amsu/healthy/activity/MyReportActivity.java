@@ -1,4 +1,5 @@
 package com.amsu.healthy.activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -10,6 +11,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.bean.FullReport;
 import com.amsu.healthy.bean.HealthyPlan;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.JsonHealthyList;
@@ -30,6 +32,7 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +49,9 @@ public class MyReportActivity extends BaseActivity {
     private MouthReprtFragment mouthReprtFragment;
     private QuarterReprtFragment quarterReprtFragment;
     private YearReprtFragment yearReprtFragment;
+    public static FullReport mMouthFullReport;
+    public static FullReport mQuarterFullReport;
+    public static FullReport mYearFullReport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,16 +63,21 @@ public class MyReportActivity extends BaseActivity {
 
     }
 
-
-
     private void initView() {
         initHeadView();
         setCenterText("我的报告");
         setLeftImage(R.drawable.back_icon);
+        setRightText("历史记录");
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+        getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MyReportActivity.this,HistoryRecordActivity.class));
             }
         });
 
@@ -88,15 +99,19 @@ public class MyReportActivity extends BaseActivity {
         quarterReprtFragment = new QuarterReprtFragment();
         yearReprtFragment = new YearReprtFragment();
 
-        fragmentTransaction.add(R.id.fragment_content, mouthReprtFragment).commit();
-        currentFragment = mouthReprtFragment;
-
-        //addOrShowFragment(fragmentTransaction,mouthReprtFragment);
 
 
     }
 
     private void iniData() {
+
+        loadMouthFullReportData();
+        loadQuarterFullReportData();
+        loadYearFullReportData();
+    }
+
+    private void loadMouthFullReportData() {
+        MyUtil.showDialog("正在加载",this);
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
         String formatTime = MyUtil.getSpecialFormatTime("yyyy-MM",new Date());
@@ -107,37 +122,352 @@ public class MyReportActivity extends BaseActivity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadMonthReportURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
+                MyUtil.hideDialog();
                 String result = responseInfo.result;
+                result = "{\n" +
+                        "    \"ret\": \"0\",\n" +
+                        "    \"errDesc\": {\n" +
+                        "        \"HRrep\": [\n" +
+                        "            {\n" +
+                        "                \"id\": \"157\",\n" +
+                        "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
+                        "                \"AHR\": \"79\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"158\",\n" +
+                        "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
+                        "                \"AHR\": \"79\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"159\",\n" +
+                        "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
+                        "                \"AHR\": \"79\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"160\",\n" +
+                        "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
+                        "                \"AHR\": \"79\"\n" +
+                        "            }\n" +
+                        "        ],\n" +
+                        "        \"ECrep\": [\n" +
+                        "            0,\n" +
+                        "            0,\n" +
+                        "            0,\n" +
+                        "            100\n" +
+                        "        ],\n" +
+                        "        \"HRRrep\": [\n" +
+                        "            {\n" +
+                        "                \"id\": \"157\",\n" +
+                        "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
+                        "                \"RA\": \"96\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"158\",\n" +
+                        "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
+                        "                \"RA\": \"96\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"159\",\n" +
+                        "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
+                        "                \"RA\": \"96\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"160\",\n" +
+                        "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
+                        "                \"RA\": \"96\"\n" +
+                        "            }\n" +
+                        "        ],\n" +
+                        "        \"HRVrep\": [\n" +
+                        "            {\n" +
+                        "                \"id\": \"157\",\n" +
+                        "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
+                        "                \"FI\": \"30\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"158\",\n" +
+                        "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
+                        "                \"FI\": \"30\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"159\",\n" +
+                        "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
+                        "                \"FI\": \"30\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"160\",\n" +
+                        "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
+                        "                \"FI\": \"30\"\n" +
+                        "            }\n" +
+                        "        ],\n" +
+                        "        \"HRlist\": [\n" +
+                        "            [\n" +
+                        "                \"2017-3-22\",\n" +
+                        "                \"78\"\n" +
+                        "            ],\n" +
+                        "            [\n" +
+                        "                \"2017-3-23\",\n" +
+                        "                \"82\"\n" +
+                        "            ]\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}";
                 Log.i(TAG,"上传onSuccess==result:"+result);
-                /*Gson gson = new Gson();
+
+                loadDataSucces();
+
+
+                Gson gson = new Gson();
                 JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
                 Log.i(TAG,"jsonBase:"+jsonBase);
                 if (jsonBase.getRet()==0){
-                    Report report = gson.fromJson(result, Report.class);
-                    Log.i(TAG,"report:"+report.toString());
-                }*/
-                /*JSONObject jsonObject = null;
-                try {
-                    jsonObject = new JSONObject(result);
-                    int ret = jsonObject.getInt("ret");
-                    JSONObject errDesc = (JSONObject) jsonObject.get("errDesc");
-                    JSONObject hRrep = errDesc.getJSONObject("HRrep");
-                    JSONObject ECrep = errDesc.getJSONObject("ECrep");
-                    JSONObject HRRrep = errDesc.getJSONObject("HRRrep");
-                    JSONObject HRVrep = errDesc.getJSONObject("HRVrep");
-
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }*/
-
-
-
+                    mMouthFullReport = gson.fromJson(result, FullReport.class);
+                    Log.i(TAG,"mFullReport:"+mMouthFullReport.toString());
+                }
             }
 
             @Override
             public void onFailure(HttpException e, String s) {
                 MyUtil.hideDialog();
+                loadDataSucces();
+                Log.i(TAG,"上传onFailure==s:"+s);
+            }
+        });
+    }
+
+    private void loadDataSucces() {
+        fragmentTransaction.add(R.id.fragment_content, mouthReprtFragment).commit();
+        currentFragment = mouthReprtFragment;
+    }
+
+    private void loadQuarterFullReportData() {
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("reportType","FULL");
+        params.addBodyParameter("quarter", String.valueOf(MyUtil.getCurrentQuertar()));
+        params.addBodyParameter("year",String.valueOf(MyUtil.getCurrentYear()));
+        MyUtil.addCookieForHttp(params);
+
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadQuarterReportURL, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                Log.i(TAG,"上传onSuccess==result:"+result);
+                result = "{\n" +
+                        "    \"ret\": \"0\",\n" +
+                        "    \"errDesc\": {\n" +
+                        "        \"HRrep\": [\n" +
+                        "            {\n" +
+                        "                \"id\": \"157\",\n" +
+                        "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
+                        "                \"AHR\": \"79\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"158\",\n" +
+                        "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
+                        "                \"AHR\": \"79\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"159\",\n" +
+                        "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
+                        "                \"AHR\": \"79\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"160\",\n" +
+                        "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
+                        "                \"AHR\": \"79\"\n" +
+                        "            }\n" +
+                        "        ],\n" +
+                        "        \"ECrep\": [\n" +
+                        "            0,\n" +
+                        "            0,\n" +
+                        "            0,\n" +
+                        "            100\n" +
+                        "        ],\n" +
+                        "        \"HRRrep\": [\n" +
+                        "            {\n" +
+                        "                \"id\": \"157\",\n" +
+                        "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
+                        "                \"RA\": \"96\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"158\",\n" +
+                        "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
+                        "                \"RA\": \"96\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"159\",\n" +
+                        "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
+                        "                \"RA\": \"96\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"160\",\n" +
+                        "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
+                        "                \"RA\": \"96\"\n" +
+                        "            }\n" +
+                        "        ],\n" +
+                        "        \"HRVrep\": [\n" +
+                        "            {\n" +
+                        "                \"id\": \"157\",\n" +
+                        "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
+                        "                \"FI\": \"30\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"158\",\n" +
+                        "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
+                        "                \"FI\": \"30\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"159\",\n" +
+                        "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
+                        "                \"FI\": \"30\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"160\",\n" +
+                        "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
+                        "                \"FI\": \"30\"\n" +
+                        "            }\n" +
+                        "        ],\n" +
+                        "        \"HRlist\": [\n" +
+                        "            [\n" +
+                        "                \"2017-3-22\",\n" +
+                        "                \"78\"\n" +
+                        "            ],\n" +
+                        "            [\n" +
+                        "                \"2017-3-23\",\n" +
+                        "                \"82\"\n" +
+                        "            ]\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}";
+
+                Gson gson = new Gson();
+                JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+                Log.i(TAG,"jsonBase:"+jsonBase);
+                if (jsonBase.getRet()==0){
+                    mQuarterFullReport = gson.fromJson(result, FullReport.class);
+                    Log.i(TAG,"mQuarterFullReport:"+mQuarterFullReport.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                Log.i(TAG,"上传onFailure==s:"+s);
+            }
+        });
+    }
+
+    private void loadYearFullReportData() {
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("reportType","FULL");
+        params.addBodyParameter("year",String.valueOf(MyUtil.getCurrentYear()));
+        MyUtil.addCookieForHttp(params);
+
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadYearReportURL, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                Log.i(TAG,"上传onSuccess==result:"+result);
+
+                result = "{\n" +
+                        "    \"ret\": \"0\",\n" +
+                        "    \"errDesc\": {\n" +
+                        "        \"HRrep\": [\n" +
+                        "            {\n" +
+                        "                \"id\": \"157\",\n" +
+                        "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
+                        "                \"AHR\": \"79\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"158\",\n" +
+                        "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
+                        "                \"AHR\": \"79\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"159\",\n" +
+                        "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
+                        "                \"AHR\": \"79\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"160\",\n" +
+                        "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
+                        "                \"AHR\": \"79\"\n" +
+                        "            }\n" +
+                        "        ],\n" +
+                        "        \"ECrep\": [\n" +
+                        "            0,\n" +
+                        "            0,\n" +
+                        "            0,\n" +
+                        "            100\n" +
+                        "        ],\n" +
+                        "        \"HRRrep\": [\n" +
+                        "            {\n" +
+                        "                \"id\": \"157\",\n" +
+                        "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
+                        "                \"RA\": \"96\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"158\",\n" +
+                        "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
+                        "                \"RA\": \"96\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"159\",\n" +
+                        "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
+                        "                \"RA\": \"96\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"160\",\n" +
+                        "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
+                        "                \"RA\": \"96\"\n" +
+                        "            }\n" +
+                        "        ],\n" +
+                        "        \"HRVrep\": [\n" +
+                        "            {\n" +
+                        "                \"id\": \"157\",\n" +
+                        "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
+                        "                \"FI\": \"30\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"158\",\n" +
+                        "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
+                        "                \"FI\": \"30\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"159\",\n" +
+                        "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
+                        "                \"FI\": \"30\"\n" +
+                        "            },\n" +
+                        "            {\n" +
+                        "                \"id\": \"160\",\n" +
+                        "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
+                        "                \"FI\": \"30\"\n" +
+                        "            }\n" +
+                        "        ],\n" +
+                        "        \"HRlist\": [\n" +
+                        "            [\n" +
+                        "                \"2017-3-22\",\n" +
+                        "                \"78\"\n" +
+                        "            ],\n" +
+                        "            [\n" +
+                        "                \"2017-3-23\",\n" +
+                        "                \"82\"\n" +
+                        "            ]\n" +
+                        "        ]\n" +
+                        "    }\n" +
+                        "}";
+
+                Gson gson = new Gson();
+                JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+                Log.i(TAG,"jsonBase:"+jsonBase);
+                if (jsonBase.getRet()==0){
+                    mMouthFullReport = gson.fromJson(result, FullReport.class);
+                    Log.i(TAG,"mMouthFullReport:"+mMouthFullReport.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });
@@ -155,9 +485,7 @@ public class MyReportActivity extends BaseActivity {
         currentFragment = fragment;
     }
 
-
-
-    class MyOnClickListener implements View.OnClickListener {
+    private class MyOnClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {

@@ -100,7 +100,7 @@
 
         </activity>
         <activity android:name=".activity.LookupHealthPlanActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.MyReportActivity" >
+        <activity android:name=".activity.MyReportActivity" android:screenOrientation="portrait">
 
         </activity>
         <activity android:name=".activity.SystemSettingActivity"  android:screenOrientation="portrait"/>
@@ -134,13 +134,18 @@
         <activity android:name=".activity.ClubDynamicsDetialActivity"  android:screenOrientation="portrait"/>
         <activity android:name=".activity.LookupPictureActivity"  android:screenOrientation="portrait"/>
         <activity android:name=".activity.HistoryRecordActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.CalculateHRRProcessActivity"  android:screenOrientation="portrait"></activity>
+        <activity android:name=".activity.CalculateHRRProcessActivity" android:screenOrientation="portrait"></activity>
         <activity android:name=".activity.RunTrailMapActivity"  android:screenOrientation="portrait"></activity>
         <activity android:name=".activity.MotionDetectionActivity" android:screenOrientation="portrait"></activity>
         <activity android:name=".activity.ConnectToWifiModuleGudieActivity1" android:screenOrientation="portrait"></activity>
         <activity android:name=".activity.ConnectToWifiModuleGudieActivity2" android:screenOrientation="portrait"></activity>
         <activity android:name=".activity.AboutUsActivity" android:screenOrientation="portrait"></activity>AboutUsActivity
         <activity android:name=".activity.AppUpdateActivity" android:screenOrientation="portrait"></activity>AboutUsActivity
+        <activity android:name=".activity.AddDynamicsActivity" android:screenOrientation="portrait"></activity>AboutUsActivity
+        <activity android:name=".activity.AddHeathyPlanActivity" android:screenOrientation="portrait"></activity>AboutUsActivity
+        <activity android:name=".activity.ApplyJionClubActivity" android:screenOrientation="portrait"></activity>AboutUsActivity
+
+
 
 
     </application>

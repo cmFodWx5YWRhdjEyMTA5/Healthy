@@ -71,39 +71,24 @@ public class HeartRateFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
         UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
-
         if (mUploadRecord!=null){
             Log.i(TAG,"mUploadRecord:"+mUploadRecord.toString());
-            tv_rate_max.setText(mUploadRecord.MaxHR+"");
-            tv_rate_average.setText(mUploadRecord.MinHR+"");
-            String hr = mUploadRecord.getHR();
+            if (!MyUtil.isEmpty(mUploadRecord.MaxHR)){
+                tv_rate_max.setText(mUploadRecord.MaxHR+"");
+                tv_rate_average.setText(mUploadRecord.MinHR+"");
+            }
 
-            if (!MyUtil.isEmpty(hr)){
+            String hr = mUploadRecord.getHR();
+            if (!MyUtil.isEmpty(hr) && !hr.equals("-1")){
                 Gson gson = new Gson();
                 List<Integer> heartDatas = gson.fromJson(hr, new TypeToken<List<Integer>>() {
                 }.getType());
-
-                /*String[] split = hr.split(",");
-                int []heartData = null;
-                if (split.length>0){
-                    heartData = new int[split.length];
-                    for (int i=0;i<split.length;i++){
-                        heartData[i] = Integer.parseInt(split[i]);
-                    }
-                }*/
-                int[] a = new int[heartDatas.size()];
-                for(int i=0;i<heartDatas.size();i++) {
-                    a[i] = heartDatas.get(i);
-                }
-                fv_rate_line.setData(a);
-
+                int[] ints = MyUtil.listToIntArray(heartDatas);
+                fv_rate_line.setData(ints);
             }
-
-
         }
-        else {
+        /*else {
             String name = "heartData";
             String stringValueFromSP = MyUtil.getStringValueFromSP(name);
             Log.i(TAG,"heartData:"+stringValueFromSP);
@@ -128,7 +113,7 @@ public class HeartRateFragment extends Fragment {
                 tv_rate_average.setText(average+"");
             }
         }
-
+*/
 
 
     }

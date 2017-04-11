@@ -160,7 +160,7 @@ public class ECGFragment extends Fragment {
                 try {
                     if (fileInputStream==null){
                         File file = new File(eCGFilePath);
-                        if (!file.exists()){
+                        if (!file.exists() && !mUploadRecord.EC.equals("-1")){
                             //文件不存在的话说明  1、本地文件已经被删除了  2、第一次从历史记录获取文件，需用Base64生成文件
                             file = MyUtil.base64ToFile(mUploadRecord.EC, eCGFilePath);
                         }

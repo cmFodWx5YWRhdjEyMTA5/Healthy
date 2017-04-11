@@ -171,6 +171,7 @@ public class RateAnalysisActivity extends BaseActivity {
                     if (mUploadRecord.getState().equals("0") && tv_analysis_sport.getVisibility()==View.VISIBLE){ //静止状态&& 可见
                         fragmentList.remove(0);
                         tv_analysis_sport.setVisibility(View.GONE);
+                        mAnalysisRateAdapter.notifyDataSetChanged();
                     }
                 }
             }
@@ -185,11 +186,11 @@ public class RateAnalysisActivity extends BaseActivity {
         }
     }
 
-    class UploadRecordObject{
+    private class UploadRecordObject{
         UploadRecord errDesc;
     }
 
-    class MyClickListener implements View.OnClickListener{
+    private class MyClickListener implements View.OnClickListener{
 
         @Override
         public void onClick(View v) {

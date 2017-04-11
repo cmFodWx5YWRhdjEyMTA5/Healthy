@@ -21,10 +21,13 @@ import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
 import com.amap.api.trace.LBSTraceClient;
+import com.amap.api.trace.TraceListener;
+import com.amap.api.trace.TraceLocation;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
@@ -33,7 +36,12 @@ import com.amsu.healthy.view.BarChartView;
 import com.amsu.healthy.view.HeightCurveView;
 import com.amsu.healthy.view.MyMapView;
 import com.amsu.healthy.view.PieChart;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.amsu.healthy.R.id.pc_ecg_chart;
@@ -61,6 +69,7 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
     private PieChart pc_sport_piechart;
     private AerobicAnaerobicView hv_sport_aerobicanaerobic;
     private Intent mIntent;
+    private UploadRecord mUploadRecord;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -96,11 +105,47 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
         pc_sport_piechart = (PieChart) inflate.findViewById(R.id.pc_sport_piechart);
 
         initMap();
-
+        //mv_finish_map.setAlpha(0.4f);
     }
 
     private void initData() {
-        int[] data1 = new int[10];
+        mUploadRecord = RateAnalysisActivity.mUploadRecord;
+
+
+        if (mUploadRecord !=null) {
+            Log.i(TAG, "mUploadRecord:" + mUploadRecord.toString());
+            Gson gson = new Gson();
+            if (!MyUtil.isEmpty(mUploadRecord.HR) && !mUploadRecord.HR.equals("-1")){//心率
+                List<Integer> fromJson = gson.fromJson(mUploadRecord.HR,new TypeToken<List<Integer>>() {
+                }.getType());
+                int[] heartData = MyUtil.listToIntArray(fromJson);
+                if (mUploadRecord.time.equals("-1")){
+                    hv_sport_rateline.setData(heartData,Integer.parseInt(mUploadRecord.time));
+                }
+            }
+            if (!MyUtil.isEmpty(mUploadRecord.AHR) && !mUploadRecord.AHR.equals("-1")){
+                tv_sport_rate.setText(mUploadRecord.AHR);
+            }
+            if (!MyUtil.isEmpty(mUploadRecord.cadence) && !mUploadRecord.cadence.equals("-1")){ //步频
+                List<Integer> fromJson = gson.fromJson(mUploadRecord.cadence,new TypeToken<List<Integer>>() {
+                }.getType());
+                int[] ints = MyUtil.listToIntArray(fromJson);
+                if (mUploadRecord.time.equals("-1")){
+                    hv_sport_stepline.setData(ints,Integer.parseInt(mUploadRecord.time));
+                }
+            }
+            if (!MyUtil.isEmpty(mUploadRecord.calorie) && !mUploadRecord.calorie.equals("-1")){ //卡路里
+                List<Integer> fromJson = gson.fromJson(mUploadRecord.calorie,new TypeToken<List<Integer>>() {
+                }.getType());
+                int[] ints = MyUtil.listToIntArray(fromJson);
+                if (mUploadRecord.time.equals("-1")){
+                    hv_sport_kaliluline.setData(ints,Integer.parseInt(mUploadRecord.time));
+                }
+            }
+
+        }
+
+       /* int[] data1 = new int[10];
 
         for (int i=0;i<data1.length;i++){
             data1[i] = (int) (Math.random()*(85-30) + 30);
@@ -122,14 +167,15 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
         }
         hv_sport_rateline.setData(data3,20);
 
+
+
         double[] timeData = {3,4,0.1,1.6,5,2,4,5.5,7,3.6,3.6,2.1,2.6,4,5.5,5.7,3.6,3.6,2.9,4,5.5,6.7,0.3,3.6,3.6};
         hv_sport_speedline.setData(timeData,60);
 
         hv_sport_aerobicanaerobic.setData(timeData);
 
         int[] datas = {35,10,7,3};
-        pc_sport_piechart.setDatas(datas);
-
+        pc_sport_piechart.setDatas(datas);*/
 
 
 
@@ -197,7 +243,9 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
                 LatLng startLatLng = new LatLng(startLoc.getLatitude(), startLoc.getLongitude());
                 LatLng endLatLng = new LatLng(endLoc.getLatitude(), endLoc.getLongitude());
                 mOriginLatLngList = Util.parseLatLngList(recordList);
-                addOriginTrace(startLatLng, endLatLng, mOriginLatLngList);
+
+                float mapTraceDistance = Util.getDistance(recordList);
+                addOriginTrace(startLatLng, endLatLng, mOriginLatLngList,mapTraceDistance);
 
                /* List<TraceLocation> mGraspTraceLocationList = Util.parseTraceLocationList(recordList);
                 // 调用轨迹纠偏，将mGraspTraceLocationList进行轨迹纠偏处理
@@ -218,26 +266,17 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
             dbAdapter.close();
             Log.i(TAG,"pathRecord:"+pathRecord.toString());
             // pathRecord:recordSize:103, distance:4.15064m, duration:206.922s
-            int distance = (int) Float.parseFloat(pathRecord.getDistance());
-            int duration = (int) Float.parseFloat(pathRecord.getDuration());
-
-            int secend = (distance%1000)/10;
-            String myDistance = distance/1000+"."+secend;
-            if (secend==0) {
-                myDistance = distance/1000+".00";
-            }
+            double distance = Double.parseDouble(pathRecord.getDistance());
+            String myDistance = StartRunActivity.getFormatDistance(distance);
             tv_sport_mileage.setText(myDistance);
 
+            int duration = (int) Float.parseFloat(pathRecord.getDuration());
+
             int durationSecend = (duration%(60*60))/60;
-            int durationThrid = (duration%(60*60))%60;
             String durationSecendString =(duration%(60*60))/60+"";
-            String durationThridString =(duration%(60*60))%60+"";
 
             if (durationSecend<10) {
                 durationSecendString = "0"+durationSecendString;
-            }
-            if (durationThrid<10) {
-                durationThridString = "0"+durationThridString;
             }
             //String myDuration = duration/(60*60)+":"+durationSecendString+":"+durationThridString;
             String myDuration = duration/(60*60)+"h"+durationSecendString+"'";
@@ -260,9 +299,11 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
             LatLng startLatLng = new LatLng(startLoc.getLatitude(), startLoc.getLongitude());
             LatLng endLatLng = new LatLng(endLoc.getLatitude(), endLoc.getLongitude());
             mOriginLatLngList = Util.parseLatLngList(recordList);
-            addOriginTrace(startLatLng, endLatLng, mOriginLatLngList);
 
-           /* List<TraceLocation> mGraspTraceLocationList = Util.parseTraceLocationList(recordList);
+            float mapTraceDistance = Util.getDistance(recordList);
+            addOriginTrace(startLatLng, endLatLng, mOriginLatLngList,mapTraceDistance);
+
+            /*List<TraceLocation> mGraspTraceLocationList = Util.parseTraceLocationList(recordList);
             // 调用轨迹纠偏，将mGraspTraceLocationList进行轨迹纠偏处理
             mTraceClient.queryProcessedTrace(1, mGraspTraceLocationList, LBSTraceClient.TYPE_AMAP, this);*/
         }
@@ -275,17 +316,28 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
      * @param endPoint
      * @param originList
      */
-    private void addOriginTrace(LatLng startPoint, LatLng endPoint, List<LatLng> originList) {
+    private void addOriginTrace(LatLng startPoint, LatLng endPoint, List<LatLng> originList,float mapTraceDistance) {
         mOriginPolyline = mAMap.addPolyline(new PolylineOptions().color(Color.parseColor("#f17456")).width(getResources().getDimension(R.dimen.x8)).addAll(originList));
-        mOriginStartMarker = mAMap.addMarker(new MarkerOptions().position(startPoint).icon(BitmapDescriptorFactory.fromResource(R.drawable.start)));
-        mOriginEndMarker = mAMap.addMarker(new MarkerOptions().position(endPoint).icon(BitmapDescriptorFactory.fromResource(R.drawable.end)));
+        mOriginStartMarker = mAMap.addMarker(new MarkerOptions().position(startPoint).icon(BitmapDescriptorFactory.fromResource(R.drawable.end)));
+        mOriginEndMarker = mAMap.addMarker(new MarkerOptions().position(endPoint).icon(BitmapDescriptorFactory.fromResource(R.drawable.start)));
+
+        Log.i(TAG,"originList:"+new Gson().toJson(originList));
+        Log.i(TAG,"originList.size():"+originList.size());
+        Log.i(TAG,"mapTraceDistance:"+mapTraceDistance);
 
         try {
             /*
             * 返回CameraUpdate对象，这个对象包含一个经纬度限制的区域，并且是最大可能的缩放级别。
             你可以设置一个边距数值来控制插入区域与view的边框之间的空白距离。
             方法必须在地图初始化完成之后使用。*/
+            //mAMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getBounds(), 50));
             mAMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getBounds(), 50));
+            if (mapTraceDistance<500){//只有2个点，表示在室内跑步，只需要标注运动位置即可
+                mAMap.moveCamera(CameraUpdateFactory.changeLatLng(originList.get(0)));  //只改变定图中心点位置，不改变缩放级别
+                //mAMap.setMaxZoomLevel(19);
+                mAMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+                Log.i(TAG,"setMaxZoomLevel:");
+            }
             //mAMap.moveCamera(CameraUpdateFactory.changeLatLng(mOriginLatLngList.get(0)));  //只改变定图中心点位置，不改变缩放级别
         } catch (Exception e) {
             e.printStackTrace();
@@ -338,10 +390,76 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
     public void onMapLoaded() {
         Log.i(TAG,"onMapLoaded");
         //setupRecord();
-        if (StartRunActivity.createrecord!=-1){
+        Log.i(TAG,"StartRunActivity.createrecord:"+StartRunActivity.createrecord);
+        /*if (StartRunActivity.createrecord!=-1){
             setupRecord(StartRunActivity.createrecord);
+        }*/
+
+        if (mUploadRecord!=null && !MyUtil.isEmpty(mUploadRecord.latitude_longitude) && !mUploadRecord.latitude_longitude.equals("-1")){ //经纬度
+            Gson gson = new Gson();
+            List<List<Double>> fromJson = gson.fromJson(mUploadRecord.latitude_longitude,new TypeToken<List<List<Double>>>() {
+            }.getType());
+            Log.i(TAG,"fromJson:"+fromJson);
+            List<LatLng> latLngList = new ArrayList<>();
+            for (List<Double> list:fromJson){
+                LatLng latLng = new LatLng(list.get(0),list.get(1));
+                latLngList.add(latLng);
+            }
+
+            Log.i(TAG,"latLngList:"+gson.toJson(latLngList));
+            Log.i(TAG,"latLngList.size()" + ":"+latLngList.size());
+            //不纠偏
+            float mapTraceDistance = Util.getDistanceByLatLng(latLngList);
+            addOriginTrace(latLngList.get(0), latLngList.get(latLngList.size()-1), latLngList,mapTraceDistance);
+
+            //时间
+            int duration = (int) Float.parseFloat(mUploadRecord.time);
+            int durationSecend = (duration%(60*60))/60;
+            String durationSecendString =(duration%(60*60))/60+"";
+            if (durationSecend<10) {
+                durationSecendString = "0"+durationSecendString;
+            }
+            String myDuration = duration/(60*60)+"h"+durationSecendString+"'";
+            tv_sport_time.setText(myDuration);
+
+            //距离
+            double distance = Double.parseDouble(mUploadRecord.distance);
+            String myDistance = StartRunActivity.getFormatDistance(distance);
+            tv_sport_mileage.setText(myDistance);
+
+
+            //速度
+            String average = Util.getAverage((float) distance, duration);
+            tv_sport_speed.setText(average);
+
         }
     }
+
+
+   /* private void addGraspTrace(List<LatLng> list) {
+        LatLng startLatLng = list.get(0);
+        LatLng endLatLng = list.get(list.size()-1);
+
+        mOriginPolyline = mAMap.addPolyline(new PolylineOptions().color(Color.parseColor("#f17456")).width(getResources().getDimension(R.dimen.x8)).addAll(list));
+        mOriginStartMarker = mAMap.addMarker(new MarkerOptions().position(startLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.end)));
+        mOriginEndMarker = mAMap.addMarker(new MarkerOptions().position(endLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.start)));
+
+        try {
+            *//*
+            * 返回CameraUpdate对象，这个对象包含一个经纬度限制的区域，并且是最大可能的缩放级别。
+            你可以设置一个边距数值来控制插入区域与view的边框之间的空白距离。
+            方法必须在地图初始化完成之后使用。*//*
+            mAMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getBounds(), 50));
+            float distanceByLatLng = Util.getDistanceByLatLng(list);
+            if (distanceByLatLng<200){//只有2个点，表示在室内跑步，只需要标注运动位置即可
+                mAMap.moveCamera(CameraUpdateFactory.changeLatLng(mOriginLatLngList.get(0)));  //只改变定图中心点位置，不改变缩放级别
+                mAMap.setMaxZoomLevel(17);
+            }
+            //mAMap.moveCamera(CameraUpdateFactory.changeLatLng(mOriginLatLngList.get(0)));  //只改变定图中心点位置，不改变缩放级别
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }*/
 
     /*class MyOcClickListener implements View.OnClickListener{
 

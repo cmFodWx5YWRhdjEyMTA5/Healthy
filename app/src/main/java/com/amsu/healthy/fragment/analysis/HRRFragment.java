@@ -16,6 +16,7 @@ import com.amsu.healthy.activity.HistoryRecordActivity;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.utils.MyUtil;
 
 public class HRRFragment extends Fragment {
 
@@ -59,7 +60,7 @@ public class HRRFragment extends Fragment {
     private void initData() {
         UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
         Log.i(TAG,"mUploadRecord:"+mUploadRecord);
-        if (mUploadRecord!=null){
+        if (mUploadRecord!=null && !MyUtil.isEmpty(mUploadRecord.RA) && !mUploadRecord.RA.equals("-1")){
             Log.i(TAG,"mUploadRecord:"+mUploadRecord);
             if (mUploadRecord.RA.equals("0")){
                 tv_hrr_value.setText("--");
