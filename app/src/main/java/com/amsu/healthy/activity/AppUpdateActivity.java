@@ -76,8 +76,8 @@ public class AppUpdateActivity extends BaseActivity {
                 if (jsonBase.ret==0){
                     JsonApk jsonApk = gson.fromJson(result, JsonApk.class);
                     Apk errDesc = jsonApk.errDesc;
-                    int version = errDesc.Version;
-                    String path = errDesc.Path;
+                    int version = Integer.parseInt(errDesc.versioncode);
+                    String path = errDesc.path;
                     Log.i(TAG,"Apk:"+errDesc.toString());
 
                     checkAndUpdateVersion(version,path);
@@ -136,12 +136,23 @@ public class AppUpdateActivity extends BaseActivity {
         }
     }
 
+    private void openBrowserDownLoadApp(String path) {
+        Intent intent= new Intent();
+        intent.setAction("android.intent.action.VIEW");
+        Uri content_url = Uri.parse("http://119.29.201.120:8081/intellingence-web/upload/app-_91helper-debug.apk");
+        intent.setData(content_url);
+        startActivity(intent);
+
+    }
+
     //下载和安装app
     private void downloadAndInstallApp(String path) {
         HttpUtils httpUtils = new HttpUtils();
         final String savePath = getCacheDir()+"/倾听体语.apk";
         Log.i(TAG,"savePath:"+savePath);
         Log.i(TAG,"path:"+path);
+        path = "http://119.29.201.120:8081/intellingence-web/upload/app-_91helper-debug.apk";
+
         RequestParams params = new RequestParams();
         httpUtils.download(path, savePath,params, true,true,new RequestCallBack<File>() {
             @Override

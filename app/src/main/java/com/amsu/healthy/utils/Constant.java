@@ -16,6 +16,7 @@ public class Constant {
     public static String openDataTransmitOrder = "FF0206010016";
     public static String stopDataTransmitOrder = "FF0206000016";
     public static String checkIsHaveDataOrder = "FF05050016";  //4.6	查询SD卡是否有数据
+    public static String synchronizeOrder = "FF05050016";  //4.6	设备同步
 
     //public static String loginURL = "https://bodylistener.amsu-new.com/intellingence/LoginController/phoneVerify";
     public static String loginURL = "http://192.168.0.109:8080/intellingence-web/phoneVerify.jsp";
@@ -35,8 +36,10 @@ public class Constant {
     public static String downloadYearReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadYearReport";
     public static String getHistoryReportListURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/getReportList";
     public static String getHistoryReportDetailURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/getDetail";
+    public static String downloadWeekReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadWeekReport";
 
-    public static String checkAppUpdateURL = "https://bodylistener.amsu-new.com/intellingence/VersionController/getLastVersion";
+    //public static String checkAppUpdateURL = "https://bodylistener.amsu-new.com/intellingence/VersionController/getLastVersion";
+    public static String checkAppUpdateURL = "http://www.amsu-new.com:8081/intellingence-web/getLastVersion.do";
 
     public static long AnimatorDuration = 2000;  //动画时长，2s
 
@@ -52,6 +55,11 @@ public class Constant {
     public static int SPORTSTATE_ATHLETIC = 1;
     public static String hrr = "hrr";
     public static String ecgFiletimeMillis = "ecgFiletimeMillis";
+    public static String restingHR = "restingHR";
+
+    public static String uploadRecordDefaultString = "0";
+
+
 
 
 

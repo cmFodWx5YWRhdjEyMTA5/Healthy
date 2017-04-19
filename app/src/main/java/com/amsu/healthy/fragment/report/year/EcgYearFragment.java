@@ -48,8 +48,8 @@ public class EcgYearFragment extends Fragment {
     }
 
     private void initData() {
-        Log.i(TAG,"MyReportActivity.mQuarterFullReport:"+MyReportActivity.mQuarterFullReport.toString());
         if (MyReportActivity.mQuarterFullReport!=null){
+            Log.i(TAG,"MyReportActivity.mQuarterFullReport:"+MyReportActivity.mQuarterFullReport.toString());
             if (MyReportActivity.mQuarterFullReport!=null){
                 int[] eCrep = MyReportActivity.mQuarterFullReport.errDesc.ECrep;
                 if (eCrep!=null && eCrep.length>0){

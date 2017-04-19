@@ -24,6 +24,9 @@ import com.amsu.healthy.fragment.analysis.SportFragment;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.Gson;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.RequestParams;
@@ -54,11 +57,13 @@ public class RateAnalysisActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rate_analysis);
+        Log.i(TAG,"onCreate");
         initView();
         initData();
     }
 
     private void initView() {
+        fragmentList = new ArrayList<>();
         initHeadView();
         setLeftImage(R.drawable.back_icon);
         vp_analysis_content = (ViewPager) findViewById(R.id.vp_analysis_content);
@@ -101,7 +106,7 @@ public class RateAnalysisActivity extends BaseActivity {
             @Override
             public void onPageSelected(int position) {
                 //Log.i(TAG,"onPageSelected===position:"+position);
-                setViewPageTextColor(position);
+                setViewPageTextColor(position+subFormAlCount);
             }
 
             @Override
@@ -111,27 +116,26 @@ public class RateAnalysisActivity extends BaseActivity {
         });
 
     }
+
     private void initData() {
-        fragmentList = new ArrayList<>();
-        fragmentList.add(new SportFragment());
-        fragmentList.add(new HRVFragment());
-        fragmentList.add(new HeartRateFragment());
-        fragmentList.add(new ECGFragment());
-        fragmentList.add(new HRRFragment());
-
-        mAnalysisRateAdapter = new AnalysisRateAdapter(getSupportFragmentManager(), fragmentList);
-        vp_analysis_content.setAdapter(mAnalysisRateAdapter);
-
-
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
         if (intent!=null){
             Bundle bundle = intent.getParcelableExtra("bundle");
             if (bundle!=null){
                 HistoryRecord historyRecord = bundle.getParcelable("historyRecord");
                 if (historyRecord!=null){
+                    /*if (historyRecord.getState()==0 && tv_analysis_sport.getVisibility()==View.VISIBLE){ //静止状态&& 可见
+                        fragmentList.remove(0);
+                        subFormAlCount = 1;
+                        tv_analysis_sport.setVisibility(View.GONE);
+                        mOneTableWidth = MyUtil.getScreeenWidth(this)/4;
+                        mAnalysisRateAdapter.notifyDataSetChanged();
+                    }*/
+
                     //根据历史记录id进行网络查询
                     setCenterText(historyRecord.getDatatime());  // 2016-10-28 10:56:04
 
+                    MyUtil.showDialog("加载数据",RateAnalysisActivity.this);
                     HttpUtils httpUtils = new HttpUtils();
                     RequestParams params = new RequestParams();
                     params.addBodyParameter("id",historyRecord.getID());
@@ -145,17 +149,60 @@ public class RateAnalysisActivity extends BaseActivity {
                             Gson gson = new Gson();
                             JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
                             Log.i(TAG,"jsonBase:"+jsonBase);
-                            if (jsonBase.getRet()==1){
-                                UploadRecordObject uUploadRecordObject = gson.fromJson(result, UploadRecordObject.class);
-                                mUploadRecord = uUploadRecordObject.errDesc;
-                                Log.i(TAG,"查询uploadRecord:"+mUploadRecord);
+                            if (jsonBase.getRet()==0){
 
+                               /* UploadRecordObject uUploadRecordObject = gson.fromJson(result, UploadRecordObject.class);
+                                //mUploadRecord = uUploadRecordObject.errDesc;
+                                Log.i(TAG,"uUploadRecordObject:"+uUploadRecordObject)*/;
+
+                                try {
+                                    JSONObject object = new JSONObject(result);
+                                    JSONObject jsonObject =object.getJSONObject("errDesc");
+                                    String FI    = jsonObject.getString("FI");
+                                    String ES    = jsonObject.getString("ES");
+                                    String PI    = jsonObject.getString("PI");
+                                    String CC    = jsonObject.getString("CC");
+                                    String HRVr  = jsonObject.getString("HRVr");
+                                    String HRVs  = jsonObject.getString("HRVs");
+                                    String AHR   = jsonObject.getString("AHR");
+                                    String MaxHR = jsonObject.getString("MaxHR");
+                                    String MinHR = jsonObject.getString("MinHR");
+                                    String HRr   = jsonObject.getString("HRr");
+                                    String HRs   = jsonObject.getString("HRs");
+                                    String EC    = jsonObject.getString("EC");
+                                    String ECr   = jsonObject.getString("ECr");
+                                    String ECs   = jsonObject.getString("ECs");
+                                    String RA    = jsonObject.getString("RA");
+                                    String timestamp = jsonObject.getString("timestamp");
+                                    String datatime  = jsonObject.getString("datatime");
+                                    String HR    = jsonObject.getString("HR");
+                                    String AE    = jsonObject.getString("AE");
+                                    String distance  = jsonObject.getString("distance");
+                                    String time  = jsonObject.getString("time");
+                                    String cadence   = jsonObject.getString("cadence");
+                                    String calorie   = jsonObject.getString("calorie");
+                                    String state = jsonObject.getString("state");
+                                    String zaobo = jsonObject.getString("zaobo");
+                                    String loubo = jsonObject.getString("loubo");
+                                    String latitude_longitude = jsonObject.getString("latitude_longitude");
+
+                                    mUploadRecord = new UploadRecord(FI,ES,PI,CC,HRVr,HRVs,AHR,MaxHR,MinHR,HRr,HRs,EC,ECr,ECs,RA,timestamp,datatime,HR,
+                                            AE,distance,time,cadence,calorie,state,zaobo,loubo,latitude_longitude);
+                                    Log.i(TAG,"mUploadRecord:"+mUploadRecord);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
+                            addFragmentList(Integer.parseInt(mUploadRecord.state));
+                            adjustFeagmentCount(Integer.parseInt(mUploadRecord.state));
+                            MyUtil.hideDialog();
                         }
 
                         @Override
                         public void onFailure(HttpException e, String s) {
+                            addFragmentList(intent.getIntExtra(Constant.sportState,-1));
                             MyUtil.hideDialog();
+                            MyUtil.showToask(RateAnalysisActivity.this,"数据加载失败");
                             Log.i(TAG,"上传onFailure==s:"+s);
                         }
                     });
@@ -165,29 +212,50 @@ public class RateAnalysisActivity extends BaseActivity {
                     mUploadRecord = bundle.getParcelable("uploadRecord");
                     Log.i(TAG,"直接显示uploadRecord:"+mUploadRecord.toString());
                     //Log.i(TAG,"EC:"+mUploadRecord.EC);
-                }
-
-                if (mUploadRecord!=null){
-                    if (mUploadRecord.getState().equals("0") && tv_analysis_sport.getVisibility()==View.VISIBLE){ //静止状态&& 可见
-                        fragmentList.remove(0);
-                        tv_analysis_sport.setVisibility(View.GONE);
-                        mAnalysisRateAdapter.notifyDataSetChanged();
-                    }
+                    addFragmentList(intent.getIntExtra(Constant.sportState,-1));
+                    adjustFeagmentCount(intent.getIntExtra(Constant.sportState,-1));
                 }
             }
-
-            if (intent.getIntExtra(Constant.sportState, -1)==0 && tv_analysis_sport.getVisibility()==View.VISIBLE){
-                fragmentList.remove(0);
-                tv_analysis_sport.setVisibility(View.GONE);
-                mAnalysisRateAdapter.notifyDataSetChanged();
-                mOneTableWidth = MyUtil.getScreeenWidth(this)/4;
-                subFormAlCount = 1;
+            else {
+                addFragmentList(intent.getIntExtra(Constant.sportState,-1));
+                adjustFeagmentCount(intent.getIntExtra(Constant.sportState,-1));
             }
+
         }
     }
 
+    private void adjustFeagmentCount(int state) {
+        Log.i(TAG,"adjustFeagmentCount");
+        Log.i(TAG,"state:"+state);
+        if (state==0 && tv_analysis_sport.getVisibility()== View.VISIBLE){
+            subFormAlCount = 1;
+            tv_analysis_sport.setVisibility(View.GONE);
+            mOneTableWidth = MyUtil.getScreeenWidth(this)/4;
+
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v_analysis_select.getLayoutParams();
+            params.width = (int) (MyUtil.getScreeenWidth(this)/4);
+            v_analysis_select.setLayoutParams(params);
+        }
+    }
+
+    private void addFragmentList(int state) {
+        if (state==1){
+            fragmentList.add(new SportFragment());
+        }
+        else {
+
+        }
+        fragmentList.add(new HRVFragment());
+        fragmentList.add(new HeartRateFragment());
+        fragmentList.add(new ECGFragment());
+        fragmentList.add(new HRRFragment());
+
+        mAnalysisRateAdapter = new AnalysisRateAdapter(getSupportFragmentManager(), fragmentList);
+        vp_analysis_content.setAdapter(mAnalysisRateAdapter);
+    }
+
     private class UploadRecordObject{
-        UploadRecord errDesc;
+        DownUploadRecord errDesc;
     }
 
     private class MyClickListener implements View.OnClickListener{
@@ -210,7 +278,6 @@ public class RateAnalysisActivity extends BaseActivity {
                 case R.id.tv_analysis_hrr:
                     setViewPageItem(4,vp_analysis_content.getCurrentItem());
                     break;
-
             }
         }
     }
@@ -227,7 +294,7 @@ public class RateAnalysisActivity extends BaseActivity {
         layoutParams.setMargins(floatWidth,0,0,0); //4个参数按顺序分别是左上右下
         v_analysis_select.setLayoutParams(layoutParams);
 
-        setViewPageTextColor(viewPageItem);
+        setViewPageTextColor(viewPageItem+subFormAlCount);
 
     }
 
@@ -273,5 +340,84 @@ public class RateAnalysisActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG,"onResume");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG,"onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG,"onDestroy");
+    }
+
+    private class DownUploadRecord  {
+        public String FI;
+        public String ES;
+        public String PI;
+        public String CC;
+        public String HRVr;
+        public String HRVs;
+        public String AHR;
+        public String MaxHR;
+        public String MinHR;
+        public String HRr;
+        public String HRs;
+        public String EC;
+        public String ECr;
+        public String ECs;
+        public String RA;
+        public String timestamp;  //
+        public String datatime;  //
+        public List<Integer> HR;  //
+        public List<Integer> AE;  //
+        public String distance;  //
+        public String time;  //
+        public List<Integer> cadence;  //
+        public List<Integer> calorie;  //
+        public String state;  //
+        public String zaobo;
+        public String loubo;
+        public List<List<Double>> latitude_longitude;
+
+        @Override
+        public String toString() {
+            return "UploadRecord{" +
+                    "FI='" + FI + '\'' +
+                    ", ES='" + ES + '\'' +
+                    ", PI='" + PI + '\'' +
+                    ", CC='" + CC + '\'' +
+                    ", HRVr='" + HRVr + '\'' +
+                    ", HRVs='" + HRVs + '\'' +
+                    ", AHR='" + AHR + '\'' +
+                    ", MaxHR='" + MaxHR + '\'' +
+                    ", MinHR='" + MinHR + '\'' +
+                    ", HRr='" + HRr + '\'' +
+                    ", HRs='" + HRs + '\'' +
+                    ", ECr='" + ECr + '\'' +
+                    ", ECs='" + ECs + '\'' +
+                    ", RA='" + RA + '\'' +
+                    ", timestamp='" + timestamp + '\'' +
+                    ", datatime='" + datatime + '\'' +
+                    ", HR='" + HR + '\'' +
+                    ", AE='" + AE + '\'' +
+                    ", distance='" + distance + '\'' +
+                    ", time='" + time + '\'' +
+                    ", cadence='" + cadence + '\'' +
+                    ", calorie='" + calorie + '\'' +
+                    ", state='" + state + '\'' +
+                    ", zaobo='" + zaobo + '\'' +
+                    ", loubo='" + loubo + '\'' +
+                    ", latitude_longitude='" + latitude_longitude + '\'' +
+                    '}';
+        }
+    }
 
 }

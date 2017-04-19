@@ -75,7 +75,7 @@ public class MouthReprtFragment extends Fragment implements View.OnClickListener
         fragmentList.add(new HeartRatemouthFragment());
         fragmentList.add(new EcgMouthFragment());
         fragmentList.add(new HRRMouthFragment());
-        fragmentList.add(new HRVMouthFragment());
+        //fragmentList.add(new HRVMouthFragment());
 
         FragmentActivity activity = getActivity();
         FragmentManager supportFragmentManager = activity.getSupportFragmentManager();

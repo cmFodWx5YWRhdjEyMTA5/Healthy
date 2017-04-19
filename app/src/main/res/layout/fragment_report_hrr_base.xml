@@ -38,20 +38,48 @@
         android:layout_below="@id/rl_ecgmouth_text"
         android:background="#d3d3d3"></View>
 
-    <com.amsu.healthy.view.FoldLineViewWithTextOne
-        android:id="@+id/spread_line_chart"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/y820"
         android:layout_below="@+id/view"
-        android:background="#FFFFFF"
-        foldlineview:line_color="#FF0000"
-        foldlineview:line_width="@dimen/x6"
-        foldlineview:radius_point="@dimen/x12"
-        foldlineview:undertext_size="@dimen/x32"
-        foldlineview:abovertext_size="@dimen/x32"
-        foldlineview:abovertext_margin="@dimen/x12"
-        foldlineview:undertext_margin="@dimen/x40"
-        foldlineview:undertext_color="#000000"
-        foldlineview:abovertext_color="#8e8e8e"/>
+        android:layout_marginTop="@dimen/x40"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:layout_width="@dimen/x228"
+            android:layout_height="@dimen/x140"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/bg_shadow"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/tv_mouth_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#000000"
+                android:textSize="@dimen/x52"
+                android:layout_centerHorizontal="true"/>
+            <TextView
+                android:id="@+id/tv_mouth_datetime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x8"
+                android:layout_below="@+id/tv_mouth_value"
+                android:text=""
+                android:textColor="#818181"
+                android:textSize="@dimen/x28"
+                android:layout_centerHorizontal="true"/>
+        </RelativeLayout>
+        <com.amsu.healthy.view.FoldLineViewWithPoint
+            android:id="@+id/spread_line_chart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/x10"
+            android:layout_below="@+id/view"
+            android:background="#FFFFFF"
+            foldlineview:line_color="#FF0000"
+            foldlineview:line_width="@dimen/x6"
+            foldlineview:radius_point="@dimen/x8"
+            foldlineview:radius_point_big="@dimen/x12"/>
+    </LinearLayout>
 
 </RelativeLayout>

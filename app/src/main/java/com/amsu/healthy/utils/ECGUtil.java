@@ -26,7 +26,6 @@ public class ECGUtil {
         return 	Integer.parseInt(hex,16);
     }
 
-
     // 23阶FIR滤波器，用于计算心率值所用，该滤波器更能滤除信号的毛刺，有利于计算R波峰。
     private static double fly0;
     private static double[] flx0 = new double[23];

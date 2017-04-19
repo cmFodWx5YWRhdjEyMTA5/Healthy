@@ -567,11 +567,11 @@
                 android:layout_height="match_parent"
                 android:background="#FFFFFF"
                 android:orientation="vertical"
-                android:layout_marginTop="@dimen/x100">
+                android:layout_marginTop="@dimen/x10">
                 <com.amsu.healthy.view.PieChart
                     android:id="@+id/pc_sport_piechart"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/x570"
+                    android:layout_height="@dimen/x670"
                     android:layout_above="@+id/ll_view1"
                     android:layout_centerVertical="true"
                     piechart:part1_color="#109d59"
@@ -589,7 +589,7 @@
                     android:paddingLeft="@dimen/x50"
                     android:paddingRight="@dimen/x50"
                     android:paddingBottom="@dimen/x64"
-                    android:layout_marginTop="@dimen/x32"
+                    android:layout_marginTop="@dimen/x10"
                     android:layout_centerHorizontal="true">
 
                     <RelativeLayout
@@ -606,7 +606,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="正常"
+                            android:text="平缓"
                             android:layout_toRightOf="@+id/iv_image10"
                             android:textSize="@dimen/x40"
                             android:textColor="#6b6b6b"
@@ -627,7 +627,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="异常"
+                            android:text="有氧"
                             android:layout_toRightOf="@+id/iv_image12"
                             android:textSize="@dimen/x40"
                             android:textColor="#6b6b6b"
@@ -648,7 +648,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="漏博"
+                            android:text="无氧"
                             android:layout_toRightOf="@+id/iv_image3"
                             android:textSize="@dimen/x40"
                             android:textColor="#6b6b6b"
@@ -669,7 +669,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="早搏"
+                            android:text="高危"
                             android:textSize="@dimen/x40"
                             android:textColor="#6b6b6b"
                             android:layout_toRightOf="@+id/iv_image4"

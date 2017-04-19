@@ -78,4 +78,15 @@ public class IndicatorAssess {
         this.suggestion = suggestion;
         this.evaluate = evaluate;
     }
+
+    @Override
+    public String toString() {
+        return "IndicatorAssess{" +
+                "value=" + value +
+                ", percent=" + percent +
+                ", name='" + name + '\'' +
+                ", suggestion='" + suggestion + '\'' +
+                ", evaluate='" + evaluate + '\'' +
+                '}';
+    }
 }

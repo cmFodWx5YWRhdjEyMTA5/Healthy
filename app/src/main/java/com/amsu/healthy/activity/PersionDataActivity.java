@@ -353,6 +353,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     }
                     else if (modifyType ==Constant.MODIFY_STILLRATE){
                         tv_persiondata_stillrate.setText(modifyValue);
+                        MyUtil.putIntValueFromSP(Constant.restingHR,Integer.parseInt(modifyValue));
                     }
                     else if (modifyType ==Constant.MODIFY_PHONE){
                         //电话，暂不修改
@@ -361,6 +362,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
                 }
             }
+
             else if (requestCode==101){
                 Uri uri = data.getData();
                 Cursor cursor = getContentResolver().query(uri, null, null, null,null);

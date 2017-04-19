@@ -1,17 +1,33 @@
 package com.amsu.healthy.activity;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.Apk;
+import com.amsu.healthy.bean.JsonApk;
+import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.User;
+import com.amsu.healthy.utils.ApkUtil;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
+import com.google.gson.Gson;
+import com.lidroid.xutils.HttpUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
 
 public class SystemSettingActivity extends BaseActivity implements View.OnClickListener {
 
@@ -63,26 +79,32 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
                 startActivity(new Intent(SystemSettingActivity.this,MyDeviceActivity.class));
                 break;
             case R.id.rl_persiondata_update:
-                startActivity(new Intent(SystemSettingActivity.this,AppUpdateActivity.class));
+                //startActivity(new Intent(SystemSettingActivity.this,AppUpdateActivity.class));
+                ApkUtil.checkUpdate(SystemSettingActivity.this);
                 break;
             case R.id.rl_persiondata_aboutus:
                 startActivity(new Intent(SystemSettingActivity.this,AboutUsActivity.class));
                 break;
             case R.id.rl_persiondata_exit:
-                Log.i(TAG,"isLogin:"+MyUtil.getBooleanValueFromSP("isLogin"));
-                Log.i(TAG,"isPrefectInfo:"+MyUtil.getBooleanValueFromSP("isPrefectInfo"));
-                MyUtil.putBooleanValueFromSP("isLogin",false);
-                MyUtil.putBooleanValueFromSP("isPrefectInfo",false);
-                Log.i(TAG,"isLogin:"+MyUtil.getBooleanValueFromSP("isLogin"));
-                Log.i(TAG,"isPrefectInfo:"+MyUtil.getBooleanValueFromSP("isPrefectInfo"));
-                MyUtil.saveUserToSP(new User());
-                startActivity(new Intent(SystemSettingActivity.this,LoginActivity.class));
-                for (Activity activity:MyApplication.mActivities){
-                    activity.finish();
-                }
+                exit();
                 break;
         }
     }
+
+    private void exit() {
+        Log.i(TAG,"isLogin:"+ MyUtil.getBooleanValueFromSP("isLogin"));
+        Log.i(TAG,"isPrefectInfo:"+MyUtil.getBooleanValueFromSP("isPrefectInfo"));
+        MyUtil.putBooleanValueFromSP("isLogin",false);
+        MyUtil.putBooleanValueFromSP("isPrefectInfo",false);
+        Log.i(TAG,"isLogin:"+MyUtil.getBooleanValueFromSP("isLogin"));
+        Log.i(TAG,"isPrefectInfo:"+MyUtil.getBooleanValueFromSP("isPrefectInfo"));
+        MyUtil.saveUserToSP(new User());
+        startActivity(new Intent(SystemSettingActivity.this,LoginActivity.class));
+        for (Activity activity: MyApplication.mActivities){
+            activity.finish();
+        }
+    }
+
 
     private void dumpToPersionData() {
         boolean isLogin = MyUtil.getBooleanValueFromSP("isLogin");
@@ -94,8 +116,3 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         }
     }
 }
-
-
-
-
-

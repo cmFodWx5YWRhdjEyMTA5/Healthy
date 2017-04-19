@@ -16,6 +16,7 @@ import com.amsu.healthy.activity.HistoryRecordActivity;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineView;
 import com.google.gson.Gson;
@@ -74,7 +75,7 @@ public class HeartRateFragment extends Fragment {
         UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
         if (mUploadRecord!=null){
             Log.i(TAG,"mUploadRecord:"+mUploadRecord.toString());
-            if (!MyUtil.isEmpty(mUploadRecord.MaxHR)){
+            if (!MyUtil.isEmpty(mUploadRecord.MaxHR )&& !mUploadRecord.MaxHR.equals(Constant.uploadRecordDefaultString)){
                 tv_rate_max.setText(mUploadRecord.MaxHR+"");
                 tv_rate_average.setText(mUploadRecord.MinHR+"");
             }
@@ -85,7 +86,9 @@ public class HeartRateFragment extends Fragment {
                 List<Integer> heartDatas = gson.fromJson(hr, new TypeToken<List<Integer>>() {
                 }.getType());
                 int[] ints = MyUtil.listToIntArray(heartDatas);
-                fv_rate_line.setData(ints);
+                if (ints!=null && ints.length>0){
+                    fv_rate_line.setData(ints);
+                }
             }
         }
         /*else {

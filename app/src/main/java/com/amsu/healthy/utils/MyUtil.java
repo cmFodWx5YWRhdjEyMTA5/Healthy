@@ -3,9 +3,13 @@ package com.amsu.healthy.utils;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.support.v7.app.AlertDialog;
 import android.util.Base64;
 import android.util.Base64InputStream;
 import android.util.DisplayMetrics;
@@ -13,6 +17,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.widget.Toast;
 
+import com.amsu.healthy.activity.SystemSettingActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.DeviceList;
@@ -52,17 +57,20 @@ public class MyUtil {
             }
             dialog.setMessage(message);
             dialog.show();
+            Log.i(TAG,"dialog.show();");
         } catch (Exception e) {
+            e.printStackTrace();
             // 在其他线程调用dialog会报错
         }
+        Log.i(TAG,"showDialog:"+dialog.isShowing());
     }
 
     public static void hideDialog() {
-        if (dialog != null && dialog.isShowing())
-            try {
-                dialog.dismiss();
-            } catch (Exception e) {
-            }
+        if (dialog != null && dialog.isShowing()){
+            dialog.dismiss();
+            Log.i(TAG,"hideDialog:"+dialog.isShowing());
+            dialog = null;
+        }
     }
 
     public static float dp2px(Context context, float dp) {
@@ -440,17 +448,20 @@ public class MyUtil {
     }
 
     public static String getCueMapDate(long time) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss ");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");
         Date curDate = new Date(time);
-        String date = formatter.format(curDate); new Date("");
+        String date = formatter.format(curDate);
         return date;
     }
 
     public static int[] listToIntArray(List<Integer> list){
-        int[] ret = new int[list.size()];
-        for(int i = 0;i < ret.length;i++)
-            ret[i] = list.get(i);
-        return ret;
+        if (list!=null && list.size()>0){
+            int[] ret = new int[list.size()];
+            for(int i = 0;i < ret.length;i++)
+                ret[i] = list.get(i);
+            return ret;
+        }
+        return null;
     }
 
     //获取当前季度
@@ -499,10 +510,10 @@ public class MyUtil {
     public static String getReportDateStingForMouthAndDay(String datatime) {
         String[] split = datatime.split(" ");
         String[] split2 = split[0].split("-");
-        return split2[1]+" "+split2[2];
+        return split2[1]+"月"+split2[2]+"日";
     }
 
 
 
-
 }
+

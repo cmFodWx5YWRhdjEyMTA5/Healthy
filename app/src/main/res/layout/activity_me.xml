@@ -99,6 +99,37 @@
         android:showDividers="middle"
         android:background="#FFFFFF">
         <RelativeLayout
+            android:id="@+id/rl_me_historyrecord"
+            android:layout_width="match_parent"
+            android:clickable="true"
+            android:background="@drawable/list_item_background"
+            android:layout_height="@dimen/y160">
+            <ImageView
+                android:id="@+id/iv_me_historyrecord"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/historyrecord"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/x36"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/iv_me_historyrecord"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/x36"
+                android:textSize="@dimen/x48"
+                android:textColor="#383838"
+                android:text="历史记录"/>
+            <ImageView
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/x36"/>
+
+        </RelativeLayout>
+        <RelativeLayout
             android:id="@+id/rl_me_report"
             android:layout_width="match_parent"
             android:clickable="true"
@@ -166,7 +197,8 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/y160"
             android:clickable="true"
-            android:background="@drawable/list_item_background">
+            android:background="@drawable/list_item_background"
+            android:visibility="gone">
             <ImageView
                 android:id="@+id/iv_me_follow"
                 android:layout_width="@dimen/x56"
@@ -197,7 +229,8 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/y160"
             android:clickable="true"
-            android:background="@drawable/list_item_background">
+            android:background="@drawable/list_item_background"
+            android:visibility="gone">
             <ImageView
                 android:id="@+id/iv_me_help"
                 android:layout_width="@dimen/x56"

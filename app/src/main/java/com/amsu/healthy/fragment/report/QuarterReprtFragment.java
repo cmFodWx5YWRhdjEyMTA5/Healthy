@@ -76,7 +76,7 @@ public class QuarterReprtFragment extends Fragment implements View.OnClickListen
         fragmentList.add(new HeartRateQuarterFragment());
         fragmentList.add(new EcgQuarterFragment());
         fragmentList.add(new HRRQuarterFragment());
-        fragmentList.add(new HRVQuarterFragment());
+        //fragmentList.add(new HRVQuarterFragment());
 
         FragmentActivity activity = getActivity();
         FragmentManager supportFragmentManager = activity.getSupportFragmentManager();

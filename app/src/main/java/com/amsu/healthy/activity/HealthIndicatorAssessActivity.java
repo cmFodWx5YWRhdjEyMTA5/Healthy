@@ -3,6 +3,8 @@ package com.amsu.healthy.activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
@@ -18,11 +20,23 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.bean.FullReport;
+import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.bean.IndicatorAssess;
+import com.amsu.healthy.bean.JsonBase;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.RadarView;
 import com.amsu.healthy.view.SelectDialog;
+import com.google.gson.Gson;
+import com.lidroid.xutils.HttpUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,6 +53,10 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
     private List<IndicatorAssess> indicatorAssesses;
     private AlertDialog mAlertDialog;
     private ViewPager vp_assess_float;
+    private WeekReport weekReport;
+    private int mCurrYear;
+    private int mCurrWeekOfYear;
+    private MyViewPageAdapter myViewPageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +120,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                         Log.i(TAG,"position:"+position);
                         selectDialog.dismiss();
 
-                        if (position==0){
+                       /* if (position==0){
                             //测试
                             if (indicatorAssesses.size()==7){
                                 indicatorAssesses.get(0).setPercent(60);
@@ -137,14 +155,15 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                                 rc_assess_radar.setDatas(data1,null,null);
                             }
 
-                        }
+                        }*/
 
+                        int weekOfYear = mCurrWeekOfYear -(position+1);
+                        downlaodWeekRepore(mCurrYear,weekOfYear);
                     }
                 });
 
                 selectDialog.setCanceledOnTouchOutside(true);//设置点击Dialog外部任意区域关闭Dialog
                 selectDialog.show();
-
             }
         });
 
@@ -157,68 +176,147 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             }
         });
 
-        
-        
-
+        indicatorAssesses = new ArrayList<>();
+        Calendar calendar=Calendar.getInstance();
+        calendar.setTime(new Date());
+        mCurrYear = calendar.get(Calendar.YEAR);
+        mCurrWeekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
     }
 
-
     private void initData() {
-        indicatorAssesses = new ArrayList<>();
+        downlaodWeekRepore(-1,-1);
+    }
+
+    private void downlaodWeekRepore(int year,int weekOfYear) {
+        MyUtil.showDialog("加载数据",this);
+        Log.i(TAG,"year:"+year+"  weekOfYear:"+weekOfYear);
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+        if (year!=-1){
+            params.addBodyParameter("year",year+"");
+        }
+        if (weekOfYear!=-1){
+            params.addBodyParameter("week",weekOfYear+"");
+        }
+        MyUtil.addCookieForHttp(params);
+
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadWeekReportURL, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                MyUtil.hideDialog();
+                indicatorAssesses.clear();
+                float[] data1 = {0, 0, 0, 0, 0,0,0};
+                rc_assess_radar.setDatas(data1,null,null);
+
+                String result = responseInfo.result;
+                Log.i(TAG,"上传onSuccess==result:"+result);
+                Gson gson = new Gson();
+                JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+                Log.i(TAG,"jsonBase:"+jsonBase);
+                if (jsonBase.getRet()==0){
+                    weekReport = gson.fromJson(result, WeekReport.class);
+                    Log.i(TAG,"weekReport:"+ weekReport.toString());
+                    setIndicatorData();
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                MyUtil.hideDialog();
+
+                Log.i(TAG,"上传onFailure==s:"+s);
+            }
+        });
+    }
+
+    private void setIndicatorData(){
         //BMI
         IndicatorAssess scoreBMI = HealthyIndexUtil.calculateScoreBMI();
         //储备心率
         IndicatorAssess scorehrReserve = HealthyIndexUtil.calculateScorehrReserve();
-        //恢复心率HRR
-        IndicatorAssess scoreHRR = HealthyIndexUtil.calculateScoreHRR();
-        //抗疲劳指数HRV(心电分析算法得出)
-        IndicatorAssess scoreHRV = HealthyIndexUtil.calculateScoreHRV();
-        //过缓/过速(心电分析算法得出)
-        IndicatorAssess scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow();
-        //早搏 包括房早搏APB和室早搏VPB，两者都记为早搏(心电分析算法得出)
-        IndicatorAssess scoreBeat = HealthyIndexUtil.calculateScoreBeat();
-        // 健康储备(按训练时间计算)
-        IndicatorAssess scoreReserveHealth = HealthyIndexUtil.calculateScoreReserveHealth();
 
-        if (scoreOver_slow!=null){
-            indicatorAssesses.add(scoreOver_slow);
-        }
-        if (scoreBeat!=null){
-            indicatorAssesses.add(scoreBeat);
-        }
-        if (scoreReserveHealth!=null){
-            indicatorAssesses.add(scoreReserveHealth);
-        }
-        if (scoreBMI!=null){
-            indicatorAssesses.add(scoreBMI);
-        }
-        if (scoreOver_slow!=null){
+        if (weekReport!=null){
+            List<String> huifuxinlv = weekReport.errDesc.huifuxinlv;
+            int sum = 0;
+            for (String s:huifuxinlv){
+                sum += Integer.parseInt(s);
+            }
+            int avHhrr = sum/huifuxinlv.size();
+            //恢复心率HRR
+            IndicatorAssess scoreHRR = HealthyIndexUtil.calculateScoreHRR(avHhrr);
 
-        }if (scorehrReserve!=null){
-            indicatorAssesses.add(scorehrReserve);
-        }
-        if (scoreHRR!=null){
-            indicatorAssesses.add(scoreHRR);
-        }
-        if (scoreHRV!=null){
-            indicatorAssesses.add(scoreHRV);
-        }
 
-        //float[] data1 = {70, 90, 60, 70, 50,30,60};
-        if (indicatorAssesses.size()==7){
+            List<String> kangpilaozhishu = weekReport.errDesc.kangpilaozhishu;
+            sum = 0;
+            for (String s:kangpilaozhishu){
+                sum += Integer.parseInt(s);
+            }
+            int avHhrv = sum/kangpilaozhishu.size();
+            //抗疲劳指数HRV(心电分析算法得出)
+            IndicatorAssess scoreHRV = HealthyIndexUtil.calculateScoreHRV(avHhrv);
+
+            List<String> guosuguohuan = weekReport.errDesc.guosuguohuan;
+            sum = 0;
+            for (String s:guosuguohuan){
+                sum += Integer.parseInt(s);
+            }
+            int over_slow = sum/guosuguohuan.size();
+            //过缓/过速(心电分析算法得出)
+            IndicatorAssess scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(over_slow);
+
+            IndicatorAssess scoreBeat = null;
+            List<Integer> zaoboloubo = weekReport.errDesc.zaoboloubo;
+            if (zaoboloubo!=null && zaoboloubo.size()>1){
+                int zaobo  = zaoboloubo.get(0);
+                int loubo  = zaoboloubo.get(1);
+                if (zaobo<0){
+                    zaobo = 0;
+                }
+                if (loubo<0){
+                    loubo = 0;
+                }
+                //早搏 包括房早搏APB和室早搏VPB，两者都记为早搏(心电分析算法得出)
+                scoreBeat = HealthyIndexUtil.calculateScoreBeat(zaobo,loubo);
+            }
+
+            // 健康储备(按训练时间计算)
+            IndicatorAssess scoreReserveHealth = HealthyIndexUtil.calculateScoreReserveHealth();
+
+            if (scoreOver_slow!=null){
+                indicatorAssesses.add(scoreOver_slow);
+            }
+            if (scoreBeat!=null){
+                indicatorAssesses.add(scoreBeat);
+            }
+            if (scoreReserveHealth!=null){
+                indicatorAssesses.add(scoreReserveHealth);
+            }
+            if (scoreBMI!=null){
+                indicatorAssesses.add(scoreBMI);
+            }
+            if (scorehrReserve!=null){
+                indicatorAssesses.add(scorehrReserve);
+            }
+            if (scoreHRR!=null){
+                indicatorAssesses.add(scoreHRR);
+            }
+            if (scoreHRV!=null){
+                indicatorAssesses.add(scoreHRV);
+            }
+
             float[] data1 = new float[7];
             for (int i=0;i<indicatorAssesses.size();i++){
                 data1[i] = indicatorAssesses.get(i).getPercent();
             }
-
-            float[] data2 = {80, 120, 140, 170, 150,140,100};
-            float[] data3 = {140, 160,100,120,170, 180, 160};
-
             rc_assess_radar.setDatas(data1,null,null);
-            //rc_assess_radar.setDatas(data1,data2,data3);
+
+            for (IndicatorAssess indicatorAssess:indicatorAssesses){
+                Log.i(TAG,"indicatorAssess:"+indicatorAssess);
+            }
+            if (myViewPageAdapter!=null){
+                myViewPageAdapter.notifyDataSetChanged();
+            }
         }
-
-
     }
 
     @Override
@@ -242,7 +340,8 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
     private void initItemViewPageView() {
         View inflate = View.inflate(this, R.layout.dialog_assess_type, null);
         vp_assess_float = (ViewPager) inflate.findViewById(R.id.vp_assess_float);
-        vp_assess_float.setAdapter(new MyViewPageAdapter());
+        myViewPageAdapter = new MyViewPageAdapter();
+        vp_assess_float.setAdapter(myViewPageAdapter);
         ;
 
         mAlertDialog = new AlertDialog.Builder(this).setView(inflate).create();
@@ -309,7 +408,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         });
     }
 
-    class MyViewPageAdapter extends PagerAdapter {
+    private class MyViewPageAdapter extends PagerAdapter {
 
         @Override
         public int getCount() {
@@ -334,16 +433,34 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             if (indicatorAssess!=null){
                 if (indicatorAssess.getName().equals("储备心率") || indicatorAssess.getName().equals("恢复心率(HRR)")){
                     tv_item_unit.setText("bpm");
-                    tv_item_value.setText(indicatorAssess.getValue()+"");
+                    if (indicatorAssess.getValue()==0){
+                        tv_item_value.setText("--");
+                    }
+                    else {
+                        tv_item_value.setText(indicatorAssess.getValue()+"");
+                    }
                 }
                 else if (indicatorAssess.getName().equals("BMI")){
                     tv_item_unit.setText("bmi");
-                    tv_item_value.setText(indicatorAssess.getValue()+"");
+                    if (indicatorAssess.getValue()==0){
+                        tv_item_value.setText("--");
+                    }
+                    else {
+                        tv_item_value.setText(indicatorAssess.getValue()+"");
+                    }
                 }
                 else {
                     tv_item_unit.setText("分");
-                    tv_item_value.setText(indicatorAssess.getPercent()+"");
+                    if (indicatorAssess.getPercent()==0){
+                        tv_item_value.setText("--");
+                    }
+                    else {
+                        tv_item_value.setText(indicatorAssess.getPercent()+"");
+                    }
+
                 }
+
+
 
 
                 tv_item_typeName.setText(indicatorAssess.getName());
@@ -356,6 +473,51 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
             container.removeView((View) object);
+        }
+    }
+
+    class WeekReport{
+        public String ret;
+        public WeekReportResult errDesc;
+
+         class WeekReportResult{
+            public String chubeijiankang;
+            public List<Integer> zaoboloubo;
+            public List<String> guosuguohuan;
+            public List<String> kangpilaozhishu;
+            public List<String> huifuxinlv;
+            public List<HistoryRecordItem> list;
+
+            public class HistoryRecordItem {
+                public String ID;
+                public String timestamp;
+                public String state;
+
+                public HistoryRecordItem(String ID, String timestamp, String state) {
+                    this.ID = ID;
+                    this.timestamp = timestamp;
+                    this.state = state;
+                }
+
+                @Override
+                public String toString() {
+                    return "HistoryRecordItem [ID=" + ID + ", timestamp="
+                            + timestamp + ", state=" + state + "]";
+                }
+            }
+
+            @Override
+            public String toString() {
+                return "WeekReport [chubeijiankang=" + chubeijiankang
+                        + ", zaoboloubo=" + zaoboloubo + ", guosuguohuan="
+                        + guosuguohuan + ", kangpilaozhishu=" + kangpilaozhishu
+                        + ", huifuxinlv=" + huifuxinlv + ", list=" + list + "]";
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "WeekReport [ret=" + ret + ", errDesc=" + errDesc + "]";
         }
     }
 

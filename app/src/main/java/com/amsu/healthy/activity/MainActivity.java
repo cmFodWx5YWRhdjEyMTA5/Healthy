@@ -4,12 +4,19 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,14 +27,19 @@ import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.Apk;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.DeviceList;
+import com.amsu.healthy.utils.ApkUtil;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.CircleRingView;
 import com.amsu.healthy.view.DashboardView;
+import com.ble.api.DataUtil;
+import com.ble.ble.BleCallBack;
+import com.ble.ble.BleService;
 
 import java.util.List;
 
@@ -47,6 +59,11 @@ public class MainActivity extends BaseActivity {
     private int physicalAge;
     private int scoreALL;
 
+    public static BleService mLeService;
+    private static String connecMac;   //当前连接的蓝牙mac地址
+    public static boolean isConnectted  =false;
+    private boolean isConnectting  =false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,10 +80,59 @@ public class MainActivity extends BaseActivity {
         Log.i(TAG,"text:"+text);
         String decodeText = MyUtil.decodeBase64String(text);
         Log.i(TAG,"decodeText:"+decodeText);*/
-    }
 
+        /*for (int i=0;i<10;i++){
+            Message message = StartRunActivity.runEcgHandler.obtainMessage();
+            String hexData = i+" xxxxxxxxxxxxxxxxxxx";
+            message.obj = hexData;
+            StartRunActivity.runEcgHandler.sendMessage(message);
+        }*/
+
+
+
+
+       /* new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    try {
+                        Thread.sleep(1000);
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Looper.prepare();
+                                StartRunActivity startRunActivity = new StartRunActivity();
+                                Handler runEcgHandlerInstance = startRunActivity.getRunEcgHandlerInstance();
+                                Message message = runEcgHandlerInstance.obtainMessage();
+                                message.obj = "xxxxxxxxxxxxxxxx";
+                                runEcgHandlerInstance.sendMessage(message);
+                                //Looper.loop();
+                            }
+                        });
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        }).start();*/
+    }
+    int i = 0;
 
     private void initView() {
+        initHeadView();
+        setLeftText(getResources().getString(R.string.app_name));
+        setCenterText("");
+        setHeadBackgroudColor("#0c64b5");
+        setRightImage(R.drawable.yifu);
+        getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,MyDeviceActivity.class));
+            }
+        });
         dv_main_compass = (DashboardView) findViewById(R.id.dv_main_compass);
         cv_mian_index = (CircleRingView) findViewById(R.id.cv_mian_index);
         cv_mian_warring = (CircleRingView) findViewById(R.id.cv_mian_warring);
@@ -108,7 +174,8 @@ public class MainActivity extends BaseActivity {
 
         //showUploadOffLineData();
 
-        MyUtil.putStringValueFromSP("devicelist","");
+
+
 
     }
 
@@ -126,26 +193,27 @@ public class MainActivity extends BaseActivity {
 
     private void initData() {
         checkAndOpenBLEFeature();
+        checkIsNeedUpadteApk();
 
-
-        //生理年龄
-        physicalAge = HealthyIndexUtil.calculatePhysicalAge();
-        Log.i(TAG,"physicalAge:"+ physicalAge);
-        if (physicalAge>0){
+        int healthyIindexvalue = MyUtil.getIntValueFromSP("healthyIindexvalue");
+        if (healthyIindexvalue!=-1){
+            tv_main_indexvalue.setText(healthyIindexvalue+"");
+        }
+        physicalAge = MyUtil.getIntValueFromSP("physicalAge");
+        if (healthyIindexvalue>0){
             setAgeTextAnimator(tv_main_age,0, physicalAge);
+            dv_main_compass.setAgeData(physicalAge-10);
         }
 
-        //健康指标
-        scoreALL = HealthyIndexUtil.calculateIndexvalue();
-        if (scoreALL >0){
-            tv_main_indexvalue.setText(scoreALL +"");
-        }
-
-
-
-
+        Log.i(TAG,"healthyIindexvalue:"+healthyIindexvalue+"  physicalAge:"+physicalAge);
     }
 
+    private void checkIsNeedUpadteApk() {
+        Apk apkFromSP = ApkUtil.getApkFromSP();
+        if (apkFromSP!=null && !MyUtil.isEmpty(apkFromSP.versioncode)){
+            ApkUtil.checkAndUpdateVersion(Integer.parseInt(apkFromSP.versioncode),apkFromSP.path,this);
+        }
+    }
 
 
     @Override
@@ -207,7 +275,7 @@ public class MainActivity extends BaseActivity {
         Log.i(TAG,"onStop");
     }
 
-    class MyOnClickListener implements View.OnClickListener{
+    private class MyOnClickListener implements View.OnClickListener{
 
         @Override
         public void onClick(View v) {
@@ -261,9 +329,6 @@ public class MainActivity extends BaseActivity {
                 case R.id.rl_main_warringindex:
                     startActivity(new Intent(MainActivity.this,IndexWarringActivity.class));
                     break;
-
-
-
             }
         }
     }

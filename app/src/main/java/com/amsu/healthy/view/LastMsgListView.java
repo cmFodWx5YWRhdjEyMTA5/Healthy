@@ -172,4 +172,6 @@ public class LastMsgListView extends ListView {
         void refresh();
         void loadMore();
     }
+
+
 }

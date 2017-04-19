@@ -33,6 +33,7 @@ import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.trace.TraceLocation;
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
@@ -65,7 +66,6 @@ import static com.amsu.healthy.R.id.bt_run_start;
  *
  */
 public class StartRunActivity extends BaseActivity implements AMapLocationListener {
-
     private static final String TAG = "StartRunActivity";
     private TextView tv_run_speed;
     private TextView tv_run_distance;
@@ -114,6 +114,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     public static final String action = "jason.broadcast.action";    //发送广播，将心率值以广播的方式放松出去，在其他Activity可以接受
     private FileOutputStream fileOutputStream;
     private long ecgFiletimeMillis =-1;  //开始有心电数据时的秒数，作为心电文件命名。静态变量，在其他界面会用到
+    private boolean mHaveOutSideGpsLocation;
 
 
     @Override
@@ -182,6 +183,32 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             }
         });
 
+        //绑定蓝牙，获取蓝牙服务
+        bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
+
+    }
+
+    Handler runEcgHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            String hexData = (String) msg.obj;
+            Log.i(TAG,"hexData:"+hexData);
+            if (hexData.startsWith("FF 83 0F")) {
+                //心电数据
+                //Log.i(TAG,"心电hexData:"+hexData);
+                dealWithEcgData(hexData);
+            } else if (hexData.startsWith("FF 86 11")) {
+                //加速度数据
+                //Log.i(TAG,"加速度hexData:"+hexData);
+                dealWithAccelerationgData(hexData);
+            }
+
+            return false;
+        }
+    });
+
+    public Handler getRunEcgHandlerInstance(){
+        return runEcgHandler;
     }
 
 
@@ -279,20 +306,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             Log.i(TAG,"onLeScan  device:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
             String leName = device.getName();
             if (leName!=null && leName.startsWith("BLE")) {
-                /*for (int i = 0; i < deviceListFromSP.size(); i++) {
-                    if (leName.equals(deviceListFromSP.get(i).getLEName())){
-                        //配对成功
-                        connecMac = device.getAddress();
-                        if (!isConnectted && !isConnectting){
-                            //没有链接上，并且没有正在链接
-                            mLeService.connect(device.getAddress(),true);  //链接
-                            isConnectting  = true;
-                            Log.i(TAG,"开始连接");
-                        }
-
-
-                    }
-                }*/
                 String stringValueFromSP = MyUtil.getStringValueFromSP(Constant.currectDeviceLEName);
                 if (leName.equals(stringValueFromSP)){  //只有扫描到的蓝牙是sp里的当前设备时（激活状态），才能进行连接
                     //配对成功
@@ -548,8 +561,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private void startConnectBluetooth(){
         if (MainActivity.mBluetoothAdapter!=null){
             MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
-            //绑定蓝牙，获取蓝牙服务
-            bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
         }
     }
 
@@ -562,42 +573,46 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     }
 
     private void calculateDistance(AMapLocation aMapLocation) {
-        double tempDistance = 0;
-        if (record.getPathline().size()==0) { //在定位成功时就加入2个点，用于在室内定位时标注位置
+        //不关室内室外，首次定位几个点策略：定位5个点，这5个点的距离在100m范围之内属于正常情况，否则为定位不准，重新定位前5个点
+        if (record.getPathline().size()<=5){
             record.addpoint(aMapLocation);
-        }
-        else {
-            AMapLocation lastAMapLocation = record.getPathline().get(record.getPathline().size() - 1);
-            tempDistance = getTwoPointDistance(lastAMapLocation, aMapLocation);
-            Log.i(TAG,"tempDistance:"+tempDistance);
-            if (tempDistance<500){   //2个点之间距离小于100m为正常定位情况，否则为噪声去除
-                record.addpoint(aMapLocation);
+            float distance = Util.getDistance(record.getPathline());
+            if (distance>100){
+                record.getPathline().clear();
             }
         }
 
         if(aMapLocation.getLocationType()==AMapLocation.LOCATION_TYPE_GPS){
+            if (!mHaveOutSideGpsLocation){
+                mHaveOutSideGpsLocation = true;
+            }
             Log.i(TAG,"record.getPathline().size():"+record.getPathline().size());
             //室外,GPS定位数据，在室外。计算距离方式：1、衣服计步器，2、根据地图返回的距离 ，3、地图利用手机传感器，
-            //首次定位几个点策略：定位5个点，这5个点的距离在100m范围之内属于正常情况，否则为定位不准，重新定位前5个点
-            /*if (record.getPathline().size()<=5){
-                record.addpoint(aMapLocation);
-                float distance = Util.getDistance(record.getPathline());
-                if (distance>100){
-                    record.getPathline().clear();
-                }
-                return;
-            }
-            */
-            if (tempDistance<100){   //2个点之间距离小于100m为正常定位情况，否则为噪声去除
+            double tempDistance = 0;
+            AMapLocation lastAMapLocation = record.getPathline().get(record.getPathline().size() - 1);
+            tempDistance = getTwoPointDistance(lastAMapLocation, aMapLocation);
+            Log.i(TAG,"tempDistance:"+tempDistance);
+            if (tempDistance<500){   //2个点之间距离小于100m为正常定位情况，否则为噪声去除
                 mAllDistance += tempDistance;
+                record.addpoint(aMapLocation);
                 Log.i(TAG,"tempDistance:"+tempDistance);
                 Log.i(TAG,"mAllDistance:"+mAllDistance);
             }
         }
         else {
+            if (mHaveOutSideGpsLocation){
+                //有室外定位，则属于在室外跑步然后遇到GPS信号弱的情况，需要将其他方式定位的经纬度存入列表，防止定位中断
+                double tempDistance = 0;
+                AMapLocation lastAMapLocation = record.getPathline().get(record.getPathline().size() - 1);
+                tempDistance = getTwoPointDistance(lastAMapLocation, aMapLocation);
+                Log.i(TAG,"tempDistance:"+tempDistance);
+                if (tempDistance<500){   //2个点之间距离小于100m为正常定位情况，否则为噪声去除
+                    record.addpoint(aMapLocation);
+                }
+            }
             //室内,非GPS定位，说明信号差，属于室内定位。计算距离方式：1、衣服计步器，3、地图利用手机传感器计算移动速度
              if (mCurrentTimeMillis!=0.0){ //不是第一次
-                 tempDistance = aMapLocation.getSpeed() * ((System.currentTimeMillis() - mCurrentTimeMillis) / 1000f); //s=vt,单位:m
+                 double tempDistance = aMapLocation.getSpeed() * ((System.currentTimeMillis() - mCurrentTimeMillis) / 1000f); //s=vt,单位:m
                  mAllDistance += tempDistance;
              }
          }
@@ -633,12 +648,22 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 chooseOpenGps();
             }
             else {
+                if (MainActivity.isConnectted){
+                    //衣服链接成功，开始数据传输
+
+                }
+
                 bt_run_start.setText("长按结束");
+
+                if (!mIsRunning){
+                    startConnectBluetooth();
+                }
+
                 bt_run_lock.setVisibility(View.VISIBLE);
                 mIsRunning  =true;
                 isThreeMit = true;  //测试
 
-                startConnectBluetooth();
+
 
                 //开启三分钟计时，保存记录最短为3分钟
                 MyTimeTask.startCountDownTimerTask(1000 * 60 * 3, new MyTimeTask.OnTimeOutListener() {
@@ -676,7 +701,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     //结束运动
     private void endRunning() {
         ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(this);
-        if (isThreeMit){
+        if (isThreeMit && mAllDistance>0){
             chooseAlertDialogUtil.setAlertDialogText("采集恢复心率需要继续采集一分钟的心电数据，是否进行采集？","是","否");
             chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
                 @Override
@@ -692,7 +717,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                         intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
                     }
                     startActivity(intent);
-                    finish();
+                    MyApplication.mActivities.add(StartRunActivity.this);
+                    //finish();
                 }
             });
             chooseAlertDialogUtil.setOnCancelClickListener(new ChooseAlertDialogUtil.OnCancelClickListener() {
@@ -714,7 +740,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             });
         }
         else {
-            chooseAlertDialogUtil.setAlertDialogText("跑步时间太短，无法保存记录，是否继续跑步？","继续跑步","结束跑步");
+            chooseAlertDialogUtil.setAlertDialogText("跑步时间或距离太短，无法保存记录，是否继续跑步？","继续跑步","结束跑步");
             chooseAlertDialogUtil.setOnCancelClickListener(new ChooseAlertDialogUtil.OnCancelClickListener() {
                 @Override
                 public void onCancelClick() {
@@ -731,7 +757,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         Log.i(TAG,"createrecord:"+createrecord);
         mlocationClient.stopLocation();
         mIsRunning = false;
-        finish();
     }
 
     //初始化定位
@@ -785,9 +810,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 startActivityForResult(intent, 0); // 设置完成后返回到原来的界面
             }
         });
-
     }
-
 
     private class MyOnClickListener implements View.OnClickListener{
 
@@ -824,9 +847,12 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mConnection);
         if (MainActivity.mBluetoothAdapter!=null){
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
         }
+
+
+        unbindService(mConnection);
+
     }
 }

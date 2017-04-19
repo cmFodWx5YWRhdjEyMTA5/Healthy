@@ -71,7 +71,7 @@ public class YearReprtFragment extends Fragment implements View.OnClickListener{
         fragmentList.add(new HeartRateYearFragment());
         fragmentList.add(new EcgYearFragment());
         fragmentList.add(new HRRYearFragment());
-        fragmentList.add(new HRVYearFragment());
+        ///fragmentList.add(new HRVYearFragment());
 
         FragmentActivity activity = getActivity();
         FragmentManager supportFragmentManager = activity.getSupportFragmentManager();

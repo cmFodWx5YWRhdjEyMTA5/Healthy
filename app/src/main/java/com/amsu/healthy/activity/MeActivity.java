@@ -57,6 +57,7 @@ public class MeActivity extends BaseActivity {
         ImageView iv_me_back = (ImageView) findViewById(R.id.iv_me_back);
         iv_me_headicon = (CircleImageView) findViewById(R.id.iv_me_headicon);
 
+        RelativeLayout rl_me_historyrecord = (RelativeLayout) findViewById(R.id.rl_me_historyrecord);
         RelativeLayout rl_me_report = (RelativeLayout) findViewById(R.id.rl_me_report);
         RelativeLayout rl_me_healthplan = (RelativeLayout) findViewById(R.id.rl_me_healthplan);
         RelativeLayout rl_me_follow = (RelativeLayout) findViewById(R.id.rl_me_follow);
@@ -70,6 +71,7 @@ public class MeActivity extends BaseActivity {
         MyOnClickListener myOnClickListener = new MyOnClickListener();
         iv_me_back.setOnClickListener(myOnClickListener);
         iv_me_headicon.setOnClickListener(myOnClickListener);
+        rl_me_historyrecord.setOnClickListener(myOnClickListener);
         rl_me_report.setOnClickListener(myOnClickListener);
         rl_me_healthplan.setOnClickListener(myOnClickListener);
         rl_me_follow.setOnClickListener(myOnClickListener);
@@ -152,7 +154,7 @@ public class MeActivity extends BaseActivity {
 
     }*/
 
-    class MyOnClickListener implements View.OnClickListener{
+    private class MyOnClickListener implements View.OnClickListener{
 
         @Override
         public void onClick(View v) {
@@ -163,6 +165,9 @@ public class MeActivity extends BaseActivity {
                     break;
                 case R.id.iv_me_headicon:
                     dumpToPersionData();
+                    break;
+                case R.id.rl_me_historyrecord:
+                    startActivity(new Intent(MeActivity.this,HistoryRecordActivity.class));
                     break;
                 case R.id.rl_me_report:
                     startActivity(new Intent(MeActivity.this,MyReportActivity.class));

@@ -13,6 +13,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.bean.FullReport;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.view.FoldLineViewWithPoint;
 import com.amsu.healthy.view.FoldLineViewWithTextOne;
 
 import java.util.List;
@@ -24,9 +25,11 @@ import java.util.List;
 public class HeartRateQuarterFragment extends Fragment {
 
     private static final String TAG = "HeartRateQuarter";
-    private FoldLineViewWithTextOne mLineChart;
+    private FoldLineViewWithPoint mLineChart;
     private View inflate;
     private TextView tv_heartRatemouth_date;
+    private TextView tv_mouth_value;
+    private TextView tv_mouth_datetime;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,12 +46,19 @@ public class HeartRateQuarterFragment extends Fragment {
         TextView tv_ecgmouth_type = (TextView) inflate.findViewById(R.id.tv_ecgmouth_type);
         tv_ecgmouth_type.setText("季度心率报告");
         tv_heartRatemouth_date = (TextView) inflate.findViewById(R.id.tv_heartRatemouth_date);
-        mLineChart = (FoldLineViewWithTextOne) inflate.findViewById(R.id.spread_line_chart);
+        mLineChart = (FoldLineViewWithPoint) inflate.findViewById(R.id.spread_line_chart);
 
         tv_heartRatemouth_date.setText(MyUtil.getCurrentYearAndQuarter());
+        tv_mouth_value = (TextView) inflate.findViewById(R.id.tv_mouth_value);
+        tv_mouth_datetime = (TextView) inflate.findViewById(R.id.tv_mouth_datetime);
 
-
-
+        mLineChart.setOnDateTimeChangeListener(new FoldLineViewWithPoint.OnDateTimeChangeListener() {
+            @Override
+            public void onDateTimeChange(int heartRate, String dateTime) {
+                tv_mouth_value.setText(heartRate+"");
+                tv_mouth_datetime.setText(dateTime);
+            }
+        });
     }
 
 
@@ -66,6 +76,8 @@ public class HeartRateQuarterFragment extends Fragment {
                     i++;
                 }
                 mLineChart.setData(datas,labels);
+                tv_mouth_value.setText(datas[datas.length-1]+"");
+                tv_mouth_datetime.setText(labels[labels.length-1]);
             }
         }
     }
@@ -77,8 +89,18 @@ public class HeartRateQuarterFragment extends Fragment {
         initData();
 
         /*int[] datas =    {67,59,54,67,60,60,61};  //心率数据
-        String[] labels = {"2日","4日","5日","6日","9日","10日","12日"};  //心率数据，需要保证数据长度的一致
-        mLineChart.setData(datas,labels);*/
+        String[] datetime =    {"10月1日","10月2日","10月3日","10月4日","10月5日","10月6日","10月7日"};  //心率数据
+        mLineChart.setData(datas,datetime);
+
+        mLineChart.setOnDateTimeChangeListener(new FoldLineViewWithPoint.OnDateTimeChangeListener() {
+            @Override
+            public void onDateTimeChange(int heartRate, String dateTime) {
+                tv_mouth_value.setText(heartRate+"");
+                tv_mouth_datetime.setText(dateTime);
+            }
+        });*/
+
+
 
 
 

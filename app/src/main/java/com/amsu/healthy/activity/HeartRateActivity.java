@@ -208,7 +208,7 @@ public class HeartRateActivity extends BaseActivity {
         String timestamp;
         String datatime ;
         if (ecgFiletimeMillis!=-1){
-            timestamp = ecgFiletimeMillis+"";
+            timestamp = (ecgFiletimeMillis/1000)+"";
             datatime = MyUtil.getSpecialFormatTime("yyyy/MM/dd H:m:s", new Date(ecgFiletimeMillis));
         }
         else {
@@ -231,14 +231,21 @@ public class HeartRateActivity extends BaseActivity {
             //转化成json并存在sp里
             Gson gson = new Gson();
 
-            IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex((int) (heartRateResult.LF / heartRateResult.HF));
+            /*IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex((int) (heartRateResult.LF / heartRateResult.HF));
             String ES = String.valueOf(ESIndicatorAssess.getPercent());
             IndicatorAssess PIIndicatorAssess = HealthyIndexUtil.calculateSDNNPressureIndex(heartRateResult.RR_SDNN);
             String PI = String.valueOf(PIIndicatorAssess.getPercent());
             IndicatorAssess FIIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(heartRateResult.RR_SDNN);
-            String FI = String.valueOf(FIIndicatorAssess.getPercent());
+            String FI = String.valueOf(FIIndicatorAssess.getPercent());*/
 
-            String HRVs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
+            //String HRVs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
+
+            String ES = (int)(heartRateResult.LF / heartRateResult.HF)+"";
+            String PI = heartRateResult.RR_SDNN+"";
+            String FI = heartRateResult.RR_SDNN+"";
+
+            int zaobo = heartRateResult.RR_Apb + heartRateResult.RR_Pvc;
+            int loubo = heartRateResult.RR_Boleakage;
 
             String HR = gson.toJson(heartDataList);
             int MaxHR= heartDataList.get(0);
@@ -253,7 +260,12 @@ public class HeartRateActivity extends BaseActivity {
                 }
                 sum += heart;
             }
-            String AHR = String.valueOf(sum/ heartDataList.size());
+            int averHeart = sum / heartDataList.size();
+            String AHR = String.valueOf(averHeart);
+            if (averHeart>0  && averHeart<150){
+                MyUtil.putIntValueFromSP(Constant.restingHR,averHeart);
+            }
+
             String  EC = "";
             if (!MyUtil.isEmpty(fileBase64)){
                 EC = fileBase64;
@@ -277,7 +289,7 @@ public class HeartRateActivity extends BaseActivity {
             uploadRecord.setFI(FI);
             uploadRecord.setES(ES);
             uploadRecord.setPI(PI);
-            uploadRecord.setHRVs(HRVs);
+            //uploadRecord.setHRVs(HRVs);
             uploadRecord.setAHR(AHR);
             uploadRecord.setMaxHR(String.valueOf(MaxHR));
             uploadRecord.setMinHR(String.valueOf(MinHR));
@@ -286,16 +298,18 @@ public class HeartRateActivity extends BaseActivity {
             uploadRecord.setECr(ECr);
             uploadRecord.setRA(RA);
             uploadRecord.setHR(HR);
+            uploadRecord.setZaobo(zaobo+"");
+            uploadRecord.setLoubo(loubo+"");
 
         }
         //设置跑步数据
         if (sportCreateRecordID!=-1){
-            String AE = "-1";  //有氧无氧
-            String distance = "-1";
-            String time = "-1";
-            String cadence = "-1";//步频
-            String calorie = "-1";  //卡路里
-            String latitude_longitude = "-1";  //经纬度
+            String AE = Constant.uploadRecordDefaultString;  //有氧无氧
+            String distance = Constant.uploadRecordDefaultString;
+            String time = Constant.uploadRecordDefaultString;
+            String cadence = Constant.uploadRecordDefaultString;//步频
+            String calorie = Constant.uploadRecordDefaultString;  //卡路里
+            String latitude_longitude = Constant.uploadRecordDefaultString;  //经纬度
 
 
             DbAdapter dbAdapter = new DbAdapter(this);
@@ -310,7 +324,6 @@ public class HeartRateActivity extends BaseActivity {
                 }
                 time = pathRecord.getDuration();
                 latitude_longitude = getLatitude_longitudeString(pathRecord);
-
 
                 uploadRecord.setAE(AE);
                 uploadRecord.setDistance(distance);
@@ -393,6 +406,7 @@ public class HeartRateActivity extends BaseActivity {
         params.addBodyParameter("datatime",uploadRecord.datatime);
 
         params.addBodyParameter("HR",uploadRecord.getHR());
+        //params.addBodyParameter("HR","[]");
         params.addBodyParameter("AE",uploadRecord.getAE());
         params.addBodyParameter("distance",uploadRecord.getDistance());
         params.addBodyParameter("time",uploadRecord.getTime());

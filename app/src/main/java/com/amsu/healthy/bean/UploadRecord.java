@@ -3,68 +3,70 @@ package com.amsu.healthy.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.amsu.healthy.utils.Constant;
+
 /**
  * Created by HP on 2017/3/19.
  */
 
 public class UploadRecord implements Parcelable {
-    public String FI;   //疲劳指数(Fatigue index)
-    public String ES;   //	情绪状态(emotional state)
-    public String PI;  //压力指数(Pressure index)
-    public String CC;  //抗压能力(Compressive capacity)
-    public String HRVr;  //hrv分析结果(hrv result)
-    public String HRVs;  //hrv健康建议(hrv suggest)
-    public String AHR;  //平均心率(average heart rate)
-    public String MaxHR;  //最大心率(maximal heart rate)
-    public String MinHR;  //L最小心率(Minimum heart rate)
-    public String HRr;  //心率分析结果(heart rater result)
-    public String HRs;  //心率健康建议(heart rater suggest)
-    public String EC;  //心电数据(electrocardio)
-    public String ECr;  //心电分析结果(electrocardioresult)(1正常心电，2异常心电，3漏博，4早博)
-    public String ECs;  //心电健康建议(electrocardio suggest)
-    public String RA;  //心率恢能力（recovery ability）
-    public String timestamp;  //
-    public String datatime;  //
-    public String HR;  //
-    public String AE;  //
-    public String distance;  //
-    public String time;  //
-    public String cadence;  //
-    public String calorie;  //
-    public String state;  //
+    public String FI;                      //疲劳指数(Fatigue index)
+    public String ES;                      //	情绪状态(emotional state)
+    public String PI;         //压力指数(Pressure index)
+    public String CC;       //抗压能力(Compressive capacity)
+    public String HRVr;       //hrv分析结果(hrv result)
+    public String HRVs;       //hrv健康建议(hrv suggest)
+    public String AHR;       //平均心率(average heart rate)
+    public String MaxHR;       //最大心率(maximal heart rate)
+    public String MinHR;       //L最小心率(Minimum heart rate)
+    public String HRr;       //心率分析结果(heart rater result)
+    public String HRs;       //心率健康建议(heart rater suggest)
+    public String EC;       //心电数据(electrocardio)
+    public String ECr;       //心电分析结果(electrocardioresult)(1正常心电，2异常心电，3漏博，4早博)
+    public String ECs;       //心电健康建议(electrocardio suggest)
+    public String RA;                        //心率恢能力（recovery ability）
+    public String timestamp;       //
+    public String datatime;       //
+    public String HR;                        //
+    public String AE;                        //
+    public String distance;       //
+    public String time;                        //
+    public String cadence;       //
+    public String calorie;       //
+    public String state;                        //
     public String zaobo;
     public String loubo;
     public String latitude_longitude;
 
 
     public UploadRecord() {
-        FI = "-1";
-        ES = "-1";
-        PI = "-1";
-        CC = "-1";
-        HRVr = "-1";
-        HRVs = "-1";
-        AHR = "-1";
-        MaxHR = "-1";
-        MinHR = "-1";
-        HRr ="-1";
-        HRs ="-1";
-        EC = "-1";
+        FI = Constant.uploadRecordDefaultString;
+        ES = Constant.uploadRecordDefaultString;
+        PI = Constant.uploadRecordDefaultString;
+        CC = Constant.uploadRecordDefaultString;
+        HRVr = Constant.uploadRecordDefaultString;
+        HRVs = Constant.uploadRecordDefaultString;
+        AHR = Constant.uploadRecordDefaultString;
+        MaxHR = Constant.uploadRecordDefaultString;
+        MinHR = Constant.uploadRecordDefaultString;
+        HRr =Constant.uploadRecordDefaultString;
+        HRs =Constant.uploadRecordDefaultString;
+        EC = Constant.uploadRecordDefaultString;
         ECr ="1";
-        ECs ="-1";
-        RA = "-1";
-        timestamp ="-1";
-        datatime = "-1";
+        ECs ="心率健康建议！";
+        RA = Constant.uploadRecordDefaultString;
+        timestamp =Constant.uploadRecordDefaultString;
+        datatime = Constant.uploadRecordDefaultString;
         HR = "-1";
-        AE = "-1";
-        distance = "-1";
-        time = "-1";
-        cadence = "-1";
-        calorie = "-1";
-        state = "-1";
-        zaobo = "-1";
-        loubo = "-1";
-        latitude_longitude = "-1";
+        AE = Constant.uploadRecordDefaultString;
+        distance = Constant.uploadRecordDefaultString;
+        time = Constant.uploadRecordDefaultString;
+        cadence = Constant.uploadRecordDefaultString;
+        calorie = Constant.uploadRecordDefaultString;
+        state = Constant.uploadRecordDefaultString;
+        zaobo = Constant.uploadRecordDefaultString;
+        loubo = Constant.uploadRecordDefaultString;
+        latitude_longitude = Constant.uploadRecordDefaultString;
     }
 
     public UploadRecord(String FI, String ES, String PI, String CC, String HRVr, String HRVs, String AHR, String maxHR, String minHR, String HRr, String HRs, String EC, String ECr, String ECs, String RA, String timestamp, String datatime) {

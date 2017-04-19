@@ -66,7 +66,8 @@
                         android:textSize="@dimen/x40"
                         android:textColor="#7d7d7d"
                         android:layout_centerVertical="true"
-                        android:layout_alignParentRight="true"/>
+                        android:layout_alignParentRight="true"
+                        />
                 </RelativeLayout>
                 <ProgressBar
                     android:id="@+id/pb_hrv_ratelow"
@@ -104,7 +105,8 @@
                         android:textSize="@dimen/x40"
                         android:textColor="#7d7d7d"
                         android:layout_centerVertical="true"
-                        android:layout_alignParentRight="true"/>
+                        android:layout_alignParentRight="true"
+                        />
                 </RelativeLayout>
                 <ProgressBar
                     android:id="@+id/pb_hrv_rateover"
@@ -142,7 +144,8 @@
                         android:textSize="@dimen/x40"
                         android:textColor="#7d7d7d"
                         android:layout_centerVertical="true"
-                        android:layout_alignParentRight="true"/>
+                        android:layout_alignParentRight="true"
+                        />
                 </RelativeLayout>
 
                 <ProgressBar
@@ -150,7 +153,7 @@
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/y20"
-                    android:progressDrawable="@drawable/bg_progressbar_hor"
+                    android:progressDrawable="@drawable/bg_progressbar_hor_red"
                     android:layout_centerInParent="true"
                     android:max="100"
                     />
@@ -181,14 +184,14 @@
                         android:textSize="@dimen/x40"
                         android:textColor="#7d7d7d"
                         android:layout_centerVertical="true"
-                        android:layout_alignParentRight="true"/>
+                        android:layout_alignParentRight="true"
+                        />
                 </RelativeLayout>
                 <ProgressBar
                     android:id="@+id/pb_hrv_leaverate"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/y20"
-
                     android:progressDrawable="@drawable/bg_progressbar_hor"
                     android:layout_centerInParent="true"
                     android:max="100"
@@ -224,6 +227,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="查看更多"
+                android:clickable="true"
+                android:onClick="lookMore"
                 android:textSize="@dimen/x48"
                 android:textColor="#7d7d7d"
                 android:layout_centerVertical="true"
@@ -236,7 +241,14 @@
             android:layout_height="@dimen/x1"
             android:background="#e0e0e0"></View>
 
-        <RelativeLayout
+        <ListView
+            android:id="@+id/lv_wring_fromdata"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x320"
+            android:background="#FFFFFF">
+        </ListView>
+
+        <!--<RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/x160"
             android:background="#FFFFFF"
@@ -308,7 +320,7 @@
             android:layout_height="@dimen/x1"
             android:background="#e0e0e0"/>
 
-        <RelativeLayout
+       <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/x160"
             android:background="#FFFFFF"
@@ -373,12 +385,11 @@
                 android:src="@drawable/more_icon"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"/>
-        </RelativeLayout>
+        </RelativeLayout>-->
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/ll_hrv_rate"
             android:background="#FFFFFF"
             android:paddingLeft="@dimen/x36"
             android:paddingRight="@dimen/x36"
@@ -394,7 +405,7 @@
                 android:textSize="@dimen/x48"
                 android:text="健康意见"/>
             <TextView
-                android:id="@+id/tv_hrv_ala4"
+                android:id="@+id/tv_hrv_suggestion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_hrv_ala3"

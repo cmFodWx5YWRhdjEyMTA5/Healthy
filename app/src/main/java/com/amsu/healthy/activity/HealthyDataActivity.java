@@ -13,7 +13,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -95,19 +97,24 @@ public class HealthyDataActivity extends BaseActivity {
     private boolean isStartAdjustLineTimeTask;  //是否开始调整心率曲线R波峰
     private MyTimeTask mAdjustLineTimeTask; //文字闪烁计时器
     private boolean isFirstAdjust = true;
-    public static final String action = "jason.broadcast.action";    //发送广播，将心率值以广播的方式放松出去，在其他Activity可以接受
     private boolean isNeedDrawEcgData = true; //是否要画心电数据，在跳到下个界面时则不需要画
     private DataOutputStream dataOutputStream;  //二进制文件输出流，写入文件
     private ByteBuffer byteBuffer;
     private long ecgFiletimeMillis =-1;  //开始有心电数据时的秒数，作为心电文件命名。静态变量，在其他界面会用到
-    private Intent mSendHeartRateBroadcastIntent;
 
     private static double ECGSCALE_MODE_HALF = 0.5;
     private static double ECGSCALE_MODE_ORIGINAL = 1;
     private static double ECGSCALE_MODE_DOUBLE = 2;
     private static double ECGSCALE_MODE_QUADRUPLE = 4;
+
+   /* private static double ECGSCALE_MODE_HALF = 0;
+    private static double ECGSCALE_MODE_ORIGINAL = 1;
+    private static double ECGSCALE_MODE_DOUBLE = 2;
+    private static double ECGSCALE_MODE_QUADRUPLE = 3;*/
     public static double ECGSCALE_MODE_CURRENT = ECGSCALE_MODE_QUADRUPLE;
+
     private BottomSheetDialog mBottomAdjustRateLineDialog;
+    private boolean isLookupECGDataFromSport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,8 +127,9 @@ public class HealthyDataActivity extends BaseActivity {
     private void initView() {
         initHeadView();
         setCenterText("健康数据");
-        setRightText("我的设备");
+        //setRightText("我的设备");
         setLeftImage(R.drawable.back_icon);
+        setRightImage(R.drawable.yifu);
 
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,7 +137,7 @@ public class HealthyDataActivity extends BaseActivity {
                 finish();
             }
         });
-        getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
+        getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(HealthyDataActivity.this,MyDeviceActivity.class));
@@ -148,12 +156,36 @@ public class HealthyDataActivity extends BaseActivity {
 
         Intent intent = getIntent();
         if (intent!=null){
-            boolean booleanExtra = intent.getBooleanExtra(Constant.isLookupECGDataFromSport, false);
-            if (booleanExtra){
+            isLookupECGDataFromSport = intent.getBooleanExtra(Constant.isLookupECGDataFromSport, false);
+            if (isLookupECGDataFromSport){
                 tv_healthydata_analysis.setVisibility(View.GONE);
             }
         }
     }
+
+    /*Handler staticEcgHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            String hexData = (String) msg.obj;
+            Log.i(TAG,"hexData:"+hexData);
+            if (hexData.startsWith("FF 83 0F")) {
+                //心电数据
+                //Log.i(TAG,"心电hexData:"+hexData);
+                dealWithEcgData(hexData);
+            } else if (hexData.startsWith("FF 86 11")) {
+                //加速度数据
+                //Log.i(TAG,"加速度hexData:"+hexData);
+                dealWithAccelerationgData(hexData);
+            }
+
+            return false;
+        }
+    });
+
+    public Handler getStaticEcgHandlerInstance(){
+        return staticEcgHandler;
+    }
+    */
 
     private void initData() {
         if (MainActivity.mBluetoothAdapter!=null){
@@ -200,20 +232,6 @@ public class HealthyDataActivity extends BaseActivity {
             Log.i(TAG,"onLeScan  device:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
             String leName = device.getName();
             if (leName!=null && leName.startsWith("BLE")) {
-                /*for (int i = 0; i < deviceListFromSP.size(); i++) {
-                    if (leName.equals(deviceListFromSP.get(i).getLEName())){
-                        //配对成功
-                        connecMac = device.getAddress();
-                        if (!isConnectted && !isConnectting){
-                            //没有链接上，并且没有正在链接
-                            mLeService.connect(device.getAddress(),true);  //链接
-                            isConnectting  = true;
-                            Log.i(TAG,"开始连接");
-                        }
-
-
-                    }
-                }*/
                 String stringValueFromSP = MyUtil.getStringValueFromSP(Constant.currectDeviceLEName);
                 if (leName.equals(stringValueFromSP)){  //只有扫描到的蓝牙是sp里的当前设备时（激活状态），才能进行连接
                     //配对成功
@@ -335,7 +353,9 @@ public class HealthyDataActivity extends BaseActivity {
     //处理心电数据
     private void dealWithEcgData(String hexData) {
         final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
-        writeEcgDataToBinaryFile(ints);
+        if (!isLookupECGDataFromSport){
+            writeEcgDataToBinaryFile(ints);
+        }
 
         //滤波处理
         for (int i=0;i<ints.length;i++){
@@ -365,25 +385,24 @@ public class HealthyDataActivity extends BaseActivity {
             //calcuEcgRate = new int[groupCalcuLength*10];
             heartRateDates.add(heartRate);
 
-            if (mSendHeartRateBroadcastIntent==null){
-                mSendHeartRateBroadcastIntent = new Intent(action);
-            }
-            mSendHeartRateBroadcastIntent.putExtra("data", heartRate);
-            sendBroadcast(mSendHeartRateBroadcastIntent);
+            //更新心率
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (heartRate==0){
+                        tv_healthydata_rate.setText("--");
+                    }
+                    else {
+                        tv_healthydata_rate.setText(heartRate+"");
+                    }
+                }
+            });
+            System.arraycopy(ints, 0, calcuEcgRate, currentGroupIndex * 10 + 0, ints.length);
 
             int ecgAmpSum = ECGUtil.countEcgR(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
             //Log.i(TAG,"calcuEcgRate.length:"+calcuEcgRate.length);
             //Log.i(TAG,"ecgAmpSum:"+ecgAmpSum);
             setReteLineR(ecgAmpSum);
-
-            //更新心率
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    tv_healthydata_rate.setText(heartRate+"");
-                }
-            });
-            System.arraycopy(ints, 0, calcuEcgRate, currentGroupIndex * 10 + 0, ints.length);
         }
         currentGroupIndex++;
         if (isNeedDrawEcgData){
@@ -482,16 +501,16 @@ public class HealthyDataActivity extends BaseActivity {
             在ecgAmpSum>=26时 缩小两倍*/
         mCalcutRateLineRCount++;
         if (ecgAmpSum>=26){
-            mRateLineRItemCount.put(ECGSCALE_MODE_HALF,mRateLineRItemCount.get(0)+1);
+            mRateLineRItemCount.put(ECGSCALE_MODE_HALF,mRateLineRItemCount.get(ECGSCALE_MODE_HALF)+1);
         }
         else if (12<=ecgAmpSum && ecgAmpSum<26){
-            mRateLineRItemCount.put(ECGSCALE_MODE_ORIGINAL,mRateLineRItemCount.get(1)+1);
+            mRateLineRItemCount.put(ECGSCALE_MODE_ORIGINAL,mRateLineRItemCount.get(ECGSCALE_MODE_ORIGINAL)+1);
         }
         else if (5<=ecgAmpSum && ecgAmpSum<12){
-            mRateLineRItemCount.put(ECGSCALE_MODE_DOUBLE,mRateLineRItemCount.get(2)+1);
+            mRateLineRItemCount.put(ECGSCALE_MODE_DOUBLE,mRateLineRItemCount.get(ECGSCALE_MODE_DOUBLE)+1);
         }
         else if (ecgAmpSum<5){
-            mRateLineRItemCount.put(ECGSCALE_MODE_QUADRUPLE,mRateLineRItemCount.get(3)+1);
+            mRateLineRItemCount.put(ECGSCALE_MODE_QUADRUPLE,mRateLineRItemCount.get(ECGSCALE_MODE_QUADRUPLE)+1);
         }
         
         calcuAndAdjustRateLine();
@@ -502,8 +521,8 @@ public class HealthyDataActivity extends BaseActivity {
         if (mCalcutRateLineRCount>=5){
             boolean spangled = false;
             double adjustKey = -1;
-            for (int i=0;i<mRateLineRItemCount.size();i++){
-                double value = mRateLineRItemCount.get(i);
+            for (int i = 1; i <= 8; i=i*2) {
+                double value = mRateLineRItemCount.get(0.5*i);
                 if (mCalcutRateLineRCount<10 && value==mCalcutRateLineRCount){
                     spangled = true;  //当计数小于10时，某个键值对应的值和计相等时则调整
                     adjustKey = i;
@@ -512,13 +531,13 @@ public class HealthyDataActivity extends BaseActivity {
                     if (value/mCalcutRateLineRCount>0.7){  //当计数大于10时，某个键值对应的值/总数 大于0.7就开始调整
                         //开始
                         spangled = true;
-                        adjustKey = i;
+                        adjustKey = 0.5*i;
                     }
                 }
             }
             if (spangled){
                 if (isFirstAdjust){
-                    if (adjustKey != 3){
+                    if (adjustKey != ECGSCALE_MODE_CURRENT){
                         startSpangleTextTimeTask();
                         isFirstAdjust = false;
                     }

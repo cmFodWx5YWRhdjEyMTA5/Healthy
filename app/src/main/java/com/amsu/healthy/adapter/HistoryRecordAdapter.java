@@ -59,6 +59,7 @@ public class HistoryRecordAdapter extends BaseAdapter {
 
         if (historyRecord.getState()==1){
             tv_history_sportstate.setText("动态");
+            tv_history_sportstate.setBackgroundResource(R.drawable.button_lishi2);
         }
         else {
             tv_history_sportstate.setText("静态");

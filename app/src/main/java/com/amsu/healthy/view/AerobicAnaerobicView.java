@@ -28,10 +28,11 @@ public class AerobicAnaerobicView extends View {
     float mMarginleft ; //坐标线与左侧距离
     private float mCoordinateWidth = getResources().getDimension(R.dimen.y1008);  //x轴长度
     private int timeLong = 20;  //时间长度
-    double[] data ;
-    double dataMax;
+    int[] data ;
+    double dataMax = 200;
     private Paint mCurveLinePaint;
     private float mLine_width;
+    String unit = "KM";
 
 
     public AerobicAnaerobicView(Context context) {
@@ -120,7 +121,7 @@ public class AerobicAnaerobicView extends View {
 
         //横坐标数值
         for (int i=0;i<5;i++){
-            yText = (int) (0.25*i*timeLong)+"KM";
+            yText = (int) (0.25*i*timeLong)+unit;
             float x = mMarginleft +i*(mCoordinateWidth-getResources().getDimension(R.dimen.y2))/4;
 
             float y = mHeight-mMarginBotom;
@@ -144,16 +145,25 @@ public class AerobicAnaerobicView extends View {
 
     }
 
-    public void setData(double[] data){
+    public void setData(int[] data,int xLabeMax){
+        timeLong = xLabeMax;
         this.data = data;
-        double max = data[0];
+
+        if (timeLong<4000){
+            unit="M";
+        }
+        else {
+            unit="KM";
+            timeLong = (int) Math.ceil(timeLong/1000.0);
+        }
+        /*double max = data[0];
         for (double d:data){
             if (d>max){
                 max = d;
             }
         }
-        this.dataMax = max;
-
+        this.dataMax = max;*/
+        invalidate();
 
     }
 }

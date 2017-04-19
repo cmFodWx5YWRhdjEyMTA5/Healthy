@@ -12,6 +12,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.bean.FullReport;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.view.FoldLineViewWithPoint;
 import com.amsu.healthy.view.FoldLineViewWithTextOne;
 
 import java.util.List;
@@ -20,8 +21,10 @@ import java.util.List;
  * A simple {@link Fragment} subclass.
  */
 public class HRRYearFragment extends Fragment {
-    private FoldLineViewWithTextOne mLineChart;
+    private FoldLineViewWithPoint mLineChart;
     private View inflate;
+    private TextView tv_mouth_value;
+    private TextView tv_mouth_datetime;
 
 
     public HRRYearFragment() {
@@ -45,12 +48,22 @@ public class HRRYearFragment extends Fragment {
     private void initView() {
         TextView tv_ecgmouth_type = (TextView) inflate.findViewById(R.id.tv_ecgmouth_type);
         tv_ecgmouth_type.setText("年度HRR报告");
-        mLineChart = (FoldLineViewWithTextOne) inflate.findViewById(R.id.spread_line_chart);
+        mLineChart = (FoldLineViewWithPoint) inflate.findViewById(R.id.spread_line_chart);
         //initChart();
         TextView tv_hrrmouth_date = (TextView) inflate.findViewById(R.id.tv_hrrmouth_date);
         tv_hrrmouth_date.setText(MyUtil.getCurrentYear()+"年");
 
 
+        tv_mouth_value = (TextView) inflate.findViewById(R.id.tv_mouth_value);
+        tv_mouth_datetime = (TextView) inflate.findViewById(R.id.tv_mouth_datetime);
+
+        mLineChart.setOnDateTimeChangeListener(new FoldLineViewWithPoint.OnDateTimeChangeListener() {
+            @Override
+            public void onDateTimeChange(int heartRate, String dateTime) {
+                tv_mouth_value.setText(heartRate+"");
+                tv_mouth_datetime.setText(dateTime);
+            }
+        });
     }
 
     private void initData() {
@@ -66,6 +79,8 @@ public class HRRYearFragment extends Fragment {
                     i++;
                 }
                 mLineChart.setData(datas,labels);
+                tv_mouth_value.setText(datas[datas.length-1]+"");
+                tv_mouth_datetime.setText(labels[labels.length-1]);
             }
         }
     }
@@ -76,18 +91,19 @@ public class HRRYearFragment extends Fragment {
         initData();
 
 
-        /*int[] datas =    {67,59,54,77,85,100,61,67,59,54,77,85,100,61,67,59,54,77,85,100,61,67,59,54,77,85,100,61};  //心率数据
-        int[] data1 = new int[30];
+        int[] datas =    {67,59,54,67,60,60,61};  //心率数据
+        String[] datetime =    {"10月1日","10月2日","10月3日","10月4日","10月5日","10月6日","10月7日"};  //心率数据
+        mLineChart.setData(datas,datetime);
 
-        for (int i=0;i<data1.length;i++){
-            data1[i] = (int) (Math.random()*(85-30) + 30);
-        }
+        mLineChart.setOnDateTimeChangeListener(new FoldLineViewWithPoint.OnDateTimeChangeListener() {
+            @Override
+            public void onDateTimeChange(int heartRate, String dateTime) {
+                tv_mouth_value.setText(heartRate+"");
+                tv_mouth_datetime.setText(dateTime);
+            }
+        });
 
-        String[] labels = new String[data1.length];
-        for (int i=0;i<data1.length;i++){
-            labels[i] = i+"日";
-        }
-        mLineChart.setData(data1,labels);*/
+
     }
 
 

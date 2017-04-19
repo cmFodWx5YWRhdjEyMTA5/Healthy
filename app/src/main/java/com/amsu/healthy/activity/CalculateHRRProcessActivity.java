@@ -1,5 +1,6 @@
 package com.amsu.healthy.activity;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,8 +15,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyTimeTask;
+import com.amsu.healthy.utils.MyUtil;
+
+import java.util.ArrayList;
 
 import static com.amsu.healthy.R.id.textView;
 
@@ -45,7 +50,7 @@ public class CalculateHRRProcessActivity extends BaseActivity {
 
         iv_heartrate_rotateimage.setAnimation(animation);
 
-        IntentFilter filter = new IntentFilter(HealthyDataActivity.action);
+        IntentFilter filter = new IntentFilter(StartRunActivity.action);
         registerReceiver(broadcastReceiver, filter);
 
         MyTimeTask.startCountDownTimerTask(1000 * 60, new MyTimeTask.OnTimeOutListener() {
@@ -69,11 +74,32 @@ public class CalculateHRRProcessActivity extends BaseActivity {
 
             Intent intent = new Intent(this, HeartRateActivity.class);
             if (isTimeOut){    //到一分钟，传递恢复心率数据
-                int hrr = currentRate - firstRate;
+                int hrr = firstRate - currentRate;
+                if (hrr<=0){
+                    hrr = -1;
+                }
                 intent.putExtra("hrr",hrr);
             }
+            Intent runIntent = getIntent();
+            long createrecord = runIntent.getLongExtra(Constant.sportCreateRecordID,-1);
+            if (createrecord!=-1){
+                intent.putExtra(Constant.sportCreateRecordID,createrecord);
+            }
+            ArrayList<Integer> heartRateDates = runIntent.getIntegerArrayListExtra(Constant.heartDataList_static);
+            if (heartRateDates!=null && heartRateDates.size()>0){
+                intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
+            }
+            long ecgFiletimeMillis = runIntent.getLongExtra(Constant.ecgFiletimeMillis,-1);
+            if (ecgFiletimeMillis!=-1){
+                intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
+            }
+
             intent.putExtra(Constant.sportState,1);
             startActivity(intent);
+            for (Activity activity:MyApplication.mActivities){
+                activity.finish();
+            }
+            MyApplication.mActivities.clear();
             finish();
         }
     }
@@ -82,8 +108,10 @@ public class CalculateHRRProcessActivity extends BaseActivity {
         stopProcess();
     }
 
+    boolean isFirst = true;
+
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        boolean isFirst = true;
+
         @Override
         public void onReceive(Context context, Intent intent) {
             int data = intent.getExtras().getInt("data");

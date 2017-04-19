@@ -27,6 +27,8 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
@@ -119,26 +121,59 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
                 List<Integer> fromJson = gson.fromJson(mUploadRecord.HR,new TypeToken<List<Integer>>() {
                 }.getType());
                 int[] heartData = MyUtil.listToIntArray(fromJson);
-                if (mUploadRecord.time.equals("-1")){
-                    hv_sport_rateline.setData(heartData,Integer.parseInt(mUploadRecord.time));
+                if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
+                    int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
+                    Log.i(TAG,"time:"+time);
+                    hv_sport_rateline.setData(heartData,time);
                 }
+
+                int distance = (int) Double.parseDouble(mUploadRecord.distance);
+                if (distance>0){
+                    hv_sport_aerobicanaerobic.setData(heartData, distance);
+                }
+
+                int typeIsOx = 0;
+                int typeGentle = 0;
+                int typeDanger = 0;
+                int typeNoOx = 0;
+                int maxRate = 220-HealthyIndexUtil.getUserAge();
+                for (int rate:heartData){
+                    if (rate<=maxRate*0.6){
+                        typeGentle++;
+                    }
+                    else if (maxRate*0.6<rate && rate<=maxRate*0.75){
+                        typeIsOx++;
+                    }
+                    else if (maxRate*0.75<rate && rate<=maxRate*0.95){
+                        typeNoOx++;
+                    }
+                    else if (maxRate*95<rate ){
+                        typeDanger++;
+                    }
+                }
+                Log.i(TAG,"typeIsOx:"+typeIsOx+" typeGentle:"+typeGentle +" typeDanger:"+typeDanger+" typeNoOx:"+typeNoOx);
+                int[] piechartData = {typeIsOx,typeGentle,typeDanger,typeNoOx};
+                pc_sport_piechart.setDatas(piechartData);
+
+
+
             }
-            if (!MyUtil.isEmpty(mUploadRecord.AHR) && !mUploadRecord.AHR.equals("-1")){
+            if (!MyUtil.isEmpty(mUploadRecord.AHR) && !mUploadRecord.AHR.equals(Constant.uploadRecordDefaultString)  && !mUploadRecord.AHR.equals("-1")){
                 tv_sport_rate.setText(mUploadRecord.AHR);
             }
-            if (!MyUtil.isEmpty(mUploadRecord.cadence) && !mUploadRecord.cadence.equals("-1")){ //步频
+            if (!MyUtil.isEmpty(mUploadRecord.cadence) && !mUploadRecord.cadence.equals(Constant.uploadRecordDefaultString) && !mUploadRecord.cadence.equals("-1")){ //步频
                 List<Integer> fromJson = gson.fromJson(mUploadRecord.cadence,new TypeToken<List<Integer>>() {
                 }.getType());
                 int[] ints = MyUtil.listToIntArray(fromJson);
-                if (mUploadRecord.time.equals("-1")){
+                if (mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
                     hv_sport_stepline.setData(ints,Integer.parseInt(mUploadRecord.time));
                 }
             }
-            if (!MyUtil.isEmpty(mUploadRecord.calorie) && !mUploadRecord.calorie.equals("-1")){ //卡路里
+            if (!MyUtil.isEmpty(mUploadRecord.calorie) && !mUploadRecord.calorie.equals(Constant.uploadRecordDefaultString) && !mUploadRecord.calorie.equals("-1")){ //卡路里
                 List<Integer> fromJson = gson.fromJson(mUploadRecord.calorie,new TypeToken<List<Integer>>() {
                 }.getType());
                 int[] ints = MyUtil.listToIntArray(fromJson);
-                if (mUploadRecord.time.equals("-1")){
+                if (mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
                     hv_sport_kaliluline.setData(ints,Integer.parseInt(mUploadRecord.time));
                 }
             }
@@ -318,7 +353,7 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
      */
     private void addOriginTrace(LatLng startPoint, LatLng endPoint, List<LatLng> originList,float mapTraceDistance) {
         mOriginPolyline = mAMap.addPolyline(new PolylineOptions().color(Color.parseColor("#f17456")).width(getResources().getDimension(R.dimen.x8)).addAll(originList));
-        mOriginStartMarker = mAMap.addMarker(new MarkerOptions().position(startPoint).icon(BitmapDescriptorFactory.fromResource(R.drawable.end)));
+        mOriginStartMarker = mAMap.addMarker(new MarkerOptions().position(startPoint).icon(BitmapDescriptorFactory.fromResource(R.drawable.start)));
         mOriginEndMarker = mAMap.addMarker(new MarkerOptions().position(endPoint).icon(BitmapDescriptorFactory.fromResource(R.drawable.start)));
 
         Log.i(TAG,"originList:"+new Gson().toJson(originList));
@@ -332,7 +367,7 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
             方法必须在地图初始化完成之后使用。*/
             //mAMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getBounds(), 50));
             mAMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getBounds(), 50));
-            if (mapTraceDistance<500){//只有2个点，表示在室内跑步，只需要标注运动位置即可
+            if (originList.size()<10){//只有2个点，表示在室内跑步，只需要标注运动位置即可
                 mAMap.moveCamera(CameraUpdateFactory.changeLatLng(originList.get(0)));  //只改变定图中心点位置，不改变缩放级别
                 //mAMap.setMaxZoomLevel(19);
                 mAMap.moveCamera(CameraUpdateFactory.zoomTo(17));
@@ -390,12 +425,12 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
     public void onMapLoaded() {
         Log.i(TAG,"onMapLoaded");
         //setupRecord();
-        Log.i(TAG,"StartRunActivity.createrecord:"+StartRunActivity.createrecord);
+        //Log.i(TAG,"StartRunActivity.createrecord:"+StartRunActivity.createrecord);
         /*if (StartRunActivity.createrecord!=-1){
             setupRecord(StartRunActivity.createrecord);
         }*/
 
-        if (mUploadRecord!=null && !MyUtil.isEmpty(mUploadRecord.latitude_longitude) && !mUploadRecord.latitude_longitude.equals("-1")){ //经纬度
+        if (mUploadRecord!=null && !MyUtil.isEmpty(mUploadRecord.latitude_longitude) && !mUploadRecord.latitude_longitude.equals(Constant.uploadRecordDefaultString)){ //经纬度
             Gson gson = new Gson();
             List<List<Double>> fromJson = gson.fromJson(mUploadRecord.latitude_longitude,new TypeToken<List<List<Double>>>() {
             }.getType());

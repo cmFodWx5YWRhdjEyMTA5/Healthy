@@ -3,6 +3,8 @@ package com.amsu.healthy.appication;
 import android.app.Activity;
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Message;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,11 @@ public class MyApplication extends Application{
 
         sharedPreferences = getSharedPreferences("userinfo", MODE_PRIVATE);
         mActivities = new ArrayList<>();
+
+
+
+
+
 
     }
 }

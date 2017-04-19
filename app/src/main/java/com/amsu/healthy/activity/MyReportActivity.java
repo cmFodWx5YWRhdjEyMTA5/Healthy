@@ -67,19 +67,13 @@ public class MyReportActivity extends BaseActivity {
         initHeadView();
         setCenterText("我的报告");
         setLeftImage(R.drawable.back_icon);
-        setRightText("历史记录");
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
-        getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MyReportActivity.this,HistoryRecordActivity.class));
-            }
-        });
+
 
         tv_report_mouth = (TextView) findViewById(R.id.tv_report_mouth);
         tv_report_quarter = (TextView) findViewById(R.id.tv_report_quarter);
@@ -124,7 +118,7 @@ public class MyReportActivity extends BaseActivity {
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 MyUtil.hideDialog();
                 String result = responseInfo.result;
-                result = "{\n" +
+                /*result = "{\n" +
                         "    \"ret\": \"0\",\n" +
                         "    \"errDesc\": {\n" +
                         "        \"HRrep\": [\n" +
@@ -210,7 +204,7 @@ public class MyReportActivity extends BaseActivity {
                         "            ]\n" +
                         "        ]\n" +
                         "    }\n" +
-                        "}";
+                        "}";*/
                 Log.i(TAG,"上传onSuccess==result:"+result);
 
                 loadDataSucces();
@@ -252,7 +246,7 @@ public class MyReportActivity extends BaseActivity {
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
-                result = "{\n" +
+                /*result = "{\n" +
                         "    \"ret\": \"0\",\n" +
                         "    \"errDesc\": {\n" +
                         "        \"HRrep\": [\n" +
@@ -338,7 +332,7 @@ public class MyReportActivity extends BaseActivity {
                         "            ]\n" +
                         "        ]\n" +
                         "    }\n" +
-                        "}";
+                        "}";*/
 
                 Gson gson = new Gson();
                 JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
@@ -369,7 +363,7 @@ public class MyReportActivity extends BaseActivity {
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
 
-                result = "{\n" +
+                /*result = "{\n" +
                         "    \"ret\": \"0\",\n" +
                         "    \"errDesc\": {\n" +
                         "        \"HRrep\": [\n" +
@@ -456,13 +450,13 @@ public class MyReportActivity extends BaseActivity {
                         "        ]\n" +
                         "    }\n" +
                         "}";
-
+*/
                 Gson gson = new Gson();
                 JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
                 Log.i(TAG,"jsonBase:"+jsonBase);
                 if (jsonBase.getRet()==0){
-                    mMouthFullReport = gson.fromJson(result, FullReport.class);
-                    Log.i(TAG,"mMouthFullReport:"+mMouthFullReport.toString());
+                    mYearFullReport = gson.fromJson(result, FullReport.class);
+                    Log.i(TAG,"mYearFullReport:"+mYearFullReport.toString());
                 }
             }
 
@@ -521,6 +515,4 @@ public class MyReportActivity extends BaseActivity {
             v_analysis_select.setLayoutParams(layoutParams);
         }
     }
-
-
 }

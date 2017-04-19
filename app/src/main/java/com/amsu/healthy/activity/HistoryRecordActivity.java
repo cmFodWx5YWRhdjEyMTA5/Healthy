@@ -1,6 +1,7 @@
 package com.amsu.healthy.activity;
 
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,7 @@ import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.JsonHealthyList;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.view.LoadMoreListView;
 import com.google.gson.Gson;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -31,8 +33,10 @@ import java.util.List;
 public class HistoryRecordActivity extends BaseActivity {
 
     private static final String TAG = "HistoryRecordActivity";
-    private ListView lv_history_all;
+    private LoadMoreListView lv_history_all;
     private List<HistoryRecord> historyRecords;
+    private int pageCount = 1;
+    private HistoryRecordAdapter historyRecordAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +52,7 @@ public class HistoryRecordActivity extends BaseActivity {
         initHeadView();
         setCenterText("历史记录");
         setLeftImage(R.drawable.back_icon);
-        setRightImage(R.drawable.download_icon);
+        //setRightImage(R.drawable.download_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,12 +65,18 @@ public class HistoryRecordActivity extends BaseActivity {
                 startActivity(new Intent(HistoryRecordActivity.this,UploadOfflineFileActivity.class));
             }
         });
-        lv_history_all = (ListView) findViewById(R.id.lv_history_all);
+        lv_history_all = (LoadMoreListView) findViewById(R.id.lv_history_all);
+        lv_history_all.setLoadMorehDataListener(new LoadMoreListView.LoadMoreDataListener() {
+            @Override
+            public void loadMore() {
+                loadData(pageCount);
+            }
+        });
     }
 
     private void initData() {
         historyRecords = new ArrayList<>();
-        final HistoryRecordAdapter historyRecordAdapter = new HistoryRecordAdapter(historyRecords,this);
+        historyRecordAdapter = new HistoryRecordAdapter(historyRecords,this);
         lv_history_all.setAdapter(historyRecordAdapter);
 
         lv_history_all.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -81,15 +91,32 @@ public class HistoryRecordActivity extends BaseActivity {
             }
         });
 
+        Intent intent = getIntent();
+        boolean indexwarringTO = intent.getBooleanExtra("indexwarringTO", false);
+        if (indexwarringTO){
+            ArrayList<HistoryRecord> staticStateHistoryRecords = intent.getParcelableArrayListExtra("staticStateHistoryRecords");
+            historyRecords.addAll(staticStateHistoryRecords);
+            if (historyRecords.size()>0){
+                historyRecordAdapter.notifyDataSetChanged();
+            }
+        }
+        else {
+            loadData(pageCount);
+        }
+
+    }
+
+    private void loadData(int page) {
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
         params.addBodyParameter("record_number","10");
-        params.addBodyParameter("page","1");
+        params.addBodyParameter("page",page+"");
         MyUtil.addCookieForHttp(params);
 
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHistoryReportListURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
+                lv_history_all.loadMoreSuccessd();
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 Gson gson = new Gson();
@@ -100,20 +127,18 @@ public class HistoryRecordActivity extends BaseActivity {
                     if (historyRecordList.errDesc.size()>0){
                         historyRecords.addAll(historyRecordList.errDesc);
                         historyRecordAdapter.notifyDataSetChanged();
+                        pageCount++;
                     }
-
                 }
             }
 
             @Override
             public void onFailure(HttpException e, String s) {
+                lv_history_all.loadMoreSuccessd();
                 MyUtil.hideDialog();
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });
-
-
-
     }
 
     class HistoryRecordList {

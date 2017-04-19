@@ -38,7 +38,7 @@
         android:id="@+id/tv_item_typeName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="身体指数（BMI）"
+        android:text="--"
         android:textSize="@dimen/x48"
         android:textColor="#131212"
         android:layout_below="@+id/rl_item_value"
@@ -53,7 +53,7 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:layout_below="@+id/tv_item_typeName"
-        android:text="没有统计结果"
+        android:text="--"
         android:textSize="@dimen/x40"
         android:textColor="#454444"
         android:layout_gravity="center_horizontal"/>

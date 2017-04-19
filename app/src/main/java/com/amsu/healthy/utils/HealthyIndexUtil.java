@@ -96,11 +96,10 @@ public class HealthyIndexUtil {
 
     //储备心率
     public static IndicatorAssess calculateScorehrReserve(){
-        MyUtil.putIntValueFromSP("restingHR",65);
         int age = getUserAge();
         if (age!=0){
             int hrReserve;
-            int restingHR = MyUtil.getIntValueFromSP("restingHR");
+            int restingHR = MyUtil.getIntValueFromSP(Constant.restingHR);
             if (restingHR !=0){
                 hrReserve = 220-age-restingHR;
                 Log.i(TAG,"hrReserveeserve:"+hrReserve);
@@ -227,22 +226,8 @@ public class HealthyIndexUtil {
         return indicatorAssess;
     }
 
-
     //恢复心率HRR
     public static IndicatorAssess calculateScoreHRR(int hrr){
-        /*
-        *   分值域描述	分数区域	恢复心率
-            Bpm	恢复心率
-            参考标准计算方法	建议
-            完美	100	>65	100分	你是最棒的，要坚持
-            非凡	99	61-65	99分	你是最棒的，要坚持
-            优秀	87-98	49-60	1分/1bpm	请保持训练强度
-            非常好	75-86	37-48	1分/1bpm	请保持训练强度
-            好	63-74	25-36	1分/1bpm	请保持锻炼习惯
-            平均水平	51-62	13-24	1分/1bpm	请提高训练强度
-            差	3-50	1-12	1分/4bpm	请适度增加有氧训练
-                0-2	0
-        * */
         String suggestion = "";
         String state = "";
 
@@ -356,6 +341,48 @@ public class HealthyIndexUtil {
         return indicatorAssess;
     }
 
+    //抗疲劳指数HRV(心电分析算法得出)
+    public static IndicatorAssess calculateScoreHRV(int hrv){
+        int scoreHRV = 0;
+        String suggestion = "";
+        String state = "";
+        if (181<=hrv && hrv<=200){
+            //	91-100
+            scoreHRV = (int) (91+(hrv-181)*((100.0-91.0)/(200.0-181.0)));
+            suggestion = "您的身体充满活力，力拔山兮气盖世！再累的锻炼都不怕哦！";
+            state = "优秀";
+        }
+        else if (161<=hrv && hrv<=180){
+            //	81-90
+            scoreHRV = (int) (81+(hrv-161)*((90.0-81.0)/(180.0-161.0)));
+            suggestion = "您的身体状态不错哦，可以进行一些较重负荷的锻炼计划了！";
+            state = "非常好";
+        }
+        else if (141<=hrv && hrv<=160){
+            //	71-80
+            scoreHRV = (int) (71+(hrv-141)*(float)((80.0-71.0)/(160.0-141.0)));
+            suggestion = "您的身体还是很有潜力的，可以承受一些轻负荷的锻炼计划了！";
+            state = "好";
+        }
+        else if (111<=hrv && hrv<=140){
+            //	61-70
+            scoreHRV = (int) (61+(hrv-111)*(float)((70.0-61.0)/(140.0-111.0)));
+            suggestion = "懒洋洋的，好久没有锻炼了吧？赶快结束没有激情的状态吧！";
+            state = "平均水平";
+        }
+        else if (hrv<=110){
+            //	0-60
+            scoreHRV = (int) (0+(hrv-0)*(float)((60.0-0)/(110.0-0)));
+            suggestion = "看起来很累的样子，请适度进行有氧训练，劳逸结合，感觉就会越来越好！";
+            state = "差";
+        }
+        Log.i(TAG,"hrv:"+hrv+",scoreHRV:"+scoreHRV);
+
+        IndicatorAssess indicatorAssess = new IndicatorAssess(hrv,scoreHRV,"抗疲劳指数(HRV)",suggestion,state);
+
+        return indicatorAssess;
+    }
+
 
     //过缓
     public static IndicatorAssess calculateTypeSlow(){
@@ -384,15 +411,27 @@ public class HealthyIndexUtil {
         return indicatorAssess;
     }
 
+    //过缓
+    public static IndicatorAssess calculateTypeSlow(int over_slow){
+        int slowType = 0; //默认是哦，正常。1：黄色预警。2：红色预警
+        String suggestion = "您的心率很好，没有过缓现象，请坚持锻炼。";
+        if (30<=over_slow && over_slow<=36){
+            //	100
+            slowType = 1;
+            suggestion = "您发生过心率较低的现象，有心动过缓可能。建议您到医院听取医生的专业意见。";
+        }
+        else if (over_slow<30){
+            //	81-99
+            slowType = 2;
+            suggestion = "您发生过心率很低的现象，有可能是因病理性或药物导致心动过缓。希望您尽快到医院进行专业的检查并诊断排除。";
+        }
+        IndicatorAssess indicatorAssess = new IndicatorAssess(over_slow,slowType,"心率过缓",suggestion);
+
+        return indicatorAssess;
+    }
+
     //过速
     public static IndicatorAssess calculateTypeOver(){
-        /*
-            优秀	100	56-60
-            好	81-99	㊀46-55 ㊁61-70
-            平均水平	61-80	㊀36-45 ㊁71-80
-            差	0-60	㊀<36 ㊁81-105
-
-        * */
         int over_slow = 30;//由算法得出   测试
         int slowType = 0; //默认是哦，正常。1：黄色预警。2：红色预警
         String suggestion = "您的心率很好，没有过速现象，请坚持锻炼。";
@@ -411,8 +450,8 @@ public class HealthyIndexUtil {
         return indicatorAssess;
     }
 
-    //早搏
-    public static IndicatorAssess calculateTypeBeforeBeat(){
+    //过速
+    public static IndicatorAssess calculateTypeOver(int over_slow){
         /*
             优秀	100	56-60
             好	81-99	㊀46-55 ㊁61-70
@@ -420,7 +459,33 @@ public class HealthyIndexUtil {
             差	0-60	㊀<36 ㊁81-105
 
         * */
-        int over_slow = 4;//由算法得出   测试
+        int slowType = 0; //默认是哦，正常。1：黄色预警。2：红色预警
+        String suggestion = "您的心率很好，没有过速现象，请坚持锻炼。";
+        if (105<=over_slow && over_slow<=140){
+            //	100
+            slowType = 1;
+            suggestion = "您出现了心率较高的现象，如非因跑步、饮酒、重体力劳动及情绪激动导致心律加快，则有可能是因疾病引起心动过速，建议您到医院听取医生的专业意见。";
+        }
+        else if (over_slow>140){
+            //	81-99
+            slowType = 2;
+            suggestion = "您出现了心率较高的现象，如非因跑步、饮酒、重体力劳动及情绪激动导致心律加快，则有可能是因疾病引起心动过速，建议您到医院听取医生的专业意见。";
+        }
+        IndicatorAssess indicatorAssess = new IndicatorAssess(over_slow,slowType,"心率过速",suggestion);
+
+        return indicatorAssess;
+    }
+
+
+    //早搏
+    public static IndicatorAssess calculateTypeBeforeBeat(int over_slow){
+        /*
+            优秀	100	56-60
+            好	81-99	㊀46-55 ㊁61-70
+            平均水平	61-80	㊀36-45 ㊁71-80
+            差	0-60	㊀<36 ㊁81-105
+
+        * */
         int slowType = 0; //默认是哦，正常。1：黄色预警。2：红色预警
         String suggestion = "未发现早搏现象，您的心脏很棒，可以保持当前训练强度。";
         if (1<=over_slow && over_slow<=3){
@@ -448,6 +513,21 @@ public class HealthyIndexUtil {
 
         * */
         int over_slow = 1;//由算法得出   测试
+        int slowType = 0; //默认是哦，正常。1：黄色预警。2：红色预警
+        String suggestion = "未发现漏搏现象，您的心脏很棒，可以保持当前训练强度。";
+        if (over_slow>0){
+            //	100
+            slowType = 1;
+            suggestion = "您发生过漏博现象，通常可能因为精神紧张、烟酒过度、生活不规律、夜间休息不足等原因所导致。如只出现心脏漏跳的感觉，" +
+                    "没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则只需注意调整生活节奏保持良好生活习惯，不需要过分担心。";
+        }
+        IndicatorAssess indicatorAssess = new IndicatorAssess(over_slow,slowType,"漏博",suggestion);
+
+        return indicatorAssess;
+    }
+
+    //漏博
+    public static IndicatorAssess calculateTypeMissBeat(int over_slow ){
         int slowType = 0; //默认是哦，正常。1：黄色预警。2：红色预警
         String suggestion = "未发现漏搏现象，您的心脏很棒，可以保持当前训练强度。";
         if (over_slow>0){
@@ -515,6 +595,51 @@ public class HealthyIndexUtil {
         return indicatorAssess;
     }
 
+
+    //过缓/过速(心电分析算法得出)
+    public static IndicatorAssess calculateScoreOver_slow(int over_slow){
+        int scoreOver_slow = 0;
+        String suggestion = "";
+        if (56<=over_slow && over_slow<=60){
+            //	100
+            scoreOver_slow = 100;
+            suggestion = "您的心率很好，没有过速和过缓现象，请坚持锻炼。";
+        }
+        else if ((46<=over_slow && over_slow<=55)){
+            //	81-99
+            scoreOver_slow = (int) (81+(over_slow-46)*(float)((99.0-81.0)/(55.0-46.0)));
+            suggestion = "您的心率偏低，如果您经常保持锻炼，这正是心脏功能强大的表现。";
+        }
+        else if ((61<=over_slow && over_slow<=70)){
+            //	81-99
+            scoreOver_slow = (int) (81+(over_slow-61)*(float)((99.0-81.0)/(70.0-61.0)));
+            suggestion = "您的心率偏低，如果您经常保持锻炼，这正是心脏功能强大的表现。";
+        }
+        else if ((36<=over_slow && over_slow<=45)){
+            //	61-80
+            scoreOver_slow = (int) (61+(over_slow-36)*(float)((80.0-61.0)/(45.0-36.0)));
+            suggestion = "您有心率过缓倾向，如果您经常参加高负荷运动，可能是正常现象。";
+        }
+        else if ((71<=over_slow && over_slow<=80)){
+            //	61-80
+            scoreOver_slow = (int) (61+(over_slow-71)*(float)((80.0-61.0)/(80.0-71.0)));
+            suggestion = "您的心率较高，如果增加有氧训练时间，提升心肺能力，可以逐渐下降。";
+        }
+        else if (over_slow<=36){
+            //	0-60
+            scoreOver_slow = (int) (0+(over_slow-0)*(float)((60.0-0.0)/(36.0-0.0)));
+            suggestion = "您的心率很低，有心动过缓可能，不过不影响您锻炼身体。建议到医院听取医生的专业意见。";
+        }
+        else if ((81<=over_slow && over_slow<=105)){
+            //	0-60
+            scoreOver_slow = (int) (0+(over_slow-81)*(float)((60.0-0.0)/(105.0-81.0)));
+            suggestion = "您的心率很低，有心动过缓可能，不过不影响您锻炼身体。建议到医院听取医生的专业意见。";
+        }
+        IndicatorAssess indicatorAssess = new IndicatorAssess(over_slow,scoreOver_slow,"过缓/过速",suggestion);
+
+        return indicatorAssess;
+    }
+
     //早搏/漏搏
     public static IndicatorAssess calculateScoreBeat(){
         int prematureBeat = 1; //早搏次数   测试
@@ -523,6 +648,45 @@ public class HealthyIndexUtil {
         String suggestion = "";
         if (prematureBeat==0 && missedBeat==0){
             scoreBeat = 0;
+            suggestion = "动态和静态累计测试时间已经大于等于180分钟，并未发现早搏漏搏现象，您的心脏很棒，可以保持当前训练强度";
+        }
+        else if (prematureBeat==0){
+            int length = missedBeat<=5?missedBeat:5;
+            scoreBeat = 100-2*length;
+            suggestion = "动态和静态累计测试时间在120到179分钟之间，累计有1-5次漏搏，未发现早搏现象，通常可能因为精神紧张、吸烟、饮酒、生活不规律、夜间没有好好休息等原因所导致。如果单纯出现心脏漏跳一拍的感觉，但没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。还是可以保持一些较重负荷的锻炼计划的！";
+        }
+        else if (prematureBeat==1){
+            int length = missedBeat<=10?missedBeat:10;
+            scoreBeat = 80-2*length;
+            suggestion = "动态和静态累计测试时间在90到119分钟之间，累计有1-5次漏搏，未发现早搏现象，通常可能因为精神紧张、吸烟、饮酒、生活不规律、夜间没有好好休息等原因所导致。如果单纯出现心脏漏跳一拍的感觉，但没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。可以进行一些轻负荷的锻炼计划了！";
+        }
+        else if (prematureBeat==2){
+            int length = missedBeat<=10?missedBeat:10;
+            scoreBeat = 60-2*length;
+            suggestion = "动态和静态累计测试时间不低于90分钟，发现1次早搏，漏搏1-10次， 偶尔的早搏可见于正常人，漏博次数较多，如果没有诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。可以适当进行有氧训练，提升心肺能力。";
+        }
+        else if (prematureBeat==3){
+            int length = missedBeat<=10?missedBeat:10;
+            scoreBeat = 40-2*length;
+            suggestion = "动态和静态累计测试时间不足90分钟，发现连续早搏1-3次，同时伴有漏搏1-10次，您的心脏功能不容乐观建议到医院进行详细的心电检查，请经常关注心脏是否有不适感。适度进行锻炼，劳逸结合。";
+        }
+        else if (prematureBeat>3){
+            int length = missedBeat<=10?missedBeat:10;
+            scoreBeat = 20-2*length;
+            suggestion = "在已知测试时间段内发现连续早搏超过3次，同时伴有漏搏1-5次，您的心脏有病理风险，建议您尽快到医院进行详细的心电检查。运动有风险，请减少高强度运动！";
+        }
+        IndicatorAssess indicatorAssess = new IndicatorAssess(0,scoreBeat,"早搏/漏搏",suggestion);
+
+        return indicatorAssess;
+
+    }
+
+    //早搏/漏搏
+    public static IndicatorAssess calculateScoreBeat(int prematureBeat, int missedBeat){
+        int scoreBeat = 0;
+        String suggestion = "";
+        if (prematureBeat==0 && missedBeat==0){
+            scoreBeat = 100;
             suggestion = "动态和静态累计测试时间已经大于等于180分钟，并未发现早搏漏搏现象，您的心脏很棒，可以保持当前训练强度";
         }
         else if (prematureBeat==0){
@@ -632,9 +796,21 @@ public class HealthyIndexUtil {
 
     }
 
+    //计算生理年龄
+    public static int calculatePhysicalAge(IndicatorAssess scoreBMI,IndicatorAssess scorehrReserve,IndicatorAssess scoreHRR,IndicatorAssess scoreHRV ,
+                                           IndicatorAssess scoreReserveHealth){
+        if (scoreBMI!=null && scorehrReserve!=null && scoreHRR!=null && scoreHRV!=null && scoreReserveHealth!=null){
+            double v = 5 * 0.15 * (scoreBMI.getPercent() - 60) / 100 + 5 * 0.15 * (scorehrReserve.getPercent() - 60) / 100 + 5 * 0.15 * (scoreHRR.getPercent() - 60) / 100 +
+                    5 * 0.15 * (scoreHRV.getPercent() - 60) / 100 + 5 * 0.40 * (scoreReserveHealth.getPercent() - 60) / 100;
+            return (int) (getUserAge() - v);
+        }
+        return 0;
+    }
+
     //计算健康指标
-    public static int calculateIndexvalue(){
-        //BMI
+    public static int calculateIndexvalue(IndicatorAssess scoreBMI,IndicatorAssess scorehrReserve,IndicatorAssess scoreHRR,IndicatorAssess scoreHRV,
+                                          IndicatorAssess scoreOver_slow,IndicatorAssess scoreBeat,IndicatorAssess scoreReserveHealth){
+        /*//BMI
         IndicatorAssess scoreBMI = HealthyIndexUtil.calculateScoreBMI();
         //储备心率
         IndicatorAssess scorehrReserve = HealthyIndexUtil.calculateScorehrReserve();
@@ -647,7 +823,7 @@ public class HealthyIndexUtil {
         //早搏 包括房早搏APB和室早搏VPB，两者都记为早搏(心电分析算法得出)
         IndicatorAssess scoreBeat = HealthyIndexUtil.calculateScoreBeat();
         // 健康储备(按训练时间计算)
-        IndicatorAssess scoreReserveHealth = HealthyIndexUtil.calculateScoreReserveHealth();
+        IndicatorAssess scoreReserveHealth = HealthyIndexUtil.calculateScoreReserveHealth();*/
 
         if ( scoreBMI!=null && scorehrReserve!=null && scoreHRR!=null && scoreHRV!=null && scoreReserveHealth!=null && scoreBeat!=null && scoreOver_slow!=null){
             Log.i(TAG,"calculateIndexvalue======="+"scoreBMI:"+scoreBMI.getPercent()+",scorehrReserve:"+scorehrReserve.getPercent()+",scoreHRR:"+scoreHRR.getPercent()+",scoreHRV:"+scoreHRV.getPercent()+

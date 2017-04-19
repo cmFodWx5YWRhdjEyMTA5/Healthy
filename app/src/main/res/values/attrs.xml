@@ -54,6 +54,7 @@
         <attr name="abovertext_color" format="color" />
         <attr name="abovertext_margin" format="dimension"/>
         <attr name="undertext_margin" format="dimension"/>
+        <attr name="radius_point_big" format="dimension"/>
     </declare-styleable>
 
     <declare-styleable name="PieChart">

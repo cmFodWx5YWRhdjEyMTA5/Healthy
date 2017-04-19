@@ -56,15 +56,17 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".activity.MainActivity"
-            android:hardwareAccelerated="false"
-            android:screenOrientation="portrait" >
+        <activity android:name=".activity.SplashActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.MainActivity"
+            android:hardwareAccelerated="false"
+            android:screenOrientation="portrait" >
         </activity>
 
         <!-- 高德地图 -->
@@ -139,11 +141,14 @@
         <activity android:name=".activity.MotionDetectionActivity" android:screenOrientation="portrait"></activity>
         <activity android:name=".activity.ConnectToWifiModuleGudieActivity1" android:screenOrientation="portrait"></activity>
         <activity android:name=".activity.ConnectToWifiModuleGudieActivity2" android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.AboutUsActivity" android:screenOrientation="portrait"></activity>AboutUsActivity
-        <activity android:name=".activity.AppUpdateActivity" android:screenOrientation="portrait"></activity>AboutUsActivity
-        <activity android:name=".activity.AddDynamicsActivity" android:screenOrientation="portrait"></activity>AboutUsActivity
-        <activity android:name=".activity.AddHeathyPlanActivity" android:screenOrientation="portrait"></activity>AboutUsActivity
-        <activity android:name=".activity.ApplyJionClubActivity" android:screenOrientation="portrait"></activity>AboutUsActivity
+        <activity android:name=".activity.AboutUsActivity" android:screenOrientation="portrait"></activity>
+        <activity android:name=".activity.AppUpdateActivity" android:screenOrientation="portrait"></activity>
+        <activity android:name=".activity.AddDynamicsActivity" android:screenOrientation="portrait"></activity>
+        <activity android:name=".activity.AddHeathyPlanActivity" android:screenOrientation="portrait"></activity>
+        <activity android:name=".activity.ApplyJionClubActivity" android:screenOrientation="portrait"></activity>
+        <activity android:name=".activity.TestActivity" android:screenOrientation="portrait"></activity>
+
+
 
 
 

@@ -27,7 +27,7 @@ public class HeightCurveView extends View {
     private Paint mCurveLinePaint;
     int[] data ;
     private float mCoordinateWidth = getResources().getDimension(R.dimen.y935);  //x轴长度
-    private float mYCoordinateHight = getResources().getDimension(R.dimen.y400)-getResources().getDimension(R.dimen.y28);  //x轴长度
+    private float mYCoordinateHight = getResources().getDimension(R.dimen.y400)-getResources().getDimension(R.dimen.y28);  //y轴长度
     private float mYOneSpanHeight = mYCoordinateHight/4;  //y轴方向刻度长度
     float mMarginBotom = getResources().getDimension(R.dimen.y48); //坐标线与底部距离
     float mMarginleft ; //坐标线与左侧距离
@@ -113,9 +113,10 @@ public class HeightCurveView extends View {
         for (int i=0;i<data.length;i++){
             x = mMarginleft+(i)*mOneGridWidth+mOneGridWidth/2;
             y = 0;
-            if (data[i]>40){
+            //if (data[i]>40  && data[i]<220){
+            if (data[i]>=0){
                 //y = mHeight-mYOneSpanHeight-mMarginBotom-(mYOneSpanHeight/10)*(data[i]-yTexts[0]);
-                y = mHeight-mYOneSpanHeight-mMarginBotom-mYCoordinateHight*((float)data[i]/yTexts[yTexts.length-1]);
+                y = mHeight-mMarginBotom-mYCoordinateHight*((float)data[i]/yTexts[yTexts.length-1]);
                 if (y>yMax){
                     yMax = y;
                 }
