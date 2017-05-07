@@ -1,0 +1,43 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="@dimen/x864"
+            android:layout_height="@dimen/x216"
+            android:layout_gravity="center"
+            android:text="选择叠加层"
+            android:background="@drawable/bg_title_custom_dialog_together"
+            android:textColor="#0c64b5"
+            android:textSize="@dimen/x64"
+            android:gravity="center">
+        </TextView>
+
+        <ListView
+            android:id="@+id/lv_list"
+            android:layout_width="@dimen/x864"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:divider="@null">
+        </ListView>
+
+
+        <Button
+            android:id="@+id/bt_ok"
+            android:layout_width="@dimen/x540"
+            android:layout_height="@dimen/x128"
+            android:text="确认选择"
+            android:layout_gravity="center"
+            android:textSize="@dimen/x64"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/bg_bt_bigcircle"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

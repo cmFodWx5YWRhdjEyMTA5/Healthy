@@ -63,7 +63,10 @@ public class ApkUtil {
         final boolean isSplashActivityInstance = context.getClass().isInstance(new SplashActivity());
         Log.i(TAG,"isSplashActivityInstance:"+isSplashActivityInstance);
 
-        MyUtil.showDialog("正在检测",context);
+        if (!isSplashActivityInstance){
+            MyUtil.showDialog("正在检测",context);
+        }
+
         HttpUtils httpUtils = new HttpUtils();
         RequestParams requestParams = new RequestParams();
 

@@ -193,7 +193,6 @@ public class RateAnalysisActivity extends BaseActivity {
                                     e.printStackTrace();
                                 }
                             }
-                            addFragmentList(Integer.parseInt(mUploadRecord.state));
                             adjustFeagmentCount(Integer.parseInt(mUploadRecord.state));
                             MyUtil.hideDialog();
                         }
@@ -212,12 +211,10 @@ public class RateAnalysisActivity extends BaseActivity {
                     mUploadRecord = bundle.getParcelable("uploadRecord");
                     Log.i(TAG,"直接显示uploadRecord:"+mUploadRecord.toString());
                     //Log.i(TAG,"EC:"+mUploadRecord.EC);
-                    addFragmentList(intent.getIntExtra(Constant.sportState,-1));
                     adjustFeagmentCount(intent.getIntExtra(Constant.sportState,-1));
                 }
             }
             else {
-                addFragmentList(intent.getIntExtra(Constant.sportState,-1));
                 adjustFeagmentCount(intent.getIntExtra(Constant.sportState,-1));
             }
 
@@ -225,15 +222,30 @@ public class RateAnalysisActivity extends BaseActivity {
     }
 
     private void adjustFeagmentCount(int state) {
+        if (state==1){
+            fragmentList.add(new SportFragment());
+        }
+        fragmentList.add(new HRVFragment());
+        fragmentList.add(new HeartRateFragment());
+        fragmentList.add(new ECGFragment());
+        if (state==1){
+            fragmentList.add(new HRRFragment());
+        }
+
+
+        mAnalysisRateAdapter = new AnalysisRateAdapter(getSupportFragmentManager(), fragmentList);
+        vp_analysis_content.setAdapter(mAnalysisRateAdapter);
+
         Log.i(TAG,"adjustFeagmentCount");
         Log.i(TAG,"state:"+state);
         if (state==0 && tv_analysis_sport.getVisibility()== View.VISIBLE){
             subFormAlCount = 1;
             tv_analysis_sport.setVisibility(View.GONE);
-            mOneTableWidth = MyUtil.getScreeenWidth(this)/4;
+            tv_analysis_hrr.setVisibility(View.GONE);
+            mOneTableWidth = MyUtil.getScreeenWidth(this)/3;
 
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v_analysis_select.getLayoutParams();
-            params.width = (int) (MyUtil.getScreeenWidth(this)/4);
+            params.width = (int) (MyUtil.getScreeenWidth(this)/3);
             v_analysis_select.setLayoutParams(params);
         }
     }

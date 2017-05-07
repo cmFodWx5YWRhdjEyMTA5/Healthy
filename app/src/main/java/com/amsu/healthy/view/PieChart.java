@@ -22,7 +22,7 @@ public class PieChart extends View {
     private float mRecRadius;
     private int mWidth;
     private int mHeight;
-    private int[] mDatas;
+    private float[] mDatas;
     private float[] mAngles;
     private Paint mPaint;
     private Paint mthreadletLinePaint;
@@ -113,7 +113,7 @@ public class PieChart extends View {
                 mPaint.setColor(mColors[i]);
                 mthreadletLinePaint.setColor(mColors[i]);
                 mPointAtLinePaint.setColor(mColors[i]);
-                canvas.drawArc(rectF,currentAngle,mAngles[i]+2,false,mPaint);
+                canvas.drawArc(rectF,currentAngle,mAngles[i]+1,false,mPaint);
 
                 Log.i(TAG,"currentAngle:"+currentAngle);
 
@@ -186,19 +186,34 @@ public class PieChart extends View {
         }
     }
 
-    public void setDatas(int[] datas){
+    public void setDatas(float[] datas){
         mDatas = datas;
 
         int sum = 0;
         for (int i=0;i<datas.length;i++){
             sum +=datas[i];
-        }
-        mAngles = new float[datas.length];
-        for (int i=0;i<datas.length;i++){
-            mAngles[i] = ((float)datas[i]/sum)*360;
+
         }
 
-        //invalidate();
+        int[] percents = new int[datas.length];
+        int maxIndex = 0;
+        int percentSum = 0;
+        for (int i=0;i<datas.length;i++){
+            percents[i] = (int) (Math.ceil(100*datas[i]/sum));
+            percentSum += percents[i];
+            if (datas[i]>datas[0]){
+                maxIndex = i;
+            }
+        }
+
+        percents[maxIndex] = percents[maxIndex]-(percentSum-100);
+
+        mAngles = new float[datas.length];
+        for (int i=0;i<datas.length;i++){
+            mAngles[i] = percents[i]/100f*360;
+        }
+
+        invalidate();
 
     }
 

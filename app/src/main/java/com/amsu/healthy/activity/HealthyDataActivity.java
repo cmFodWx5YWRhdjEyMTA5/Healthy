@@ -1,16 +1,22 @@
 package com.amsu.healthy.activity;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.database.ContentObserver;
+import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -18,6 +24,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.app.AlertDialog;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -55,6 +62,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -68,6 +76,7 @@ import java.util.TimerTask;
 public class HealthyDataActivity extends BaseActivity {
 
     private static final String TAG = "HealthyDataActivity";
+    private static final String TAG1 = "startSoS";
 
     public static BleService mLeService;
     private EcgView pv_healthydata_path;
@@ -115,6 +124,10 @@ public class HealthyDataActivity extends BaseActivity {
 
     private BottomSheetDialog mBottomAdjustRateLineDialog;
     private boolean isLookupECGDataFromSport;
+
+    private ServiceReceiver mReceiver01, mReceiver02;
+    private static String SMS_SEND_ACTIOIN = "SMS_SEND_ACTIOIN";
+    private static String SMS_DELIVERED_ACTION = "SMS_DELIVERED_ACTION";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -238,6 +251,7 @@ public class HealthyDataActivity extends BaseActivity {
                     connecMac = device.getAddress();
                     if (!isConnectted && !isConnectting){
                         //没有链接上，并且没有正在链接
+                        Log.i(TAG,"device.getAddress():"+device.getAddress());
                         mLeService.connect(device.getAddress(),true);  //链接
                         isConnectting  = true;
                         Log.i(TAG,"开始连接");
@@ -290,7 +304,9 @@ public class HealthyDataActivity extends BaseActivity {
                     try {
                         Thread.sleep(1000);
                         Log.i(TAG,"写配置");
-                        mLeService.send(connecMac, Constant.writeConfigureOrder,true); 
+                        String writeConfigureOrder = "FF010A"+getDataHexString()+"0016";
+                        //mLeService.send(connecMac, Constant.writeConfigureOrder,true);
+                        mLeService.send(connecMac, writeConfigureOrder,true);
 
                         Thread.sleep(1000);
                         Log.i(TAG,"开启数据指令");
@@ -670,11 +686,164 @@ public class HealthyDataActivity extends BaseActivity {
                 isThreeMit = true;
             }
         });
+
+        //给蓝牙设备同步指令
+        MyTimeTask.startTimeRiseTimerTask(this, 1000, new MyTimeTask.OnTimeChangeAtScendListener() {
+            @Override
+            public void onTimeChange(Date date) {
+                if (isNeedDrawEcgData){
+                    String hexSynOrder = "FF070A"+getDataHexString()+"0016";
+                    mLeService.send(connecMac, hexSynOrder,true);
+                }
+            }
+        });
     }
 
     public void startSoS(View view) {
+        SmsManager smsManager = SmsManager.getDefault();
+        try {
+          /* 建立自定义Action常数的Intent(给PendingIntent参数之用) */
+            Intent itSend = new Intent(SMS_SEND_ACTIOIN);
+            Intent itDeliver = new Intent(SMS_DELIVERED_ACTION);
 
+          /* sentIntent参数为传送后接受的广播信息PendingIntent */
+            PendingIntent mSendPI = PendingIntent.getBroadcast(getApplicationContext(), 0, itSend, 0);
+
+          /* deliveryIntent参数为送达后接受的广播信息PendingIntent */
+            PendingIntent mDeliverPI = PendingIntent.getBroadcast(getApplicationContext(), 0, itDeliver, 0);
+
+          /* 发送SMS短信，注意倒数的两个PendingIntent参数 */
+
+            List<SosActivity.SosNumber> sosNumberList = MyUtil.getSosNumberList();
+
+            if (sosNumberList==null  || sosNumberList.size()==0){
+                startActivity(new Intent(this,SosActivity.class));
+                return;
+            }
+            String sosinfo = MyUtil.getStringValueFromSP(Constant.sosinfo);
+            for (SosActivity.SosNumber sosNumber:sosNumberList){
+                smsManager.sendTextMessage(sosNumber.phone, null, sosinfo, mSendPI, mDeliverPI);
+            }
+            MyUtil.showDialog("正在发送",this);
+            Log.i(TAG,"sendTextMessage");
+        }
+        catch(Exception e) {
+            Log.e(TAG,"e:"+e);
+        }
+
+        /*String SENT = "SMS_SEND";
+        String DELIVERED = "SMS_DELIVERED";
+
+        PendingIntent sentPI = PendingIntent.getActivity(this, 0, new Intent(SENT), 0);
+        PendingIntent deliveredPI = PendingIntent.getActivity(this, 0, new Intent(DELIVERED), 0);
+
+        registerReceiver(new BroadcastReceiver(){
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i("startSoS", "getResultCode():"+getResultCode());
+                switch(getResultCode())
+                {
+                    case Activity.RESULT_OK:
+                        Log.i("startSoS", "Activity.RESULT_OK");
+                        break;
+                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                        Log.i("startSoS", "RESULT_ERROR_GENERIC_FAILURE");
+                        break;
+                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+                        Log.i("startSoS", "RESULT_ERROR_NO_SERVICE");
+                        break;
+                    case SmsManager.RESULT_ERROR_NULL_PDU:
+                        Log.i("startSoS", "RESULT_ERROR_NULL_PDU");
+                        break;
+                    case SmsManager.RESULT_ERROR_RADIO_OFF:
+                        Log.i("startSoS", "RESULT_ERROR_RADIO_OFF");
+                        break;
+                }
+            }
+        }, new IntentFilter(SENT));
+
+        registerReceiver(new BroadcastReceiver(){
+            @Override
+            public void onReceive(Context context, Intent intent){
+                Log.i("startSoS", "getResultCode()::::"+getResultCode());
+                switch(getResultCode())
+                {
+                    case Activity.RESULT_OK:
+                        Log.i("startSoS", "RESULT_OK");
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        Log.i("startSoS", "RESULT_CANCELED");
+                        break;
+                }
+            }
+        }, new IntentFilter(DELIVERED));
+
+
+
+
+        //一个继承自ContentObserver的监听器类
+        class SmsObserver extends ContentObserver {
+
+            public SmsObserver(Handler handler) {
+                super(handler);
+                // TODO Auto-generated constructor stub
+
+
+            }
+            @Override
+            public void onChange(boolean selfChange) {
+                Log.i(TAG1,"onChange:"+selfChange);
+                // TODO Auto-generated method stub
+                //查询发送向箱中的短信
+                Cursor cursor=getContentResolver().query(Uri.parse(
+                        "content://sms/outbox"), null, null, null, null);
+                //遍历查询结果获取用户正在发送的短信
+                while (cursor.moveToNext()) {
+                    StringBuffer sb=new StringBuffer();
+                    //获取短信的发送地址
+                    sb.append("发送地址："+cursor.getString(cursor.getColumnIndex("address")));
+                    //获取短信的标题
+                    sb.append("\n标题："+cursor.getString(cursor.getColumnIndex("subject")));
+                    //获取短信的内容
+                    sb.append("\n内容："+cursor.getString(cursor.getColumnIndex("body")));
+                    //获取短信的发送时间
+                    Date date=new Date(cursor.getLong(cursor.getColumnIndex("date")));
+                    //格式化以秒为单位的日期
+                    SimpleDateFormat sdf=new SimpleDateFormat("yyyy年MM月dd日 hh时mm分ss秒");
+                    sb.append("\n时间："+sdf.format(date));
+                    System.out.println("查询到的正在发送的短信："+sb.toString());
+                    Toast.makeText(HealthyDataActivity.this, sb.toString(), Toast.LENGTH_LONG).show();
+                    //txtView.setText(sb.toString());
+                    Log.i(TAG1,"sb.toString():"+sb.toString());
+                }
+                super.onChange(selfChange);
+            }
+
+        }
+
+
+
+
+        SmsManager smsm = SmsManager.getDefault();
+        smsm.sendTextMessage("+8613042439612", null, "44855", sentPI, deliveredPI);
+
+        MyUtil.showToask(this,"已发送");
+
+
+
+
+        getContentResolver().registerContentObserver(Uri.parse
+                ("content://sms"), true, new SmsObserver(new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                Log.i(TAG1,"msg:"+msg.what+"," +msg.obj.toString());
+            }
+        }));*/
     }
+
+
 
     //开始分析
     public void startAnalysis(View view) {
@@ -725,6 +894,18 @@ public class HealthyDataActivity extends BaseActivity {
         super.onResume();
         Log.i(TAG,"onResume");
         isNeedDrawEcgData = true;
+
+/* 自定义IntentFilter为SENT_SMS_ACTIOIN Receiver */
+        IntentFilter mFilter01;
+        mFilter01 = new IntentFilter(SMS_SEND_ACTIOIN);
+        mReceiver01 = new ServiceReceiver();
+        registerReceiver(mReceiver01, mFilter01);
+
+    /* 自定义IntentFilter为DELIVERED_SMS_ACTION Receiver */
+        mFilter01 = new IntentFilter(SMS_DELIVERED_ACTION);
+        mReceiver02 = new ServiceReceiver();
+        registerReceiver(mReceiver02, mFilter01);
+
 
         //测试(模拟器上演示)
         /*FileInputStream fileInputStream = null;
@@ -803,6 +984,95 @@ public class HealthyDataActivity extends BaseActivity {
         super.onPause();
         Log.i(TAG,"onPause");
         isNeedDrawEcgData = false;
+
+        /* 取消注册自定义Receiver */
+
+        unregisterReceiver(mReceiver01);
+        unregisterReceiver(mReceiver02);
+    }
+
+    /* 自定义mServiceReceiver重写BroadcastReceiver监听短信状态信息 */
+    public class ServiceReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // TODO Auto-generated method stub
+
+            //mTextView01.setText(intent.getAction().toString());
+            if (intent.getAction().equals(SMS_SEND_ACTIOIN)) {
+                try {
+                    /* android.content.BroadcastReceiver.getResultCode()方法 */
+                    //Retrieve the current result code, as set by the previous receiver.
+                    switch(getResultCode()) {
+                        case Activity.RESULT_OK:
+                            /* 发送短信成功 */
+                            //mTextView01.setText(R.string.str_sms_sent_success);
+                            MyUtil.showToask(HealthyDataActivity.this,"发送短信成功");
+                            MyUtil.showDialog("发送短信成功",HealthyDataActivity.this);
+                            MyUtil.hideDialog();
+                            break;
+                        case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                            /* 发送短信失败 */
+                            //mTextView01.setText(R.string.str_sms_sent_failed);
+                            MyUtil.showToask(HealthyDataActivity.this,"发送短信失败 ");
+                            MyUtil.showDialog("发送短信失败",HealthyDataActivity.this);
+                            MyUtil.hideDialog();
+                            break;
+                        case SmsManager.RESULT_ERROR_RADIO_OFF:
+                            break;
+                        case SmsManager.RESULT_ERROR_NULL_PDU:
+                            break;
+                    }
+                }
+                catch(Exception e) {
+                    e.getStackTrace();
+                }
+            }
+            else if(intent.getAction().equals(SMS_DELIVERED_ACTION))
+            {
+                try
+                {
+                    /* android.content.BroadcastReceiver.getResultCode()方法 */
+                    switch(getResultCode())
+                    {
+                        case Activity.RESULT_OK:
+                            /* 短信 */
+                            //mTextView01.setText(R.string.str_sms_sent_success);
+                            //MyUtil.showToask(HealthyDataActivity.this,"短信");
+                            break;
+                        case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                            /* 短信未送达 */
+                            //mTextView01.setText(R.string.str_sms_sent_failed);
+                            //MyUtil.showToask(HealthyDataActivity.this,"短信未送达");
+                            break;
+                        case SmsManager.RESULT_ERROR_RADIO_OFF:
+                            break;
+                        case SmsManager.RESULT_ERROR_NULL_PDU:
+                            break;
+                    }
+                }
+                catch(Exception e) {
+                    e.getStackTrace();
+                }
+            }
+        }
+    }
+
+    public static String getDataHexString(){
+        SimpleDateFormat formatter = new SimpleDateFormat("yy MM dd HH mm ss");
+        Date curDate = new Date();
+        String dateString = formatter.format(curDate);
+        System.out.println(dateString);
+        String[] split = dateString.split(" ");
+        String dateHexString = "";
+        for (String s:split){
+            String hex = Integer.toHexString(Integer.parseInt(s));
+            if (hex.length()==1){
+                hex ="0"+hex;
+            }
+            dateHexString += hex;
+        }
+        Log.i(TAG,"dateHexString:"+dateHexString);
+        return dateHexString;
     }
 
     @Override

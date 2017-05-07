@@ -8,12 +8,12 @@ android {
         applicationId "com.amsu.healthy"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+        versionCode 101
+        versionName "1.0.1"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -31,6 +31,7 @@ android {
         _91helper {}   //91助手
         androidmarket {}   //安卓市场
         other {}   //其他
+        bet_test {}   //其他
     }
 
     productFlavors.all { flavor ->

@@ -73,6 +73,13 @@ public class MyReportActivity extends BaseActivity {
                 finish();
             }
         });
+        setRightText("历史纪录");
+        getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MyReportActivity.this,HistoryRecordActivity.class));
+            }
+        });
 
 
         tv_report_mouth = (TextView) findViewById(R.id.tv_report_mouth);

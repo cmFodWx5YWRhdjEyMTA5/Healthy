@@ -50,10 +50,10 @@ public class UploadRecord implements Parcelable {
         MaxHR = Constant.uploadRecordDefaultString;
         MinHR = Constant.uploadRecordDefaultString;
         HRr =Constant.uploadRecordDefaultString;
-        HRs =Constant.uploadRecordDefaultString;
+        HRs ="心率健康建议";
         EC = Constant.uploadRecordDefaultString;
         ECr ="1";
-        ECs ="心率健康建议！";
+        ECs ="心电健康建议！";
         RA = Constant.uploadRecordDefaultString;
         timestamp =Constant.uploadRecordDefaultString;
         datatime = Constant.uploadRecordDefaultString;

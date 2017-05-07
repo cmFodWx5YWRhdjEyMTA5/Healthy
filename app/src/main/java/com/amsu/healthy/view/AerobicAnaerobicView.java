@@ -14,6 +14,8 @@ import android.view.View;
 
 import com.amsu.healthy.R;
 
+import java.text.DecimalFormat;
+
 /**
  * Created by HP on 2017/3/31.
  */
@@ -29,7 +31,7 @@ public class AerobicAnaerobicView extends View {
     private float mCoordinateWidth = getResources().getDimension(R.dimen.y1008);  //x轴长度
     private int timeLong = 20;  //时间长度
     int[] data ;
-    double dataMax = 200;
+    double dataMax = 240;
     private Paint mCurveLinePaint;
     private float mLine_width;
     String unit = "KM";
@@ -117,17 +119,20 @@ public class AerobicAnaerobicView extends View {
     private void drawBackCoordinate(Canvas canvas) {
         float divideWidth = getResources().getDimension(R.dimen.y520);
         String yText;
-        timeLong=timeLong-timeLong%4;
+        //timeLong=timeLong-timeLong%4;
 
+        DecimalFormat decimalFormat=new DecimalFormat("0.0");//构造方法的字符格式这里如果小数不足2位,会以0补足.
         //横坐标数值
         for (int i=0;i<5;i++){
-            yText = (int) (0.25*i*timeLong)+unit;
+            //yText = (int) (0.25*i*timeLong)+unit;
+            String xLable=decimalFormat.format(0.25*i*timeLong);//format 返回的是字符串
+
             float x = mMarginleft +i*(mCoordinateWidth-getResources().getDimension(R.dimen.y2))/4;
 
             float y = mHeight-mMarginBotom;
             canvas.drawLine(x,y,x,y-divideWidth,mCoordinatePaint);
 
-            float textWidth = mLablePaint.measureText(yText);
+            float textWidth = mLablePaint.measureText(xLable);
             y = mHeight;
 
             if (i==0){
@@ -139,7 +144,7 @@ public class AerobicAnaerobicView extends View {
             else {
                 x = x-textWidth/2;
             }
-            canvas.drawText(yText,x,y,mLablePaint);
+            canvas.drawText(xLable,x,y,mLablePaint);
 
         }
 
@@ -149,13 +154,13 @@ public class AerobicAnaerobicView extends View {
         timeLong = xLabeMax;
         this.data = data;
 
-        if (timeLong<4000){
+        /*if (timeLong<4000){
             unit="M";
         }
         else {
             unit="KM";
             timeLong = (int) Math.ceil(timeLong/1000.0);
-        }
+        }*/
         /*double max = data[0];
         for (double d:data){
             if (d>max){

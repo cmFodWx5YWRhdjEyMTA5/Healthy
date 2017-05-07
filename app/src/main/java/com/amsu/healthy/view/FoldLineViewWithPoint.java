@@ -91,6 +91,7 @@ public class FoldLineViewWithPoint extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
         Path path = new Path();
 
         if (datas!=null && datas.length>0){
@@ -156,27 +157,28 @@ public class FoldLineViewWithPoint extends View {
         this.datas  =datas;
         this.dateTime = dateTime;
 
-        //求数据的最大值和最小值
-        int max = datas[0];
-        int min = datas[0];
-        for (int i=1;i<datas.length;i++){
-            if (datas[i]>max){
-                max=datas[i];
+        if (datas.length>0){
+            //求数据的最大值和最小值
+            int max = datas[0];
+            int min = datas[0];
+            for (int i=1;i<datas.length;i++){
+                if (datas[i]>max){
+                    max=datas[i];
+                }
+                if (datas[i]<min){
+                    min=datas[i];
+                }
             }
-            if (datas[i]<min){
-                min=datas[i];
+            max+=10;  //将最大值和最小值两边延展，防止数据超出画线范围
+            min-=10;
+
+            //对数据进行归一化处理，以便按百分比分配高度
+            mHeightPercent = new float[datas.length];
+            for (int i=0;i<datas.length;i++) {
+                float percent = (float) (datas[i] - min) / (max - min);
+                mHeightPercent[i] = (1 - percent);
             }
         }
-        max+=10;  //将最大值和最小值两边延展，防止数据超出画线范围
-        min-=10;
-
-        //对数据进行归一化处理，以便按百分比分配高度
-        mHeightPercent = new float[datas.length];
-        for (int i=0;i<datas.length;i++){
-            float percent = (float) (datas[i] - min) / (max - min);
-            mHeightPercent[i] = (1-percent);
-        }
-
         invalidate();
     }
 

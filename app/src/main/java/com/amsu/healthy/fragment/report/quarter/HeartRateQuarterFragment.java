@@ -16,6 +16,7 @@ import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineViewWithPoint;
 import com.amsu.healthy.view.FoldLineViewWithTextOne;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -67,17 +68,28 @@ public class HeartRateQuarterFragment extends Fragment {
         if (MyReportActivity.mQuarterFullReport!=null){
             List<FullReport.HRrepBean> hRrep = MyReportActivity.mQuarterFullReport.errDesc.HRrep;
             if (hRrep!=null && hRrep.size()>0){
-                int[] datas = new int[hRrep.size()];
-                String[] labels = new String[hRrep.size()];
-                int i =0;
+                List<Integer> dataIntegerList = new ArrayList<>();
+                List<String> datetimesList = new ArrayList<>();
+                int heart;
                 for (FullReport.HRrepBean hRrepBean:hRrep){
-                    datas[i] = Integer.parseInt(hRrepBean.AHR);
-                    labels[i] = MyUtil.getReportDateStingForMouthAndDay(hRrepBean.datatime);
-                    i++;
+                    heart = Integer.parseInt(hRrepBean.AHR);
+                    if (heart>0) {
+                        dataIntegerList.add(heart);
+                        datetimesList.add(MyUtil.getReportDateStingForMouthAndDay(hRrepBean.datatime));
+                    }
                 }
-                mLineChart.setData(datas,labels);
+
+                int[] datas = new int[dataIntegerList.size()];
+                for (int i=0;i<dataIntegerList.size();i++){
+                    datas[i] = dataIntegerList.get(i);
+                }
+
+                String[] datetimes = new String[datetimesList.size()];
+                datetimesList.toArray(datetimes);
+
+                mLineChart.setData(datas,datetimes);
                 tv_mouth_value.setText(datas[datas.length-1]+"");
-                tv_mouth_datetime.setText(labels[labels.length-1]);
+                tv_mouth_datetime.setText(datetimes[datetimes.length-1]);
             }
         }
     }

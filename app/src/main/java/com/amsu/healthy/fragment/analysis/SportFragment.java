@@ -4,10 +4,17 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
@@ -21,8 +28,6 @@ import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
 import com.amap.api.trace.LBSTraceClient;
-import com.amap.api.trace.TraceListener;
-import com.amap.api.trace.TraceLocation;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.activity.StartRunActivity;
@@ -34,7 +39,6 @@ import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
 import com.amsu.healthy.view.AerobicAnaerobicView;
-import com.amsu.healthy.view.BarChartView;
 import com.amsu.healthy.view.HeightCurveView;
 import com.amsu.healthy.view.MyMapView;
 import com.amsu.healthy.view.PieChart;
@@ -42,11 +46,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-
-import static com.amsu.healthy.R.id.pc_ecg_chart;
 
 
 public class SportFragment extends Fragment implements AMap.OnMapLoadedListener {
@@ -67,11 +67,15 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
     private HeightCurveView hv_sport_stepline;
     private HeightCurveView hv_sport_kaliluline;
     private HeightCurveView hv_sport_rateline;
-    private BarChartView hv_sport_speedline;
+    private HeightCurveView hv_sport_speedline;
     private PieChart pc_sport_piechart;
     private AerobicAnaerobicView hv_sport_aerobicanaerobic;
     private Intent mIntent;
     private UploadRecord mUploadRecord;
+    private int[] heartData;
+    private int[] stepData;
+    private int[] kaliluliData;
+    private int[] speedData;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -99,15 +103,170 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
         tv_sport_speed = (TextView) inflate.findViewById(R.id.tv_sport_speed);
         tv_sport_kalilu = (TextView) inflate.findViewById(R.id.tv_sport_kalilu);
         tv_sport_freqstride = (TextView) inflate.findViewById(R.id.tv_sport_freqstride);
+
         hv_sport_stepline = (HeightCurveView) inflate.findViewById(R.id.hv_sport_stepline);
         hv_sport_kaliluline = (HeightCurveView) inflate.findViewById(R.id.hv_sport_kaliluline);
         hv_sport_rateline = (HeightCurveView) inflate.findViewById(R.id.hv_sport_rateline);
-        hv_sport_speedline = (BarChartView) inflate.findViewById(R.id.hv_sport_speedline);
+        hv_sport_speedline = (HeightCurveView) inflate.findViewById(R.id.hv_sport_speedline);
         hv_sport_aerobicanaerobic = (AerobicAnaerobicView) inflate.findViewById(R.id.hv_sport_aerobicanaerobic);
         pc_sport_piechart = (PieChart) inflate.findViewById(R.id.pc_sport_piechart);
 
         initMap();
-        //mv_finish_map.setAlpha(0.4f);
+
+        TogatherOnClickListener togatherOnClickListener = new TogatherOnClickListener();
+
+        hv_sport_stepline.setOnClickListener(togatherOnClickListener);
+        hv_sport_kaliluline.setOnClickListener(togatherOnClickListener);
+        hv_sport_rateline.setOnClickListener(togatherOnClickListener);
+        hv_sport_speedline.setOnClickListener(togatherOnClickListener);
+
+
+    }
+
+    class TogatherOnClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            final List<TogetherItem> togetherItemList = new ArrayList<>();
+            togetherItemList.add(new TogetherItem(R.drawable.bupin_icon,"步频里曲线"));
+            togetherItemList.add(new TogetherItem(R.drawable.kaluli_icon,"卡路里曲线"));
+            togetherItemList.add(new TogetherItem(R.drawable.xinlv_icon,"心率曲线"));
+            togetherItemList.add(new TogetherItem(R.drawable.peisu,"配速曲线"));
+            togetherItemList.add(new TogetherItem(R.drawable.xiaohao_icon,"有氧无氧"));
+
+            int clickViewID = v.getId();
+            final HeightCurveView clickView = (HeightCurveView) v;
+
+            switch (v.getId()){
+                case R.id.hv_sport_stepline:
+                    togetherItemList.remove(0);
+
+                    break;
+                case R.id.hv_sport_kaliluline:
+                    togetherItemList.remove(1);
+
+                    break;
+                case R.id.hv_sport_rateline:
+                    togetherItemList.remove(2);
+
+                    break;
+                case R.id.hv_sport_speedline:
+                    togetherItemList.remove(3);
+
+                    break;
+            }
+
+            View inflate = View.inflate(getActivity(), R.layout.view_dialog_choose_together, null);
+            final ListView lv_list = (ListView) inflate.findViewById(R.id.lv_list);
+            final Button bt_ok = (Button) inflate.findViewById(R.id.bt_ok);
+
+            initListViewData(lv_list,togetherItemList);
+
+
+            final AlertDialog alertDialog = new AlertDialog.Builder(getActivity(), R.style.myCorDialog).setView(inflate).create();
+            alertDialog.show();
+            float width = getResources().getDimension(R.dimen.x864);
+            float height = getResources().getDimension(R.dimen.y1148);
+
+            Window window = alertDialog.getWindow();
+            window.setLayout(Float.valueOf(width).intValue(),Float.valueOf(height).intValue());
+
+            bt_ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    TogetherItem togetherItem = togetherItemList.get(mChoosedItem);
+
+                    switch (togetherItem.name){
+                        case "步频里曲线":
+                            //addTogetherLine()
+                            clickView.setTogetherShowData(stepData,-1);
+                            break;
+                        case "卡路里曲线":
+                            //addTogetherLine()
+                            clickView.setTogetherShowData(kaliluliData,-1);
+                            break;
+                        case "心率曲线":
+                            //addTogetherLine()
+                            clickView.setTogetherShowData(heartData,-1);
+                            break;
+                        case "配速曲线":
+                            //addTogetherLine()
+                            clickView.setTogetherShowData(speedData,HeightCurveView.LINETYPE_SPEED);
+                            break;
+                        case "有氧无氧":
+                            //addTogetherLine()
+                            clickView.setTogetherShowData(heartData,HeightCurveView.LINETYPE_AEROBICANAEROBIC);
+                            break;
+                    }
+
+                    alertDialog.dismiss();
+                }
+            });
+
+
+
+
+        }
+
+
+    }
+    class TogetherItem{
+        int iconID;
+        String name;
+
+        public TogetherItem(int iconID, String name) {
+            this.iconID = iconID;
+            this.name = name;
+        }
+    }
+    private int mChoosedItem = -1;
+
+    private void initListViewData(ListView lv_list, final List<TogetherItem> togetherItemList) {
+
+        class MyitemTogethAdapter extends BaseAdapter{
+
+            @Override
+            public int getCount() {
+                return togetherItemList.size();
+            }
+
+            @Override
+            public Object getItem(int position) {
+                return null;
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return 0;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                TogetherItem togetherItem = togetherItemList.get(position);
+
+                View view_item_togeth = View.inflate(getActivity(), R.layout.view_item_togeth, null);
+                ImageView iv_item_icon = (ImageView) view_item_togeth.findViewById(R.id.iv_item_icon);
+                TextView tv_item_name = (TextView) view_item_togeth.findViewById(R.id.tv_item_name);
+                iv_item_icon.setImageResource(togetherItem.iconID);
+                tv_item_name.setText(togetherItem.name);
+                return view_item_togeth;
+            }
+        }
+
+        lv_list.setAdapter(new MyitemTogethAdapter());
+
+        lv_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            View grayColorView;
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                view.setBackgroundColor(Color.parseColor("#D4D4D4"));
+                if (grayColorView!=null){
+                    grayColorView.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                }
+                grayColorView = view;
+                mChoosedItem = position;
+            }
+        });
     }
 
     private void initData() {
@@ -120,24 +279,26 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
             if (!MyUtil.isEmpty(mUploadRecord.HR) && !mUploadRecord.HR.equals("-1")){//心率
                 List<Integer> fromJson = gson.fromJson(mUploadRecord.HR,new TypeToken<List<Integer>>() {
                 }.getType());
-                int[] heartData = MyUtil.listToIntArray(fromJson);
+                heartData = MyUtil.listToIntArray(fromJson);
+                int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
                 if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
-                    int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
                     Log.i(TAG,"time:"+time);
                     hv_sport_rateline.setData(heartData,time);
                 }
 
-                int distance = (int) Double.parseDouble(mUploadRecord.distance);
+                hv_sport_aerobicanaerobic.setData(heartData, time);
+
+                /*int distance = (int) Double.parseDouble(mUploadRecord.distance);
                 if (distance>0){
-                    hv_sport_aerobicanaerobic.setData(heartData, distance);
-                }
+                    hv_sport_aerobicanaerobic.setData(heartData, time);
+                }*/
 
                 int typeIsOx = 0;
                 int typeGentle = 0;
                 int typeDanger = 0;
                 int typeNoOx = 0;
                 int maxRate = 220-HealthyIndexUtil.getUserAge();
-                for (int rate:heartData){
+                for (int rate: heartData){
                     if (rate<=maxRate*0.6){
                         typeGentle++;
                     }
@@ -152,7 +313,7 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
                     }
                 }
                 Log.i(TAG,"typeIsOx:"+typeIsOx+" typeGentle:"+typeGentle +" typeDanger:"+typeDanger+" typeNoOx:"+typeNoOx);
-                int[] piechartData = {typeIsOx,typeGentle,typeDanger,typeNoOx};
+                float[] piechartData = {typeIsOx,typeGentle,typeDanger,typeNoOx};
                 pc_sport_piechart.setDatas(piechartData);
 
 
@@ -164,20 +325,43 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
             if (!MyUtil.isEmpty(mUploadRecord.cadence) && !mUploadRecord.cadence.equals(Constant.uploadRecordDefaultString) && !mUploadRecord.cadence.equals("-1")){ //步频
                 List<Integer> fromJson = gson.fromJson(mUploadRecord.cadence,new TypeToken<List<Integer>>() {
                 }.getType());
-                int[] ints = MyUtil.listToIntArray(fromJson);
-                if (mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
-                    hv_sport_stepline.setData(ints,Integer.parseInt(mUploadRecord.time));
+                stepData = MyUtil.listToIntArray(fromJson);
+                if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
+                    int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
+                    hv_sport_stepline.setData(stepData,time);
+                    int allcadence = 0 ;
+                    for (int i: stepData){
+                        allcadence+=i;
+                    }
+                    int averageCadence = allcadence / stepData.length;
+                    //float averageCadence = (float) Math.ceil( (double) allcadence / ints.length);
+                    tv_sport_freqstride.setText(averageCadence +"");
                 }
             }
             if (!MyUtil.isEmpty(mUploadRecord.calorie) && !mUploadRecord.calorie.equals(Constant.uploadRecordDefaultString) && !mUploadRecord.calorie.equals("-1")){ //卡路里
                 List<Integer> fromJson = gson.fromJson(mUploadRecord.calorie,new TypeToken<List<Integer>>() {
                 }.getType());
-                int[] ints = MyUtil.listToIntArray(fromJson);
-                if (mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
-                    hv_sport_kaliluline.setData(ints,Integer.parseInt(mUploadRecord.time));
+                kaliluliData = MyUtil.listToIntArray(fromJson);
+                if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
+                    int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
+                    hv_sport_kaliluline.setData(kaliluliData,time,HeightCurveView.LINETYPE_CALORIE);
+                    int allcalorie = 0 ;
+                    for (int i: kaliluliData){
+                        allcalorie+=i;
+                    }
+                    tv_sport_kalilu.setText(allcalorie+"");
                 }
             }
 
+            if (!MyUtil.isEmpty(mUploadRecord.AE) && !mUploadRecord.AE.equals(Constant.uploadRecordDefaultString) && !mUploadRecord.AE.equals("-1")){ //卡路里
+                List<Integer> fromJson = gson.fromJson(mUploadRecord.AE,new TypeToken<List<Integer>>() {
+                }.getType());
+                speedData = MyUtil.listToIntArray(fromJson);
+                if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
+                    int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
+                    hv_sport_speedline.setData(speedData,time,HeightCurveView.LINETYPE_SPEED);
+                }
+            }
         }
 
        /* int[] data1 = new int[10];

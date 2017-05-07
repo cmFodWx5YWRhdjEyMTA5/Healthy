@@ -16,6 +16,7 @@ import com.amsu.healthy.view.FoldLineViewWithPoint;
 import com.amsu.healthy.view.FoldLineViewWithText;
 import com.amsu.healthy.view.FoldLineViewWithTextOne;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -66,17 +67,27 @@ public class HRRMouthFragment extends Fragment {
         if (MyReportActivity.mMouthFullReport!=null){
             List<FullReport.HRRrepBean> hRrep = MyReportActivity.mMouthFullReport.errDesc.HRRrep;
             if (hRrep!=null && hRrep.size()>0){
-                int[] datas = new int[hRrep.size()];
-                String[] labels = new String[hRrep.size()];
-                int i =0;
+                List<Integer> dataList = new ArrayList<>();
+                List<String> labeList = new ArrayList<>();
                 for (FullReport.HRRrepBean hrRrepBean:hRrep){
-                    datas[i] = Integer.parseInt(hrRrepBean.RA);
-                    labels[i] = MyUtil.getReportDateStingForMouthAndDay(hrRrepBean.datatime);
-                    i++;
+                    if (Integer.parseInt(hrRrepBean.RA)>0){
+                        dataList.add(Integer.parseInt(hrRrepBean.RA));
+                        labeList.add(MyUtil.getReportDateStingForMouthAndDay(hrRrepBean.datatime));
+                    }
                 }
-                mLineChart.setData(datas,labels);
-                tv_mouth_value.setText(datas[datas.length-1]+"");
-                tv_mouth_datetime.setText(labels[labels.length-1]);
+
+                int[] datas = new int[dataList.size()];
+                String[] labels = new String[dataList.size()];
+                for (int j=0;j<dataList.size();j++){
+                    datas[j] = dataList.get(j);
+                    labels[j] = labeList.get(j);
+                }
+
+                if (dataList.size()>0){
+                    mLineChart.setData(datas,labels);
+                    tv_mouth_value.setText(datas[datas.length-1]+"");
+                    tv_mouth_datetime.setText(labels[labels.length-1]);
+                }
             }
         }
     }

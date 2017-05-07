@@ -136,7 +136,6 @@ public class LoginActivity extends BaseActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
                     Log.i(TAG,"status:"+status+",detail:"+detail);
 
                     Message message = myHandler.obtainMessage(MSG_TOAST_FAIL);

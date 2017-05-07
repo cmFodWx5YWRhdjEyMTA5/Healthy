@@ -5,48 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <com.amsu.healthy.view.LoadMoreListView
+        android:id="@+id/lv_list"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/y820"
-        android:layout_marginTop="@dimen/x40"
-        android:orientation="vertical">
-        <RelativeLayout
-            android:layout_width="@dimen/x228"
-            android:layout_height="@dimen/x140"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/bg_shadow"
-            android:gravity="center">
-            <TextView
-                android:id="@+id/tv_mouth_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="78"
-                android:textColor="#000000"
-                android:textSize="@dimen/x52"
-                android:layout_centerHorizontal="true"/>
-            <TextView
-                android:id="@+id/tv_mouth_datetime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/x8"
-                android:layout_below="@+id/tv_mouth_value"
-                android:text="78"
-                android:textColor="#818181"
-                android:textSize="@dimen/x28"
-                android:layout_centerHorizontal="true"/>
-        </RelativeLayout>
-        <com.amsu.healthy.view.FoldLineViewWithPoint
-            android:id="@+id/spread_line_chart"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/x10"
-            android:layout_below="@+id/view"
-            android:background="#FFFFFF"
-            foldlineview:line_color="#FF0000"
-            foldlineview:line_width="@dimen/x6"
-            foldlineview:radius_point="@dimen/x8"
-            foldlineview:radius_point_big="@dimen/x12"/>
+        android:layout_height="wrap_content">
+    </com.amsu.healthy.view.LoadMoreListView>
 
-    </LinearLayout>
 
 </LinearLayout>

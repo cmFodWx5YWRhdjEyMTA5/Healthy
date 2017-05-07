@@ -2,7 +2,6 @@ package com.amsu.healthy.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -72,14 +71,14 @@ public class HeartRateActivity extends BaseActivity {
     }
 
     private void initData() {
-        Intent intent = getIntent();
+        final Intent intent = getIntent();
         final ArrayList<Integer> heartDataList_static = intent.getIntegerArrayListExtra(Constant.heartDataList_static);//静态心电心率，不为空则表示有静态心电数据
         final int sportState = intent.getIntExtra(Constant.sportState, -1);  // 运动类型，需要传到下个界面
-        final int hrr = intent.getIntExtra(Constant.hrr, -1);  // 运动类型，需要传到下个界面
+        final int hrr = intent.getIntExtra(Constant.hrr, 0);  // 运动类型，需要传到下个界面
         final long sportCreateRecordID = intent.getLongExtra(Constant.sportCreateRecordID, -1);  //运动记录id
         final long ecgFiletimeMillis = intent.getLongExtra(Constant.ecgFiletimeMillis, -1);
 
-        if ((heartDataList_static!=null && heartDataList_static.size()==0) && sportCreateRecordID==-1){
+        if ((heartDataList_static==null || heartDataList_static.size()==0) && sportCreateRecordID==-1){
             //没有数据。直接跳转
             Intent intentToRateAnalysis = new Intent(HeartRateActivity.this, RateAnalysisActivity.class);
             intentToRateAnalysis.putExtra(Constant.sportState,sportState);
@@ -104,13 +103,13 @@ public class HeartRateActivity extends BaseActivity {
                             Log.i(TAG,"fileBase64:"+fileBase64);
                             List<Integer> ecgDataList = readEcgDataFromFile(file);
                             Log.i(TAG,"ecgDataList.size()"+ecgDataList.size());
-                            uploadRecord = generateUploadData(ecgDataList, fileBase64, heartDataList_static, sportState, sportCreateRecordID, hrr,ecgFiletimeMillis);
+                            uploadRecord = generateUploadData(ecgDataList, fileBase64, heartDataList_static, sportState, sportCreateRecordID, hrr,ecgFiletimeMillis,intent);
                         }
                     }
                 }
                 else if (sportCreateRecordID!=-1){
                     //运动数据
-                    uploadRecord = generateUploadData(null, null, heartDataList_static, sportState, sportCreateRecordID, hrr,ecgFiletimeMillis);
+                    uploadRecord = generateUploadData(null, null, heartDataList_static, sportState, sportCreateRecordID, hrr,ecgFiletimeMillis,intent);
                 }
 
                 if (uploadRecord!=null){
@@ -202,7 +201,7 @@ public class HeartRateActivity extends BaseActivity {
     }
 
     //生成上传数据，分为心电数据和运动数据
-    private UploadRecord generateUploadData(List<Integer> ecgDataList, String fileBase64,ArrayList<Integer> heartDataList,int sportState,long sportCreateRecordID,int hrr,long ecgFiletimeMillis) {
+    private UploadRecord generateUploadData(List<Integer> ecgDataList, String fileBase64,ArrayList<Integer> heartDataList,int sportState,long sportCreateRecordID,int hrr,long ecgFiletimeMillis,Intent intent) {
         UploadRecord uploadRecord = new UploadRecord();
 
         String timestamp;
@@ -212,7 +211,7 @@ public class HeartRateActivity extends BaseActivity {
             datatime = MyUtil.getSpecialFormatTime("yyyy/MM/dd H:m:s", new Date(ecgFiletimeMillis));
         }
         else {
-            timestamp = System.currentTimeMillis()+"";
+            timestamp = (System.currentTimeMillis()/1000)+"";
             datatime = MyUtil.getSpecialFormatTime("yyyy/MM/dd H:m:s", new Date());
         }
 
@@ -220,6 +219,7 @@ public class HeartRateActivity extends BaseActivity {
         uploadRecord.setDatatime(datatime);
         uploadRecord.setState(sportState+"");
 
+        Gson gson = new Gson();
         //设置心电数据
         if (ecgDataList!=null && ecgDataList.size()>0){
             int[] calcuData = new int[ecgDataList.size()];
@@ -229,7 +229,7 @@ public class HeartRateActivity extends BaseActivity {
             HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, Constant.oneSecondFrame);
             Log.i(TAG,"heartRateResult:"+heartRateResult.toString());
             //转化成json并存在sp里
-            Gson gson = new Gson();
+
 
             /*IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex((int) (heartRateResult.LF / heartRateResult.HF));
             String ES = String.valueOf(ESIndicatorAssess.getPercent());
@@ -280,7 +280,7 @@ public class HeartRateActivity extends BaseActivity {
             }
             String HRs = "未测出恢复心率";  //心率恢复能力健康意见
             String RA = hrr+"";  //心率恢复能力
-            if (hrr!=-1){
+            if (hrr!=0){
                 IndicatorAssess hrrIndicatorAssess = HealthyIndexUtil.calculateScoreHRR(hrr);
                 HRs = hrrIndicatorAssess.getSuggestion();
             }
@@ -300,7 +300,6 @@ public class HeartRateActivity extends BaseActivity {
             uploadRecord.setHR(HR);
             uploadRecord.setZaobo(zaobo+"");
             uploadRecord.setLoubo(loubo+"");
-
         }
         //设置跑步数据
         if (sportCreateRecordID!=-1){
@@ -311,6 +310,19 @@ public class HeartRateActivity extends BaseActivity {
             String calorie = Constant.uploadRecordDefaultString;  //卡路里
             String latitude_longitude = Constant.uploadRecordDefaultString;  //经纬度
 
+            final ArrayList<Integer> mKcalData = intent.getIntegerArrayListExtra(Constant.mKcalData);//
+            final ArrayList<Integer> mStridefreData = intent.getIntegerArrayListExtra(Constant.mStridefreData);//
+            final ArrayList<Integer> mSpeedStringListData = intent.getIntegerArrayListExtra(Constant.mSpeedStringListData);//
+
+            if (mKcalData!=null && mKcalData.size()>0){
+                calorie = gson.toJson(mKcalData);
+            }
+            if (mStridefreData!=null && mStridefreData.size()>0){
+                cadence = gson.toJson(mStridefreData);
+            }
+            if (mSpeedStringListData!=null && mSpeedStringListData.size()>0){
+                AE = gson.toJson(mSpeedStringListData);
+            }
 
             DbAdapter dbAdapter = new DbAdapter(this);
             dbAdapter.open();
@@ -383,6 +395,9 @@ public class HeartRateActivity extends BaseActivity {
 
     //上传分析结果
     private void uploadRecordDataToServer(UploadRecord uploadRecord) {
+        String ahr = uploadRecord.AHR;
+        Log.i(TAG,"AHR:"+ahr);
+
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
         MyUtil.addCookieForHttp(params);
@@ -394,6 +409,7 @@ public class HeartRateActivity extends BaseActivity {
         params.addBodyParameter("HRVr",uploadRecord.HRVr);
         params.addBodyParameter("HRVs",uploadRecord.HRVs);
         params.addBodyParameter("AHR",uploadRecord.AHR);
+        //params.addBodyParameter("AHR","90");
         params.addBodyParameter("MaxHR",uploadRecord.MaxHR);
         params.addBodyParameter("MinHR",uploadRecord.MinHR);
         params.addBodyParameter("HRr",uploadRecord.HRr);

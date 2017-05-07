@@ -229,7 +229,7 @@
                 android:layout_above="@+id/tv_text3"
                 android:layout_marginTop="@dimen/y28"
                 android:layout_marginBottom="@dimen/x28"
-                HeightCurve:curve_line_width="@dimen/x8"
+                HeightCurve:curve_line_width="@dimen/x6"
                 HeightCurve:fillstart_color="#fefffe"
                 HeightCurve:fillend_color="#a1e8bf"
                 HeightCurve:curve_line_color="#2ecd70"/>
@@ -298,7 +298,7 @@
                 android:layout_above="@+id/tv_text5"
                 android:layout_marginTop="@dimen/y28"
                 android:layout_marginBottom="@dimen/x28"
-                HeightCurve:curve_line_width="@dimen/x8"
+                HeightCurve:curve_line_width="@dimen/x6"
                 HeightCurve:fillstart_color="#fefffe"
                 HeightCurve:fillend_color="#cfafdc"
                 HeightCurve:curve_line_color="#a060b9"/>
@@ -365,7 +365,7 @@
                 android:layout_above="@+id/tv_text7"
                 android:layout_marginTop="@dimen/y28"
                 android:layout_marginBottom="@dimen/x28"
-                HeightCurve:curve_line_width="@dimen/x8"
+                HeightCurve:curve_line_width="@dimen/x6"
                 HeightCurve:fillstart_color="#fefffe"
                 HeightCurve:fillend_color="#99cbed"
                 HeightCurve:curve_line_color="#3599db"/>
@@ -412,8 +412,8 @@
                 android:layout_marginTop="@dimen/y28"
                 android:textSize="@dimen/x28"
                 android:textColor="#9d9d9f"
-                android:text="耗时：分钟"/>
-            <RelativeLayout
+                android:text="配速：分钟/公里"/>
+            <!--<RelativeLayout
                 android:id="@+id/rl_view2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -474,19 +474,19 @@
                     android:textColor="#999999"
                     android:layout_marginLeft="@dimen/x12"
                     android:layout_centerVertical="true"/>
-            </RelativeLayout>
+            </RelativeLayout>-->
             <TextView
                 android:id="@+id/tv_text9"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/x28"
                 android:textColor="#9d9d9f"
-                android:text="历程：公里"
+                android:text="时间：分钟"
                 android:layout_alignParentRight="true"
-                android:layout_above="@+id/rl_view2"
-                android:layout_marginBottom="@dimen/x24"/>
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="@dimen/x48"/>
 
-            <com.amsu.healthy.view.BarChartView
+            <com.amsu.healthy.view.HeightCurveView
                 android:id="@+id/hv_sport_speedline"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -494,9 +494,9 @@
                 android:layout_above="@+id/tv_text9"
                 android:layout_marginTop="@dimen/y28"
                 android:layout_marginBottom="@dimen/x28"
-                HeightCurve:curve_line_width="@dimen/x8"
-                HeightCurve:fillstart_color="#fefffe"
-                HeightCurve:fillend_color="#99cbed"
+                HeightCurve:curve_line_width="@dimen/x6"
+                HeightCurve:fillstart_color="#FFFFFF"
+                HeightCurve:fillend_color="#FFb9ba"
                 HeightCurve:curve_line_color="#3599db"/>
 
         </RelativeLayout>
@@ -514,7 +514,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="运动强度"
+                android:text="有氧无氧"
                 android:layout_centerInParent="true"
                 android:textColor="#3b3841"
                 android:textSize="@dimen/x50"/>
@@ -567,7 +567,7 @@
                 android:layout_height="match_parent"
                 android:background="#FFFFFF"
                 android:orientation="vertical"
-                android:layout_marginTop="@dimen/x10">
+                android:layout_marginTop="@dimen/x64">
                 <com.amsu.healthy.view.PieChart
                     android:id="@+id/pc_sport_piechart"
                     android:layout_width="match_parent"
@@ -608,7 +608,7 @@
                             android:layout_height="wrap_content"
                             android:text="平缓"
                             android:layout_toRightOf="@+id/iv_image10"
-                            android:textSize="@dimen/x40"
+                            android:textSize="@dimen/x24"
                             android:textColor="#6b6b6b"
                             android:layout_marginLeft="@dimen/x12"
                             android:layout_centerVertical="true"/>
@@ -629,7 +629,7 @@
                             android:layout_height="wrap_content"
                             android:text="有氧"
                             android:layout_toRightOf="@+id/iv_image12"
-                            android:textSize="@dimen/x40"
+                            android:textSize="@dimen/x24"
                             android:textColor="#6b6b6b"
                             android:layout_marginLeft="@dimen/x12"
                             android:layout_centerVertical="true"/>
@@ -650,7 +650,7 @@
                             android:layout_height="wrap_content"
                             android:text="无氧"
                             android:layout_toRightOf="@+id/iv_image3"
-                            android:textSize="@dimen/x40"
+                            android:textSize="@dimen/x24"
                             android:textColor="#6b6b6b"
                             android:layout_marginLeft="@dimen/x12"
                             android:layout_centerVertical="true"/>
@@ -670,7 +670,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="高危"
-                            android:textSize="@dimen/x40"
+                            android:textSize="@dimen/x24"
                             android:textColor="#6b6b6b"
                             android:layout_toRightOf="@+id/iv_image4"
                             android:layout_marginLeft="@dimen/x12"

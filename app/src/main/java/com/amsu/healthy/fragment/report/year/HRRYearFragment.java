@@ -15,6 +15,7 @@ import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineViewWithPoint;
 import com.amsu.healthy.view.FoldLineViewWithTextOne;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -70,17 +71,27 @@ public class HRRYearFragment extends Fragment {
         if (MyReportActivity.mQuarterFullReport!=null){
             List<FullReport.HRRrepBean> hRrep = MyReportActivity.mQuarterFullReport.errDesc.HRRrep;
             if (hRrep!=null && hRrep.size()>0){
-                int[] datas = new int[hRrep.size()];
-                String[] labels = new String[hRrep.size()];
-                int i =0;
+                List<Integer> dataList = new ArrayList<>();
+                List<String> labeList = new ArrayList<>();
                 for (FullReport.HRRrepBean hrRrepBean:hRrep){
-                    datas[i] = Integer.parseInt(hrRrepBean.RA);
-                    labels[i] = MyUtil.getReportDateStingForMouthAndDay(hrRrepBean.datatime);
-                    i++;
+                    if (Integer.parseInt(hrRrepBean.RA)>0){
+                        dataList.add(Integer.parseInt(hrRrepBean.RA));
+                        labeList.add(MyUtil.getReportDateStingForMouthAndDay(hrRrepBean.datatime));
+                    }
                 }
-                mLineChart.setData(datas,labels);
-                tv_mouth_value.setText(datas[datas.length-1]+"");
-                tv_mouth_datetime.setText(labels[labels.length-1]);
+
+                int[] datas = new int[dataList.size()];
+                String[] labels = new String[dataList.size()];
+                for (int j=0;j<dataList.size();j++){
+                    datas[j] = dataList.get(j);
+                    labels[j] = labeList.get(j);
+                }
+
+                if (dataList.size()>0){
+                    mLineChart.setData(datas,labels);
+                    tv_mouth_value.setText(datas[datas.length-1]+"");
+                    tv_mouth_datetime.setText(labels[labels.length-1]);
+                }
             }
         }
     }
@@ -91,7 +102,7 @@ public class HRRYearFragment extends Fragment {
         initData();
 
 
-        int[] datas =    {67,59,54,67,60,60,61};  //心率数据
+        /*int[] datas =    {67,59,54,67,60,60,61};  //心率数据
         String[] datetime =    {"10月1日","10月2日","10月3日","10月4日","10月5日","10月6日","10月7日"};  //心率数据
         mLineChart.setData(datas,datetime);
 
@@ -101,7 +112,7 @@ public class HRRYearFragment extends Fragment {
                 tv_mouth_value.setText(heartRate+"");
                 tv_mouth_datetime.setText(dateTime);
             }
-        });
+        });*/
 
 
     }

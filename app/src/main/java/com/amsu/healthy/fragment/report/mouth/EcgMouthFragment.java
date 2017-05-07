@@ -52,7 +52,7 @@ public class EcgMouthFragment extends Fragment {
     private void initData() {
         if (MyReportActivity.mMouthFullReport!=null){
             if (MyReportActivity.mMouthFullReport!=null){
-                int[] eCrep = MyReportActivity.mMouthFullReport.errDesc.ECrep;
+                float[] eCrep = MyReportActivity.mMouthFullReport.errDesc.ECrep;
                 if (eCrep!=null && eCrep.length>0){
                     pc_ecg_chart.setDatas(eCrep);
                 }

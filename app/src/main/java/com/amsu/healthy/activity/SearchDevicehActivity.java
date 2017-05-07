@@ -115,7 +115,7 @@ public class SearchDevicehActivity extends BaseActivity {
 
             String leName = device.getName();
             if (leName!=null && leName.startsWith("BLE")){
-                if (deviceListFromSP.size()==0){
+                /*if (deviceListFromSP.size()==0){
                     deviceListFromSP.add(new Device("智能运动衣1","",device.getAddress(), leName,1));
                     DeviceList deviceList = new DeviceList();
                     deviceList.setDeviceList(deviceListFromSP);
@@ -151,7 +151,21 @@ public class SearchDevicehActivity extends BaseActivity {
                         finish();
                         Log.i(TAG,"finish");
                     }
-                }
+                }*/
+
+                deviceListFromSP.clear();
+                deviceListFromSP.add(new Device("智能运动衣","",device.getAddress(), leName,1));
+                DeviceList deviceList = new DeviceList();
+                deviceList.setDeviceList(deviceListFromSP);
+                MyUtil.putDeviceListToSP(deviceList);
+                Log.i(TAG,"添加新设备成功");
+                MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+                //tv_search_state.setText("查找成功");
+                MyUtil.putStringValueFromSP(Constant.currectDeviceLEName,leName);
+                animation.cancel();
+                setResult(RESULT_OK,getIntent());
+                finish();
+                Log.i(TAG,"finish");
             }
         }
     };

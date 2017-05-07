@@ -229,8 +229,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/y160"
             android:clickable="true"
-            android:background="@drawable/list_item_background"
-            android:visibility="gone">
+            android:background="@drawable/list_item_background">
             <ImageView
                 android:id="@+id/iv_me_help"
                 android:layout_width="@dimen/x56"

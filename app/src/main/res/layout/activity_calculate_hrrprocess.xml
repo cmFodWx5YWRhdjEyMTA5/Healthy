@@ -10,11 +10,12 @@
         android:id="@+id/tv_heartrate_txt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="正在计算恢复心率"
+        android:text="正在采集静态心率"
         android:layout_centerHorizontal="true"
         android:textColor="#0c64b5"
         android:textSize="@dimen/x72"
         android:layout_marginTop="@dimen/y154"/>
+
     <TextView
         android:id="@+id/tv_heartrate_txt1"
         android:layout_width="wrap_content"
@@ -25,8 +26,6 @@
         android:textColor="#0c64b5"
         android:textSize="@dimen/x36"
         android:layout_marginTop="@dimen/y36"/>
-
-
 
     <RelativeLayout
         android:layout_width="@dimen/y500"

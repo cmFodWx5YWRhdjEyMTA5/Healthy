@@ -37,6 +37,10 @@ public class Constant {
     public static String getHistoryReportListURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/getReportList";
     public static String getHistoryReportDetailURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/getDetail";
     public static String downloadWeekReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadWeekReport";
+    public static String addSosContact = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/addContacts";
+    public static String getAllContacts = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/getContactsAndMessage";
+    public static String setSosMessage = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/setMessage";
+    public static String deleteSosContact = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/deleteContact";
 
     //public static String checkAppUpdateURL = "https://bodylistener.amsu-new.com/intellingence/VersionController/getLastVersion";
     public static String checkAppUpdateURL = "http://www.amsu-new.com:8081/intellingence-web/getLastVersion.do";
@@ -50,18 +54,17 @@ public class Constant {
     public static String isLookupECGDataFromSport = "isLookupECGDataFromSport";
     public static String heartDataList_static = "heartDataList_static";
     public static String heartDataList_athletic = "heartDataList_athletic";
+    public static String mKcalData = "mKcalData";
+    public static String mStridefreData = "mStridefreData";
+    public static String mSpeedStringListData = "mSpeedStringListData";
     public static String sportCreateRecordID = "sportCreateRecordID";
     public static int SPORTSTATE_STATIC = 0;
     public static int SPORTSTATE_ATHLETIC = 1;
     public static String hrr = "hrr";
     public static String ecgFiletimeMillis = "ecgFiletimeMillis";
     public static String restingHR = "restingHR";
+    public static String sosinfo = "sosinfo";
 
     public static String uploadRecordDefaultString = "0";
-
-
-
-
-
 
 }

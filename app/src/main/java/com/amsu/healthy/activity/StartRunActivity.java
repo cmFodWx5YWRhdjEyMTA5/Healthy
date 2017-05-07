@@ -13,7 +13,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.provider.Settings;
 import android.support.design.widget.BottomSheetDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -31,7 +30,6 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.model.LatLng;
-import com.amap.api.trace.TraceLocation;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
@@ -48,6 +46,7 @@ import com.amsu.healthy.view.GlideRelativeView;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
 import com.ble.ble.BleService;
+import com.test.utils.DiagnosisNDK;
 
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
@@ -57,10 +56,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import static com.amsu.healthy.R.id.bt_run_start;
 
 /**
  *
@@ -103,6 +98,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private boolean isConnectting  =false;
     private ArrayList<Integer> heartRateDates = new ArrayList<>();  // 心率数组
     private boolean isThreeMit = false;   //是否到三分钟
+    private boolean isOneMit = false;   //是否到三分钟
     private boolean isStartThreeMitTimer;  //是否开始三分钟倒计时计时器
     private int currentGroupIndex = 0;   //组的索引
     private int groupCalcuLength = 100; //
@@ -115,6 +111,14 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private FileOutputStream fileOutputStream;
     private long ecgFiletimeMillis =-1;  //开始有心电数据时的秒数，作为心电文件命名。静态变量，在其他界面会用到
     private boolean mHaveOutSideGpsLocation;
+    private long mCalKcalCurrentTimeMillis = 0;
+    private int mAllKcal;
+    private List<Integer> accData = new ArrayList<>();
+    private int accDataLength = 1800;
+    private ArrayList<Integer> mKcalData = new ArrayList<>();
+    private ArrayList<Integer> mStridefreData = new ArrayList<>();
+
+
 
 
     @Override
@@ -447,8 +451,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             final int heartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
             Log.i(TAG,"heartRate0:"+heartRate);
             //calcuEcgRate = new int[groupCalcuLength*10];
-            heartRateDates.add(heartRate);
-
+            if (heartRate>0){
+                heartRateDates.add(heartRate);
+            }
             if (mSendHeartRateBroadcastIntent==null){
                 mSendHeartRateBroadcastIntent = new Intent(action);
             }
@@ -467,6 +472,35 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 }
             });
             System.arraycopy(ints, 0, calcuEcgRate, currentGroupIndex * 10 + 0, ints.length);
+            if (mCalKcalCurrentTimeMillis==0){
+                mCalKcalCurrentTimeMillis = System.currentTimeMillis();
+            }else {
+                long l = System.currentTimeMillis() - mCalKcalCurrentTimeMillis;
+                mCalKcalCurrentTimeMillis = System.currentTimeMillis();
+                float time = (float) (l / (1000 * 60.0));
+                int userSex = MyUtil.getUserSex();
+                int userAge = HealthyIndexUtil.getUserAge();
+                int userWeight = MyUtil.getUserWeight();
+                Log.i(TAG,"time:"+time+",userSex:"+userSex+",userAge:"+userAge+",userWeight"+userWeight);
+                float getkcal = DiagnosisNDK.getkcal(userSex, heartRate, userAge, userWeight, time);
+                Log.i(TAG,"getkcal:"+getkcal);
+                if (getkcal<0){
+                    getkcal = 0;
+                }
+
+                mAllKcal += getkcal;
+                mKcalData.add((int) getkcal);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tv_run_kcal.setText(mAllKcal+"");
+                    }
+                });
+
+
+            }
+
+
         }
         currentGroupIndex++;
     }
@@ -509,8 +543,39 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     //处理加速度数据
     private void dealWithAccelerationgData(String hexData) {
         final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 12); //一次的数据，12位
+        for (int i:ints){
+            accData.add(i);
+        }
+        if (accData.size()==accDataLength){
+            //计算
+            byte[] bytes = new byte[accDataLength];
+            for (int i=0;i<accData.size();i++){
+                bytes[i] = (byte)(int)accData.get(i);
+            }
+            int[] results = new int[2];
+            accData.clear();
+            DiagnosisNDK.AnalysisPedo(bytes,accDataLength,results);
+            Log.i(TAG,"results: "+results[0]+"  "+results[1]);
+            final int stridefre = (int) (results[1] * 5.21); //每分钟的步数
+            mStridefreData.add(stridefre);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tv_run_stridefre.setText(stridefre+"");
+                }
+            });
+
+
+        }
+
+        String test = "";
+        for (int s:ints){
+            test += s+" ";
+        }
+        Log.i(TAG,"test:"+test);
+
         //FF 42 04 77 0F 93 FF 26 04 74 0F 47
-        int xACC = 0;
+        /*int xACC = 0;
         int yACC = 0;
         int zACC = 0;
         for (int i=0;i<ints.length;i++){
@@ -553,8 +618,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 }
                 //Log.i(TAG,"xACC:"+zACC);
             }
-        }
+        }*/
         //Log.i(TAG,"xACC:"+xACC+",yACC:"+yACC+",zACC:"+zACC);
+
     }
 
     //开始扫描、连接蓝牙
@@ -564,12 +630,26 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
     }
 
+    ArrayList<Integer> mSpeedStringList = new ArrayList<>();
+
     //计算跑步速度，在室内和室外统一采用地图返回的传感器速度
     private void calculateSpeed(AMapLocation aMapLocation) {
-        float speed = aMapLocation.getSpeed()*3.6f;
+        //float speed = aMapLocation.getSpeed()*3.6f;
+        float speed = 0;
+        String formatSpeed;
+        if (aMapLocation.getSpeed()==0){
+            formatSpeed = "0’00’’";
+        }
+        else {
+            speed = (1/aMapLocation.getSpeed())*1000f;
+            formatSpeed = (int)speed/60+"’"+(int)speed%60+"’’";
+        }
+
+       /*
         DecimalFormat decimalFormat=new DecimalFormat("0.00");//构造方法的字符格式这里如果小数不足2位,会以0补足.
-        String formatSpeed=decimalFormat.format(speed);//format 返回的是字符串
+        String formatSpeed=decimalFormat.format(speed);//format 返回的是字符串*/
         tv_run_speed.setText(formatSpeed);
+        mSpeedStringList.add((int) speed);
     }
 
     private void calculateDistance(AMapLocation aMapLocation) {
@@ -580,6 +660,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             if (distance>100){
                 record.getPathline().clear();
             }
+            return;
         }
 
         if(aMapLocation.getLocationType()==AMapLocation.LOCATION_TYPE_GPS){
@@ -666,10 +747,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
 
                 //开启三分钟计时，保存记录最短为3分钟
-                MyTimeTask.startCountDownTimerTask(1000 * 60 * 3, new MyTimeTask.OnTimeOutListener() {
+                MyTimeTask.startCountDownTimerTask(1000 * 10 * 1, new MyTimeTask.OnTimeOutListener() {
                     @Override
                     public void onTomeOut() {
-                        isThreeMit = true;
+                        isOneMit = true;
                     }
                 });
 
@@ -696,12 +777,23 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 isThreeMit = true;
             }
         });
+
+        //给蓝牙设备同步指令
+        MyTimeTask.startTimeRiseTimerTask(this, 1000, new MyTimeTask.OnTimeChangeAtScendListener() {
+            @Override
+            public void onTimeChange(Date date) {
+                if (mIsRunning){
+                    String hexSynOrder = "FF070A"+HealthyDataActivity.getDataHexString()+"0016";
+                    mLeService.send(connecMac, hexSynOrder,true);
+                }
+            }
+        });
     }
 
     //结束运动
     private void endRunning() {
         ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(this);
-        if (isThreeMit && mAllDistance>0){
+        if (isOneMit){
             chooseAlertDialogUtil.setAlertDialogText("采集恢复心率需要继续采集一分钟的心电数据，是否进行采集？","是","否");
             chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
                 @Override
@@ -716,8 +808,17 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                         intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
                         intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
                     }
-                    startActivity(intent);
+                    if (mKcalData.size()>0){
+                        intent.putIntegerArrayListExtra(Constant.mKcalData,mKcalData);
+                    }
+                    if (mStridefreData.size()>0){
+                        intent.putIntegerArrayListExtra(Constant.mStridefreData,mStridefreData);
+                    }
+                    if (mSpeedStringList.size()>0){
+                        intent.putIntegerArrayListExtra(Constant.mSpeedStringListData,mSpeedStringList);
+                    }
                     MyApplication.mActivities.add(StartRunActivity.this);
+                    startActivity(intent);
                     //finish();
                 }
             });
@@ -733,6 +834,15 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                     if (heartRateDates.size()>0){
                         intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
                         intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
+                    }
+                    if (mKcalData.size()>0){
+                        intent.putIntegerArrayListExtra(Constant.mKcalData,mKcalData);
+                    }
+                    if (mStridefreData.size()>0){
+                        intent.putIntegerArrayListExtra(Constant.mStridefreData,mStridefreData);
+                    }
+                    if (mSpeedStringList.size()>0){
+                        intent.putIntegerArrayListExtra(Constant.mSpeedStringListData,mSpeedStringList);
                     }
                     startActivity(intent);
                     finish();

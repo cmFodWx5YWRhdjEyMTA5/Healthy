@@ -17,6 +17,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.widget.Toast;
 
+import com.amsu.healthy.activity.SosActivity;
 import com.amsu.healthy.activity.SystemSettingActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
@@ -24,6 +25,7 @@ import com.amsu.healthy.bean.DeviceList;
 import com.amsu.healthy.bean.HeartRateList;
 import com.amsu.healthy.bean.User;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.http.RequestParams;
 import com.test.objects.HeartRateResult;
 
@@ -464,6 +466,17 @@ public class MyUtil {
         return null;
     }
 
+    public static String[] listToStringArray(List<String> list){
+        if (list!=null && list.size()>0){
+            String[] ret = new String[list.size()];
+            for(int i = 0;i < ret.length;i++)
+                ret[i] = list.get(i);
+            return ret;
+        }
+        return null;
+    }
+
+
     //获取当前季度
     public static int getCurrentQuertar(){
         /*第一季度：1月－3月
@@ -513,7 +526,29 @@ public class MyUtil {
         return split2[1]+"月"+split2[2]+"日";
     }
 
+    public static int getUserSex(){
+        String sex = getStringValueFromSP("sex");
+        return Integer.parseInt(sex);
+    }
 
+    public static int getUserWeight(){
+        String weight = getStringValueFromSP("weight");
+        return Integer.parseInt(weight);
+    }
+
+    public static List<SosActivity.SosNumber> getSosNumberList(){
+        String sosNumberListString = getStringValueFromSP("sosNumberList");
+        Gson gson = new Gson();
+        List<SosActivity.SosNumber> sosNumberList = gson.fromJson(sosNumberListString, new TypeToken<List<SosActivity.SosNumber>>() {
+        }.getType());
+        return sosNumberList;
+    }
+
+    public static void putSosNumberList(List<SosActivity.SosNumber> sosNumberList){
+        Gson gson = new Gson();
+        String sosNumberListString = gson.toJson(sosNumberList);
+        MyUtil.putStringValueFromSP("sosNumberList",sosNumberListString);
+    }
 
 }
 

@@ -51,7 +51,7 @@ public class EcgQuarterFragment extends Fragment {
         if (MyReportActivity.mQuarterFullReport!=null){
             Log.i(TAG,"MyReportActivity.mQuarterFullReport:"+MyReportActivity.mQuarterFullReport.toString());
             if (MyReportActivity.mQuarterFullReport!=null){
-                int[] eCrep = MyReportActivity.mQuarterFullReport.errDesc.ECrep;
+                float[] eCrep = MyReportActivity.mQuarterFullReport.errDesc.ECrep;
                 if (eCrep!=null && eCrep.length>0){
                     pc_ecg_chart.setDatas(eCrep);
                 }

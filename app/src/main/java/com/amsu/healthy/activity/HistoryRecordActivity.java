@@ -95,10 +95,11 @@ public class HistoryRecordActivity extends BaseActivity {
         boolean indexwarringTO = intent.getBooleanExtra("indexwarringTO", false);
         if (indexwarringTO){
             ArrayList<HistoryRecord> staticStateHistoryRecords = intent.getParcelableArrayListExtra("staticStateHistoryRecords");
-            historyRecords.addAll(staticStateHistoryRecords);
-            if (historyRecords.size()>0){
+            if (staticStateHistoryRecords!=null && staticStateHistoryRecords.size()>0){
+                historyRecords.addAll(staticStateHistoryRecords);
                 historyRecordAdapter.notifyDataSetChanged();
             }
+
         }
         else {
             loadData(pageCount);
@@ -116,7 +117,9 @@ public class HistoryRecordActivity extends BaseActivity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHistoryReportListURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                lv_history_all.loadMoreSuccessd();
+                if (pageCount>1){
+                    lv_history_all.loadMoreSuccessd();
+                }
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 Gson gson = new Gson();

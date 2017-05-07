@@ -40,6 +40,13 @@ public class CalculateHRRProcessActivity extends BaseActivity {
         initView();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter(StartRunActivity.action);
+        registerReceiver(broadcastReceiver, filter);
+    }
+
     private void initView() {
         tv_process_rate = (TextView) findViewById(R.id.tv_process_rate);
         ImageView iv_heartrate_rotateimage = (ImageView) findViewById(R.id.iv_heartrate_rotateimage);
@@ -50,8 +57,6 @@ public class CalculateHRRProcessActivity extends BaseActivity {
 
         iv_heartrate_rotateimage.setAnimation(animation);
 
-        IntentFilter filter = new IntentFilter(StartRunActivity.action);
-        registerReceiver(broadcastReceiver, filter);
 
         MyTimeTask.startCountDownTimerTask(1000 * 60, new MyTimeTask.OnTimeOutListener() {
             @Override
@@ -69,7 +74,7 @@ public class CalculateHRRProcessActivity extends BaseActivity {
             animation.cancel();
             animation = null;
 
-            unregisterReceiver(broadcastReceiver);
+
             HealthyDataActivity.stopTransmitData();
 
             Intent intent = new Intent(this, HeartRateActivity.class);
@@ -95,13 +100,30 @@ public class CalculateHRRProcessActivity extends BaseActivity {
             }
 
             intent.putExtra(Constant.sportState,1);
+
+            ArrayList<Integer> mKcalData = runIntent.getIntegerArrayListExtra(Constant.mKcalData);
+            if (mKcalData!=null && mKcalData.size()>0){
+                intent.putIntegerArrayListExtra(Constant.mKcalData,mKcalData);
+            }
+            ArrayList<Integer> mStridefreData = runIntent.getIntegerArrayListExtra(Constant.mStridefreData);
+            if (mStridefreData!=null && mStridefreData.size()>0){
+                intent.putIntegerArrayListExtra(Constant.mStridefreData,mStridefreData);
+            }
             startActivity(intent);
             for (Activity activity:MyApplication.mActivities){
-                activity.finish();
+                if (activity.getClass()!=MainActivity.class){
+                    activity.finish();
+                }
             }
             MyApplication.mActivities.clear();
             finish();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
     }
 
     public void stopsearch(View view) {
@@ -124,6 +146,7 @@ public class CalculateHRRProcessActivity extends BaseActivity {
             }
         }
     };
+
 
 
 }

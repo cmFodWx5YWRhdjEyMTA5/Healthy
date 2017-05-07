@@ -72,9 +72,8 @@
         android:layout_marginRight="@dimen/x36"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:text="未分析"
+        android:text="已分析"
         android:textColor="#CCCCCC"
-        android:textSize="@dimen/x40"
-        android:visibility="gone"/>
+        android:textSize="@dimen/x40"/>
 
 </RelativeLayout>

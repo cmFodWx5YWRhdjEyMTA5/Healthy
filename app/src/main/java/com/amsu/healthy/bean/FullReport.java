@@ -17,7 +17,7 @@ public class FullReport {
         List<ReportItem> HRRrep;
         List<ReportItem> HRVrep;*/
         public List<HRrepBean> HRrep;
-        public int[] ECrep;
+        public float[] ECrep;
         public List<HRRrepBean> HRRrep;
         public List<HRVrepBean> HRVrep;
         public List<List<String>> HRlist;

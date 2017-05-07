@@ -96,7 +96,6 @@
         android:id="@+id/bt_healthydata_sos"
         android:layout_width="match_parent"
         android:layout_height="@dimen/y142"
-        android:visibility="gone"
         android:text="SOS"
         android:textColor="#FFFFFF"
         android:textSize="@dimen/x48"
@@ -115,8 +114,8 @@
         android:textColor="#FFFFFF"
         android:onClick="startAnalysis"
         android:background="@drawable/bg_center_circle"
-        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/x100"/>
+        android:layout_marginBottom="@dimen/x40"
+       android:layout_above="@+id/bt_healthydata_sos"/>
 
 </RelativeLayout>

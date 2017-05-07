@@ -1,0 +1,73 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x500"
+        android:paddingLeft="@dimen/x50"
+        android:paddingRight="@dimen/x50"
+        android:layout_marginTop="@dimen/x100"
+        android:background="@drawable/bg_title_custom_dialog">
+        <EditText
+            android:id="@+id/tv_sos_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/y20"
+            android:padding="@dimen/x20"
+            android:hint="姓名"
+            android:background="@drawable/bg_dialog_input"
+            android:textSize="@dimen/x48"
+            android:textColor="#666"
+            android:textColorHint="#c7c7c7"
+            android:layout_centerHorizontal="true"/>
+        <EditText
+            android:id="@+id/tv_sos_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_sos_name"
+            android:layout_marginTop="@dimen/y50"
+            android:hint="电话号码"
+            android:padding="@dimen/x20"
+            android:background="@drawable/bg_dialog_input"
+            android:textSize="@dimen/x48"
+            android:textColor="#666"
+            android:textColorHint="#c7c7c7"
+            android:layout_centerHorizontal="true"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="@dimen/x50"
+            android:layout_marginBottom="@dimen/x60" >
+            <TextView
+                android:id="@+id/bt_choose_cancel"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_bt_choose"
+                android:text="取消"
+                android:padding="10dp"
+                android:textColor="#666"
+                android:gravity="center"
+                android:textSize="@dimen/x40"/>
+            <TextView
+                android:id="@+id/bt_choose_ok"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/x50"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_bt_choose"
+                android:text="确定"
+                android:padding="10dp"
+                android:textColor="#666"
+                android:gravity="center"
+                android:textSize="@dimen/x40"/>
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+</RelativeLayout>
