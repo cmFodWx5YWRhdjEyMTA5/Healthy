@@ -127,7 +127,7 @@ public class HistoryRecordActivity extends BaseActivity {
                 Log.i(TAG,"jsonBase:"+jsonBase);
                 if (jsonBase.getRet()==0){
                     HistoryRecordList historyRecordList = gson.fromJson(result, HistoryRecordList.class);
-                    if (historyRecordList.errDesc.size()>0){
+                    if (historyRecordList.errDesc!=null && historyRecordList.errDesc.size()>0){
                         historyRecords.addAll(historyRecordList.errDesc);
                         historyRecordAdapter.notifyDataSetChanged();
                         pageCount++;

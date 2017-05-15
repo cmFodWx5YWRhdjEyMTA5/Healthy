@@ -26,9 +26,10 @@
             android:textSize="@dimen/x240"
             android:textColor="#FFFFFF"/>
         <TextView
+            android:id="@+id/tv_healthycalen_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="无健康计划"
+            android:text="--"
             android:layout_below="@id/tv_healthycalen_day"
             android:layout_centerHorizontal="true"
             android:textSize="@dimen/x62"

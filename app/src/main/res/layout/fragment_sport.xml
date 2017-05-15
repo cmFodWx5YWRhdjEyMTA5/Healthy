@@ -142,7 +142,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="均速km/h"
+                        android:text="配速（分钟/公里）"
                         android:textColor="#999999"
                         android:textSize="@dimen/x36"
                         android:gravity="center"/>
@@ -158,7 +158,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="步频/分钟"
+                        android:text="步频（步/分钟）"
                         android:textColor="#999999"
                         android:textSize="@dimen/x36"
                         android:gravity="center"/>
@@ -496,7 +496,7 @@
                 android:layout_marginBottom="@dimen/x28"
                 HeightCurve:curve_line_width="@dimen/x6"
                 HeightCurve:fillstart_color="#FFFFFF"
-                HeightCurve:fillend_color="#FFb9ba"
+                HeightCurve:fillend_color="#FF0000"
                 HeightCurve:curve_line_color="#3599db"/>
 
         </RelativeLayout>

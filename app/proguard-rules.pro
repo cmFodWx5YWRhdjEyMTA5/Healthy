@@ -16,10 +16,23 @@
 #   public *;
 #}
 
-#百度地图
--keep class com.baidu.** {*;}
--keep class vi.com.** {*;}
--dontwarn com.baidu.**
+
+
+#-libraryjars libs/AMap_Location_V3.3.0_20170118.jar
+#-libraryjars libs/Android_Map3D_SDK_V5.0.0_20170311.jar
+
+
+-dontwarn com.amap.api.**
+-dontwarn com.a.a.**
+-dontwarn com.autonavi.**
+-dontwarn com.loc.**
+
+
+-keep class com.amap.api.** {*;}
+-keep class com.autonavi.** {*;}
+-keep class com.a.a.** {*;}
+-keep class com.loc.**
+
 
 #友盟
 -keepclassmembers class * {
@@ -34,3 +47,22 @@ public static final int *;
 }
 
 
+#短信sdk
+
+
+
+-keep class com.ble.**{*;}
+
+
+-keep class com.lidroid.** { *; }
+
+
+-keep class com.google.**{*;}
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}

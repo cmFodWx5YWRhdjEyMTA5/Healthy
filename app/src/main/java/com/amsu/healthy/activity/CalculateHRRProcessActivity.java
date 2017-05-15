@@ -81,7 +81,7 @@ public class CalculateHRRProcessActivity extends BaseActivity {
             if (isTimeOut){    //到一分钟，传递恢复心率数据
                 int hrr = firstRate - currentRate;
                 if (hrr<=0){
-                    hrr = -1;
+                    hrr = 0;
                 }
                 intent.putExtra("hrr",hrr);
             }
@@ -101,9 +101,9 @@ public class CalculateHRRProcessActivity extends BaseActivity {
 
             intent.putExtra(Constant.sportState,1);
 
-            ArrayList<Integer> mKcalData = runIntent.getIntegerArrayListExtra(Constant.mKcalData);
+            ArrayList<String> mKcalData = runIntent.getStringArrayListExtra(Constant.mKcalData);
             if (mKcalData!=null && mKcalData.size()>0){
-                intent.putIntegerArrayListExtra(Constant.mKcalData,mKcalData);
+                intent.putStringArrayListExtra(Constant.mKcalData,mKcalData);
             }
             ArrayList<Integer> mStridefreData = runIntent.getIntegerArrayListExtra(Constant.mStridefreData);
             if (mStridefreData!=null && mStridefreData.size()>0){

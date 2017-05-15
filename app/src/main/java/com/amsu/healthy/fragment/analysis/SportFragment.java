@@ -74,7 +74,7 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
     private UploadRecord mUploadRecord;
     private int[] heartData;
     private int[] stepData;
-    private int[] kaliluliData;
+    private float[] kaliluliData;
     private int[] speedData;
 
     @Override
@@ -308,16 +308,13 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
                     else if (maxRate*0.75<rate && rate<=maxRate*0.95){
                         typeNoOx++;
                     }
-                    else if (maxRate*95<rate ){
+                    else if (maxRate*0.95<rate ){
                         typeDanger++;
                     }
                 }
                 Log.i(TAG,"typeIsOx:"+typeIsOx+" typeGentle:"+typeGentle +" typeDanger:"+typeDanger+" typeNoOx:"+typeNoOx);
                 float[] piechartData = {typeIsOx,typeGentle,typeDanger,typeNoOx};
                 pc_sport_piechart.setDatas(piechartData);
-
-
-
             }
             if (!MyUtil.isEmpty(mUploadRecord.AHR) && !mUploadRecord.AHR.equals(Constant.uploadRecordDefaultString)  && !mUploadRecord.AHR.equals("-1")){
                 tv_sport_rate.setText(mUploadRecord.AHR);
@@ -339,17 +336,17 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
                 }
             }
             if (!MyUtil.isEmpty(mUploadRecord.calorie) && !mUploadRecord.calorie.equals(Constant.uploadRecordDefaultString) && !mUploadRecord.calorie.equals("-1")){ //卡路里
-                List<Integer> fromJson = gson.fromJson(mUploadRecord.calorie,new TypeToken<List<Integer>>() {
+                List<String> fromJson = gson.fromJson(mUploadRecord.calorie,new TypeToken<List<String>>() {
                 }.getType());
-                kaliluliData = MyUtil.listToIntArray(fromJson);
+                kaliluliData = MyUtil.listToFloatArray(fromJson);
                 if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
                     int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
                     hv_sport_kaliluline.setData(kaliluliData,time,HeightCurveView.LINETYPE_CALORIE);
-                    int allcalorie = 0 ;
-                    for (int i: kaliluliData){
+                    float allcalorie = 0 ;
+                    for (float i: kaliluliData){
                         allcalorie+=i;
                     }
-                    tv_sport_kalilu.setText(allcalorie+"");
+                    tv_sport_kalilu.setText((int)allcalorie+"");
                 }
             }
 
@@ -537,8 +534,8 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
      */
     private void addOriginTrace(LatLng startPoint, LatLng endPoint, List<LatLng> originList,float mapTraceDistance) {
         mOriginPolyline = mAMap.addPolyline(new PolylineOptions().color(Color.parseColor("#f17456")).width(getResources().getDimension(R.dimen.x8)).addAll(originList));
-        mOriginStartMarker = mAMap.addMarker(new MarkerOptions().position(startPoint).icon(BitmapDescriptorFactory.fromResource(R.drawable.start)));
-        mOriginEndMarker = mAMap.addMarker(new MarkerOptions().position(endPoint).icon(BitmapDescriptorFactory.fromResource(R.drawable.start)));
+        mOriginStartMarker = mAMap.addMarker(new MarkerOptions().position(startPoint).icon(BitmapDescriptorFactory.fromResource(R.drawable.qidian)));
+        mOriginEndMarker = mAMap.addMarker(new MarkerOptions().position(endPoint).icon(BitmapDescriptorFactory.fromResource(R.drawable.zhongdian)));
 
         Log.i(TAG,"originList:"+new Gson().toJson(originList));
         Log.i(TAG,"originList.size():"+originList.size());
@@ -625,6 +622,8 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
                 latLngList.add(latLng);
             }
 
+            mOriginLatLngList = latLngList;
+
             Log.i(TAG,"latLngList:"+gson.toJson(latLngList));
             Log.i(TAG,"latLngList.size()" + ":"+latLngList.size());
             //不纠偏
@@ -632,13 +631,22 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
             addOriginTrace(latLngList.get(0), latLngList.get(latLngList.size()-1), latLngList,mapTraceDistance);
 
             //时间
-            int duration = (int) Float.parseFloat(mUploadRecord.time);
+            /*int duration = (int) Float.parseFloat(mUploadRecord.time);
             int durationSecend = (duration%(60*60))/60;
             String durationSecendString =(duration%(60*60))/60+"";
             if (durationSecend<10) {
                 durationSecendString = "0"+durationSecendString;
             }
-            String myDuration = duration/(60*60)+"h"+durationSecendString+"'";
+            String myDuration = duration/(60*60)+"h"+durationSecendString+"'";*/
+
+            int duration = (int) Float.parseFloat(mUploadRecord.time);
+            String myDuration;
+            if (duration>60*60) {
+                myDuration = duration/(60*60)+"h"+(duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
+            }
+            else {
+                myDuration = (duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
+            }
             tv_sport_time.setText(myDuration);
 
             //距离
@@ -649,7 +657,19 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
 
             //速度
             String average = Util.getAverage((float) distance, duration);
-            tv_sport_speed.setText(average);
+
+            float mapRetrurnSpeed = (float) (distance / duration);
+
+            String formatSpeed;
+            if (mapRetrurnSpeed==0){
+                formatSpeed = "0’00’’";
+            }
+            else {
+                float speed = (1/mapRetrurnSpeed)*1000f;
+                formatSpeed = (int)speed/60+"’"+(int)speed%60+"’’";
+            }
+
+            tv_sport_speed.setText(formatSpeed);
 
         }
     }

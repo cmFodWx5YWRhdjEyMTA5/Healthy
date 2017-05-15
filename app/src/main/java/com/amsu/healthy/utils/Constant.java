@@ -28,6 +28,7 @@ public class Constant {
     public static String modifyHealthyPlanURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/modifyPlanning";
     public static String getHealthyPlanListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningList";
     public static String getHealthyPlanContentURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningCont";
+    public static String getHealthyPlanningMonthListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningMonthList";
     public static String getOneDayHealthyPlanListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningDateList";
     public static String getAfter20ItemHealthyPlanListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningPastList";
     public static String uploadReportURL = "http://bodylistener.amsu-new.com:83/intellingence/ReportController/uploadReport";
@@ -64,6 +65,7 @@ public class Constant {
     public static String ecgFiletimeMillis = "ecgFiletimeMillis";
     public static String restingHR = "restingHR";
     public static String sosinfo = "sosinfo";
+    public static String sosNumberList = "sosNumberList";
 
     public static String uploadRecordDefaultString = "0";
 

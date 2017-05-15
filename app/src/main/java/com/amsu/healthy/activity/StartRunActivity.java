@@ -1,5 +1,6 @@
 package com.amsu.healthy.activity;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
@@ -112,13 +113,13 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private long ecgFiletimeMillis =-1;  //开始有心电数据时的秒数，作为心电文件命名。静态变量，在其他界面会用到
     private boolean mHaveOutSideGpsLocation;
     private long mCalKcalCurrentTimeMillis = 0;
-    private int mAllKcal;
+    private float mAllKcal;
     private List<Integer> accData = new ArrayList<>();
     private int accDataLength = 1800;
-    private ArrayList<Integer> mKcalData = new ArrayList<>();
+    private ArrayList<String> mKcalData = new ArrayList<>();
     private ArrayList<Integer> mStridefreData = new ArrayList<>();
-
-
+    private int mCurrentHeartRate;
+    private Activity mActivity = this;
 
 
     @Override
@@ -233,21 +234,22 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         Log.i(TAG,"aMapLocation.getLocationType():"+aMapLocation.getLocationType());   //
         Log.i(TAG,"aMapLocation.getErrorCode():"+aMapLocation.getErrorCode());   // meters/second
 
+        Log.i(TAG,"calculateSpeed:"+aMapLocation.getSpeed());
         String tyep =aMapLocation.getLocationType()+": ";
         if (aMapLocation.getLocationType()==1){
-            tyep += "TYPE_GPS";
+            tyep += "TYPE_GPS  "+aMapLocation.getSpeed();
         }
         else if (aMapLocation.getLocationType()==2){
-            tyep += "SAME_REQ";
+            tyep += "SAME_REQ  "+aMapLocation.getSpeed();
         }
         else if (aMapLocation.getLocationType()==4){
-            tyep += "FIX_CACHE";
+            tyep += "FIX_CACHE  "+aMapLocation.getSpeed();
         }
         else if (aMapLocation.getLocationType()==5){
-            tyep += "WIFI";
+            tyep += "WIFI  "+aMapLocation.getSpeed();
         }
         else if (aMapLocation.getLocationType()==6){
-            tyep += "CELL";
+            tyep += "CELL  "+aMapLocation.getSpeed();
         }
         tv_run_test.setText(tyep);
 
@@ -337,6 +339,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             }
             isConnectted = true;
             isConnectting = false;
+            MyUtil.showPopWindow(mActivity,getTv_base_rightText(),1);
         }
 
         @Override
@@ -355,6 +358,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         public void onDisconnected(String mac) {
             Log.w(TAG, "onDisconnected() - " + mac);
             isConnectting = false;
+            MyUtil.showPopWindow(mActivity,getTv_base_rightText(),0);
         }
 
         @Override
@@ -448,26 +452,26 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         else{
             currentGroupIndex = 0;
             //带入公式，计算心率
-            final int heartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
-            Log.i(TAG,"heartRate0:"+heartRate);
+            mCurrentHeartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+            Log.i(TAG,"heartRate0:"+ mCurrentHeartRate);
             //calcuEcgRate = new int[groupCalcuLength*10];
-            if (heartRate>0){
-                heartRateDates.add(heartRate);
+            if (mCurrentHeartRate >0){
+                heartRateDates.add(mCurrentHeartRate);
             }
             if (mSendHeartRateBroadcastIntent==null){
                 mSendHeartRateBroadcastIntent = new Intent(action);
             }
-            mSendHeartRateBroadcastIntent.putExtra("data", heartRate);
+            mSendHeartRateBroadcastIntent.putExtra("data", mCurrentHeartRate);
             sendBroadcast(mSendHeartRateBroadcastIntent);
 
-            final String OxygenState = calcuOxygenState(heartRate);
+            final String OxygenState = calcuOxygenState(mCurrentHeartRate);
 
 
             //更新心率
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tv_run_rate.setText(heartRate+"");
+                    tv_run_rate.setText(mCurrentHeartRate+"");
                     tv_run_isoxygen.setText(OxygenState);
                 }
             });
@@ -482,18 +486,18 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 int userAge = HealthyIndexUtil.getUserAge();
                 int userWeight = MyUtil.getUserWeight();
                 Log.i(TAG,"time:"+time+",userSex:"+userSex+",userAge:"+userAge+",userWeight"+userWeight);
-                float getkcal = DiagnosisNDK.getkcal(userSex, heartRate, userAge, userWeight, time);
+                float getkcal = DiagnosisNDK.getkcal(userSex, mCurrentHeartRate, userAge, userWeight, time);
                 Log.i(TAG,"getkcal:"+getkcal);
                 if (getkcal<0){
                     getkcal = 0;
                 }
 
                 mAllKcal += getkcal;
-                mKcalData.add((int) getkcal);
+                mKcalData.add(getkcal+"");
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        tv_run_kcal.setText(mAllKcal+"");
+                        tv_run_kcal.setText((int)mAllKcal+"");
                     }
                 });
 
@@ -506,13 +510,20 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     }
 
     private String calcuOxygenState(int heartRate) {
-        int userAge = HealthyIndexUtil.getUserAge();
-        if (heartRate<220-userAge){//有氧
+        int maxRate = 220-HealthyIndexUtil.getUserAge();
+        if (heartRate<=maxRate*0.6){
+            return "平缓";
+        }
+        else if (maxRate*0.6<heartRate && heartRate<=maxRate*0.75){
             return "有氧";
         }
-        else {
+        else if (maxRate*0.75<heartRate && heartRate<=maxRate*0.95){
             return "无氧";
         }
+        else if (maxRate*0.95<heartRate ){
+            return "高危";
+        }
+        return "有氧";
     }
 
     //写到文件里，二进制方式写入
@@ -568,11 +579,11 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         }
 
-        String test = "";
+        /*String test = "";
         for (int s:ints){
             test += s+" ";
         }
-        Log.i(TAG,"test:"+test);
+        Log.i(TAG,"test:"+test);*/
 
         //FF 42 04 77 0F 93 FF 26 04 74 0F 47
         /*int xACC = 0;
@@ -632,16 +643,28 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     ArrayList<Integer> mSpeedStringList = new ArrayList<>();
 
+    float tempSpeed;
+
     //计算跑步速度，在室内和室外统一采用地图返回的传感器速度
     private void calculateSpeed(AMapLocation aMapLocation) {
+
         //float speed = aMapLocation.getSpeed()*3.6f;
+        float mapRetrurnSpeed = 0;
+        if (tempSpeed==0){
+            mapRetrurnSpeed=tempSpeed = aMapLocation.getSpeed();
+        }
+        else {
+            mapRetrurnSpeed = (tempSpeed+aMapLocation.getSpeed())/2;
+        }
+        tempSpeed = aMapLocation.getSpeed();
+
         float speed = 0;
         String formatSpeed;
-        if (aMapLocation.getSpeed()==0){
+        if (mapRetrurnSpeed==0){
             formatSpeed = "0’00’’";
         }
         else {
-            speed = (1/aMapLocation.getSpeed())*1000f;
+            speed = (1/mapRetrurnSpeed)*1000f;
             formatSpeed = (int)speed/60+"’"+(int)speed%60+"’’";
         }
 
@@ -714,7 +737,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     }
 
     public static String getFormatDistance(double distance) {
-        DecimalFormat decimalFormat=new DecimalFormat("0.000");//构造方法的字符格式这里如果小数不足2位,会以0补足.
+        DecimalFormat decimalFormat=new DecimalFormat("0.00");//构造方法的字符格式这里如果小数不足2位,会以0补足.
         String formatSpeed=decimalFormat.format(distance/1000);//format 返回的是字符串
         return formatSpeed;
     }
@@ -747,6 +770,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
 
                 //开启三分钟计时，保存记录最短为3分钟
+               // MyTimeTask.startCountDownTimerTask(1000 * 60 * 1, new MyTimeTask.OnTimeOutListener() {
                 MyTimeTask.startCountDownTimerTask(1000 * 10 * 1, new MyTimeTask.OnTimeOutListener() {
                     @Override
                     public void onTomeOut() {
@@ -770,20 +794,32 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     //开始三分钟计时
     public void startThreeMitTiming(){
-        MyTimeTask.startCountDownTimerTask(1000 * 60 * 3, new MyTimeTask.OnTimeOutListener() {
+        /*MyTimeTask.startCountDownTimerTask(1000 * 60 * 3, new MyTimeTask.OnTimeOutListener() {
             @Override
             public void onTomeOut() {
                 Log.i(TAG,"TimerTask:到点了");
                 isThreeMit = true;
             }
-        });
+        });*/
 
         //给蓝牙设备同步指令
         MyTimeTask.startTimeRiseTimerTask(this, 1000, new MyTimeTask.OnTimeChangeAtScendListener() {
             @Override
             public void onTimeChange(Date date) {
-                if (mIsRunning){
-                    String hexSynOrder = "FF070A"+HealthyDataActivity.getDataHexString()+"0016";
+                if (mIsRunning && mCurrentHeartRate!=-1){
+                    int maxRate = 220- HealthyIndexUtil.getUserAge();
+                    String hrateIndexHex = "02";
+                    if (mCurrentHeartRate<=maxRate*0.75){
+                        hrateIndexHex = "02";
+                    }
+                    else if (maxRate*0.75<mCurrentHeartRate && mCurrentHeartRate<=maxRate*0.95){
+                        hrateIndexHex = "01";
+                    }
+                    else if (maxRate*0.95<mCurrentHeartRate ){
+                        hrateIndexHex = "00";
+                    }
+                    Log.i(TAG,"hrateIndexHex:"+hrateIndexHex);
+                    String hexSynOrder = "FF070B"+HealthyDataActivity.getDataHexStringHaveScend()+hrateIndexHex+"16";
                     mLeService.send(connecMac, hexSynOrder,true);
                 }
             }
@@ -809,7 +845,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                         intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
                     }
                     if (mKcalData.size()>0){
-                        intent.putIntegerArrayListExtra(Constant.mKcalData,mKcalData);
+                        intent.putStringArrayListExtra(Constant.mKcalData,mKcalData);
                     }
                     if (mStridefreData.size()>0){
                         intent.putIntegerArrayListExtra(Constant.mStridefreData,mStridefreData);
@@ -836,7 +872,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                         intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
                     }
                     if (mKcalData.size()>0){
-                        intent.putIntegerArrayListExtra(Constant.mKcalData,mKcalData);
+                        intent.putStringArrayListExtra(Constant.mKcalData,mKcalData);
                     }
                     if (mStridefreData.size()>0){
                         intent.putIntegerArrayListExtra(Constant.mStridefreData,mStridefreData);
@@ -961,6 +997,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
         }
 
+        mActivity = null;
 
         unbindService(mConnection);
 

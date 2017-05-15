@@ -52,6 +52,7 @@ public class ECGFragment extends Fragment {
     private TextView tv_ecg_protime;
     private int mAllTimeAtSecond;
     private String mAllTimeString;
+    private TextView tv_rate_suggestion;
 
     @Nullable
     @Override
@@ -71,6 +72,7 @@ public class ECGFragment extends Fragment {
         iv_ecg_toggle = (ImageView) inflate.findViewById(R.id.iv_ecg_toggle);
         sb_ecg_progress = (SeekBar) inflate.findViewById(R.id.sb_ecg_progress);
         tv_ecg_protime = (TextView) inflate.findViewById(R.id.tv_ecg_protime);
+        tv_rate_suggestion = (TextView) inflate.findViewById(R.id.tv_rate_suggestion);
 
         bt_hrv_history.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -274,6 +276,22 @@ public class ECGFragment extends Fragment {
             Log.i(TAG,"mAllTimeAtSecond:"+mAllTimeAtSecond);
             Log.i(TAG,"datas.size():"+datas.size());
         }
+
+
+        if (mUploadRecord!=null){
+            String suggestion = "";
+            if (Integer.parseInt(mUploadRecord.zaobo)>0){
+                suggestion += "本次测量早搏"+mUploadRecord.zaobo+"次。室早出现在两个正常的窦性心搏之前，房早由心房组织自律性增强引起，健康人及各种器质性心脏病人都有可能发生，有明显症状时请及时就医。";
+            }
+            else if (Integer.parseInt(mUploadRecord.loubo)>0){
+                suggestion += "本次测量漏搏"+mUploadRecord.loubo+"次。与迷走神经张力增高有关，可见于正常人或运动员，也可见于急性心肌梗死、冠状动脉痉挛、心肌炎等情况，当有明显状况时请及时就医";
+            }
+            else {
+                suggestion += "正常心电图";
+            }
+            tv_rate_suggestion.setText(suggestion);
+        }
+
     }
 
     //将秒数换算成1'57这种时间个格式

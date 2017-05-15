@@ -29,10 +29,9 @@ public class HeightCurveView extends View {
     private Paint mCurveLinePaint;
     private Paint mAnotherCurveLinePaint;
     private Paint mAnotherLablePaint;
-    int[] data ;
-    //int[] anotherData = {5,6,7,8,8};
-    int[] anotherData;
-    private float mCoordinateWidth = getResources().getDimension(R.dimen.y935);  //x轴长度
+    float[] data ;
+    float[] anotherData;
+    private float mCoordinateWidth = getResources().getDimension(R.dimen.y1000);  //x轴长度
     private float mYCoordinateHight = getResources().getDimension(R.dimen.y400)-getResources().getDimension(R.dimen.y28);  //y轴长度
     private float mYOneSpanHeight = mYCoordinateHight/4;  //y轴方向刻度长度
     float mMarginBotom = getResources().getDimension(R.dimen.y48); //坐标线与底部距离
@@ -49,8 +48,8 @@ public class HeightCurveView extends View {
     public static int LINETYPE_CALORIE = 1;
     public static int LINETYPE_SPEED = 2;
     public static int LINETYPE_AEROBICANAEROBIC = 3;
-    private int mYTextsMaxValue = 0;
-    private int mAnotherYTextsMaxValue = 0;
+    private float mYTextsMaxValue = 0;
+    private float mAnotherYTextsMaxValue = 0;
 
     public HeightCurveView(Context context) {
         super(context);
@@ -119,14 +118,18 @@ public class HeightCurveView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawBackCoordinate(canvas);
+
         if (data!=null && data.length>0){
             drawCureveLine(canvas);
         }
-        drawAnotherBackCoordinate(canvas);
+        drawBackCoordinate(canvas);
+
+
         if (anotherData!=null && anotherData.length>0){
             drawAnotherCureveLine(canvas);
         }
+
+        drawAnotherBackCoordinate(canvas);
     }
 
 
@@ -148,7 +151,7 @@ public class HeightCurveView extends View {
             //if (data[i]>40  && data[i]<220){
             if (data[i]>=0){
                 //y = mHeight-mYOneSpanHeight-mMarginBotom-(mYOneSpanHeight/10)*(data[i]-yTexts[0]);
-                y = mHeight-mMarginBotom-mYCoordinateHight*((float)data[i]/mYTextsMaxValue);
+                y = mHeight-mMarginBotom-mYCoordinateHight*(data[i]/mYTextsMaxValue);
                 if (y>yMax){
                     yMax = y;
                 }
@@ -167,7 +170,7 @@ public class HeightCurveView extends View {
         }
         curvePath.lineTo(mWidth,y);
 
-        shadePath.lineTo(mWidth,y);
+        //shadePath.lineTo(mWidth,y);
         shadePath.lineTo(mWidth,mHeight-mMarginBotom-3*mCoordinateAnixWidth);
         shadePath.lineTo(mMarginleft,mHeight-mMarginBotom-3*mCoordinateAnixWidth);
 
@@ -238,7 +241,7 @@ public class HeightCurveView extends View {
 
             float x = mMarginleft +i*(mWidth)/4;
             float y = mHeight-mMarginBotom;
-            canvas.drawLine(x,y,x,y-divideWidth,mCoordinatePaint);
+            //canvas.drawLine(x,y,x,y-divideWidth,mCoordinatePaint);
 
             if (0<i && i<4){
                 x = x - mLablePaint.measureText(xLable)/2;
@@ -349,40 +352,84 @@ public class HeightCurveView extends View {
     }
 
     public void setData(int[] data, int time){
-        this.data = data;
-        this.timeLong = time;
-
-        for (int i:data){
-            if (i>mYTextsMaxValue){
-                mYTextsMaxValue = i;
+        if (data!=null && data.length>0){
+            this.timeLong = time;
+            float[] dataTemp = new float[data.length];
+            for (int i=0;i<data.length;i++){
+                if (data[i]>mYTextsMaxValue){
+                    mYTextsMaxValue = data[i];
+                }
+                dataTemp[i] = data[i];
             }
+            this.data = dataTemp;
+            invalidate();
         }
-        invalidate();
     }
 
     public void setData(int[] data, int time, int mLineType){
-        this.data = data;
-        this.timeLong = time;
-        this.mLineType = mLineType;
+        if (data!=null && data.length>0){
+            this.timeLong = time;
+            this.mLineType = mLineType;
 
-        for (int i:data){
-            if (i>mYTextsMaxValue){
-                mYTextsMaxValue = i;
+            float[] dataTemp = new float[data.length];
+            for (int i=0;i<data.length;i++){
+                if (data[i]>mYTextsMaxValue){
+                    mYTextsMaxValue = data[i];
+                }
+                dataTemp[i] = data[i];
             }
+            this.data = dataTemp;
+            invalidate();
         }
-        invalidate();
+
+    }
+
+    public void setData(float[] data, int time, int mLineType){
+        if (data!=null && data.length>0){
+            this.data = data;
+            this.timeLong = time;
+            this.mLineType = mLineType;
+
+            for (float i:data){
+                if (i>mYTextsMaxValue){
+                    mYTextsMaxValue = i;
+                }
+            }
+            invalidate();
+        }
     }
 
     public void setTogetherShowData(int[] data,int mLineType){
-        this.anotherData = data;
-        this.mAnothermLineType = mLineType;
-        mAnotherYTextsMaxValue = data[0];
-        for (int i:data){
-            if (i>mAnotherYTextsMaxValue){
-                mAnotherYTextsMaxValue = i;
+        if (data!=null && data.length>0){
+            this.mAnothermLineType = mLineType;
+            mAnotherYTextsMaxValue = data[0];
+
+            float[] dataTemp = new float[data.length];
+            for (int i=0;i<data.length;i++){
+                if (data[i]>mAnotherYTextsMaxValue){
+                    mAnotherYTextsMaxValue = data[i];
+                }
+                dataTemp[i] = data[i];
             }
+            this.anotherData = dataTemp;
+            invalidate();
         }
-        invalidate();
+
+    }
+
+    public void setTogetherShowData(float[] data,int mLineType){
+        if (data!=null && data.length>0){
+            this.anotherData = data;
+            this.mAnothermLineType = mLineType;
+            mAnotherYTextsMaxValue = data[0];
+            for (float i:data){
+                if (i>mAnotherYTextsMaxValue){
+                    mAnotherYTextsMaxValue = i;
+                }
+            }
+            invalidate();
+        }
+
     }
 
     /*public void setData(String[] data, int time, int mLineType){

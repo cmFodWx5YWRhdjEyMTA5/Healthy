@@ -89,7 +89,7 @@ public class MeActivity extends BaseActivity {
             tv_me_name.setText(userFromSP.getUsername());
 
             String area = userFromSP.getArea();  //广东省深圳市
-            if (!area.equals("")){
+            if (!area.equals("") && area.contains("省")){
                 String[] areas = area.split("省");
                 tv_me_city.setText(areas[1]);
             }

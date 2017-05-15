@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.util.Base64;
@@ -15,8 +17,15 @@ import android.util.Base64InputStream;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amsu.healthy.R;
 import com.amsu.healthy.activity.SosActivity;
 import com.amsu.healthy.activity.SystemSettingActivity;
 import com.amsu.healthy.appication.MyApplication;
@@ -463,7 +472,17 @@ public class MyUtil {
                 ret[i] = list.get(i);
             return ret;
         }
-        return null;
+        return new int[0];
+    }
+
+    public static float[] listToFloatArray(List<String> list){
+        if (list!=null && list.size()>0){
+            float[] ret = new float[list.size()];
+            for(int i = 0;i < ret.length;i++)
+                ret[i] = Float.parseFloat(list.get(i));
+            return ret;
+        }
+        return new float[0];
     }
 
     public static String[] listToStringArray(List<String> list){
@@ -537,7 +556,7 @@ public class MyUtil {
     }
 
     public static List<SosActivity.SosNumber> getSosNumberList(){
-        String sosNumberListString = getStringValueFromSP("sosNumberList");
+        String sosNumberListString = getStringValueFromSP(Constant.sosNumberList);
         Gson gson = new Gson();
         List<SosActivity.SosNumber> sosNumberList = gson.fromJson(sosNumberListString, new TypeToken<List<SosActivity.SosNumber>>() {
         }.getType());
@@ -547,8 +566,58 @@ public class MyUtil {
     public static void putSosNumberList(List<SosActivity.SosNumber> sosNumberList){
         Gson gson = new Gson();
         String sosNumberListString = gson.toJson(sosNumberList);
-        MyUtil.putStringValueFromSP("sosNumberList",sosNumberListString);
+        MyUtil.putStringValueFromSP(Constant.sosNumberList,sosNumberListString);
     }
 
+    public static void showPopWindow(Activity activity, final View view, int connectType){
+        if (activity==null) return;
+        View popupView = activity.getLayoutInflater().inflate(R.layout.layout_popupwindow_onoffline, null);
+        ImageView iv_pop_icon = (ImageView) popupView.findViewById(R.id.iv_pop_icon);
+        TextView tv_pop_text = (TextView) popupView.findViewById(R.id.tv_pop_text);
+        if (connectType == 0){
+            //断开
+            iv_pop_icon.setImageResource(R.drawable.duankai);
+            tv_pop_text.setText("设备连接已断开");
+        }
+        else {
+            //连接
+            iv_pop_icon.setImageResource(R.drawable.yilianjie);
+            tv_pop_text.setText("设备已连接");
+        }
+
+        final PopupWindow mPopupWindow = new PopupWindow(popupView, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
+        mPopupWindow.setTouchable(true);
+        mPopupWindow.setOutsideTouchable(true);
+        mPopupWindow.setBackgroundDrawable(new BitmapDrawable(activity.getResources(), (Bitmap) null));
+
+        /*new Thread(){
+            @Override
+            public void run() {
+
+                super.run();
+            }
+        }.start();*/
+
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mPopupWindow.showAtLocation(view, Gravity.TOP,0,0);
+            }
+        });
+        try {
+            Thread.sleep(2000);
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mPopupWindow != null && mPopupWindow.isShowing()) {
+                        mPopupWindow.dismiss();
+                    }
+                }
+            });
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }
 

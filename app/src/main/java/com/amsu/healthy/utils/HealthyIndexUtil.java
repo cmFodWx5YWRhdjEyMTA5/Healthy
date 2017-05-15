@@ -55,7 +55,7 @@ public class HealthyIndexUtil {
             }
             else if (23.1<=bmi && bmi<24.49){
                 //99-61
-                scoreBMI = 99-(int) ((bmi - 23.1) * (30.0 / (14.5 - 23.1)));
+                scoreBMI = 99-(int) ((bmi - 23.1) * (30.0 / (24.5 - 23.1)));
                 suggestion = "您的体重处于正常范围（18.5<BMI<25）比较合适的指数范围应该在18.5-25.00之间，您现在的BMI指数处于令人羡慕的范围，但是不要骄傲哦！坚持适当运动，合理搭配营养，保持一个好身体，您才是人生最大赢家。";
             }
             else if (25<=bmi && bmi<27.49){
@@ -346,9 +346,11 @@ public class HealthyIndexUtil {
         int scoreHRV = 0;
         String suggestion = "";
         String state = "";
-        if (181<=hrv && hrv<=200){
+        //if (181<=hrv && hrv<=200){
+        if (181<=hrv){
             //	91-100
-            scoreHRV = (int) (91+(hrv-181)*((100.0-91.0)/(200.0-181.0)));
+            //scoreHRV = (int) (91+(hrv-181)*((100.0-91.0)/(200.0-181.0)));
+            scoreHRV = ((int) (91+(10)*(hrv-181.0)/(400-181.0)));
             suggestion = "您的身体充满活力，力拔山兮气盖世！再累的锻炼都不怕哦！";
             state = "优秀";
         }
@@ -370,7 +372,7 @@ public class HealthyIndexUtil {
             suggestion = "懒洋洋的，好久没有锻炼了吧？赶快结束没有激情的状态吧！";
             state = "平均水平";
         }
-        else if (hrv<=110){
+        else if (0<hrv && hrv<=110){
             //	0-60
             scoreHRV = (int) (0+(hrv-0)*(float)((60.0-0)/(110.0-0)));
             suggestion = "看起来很累的样子，请适度进行有氧训练，劳逸结合，感觉就会越来越好！";
@@ -600,7 +602,7 @@ public class HealthyIndexUtil {
     public static IndicatorAssess calculateScoreOver_slow(int over_slow){
         int scoreOver_slow = 0;
         String suggestion = "";
-        if (56<=over_slow && over_slow<=60){
+        if (56<=over_slow && over_slow<=70){
             //	100
             scoreOver_slow = 100;
             suggestion = "您的心率很好，没有过速和过缓现象，请坚持锻炼。";
@@ -610,11 +612,11 @@ public class HealthyIndexUtil {
             scoreOver_slow = (int) (81+(over_slow-46)*(float)((99.0-81.0)/(55.0-46.0)));
             suggestion = "您的心率偏低，如果您经常保持锻炼，这正是心脏功能强大的表现。";
         }
-        else if ((61<=over_slow && over_slow<=70)){
+        /*else if ((61<=over_slow && over_slow<=70)){
             //	81-99
             scoreOver_slow = (int) (81+(over_slow-61)*(float)((99.0-81.0)/(70.0-61.0)));
             suggestion = "您的心率偏低，如果您经常保持锻炼，这正是心脏功能强大的表现。";
-        }
+        }*/
         else if ((36<=over_slow && over_slow<=45)){
             //	61-80
             scoreOver_slow = (int) (61+(over_slow-36)*(float)((80.0-61.0)/(45.0-36.0)));
@@ -630,10 +632,11 @@ public class HealthyIndexUtil {
             scoreOver_slow = (int) (0+(over_slow-0)*(float)((60.0-0.0)/(36.0-0.0)));
             suggestion = "您的心率很低，有心动过缓可能，不过不影响您锻炼身体。建议到医院听取医生的专业意见。";
         }
-        else if ((81<=over_slow && over_slow<=105)){
+        else if ((81<=over_slow )){
             //	0-60
-            scoreOver_slow = (int) (0+(over_slow-81)*(float)((60.0-0.0)/(105.0-81.0)));
-            suggestion = "您的心率很低，有心动过缓可能，不过不影响您锻炼身体。建议到医院听取医生的专业意见。";
+            //scoreOver_slow = (int) (0+(over_slow-81)*(float)((60.0-0.0)/(over_slow-81.0)));
+            scoreOver_slow = 60- (int) ((Math.abs(81.0-over_slow))*(float)((60.0-0.0)/(200-81.0)));
+            suggestion = "您的心率很高，有心动过速趋势，注意适量增加运动量和保持运动强度，增加有氧训练时间，可提升心肺能力。";
         }
         IndicatorAssess indicatorAssess = new IndicatorAssess(over_slow,scoreOver_slow,"过缓/过速",suggestion);
 
@@ -773,6 +776,58 @@ public class HealthyIndexUtil {
         return indicatorAssess;
     }
 
+    //健康储备(按训练时间计算)
+    public static IndicatorAssess calculateScoreReserveHealth(int sportTime){
+        /*
+        *   100	401-420
+            99	381-400
+            87-98	331-380
+            75-86	281-330
+            63-74	231-280
+            61-70	181-230
+            41-60	121-180
+
+        * */
+        int scoreReserveHealth = 0;
+        String suggestion = "";
+        //if (401<=sportTime&& sportTime<=420){
+        if (401<=sportTime){
+            scoreReserveHealth = 100;
+            suggestion = "您是最棒的，坚持下去，健康人生属于您！";
+        }
+        else if (381<=sportTime&& sportTime<=400){
+            scoreReserveHealth = 99;
+            suggestion = "您是最棒的，坚持下去，健康人生属于您！";
+        }
+        else if (331<=sportTime&& sportTime<=380){
+            //87-98
+            scoreReserveHealth = (int) (87+(sportTime-331)*(float)((98.0-87.0)/(380.0-331.0)));
+            suggestion = "棒棒的，请保持训练强度，保护健康身体，打造美好生活！";
+        }
+        else if (281<=sportTime&& sportTime<=330){
+            //75-86
+            scoreReserveHealth = (int) (75+(sportTime-281)*(float)((86.0-75.0)/(330.0-281.0)));
+            suggestion = "您比较突出了，但是保持训练强度，您的身体还是可以更好的！";
+        }
+        else if (231<=sportTime&& sportTime<=280){
+            // 63-74
+            scoreReserveHealth = (int) (63+(sportTime-231)*(float)((74.0-63.0)/(280.0-231.0)));
+            suggestion = "您的健康储备已经超过一般人了，但是要保持锻炼习惯才能保持健康的身体哦！";
+        }
+        else if (181<=sportTime&& sportTime<=230){
+            //61-70
+            scoreReserveHealth = (int) (61+(sportTime-181)*(float)((70.0-61.0)/(230.0-181.0)));
+            suggestion = "您的健康储备处于一般水平，还有很大提升空间呢！赶快提高训练强度吧！";
+        }
+        else if (121<=sportTime&& sportTime<=180){
+            //41-60
+            scoreReserveHealth = (int) (41+(sportTime-121)*(float)((60.0-41.0)/(180.0-121.0)));
+            suggestion = "不要让人把您看扁了，请适度增加有氧训练，路漫漫其修远兮，吾将上下而求索！";
+        }
+        IndicatorAssess indicatorAssess = new IndicatorAssess(sportTime,scoreReserveHealth,"健康储备",suggestion);
+
+        return indicatorAssess;
+    }
 
     //计算生理年龄
     public static int calculatePhysicalAge(){

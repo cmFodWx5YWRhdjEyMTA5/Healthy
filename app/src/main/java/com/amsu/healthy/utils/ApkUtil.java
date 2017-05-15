@@ -130,6 +130,40 @@ public class ApkUtil {
         }
         else {
             MyUtil.showToask(context,"当前已是最新版本");
+
+        }
+    }
+
+    //和本地对比，判断更新状态
+    public static void checkAndUpdateVersion(int version, final String path, final Activity context,boolean isShowToask) {
+        int versionCode = getVersionCode(context);
+        if (version>versionCode){
+            //有更新
+            AlertDialog alertDialog = new AlertDialog.Builder(context)
+
+                    .setTitle("有新版本")
+                    .setPositiveButton("更新", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            openBrowserDownLoadApp(context,path);
+                        }
+                    })
+                    .setNegativeButton("不更新", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .create();
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.show();
+
+        }
+        else {
+            if (isShowToask){
+                MyUtil.showToask(context,"当前已是最新版本");
+            }
         }
     }
 

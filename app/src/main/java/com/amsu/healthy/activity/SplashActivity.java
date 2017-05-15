@@ -116,31 +116,61 @@ public class SplashActivity extends BaseActivity {
 
             List<String> huifuxinlv = weekReport.errDesc.huifuxinlv;
             int sum = 0;
+            int count = 0;
             for (String s:huifuxinlv){
-                sum += Integer.parseInt(s);
+                if (Integer.parseInt(s)>0){
+                    sum += Integer.parseInt(s);
+                    count++;
+                }
             }
-            int avHhrr = sum/huifuxinlv.size();
-            //恢复心率HRR
-            IndicatorAssess scoreHRR = HealthyIndexUtil.calculateScoreHRR(avHhrr);
-
+            IndicatorAssess scoreHRR = null;
+            if(count>0){
+                int avHhrr = sum/count;
+                //恢复心率HRR
+                scoreHRR = HealthyIndexUtil.calculateScoreHRR(avHhrr);
+            }
+            else {
+                scoreHRR = HealthyIndexUtil.calculateScoreHRR(0);
+            }
 
             List<String> kangpilaozhishu = weekReport.errDesc.kangpilaozhishu;
             sum = 0;
+            count = 0;
             for (String s:kangpilaozhishu){
-                sum += Integer.parseInt(s);
+                if (Integer.parseInt(s)>0){
+                    sum += Integer.parseInt(s);
+                    count++;
+                }
             }
-            int avHhrv = sum/kangpilaozhishu.size();
-            //抗疲劳指数HRV(心电分析算法得出)
-            IndicatorAssess scoreHRV = HealthyIndexUtil.calculateScoreHRV(avHhrv);
+            IndicatorAssess scoreHRV = null;
+            if(count>0){
+                int avHhrv = sum/count;
+                //抗疲劳指数HRV(心电分析算法得出)
+                scoreHRV = HealthyIndexUtil.calculateScoreHRV(avHhrv);
+            }
+            else {
+                scoreHRV = HealthyIndexUtil.calculateScoreHRV(0);
+            }
 
             List<String> guosuguohuan = weekReport.errDesc.guosuguohuan;
             sum = 0;
+            count = 0;
             for (String s:guosuguohuan){
-                sum += Integer.parseInt(s);
+                if (Integer.parseInt(s)>0){
+                    count++;
+                    sum += Integer.parseInt(s);
+                }
             }
-            int over_slow = sum/kangpilaozhishu.size();
-            //过缓/过速(心电分析算法得出)
-            IndicatorAssess scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(over_slow);
+            IndicatorAssess scoreOver_slow = null;
+            if(count>0){
+                int over_slow = sum/count;
+                Log.i(TAG,"over_slow:"+over_slow);
+                //过缓/过速(心电分析算法得出)
+                scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(over_slow);
+            }
+            else {
+                scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(0);
+            }
 
             IndicatorAssess scoreBeat = null;
             List<Integer> zaoboloubo = weekReport.errDesc.zaoboloubo;

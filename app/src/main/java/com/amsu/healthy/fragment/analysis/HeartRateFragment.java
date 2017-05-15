@@ -17,6 +17,7 @@ import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineView;
 import com.google.gson.Gson;
@@ -31,6 +32,7 @@ public class HeartRateFragment extends Fragment {
     private FoldLineView fv_rate_line;
     private TextView tv_rate_max;
     private TextView tv_rate_average;
+    private TextView tv_rate_suggestion;
 
     @Nullable
     @Override
@@ -45,6 +47,8 @@ public class HeartRateFragment extends Fragment {
         fv_rate_line = (FoldLineView) inflate.findViewById(R.id.fv_rate_line);
         tv_rate_max = (TextView) inflate.findViewById(R.id.tv_rate_max);
         tv_rate_average = (TextView) inflate.findViewById(R.id.tv_rate_average);
+
+        tv_rate_suggestion = (TextView) inflate.findViewById(R.id.tv_rate_suggestion);
 
         Button bt_hrv_history = (Button) inflate.findViewById(R.id.bt_hrv_history);
         Button bt_hrv_myreport = (Button) inflate.findViewById(R.id.bt_hrv_myreport);
@@ -66,18 +70,13 @@ public class HeartRateFragment extends Fragment {
     }
 
     private void initData() {
-
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
         UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
         if (mUploadRecord!=null){
             Log.i(TAG,"mUploadRecord:"+mUploadRecord.toString());
+
             if (!MyUtil.isEmpty(mUploadRecord.MaxHR )&& !mUploadRecord.MaxHR.equals(Constant.uploadRecordDefaultString)){
-                tv_rate_max.setText(mUploadRecord.MaxHR+"");
-                tv_rate_average.setText(mUploadRecord.MinHR+"");
+                tv_rate_max.setText("最大:"+mUploadRecord.MaxHR+"");
+                tv_rate_average.setText("平均:"+mUploadRecord.AHR+"");
             }
 
             String hr = mUploadRecord.getHR();
@@ -90,7 +89,54 @@ public class HeartRateFragment extends Fragment {
                     fv_rate_line.setData(ints);
                 }
             }
+
+
+
+
+            if (!MyUtil.isEmpty(mUploadRecord.AHR)){
+                int heartRate = Integer.parseInt(mUploadRecord.AHR);
+                String suggestion ;
+                if (heartRate == 0) {
+                    suggestion = "采样时间不够或设备脱落";
+                }
+
+                if (Integer.parseInt(mUploadRecord.state) == 1) {
+                    if (heartRate > 220- HealthyIndexUtil.getUserAge()) {
+                        suggestion ="心动过速：正常人可由运动或精神紧张引起,也可见于发热、甲状腺功能亢进、贫血、失血等情况。请您注意休息，保持情绪稳定，当感觉身体不适时，请及时就医。";
+                    }else if(heartRate < 45 && heartRate >0){
+                        suggestion ="心动过缓：常见于健康的青年人、运动员，及睡眠状态下的一般健康人群。也可见于窦房结功能障碍、甲状腺功能低下、颅内压增高及服用某些药物后的异常反应。请您注意休息，当心率<45次/分或感觉身体不适时请及时就医";
+                    }else if(heartRate == 0){
+                        suggestion ="采样时间不够或设备脱落";
+                    }else{
+                        suggestion ="心率正常";
+                    }
+                }
+                else {
+                    if (heartRate>105){
+                        suggestion ="心动过速：正常人可由运动或精神紧张引起,也可见于发热、甲状腺功能亢进、贫血、失血等情况。请您注意休息，保持情绪稳定，当心率>160次/分时或感觉身体不适时，请及时就医。";
+                    }
+                    else if (heartRate<45){
+                        suggestion ="心动过缓：常见于健康的青年人、运动员，及睡眠状态下的一般健康人群。也可见于窦房结功能障碍、甲状腺功能低下、颅内压增高及服用某些药物后的异常反应。请您注意休息，当心率<45次/分或感觉身体不适时请及时就医";
+                    }
+                    else if (heartRate==0){
+                        suggestion ="采样时间不够或设备脱落";
+                    }
+                    else{
+                        suggestion ="心率正常";
+                    }
+                }
+
+                tv_rate_suggestion.setText(suggestion);
+            }
+
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+
         /*else {
             String name = "heartData";
             String stringValueFromSP = MyUtil.getStringValueFromSP(name);

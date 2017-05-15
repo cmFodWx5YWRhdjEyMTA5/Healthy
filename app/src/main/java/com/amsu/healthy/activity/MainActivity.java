@@ -12,16 +12,21 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -119,7 +124,27 @@ public class MainActivity extends BaseActivity {
 
             }
         }).start();*/
+
+        /*View popupView = getLayoutInflater().inflate(R.layout.layout_popupwindow_onoffline, null);
+
+        mPopupWindow = new PopupWindow(popupView, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
+        mPopupWindow.setTouchable(true);
+        mPopupWindow.setOutsideTouchable(true);
+        mPopupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
+
+        initHeadView();
+        getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //mPopupWindow.showAsDropDown(v);
+                mPopupWindow.showAtLocation(getIv_base_leftimage(), Gravity.TOP,0,0);
+            }
+        });*/
+
+
     }
+
+
     int i = 0;
 
     private void initView() {
@@ -212,16 +237,14 @@ public class MainActivity extends BaseActivity {
     private void checkIsNeedUpadteApk() {
         Apk apkFromSP = ApkUtil.getApkFromSP();
         if (apkFromSP!=null && !MyUtil.isEmpty(apkFromSP.versioncode)){
-            ApkUtil.checkAndUpdateVersion(Integer.parseInt(apkFromSP.versioncode),apkFromSP.path,this);
+            ApkUtil.checkAndUpdateVersion(Integer.parseInt(apkFromSP.versioncode),apkFromSP.path,this,false);
         }
     }
-
 
     @Override
     protected void onStart() {
         super.onStart();
         Log.i(TAG,"onStart");
-
     }
 
     @Override

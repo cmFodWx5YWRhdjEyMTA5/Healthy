@@ -430,7 +430,7 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 				isNeedDrawCircle = true;
 			}
 		}
-		invalidate();
+		//invalidate();
 	}
 
 	@Override
@@ -465,7 +465,7 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 					//响应监听事件
 					onItemClickListener.OnItemClick(selectedStartDate,selectedEndDate,downDate);
 				}
-				invalidate();
+				//invalidate();
 			}
 			
 			break;

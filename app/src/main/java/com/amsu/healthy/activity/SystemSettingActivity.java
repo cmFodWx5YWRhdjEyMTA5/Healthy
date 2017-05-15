@@ -96,6 +96,10 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         Log.i(TAG,"isPrefectInfo:"+MyUtil.getBooleanValueFromSP("isPrefectInfo"));
         MyUtil.putBooleanValueFromSP("isLogin",false);
         MyUtil.putBooleanValueFromSP("isPrefectInfo",false);
+
+        MyUtil.putStringValueFromSP(Constant.sosinfo,"");
+        MyUtil.putStringValueFromSP(Constant.sosNumberList,"");
+
         Log.i(TAG,"isLogin:"+MyUtil.getBooleanValueFromSP("isLogin"));
         Log.i(TAG,"isPrefectInfo:"+MyUtil.getBooleanValueFromSP("isPrefectInfo"));
         MyUtil.saveUserToSP(new User());

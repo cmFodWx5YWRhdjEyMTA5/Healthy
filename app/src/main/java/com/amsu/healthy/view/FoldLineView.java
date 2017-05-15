@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import com.amsu.healthy.R;
@@ -18,6 +19,7 @@ import com.amsu.healthy.R;
  */
 
 public class FoldLineView extends View {
+    private static final String TAG = "FoldLineView";
     private float[] mYIndex ;
     private int mGridHeight;
     private int mGrigWidth;
@@ -43,7 +45,8 @@ public class FoldLineView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mGridHeight = h / 100;   //每一行所占的高度
+        //mGridHeight = h / 100;   //每一行所占的高度
+        mGridHeight = h;   //每一行所占的高度
         if (mYIndex!=null){
             mGrigWidth = w / mYIndex.length;   //每一个数据所占得宽度
         }
@@ -81,7 +84,8 @@ public class FoldLineView extends View {
                 }
                 else {
                     x = i*mGrigWidth+mGrigWidth/2;
-                    y  = mYIndex[i]*mGridHeight+mGridHeight/2;
+                    //y  = mYIndex[i]*mGridHeight+mGridHeight/2;
+                    y  = mGridHeight-mYIndex[i]*mGridHeight;
                     path.lineTo(x,y);
                 }
                 canvas.drawCircle(x,y,mRadius_point,mPointPaint);
@@ -93,14 +97,20 @@ public class FoldLineView extends View {
     public void setData(int[] datas){
         mYIndex = new float[datas.length];
         int maxRate = datas[0];
+        int minRate = datas[0];
         for (int d :datas){
             if (d>maxRate){
                 maxRate = d;
             }
+            if (d<minRate){
+                minRate = d;
+            }
         }
         for (int i=0;i<datas.length;i++){
-            float percent = (float) datas[i] / maxRate;   //计算心率所占的百分比，然后将心率分类，分为5类
-            mYIndex[i] = percent*100;
+            float percent = (float) (datas[i]-minRate) / (maxRate-minRate);   //计算心率所占的百分比，然后将心率分类，分为5类
+            mYIndex[i] = percent-0.1f;
+
+            Log.i(TAG,"percent:"+percent);
 
             /*if (percent<0.6){
                 mYIndex[i] = 4;

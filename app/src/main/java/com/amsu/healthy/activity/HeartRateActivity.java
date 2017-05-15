@@ -102,6 +102,10 @@ public class HeartRateActivity extends BaseActivity {
                             String fileBase64 = MyUtil.fileToBase64(file);
                             Log.i(TAG,"fileBase64:"+fileBase64);
                             List<Integer> ecgDataList = readEcgDataFromFile(file);
+
+                            /*for (int i=0;i<1000000;i++){
+                                ecgDataList.add(100);
+                            }*/
                             Log.i(TAG,"ecgDataList.size()"+ecgDataList.size());
                             uploadRecord = generateUploadData(ecgDataList, fileBase64, heartDataList_static, sportState, sportCreateRecordID, hrr,ecgFiletimeMillis,intent);
                         }
@@ -219,16 +223,29 @@ public class HeartRateActivity extends BaseActivity {
         uploadRecord.setDatatime(datatime);
         uploadRecord.setState(sportState+"");
 
+        Log.i(TAG,"gson: =====================");
+
+
         Gson gson = new Gson();
         //设置心电数据
         if (ecgDataList!=null && ecgDataList.size()>0){
+            Log.i(TAG,"ecgDataList.size(): ====================="+ecgDataList.size());
             int[] calcuData = new int[ecgDataList.size()];
             for (int i=0;i<ecgDataList.size();i++ ){
                 calcuData[i] = ecgDataList.get(i);
             }
-            HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, Constant.oneSecondFrame);
-            Log.i(TAG,"heartRateResult:"+heartRateResult.toString());
-            //转化成json并存在sp里
+            String ES = Constant.uploadRecordDefaultString;
+            String PI = Constant.uploadRecordDefaultString;
+            String FI = Constant.uploadRecordDefaultString;
+            int zaobo = 0;
+            int loubo = 0;
+
+            String ECr = "1";
+            try {
+                Log.i(TAG,"DiagnosisNDK.AnalysisEcg: =====================");
+                HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, Constant.oneSecondFrame);
+                Log.i(TAG,"heartRateResult:"+heartRateResult.toString());
+                //转化成json并存在sp里
 
 
             /*IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex((int) (heartRateResult.LF / heartRateResult.HF));
@@ -238,14 +255,25 @@ public class HeartRateActivity extends BaseActivity {
             IndicatorAssess FIIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(heartRateResult.RR_SDNN);
             String FI = String.valueOf(FIIndicatorAssess.getPercent());*/
 
-            //String HRVs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
+                //String HRVs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
 
-            String ES = (int)(heartRateResult.LF / heartRateResult.HF)+"";
-            String PI = heartRateResult.RR_SDNN+"";
-            String FI = heartRateResult.RR_SDNN+"";
+                ES = (int)(heartRateResult.LF / heartRateResult.HF)+"";
+                PI = heartRateResult.RR_SDNN+"";
+                FI = heartRateResult.RR_SDNN+"";
 
-            int zaobo = heartRateResult.RR_Apb + heartRateResult.RR_Pvc;
-            int loubo = heartRateResult.RR_Boleakage;
+                zaobo = heartRateResult.RR_Apb + heartRateResult.RR_Pvc;
+                loubo = heartRateResult.RR_Boleakage;
+
+                if (heartRateResult.RR_Kuanbo>0){  //漏博
+                    ECr = "3";
+                }
+                else if (heartRateResult.RR_Apb+heartRateResult.RR_Pvc>0){ //早搏
+                    ECr="4";
+                }
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
 
             String HR = gson.toJson(heartDataList);
             int MaxHR= heartDataList.get(0);
@@ -271,13 +299,8 @@ public class HeartRateActivity extends BaseActivity {
                 EC = fileBase64;
             }
 
-            String ECr = "1";
-            if (heartRateResult.RR_Kuanbo>0){  //漏博
-                ECr = "3";
-            }
-            else if (heartRateResult.RR_Apb+heartRateResult.RR_Pvc>0){ //早搏
-                ECr="4";
-            }
+
+
             String HRs = "未测出恢复心率";  //心率恢复能力健康意见
             String RA = hrr+"";  //心率恢复能力
             if (hrr!=0){
@@ -310,7 +333,7 @@ public class HeartRateActivity extends BaseActivity {
             String calorie = Constant.uploadRecordDefaultString;  //卡路里
             String latitude_longitude = Constant.uploadRecordDefaultString;  //经纬度
 
-            final ArrayList<Integer> mKcalData = intent.getIntegerArrayListExtra(Constant.mKcalData);//
+            final ArrayList<String> mKcalData = intent.getStringArrayListExtra(Constant.mKcalData);//
             final ArrayList<Integer> mStridefreData = intent.getIntegerArrayListExtra(Constant.mStridefreData);//
             final ArrayList<Integer> mSpeedStringListData = intent.getIntegerArrayListExtra(Constant.mSpeedStringListData);//
 
@@ -390,8 +413,6 @@ public class HeartRateActivity extends BaseActivity {
         }
         return calcuData;
     }
-
-
 
     //上传分析结果
     private void uploadRecordDataToServer(UploadRecord uploadRecord) {

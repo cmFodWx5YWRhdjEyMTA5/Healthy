@@ -43,6 +43,7 @@ import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.EcgFilterUtil;
+import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.EcgView;
@@ -128,6 +129,8 @@ public class HealthyDataActivity extends BaseActivity {
     private ServiceReceiver mReceiver01, mReceiver02;
     private static String SMS_SEND_ACTIOIN = "SMS_SEND_ACTIOIN";
     private static String SMS_DELIVERED_ACTION = "SMS_DELIVERED_ACTION";
+    private int mCurrentHeartRate= -1;
+    private Activity mActivity = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -273,6 +276,7 @@ public class HealthyDataActivity extends BaseActivity {
             }
             isConnectted = true;
             isConnectting = false;
+            MyUtil.showPopWindow(mActivity,getTv_base_rightText(),1);
         }
 
         @Override
@@ -291,6 +295,7 @@ public class HealthyDataActivity extends BaseActivity {
         public void onDisconnected(String mac) {
             Log.w(TAG, "onDisconnected() - " + mac);
             isConnectting = false;
+            MyUtil.showPopWindow(mActivity,getTv_base_rightText(),0);
         }
 
         @Override
@@ -305,6 +310,7 @@ public class HealthyDataActivity extends BaseActivity {
                         Thread.sleep(1000);
                         Log.i(TAG,"写配置");
                         String writeConfigureOrder = "FF010A"+getDataHexString()+"0016";
+                        Log.i(TAG,"writeConfigureOrder:"+writeConfigureOrder);
                         //mLeService.send(connecMac, Constant.writeConfigureOrder,true);
                         mLeService.send(connecMac, writeConfigureOrder,true);
 
@@ -347,7 +353,7 @@ public class HealthyDataActivity extends BaseActivity {
                 return;
             }
 
-            if (!isStartThreeMitTimer){
+            if (!isStartThreeMitTimer && !isLookupECGDataFromSport){
                 isStartThreeMitTimer = true;
                 startThreeMitTiming();
             }
@@ -396,20 +402,20 @@ public class HealthyDataActivity extends BaseActivity {
             //Log.i(TAG,"calcuEcgRate.length:"+calcuEcgRate.length);
 
             //带入公式，计算心率
-            final int heartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
-            Log.i(TAG,"heartRate0:"+heartRate);
+            mCurrentHeartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+            Log.i(TAG,"heartRate0:"+ mCurrentHeartRate);
             //calcuEcgRate = new int[groupCalcuLength*10];
-            heartRateDates.add(heartRate);
+            heartRateDates.add(mCurrentHeartRate);
 
             //更新心率
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (heartRate==0){
+                    if (mCurrentHeartRate ==0){
                         tv_healthydata_rate.setText("--");
                     }
                     else {
-                        tv_healthydata_rate.setText(heartRate+"");
+                        tv_healthydata_rate.setText(mCurrentHeartRate +"");
                     }
                 }
             });
@@ -679,20 +685,32 @@ public class HealthyDataActivity extends BaseActivity {
 
     //开始三分钟计时
     public void startThreeMitTiming(){
-        MyTimeTask.startCountDownTimerTask(1000 * 60 * 3, new MyTimeTask.OnTimeOutListener() {
+        /*MyTimeTask.startCountDownTimerTask(1000 * 60 * 3, new MyTimeTask.OnTimeOutListener() {
             @Override
             public void onTomeOut() {
                 Log.i(TAG,"TimerTask:到点了");
                 isThreeMit = true;
             }
-        });
+        });*/
 
         //给蓝牙设备同步指令
         MyTimeTask.startTimeRiseTimerTask(this, 1000, new MyTimeTask.OnTimeChangeAtScendListener() {
             @Override
             public void onTimeChange(Date date) {
-                if (isNeedDrawEcgData){
-                    String hexSynOrder = "FF070A"+getDataHexString()+"0016";
+                if (isNeedDrawEcgData && mCurrentHeartRate!=-1){
+                    int maxRate = 220- HealthyIndexUtil.getUserAge();
+                    String hrateIndexHex = "02";
+                    if (mCurrentHeartRate<=maxRate*0.75){
+                        hrateIndexHex = "02";
+                    }
+                    else if (maxRate*0.75<mCurrentHeartRate && mCurrentHeartRate<=maxRate*0.95){
+                        hrateIndexHex = "01";
+                    }
+                    else if (maxRate*0.95<mCurrentHeartRate ){
+                        hrateIndexHex = "00";
+                    }
+                    Log.i(TAG,"hrateIndexHex:"+hrateIndexHex);
+                    String hexSynOrder = "FF070B"+getDataHexStringHaveScend()+hrateIndexHex+"16";
                     mLeService.send(connecMac, hexSynOrder,true);
                 }
             }
@@ -848,7 +866,7 @@ public class HealthyDataActivity extends BaseActivity {
     //开始分析
     public void startAnalysis(View view) {
         Log.i(TAG,"startAnalysis");
-        if (!isThreeMit){
+        /*if (!isThreeMit){
             Log.i(TAG,"!isThreeMit");
             ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(this);
             chooseAlertDialogUtil.setAlertDialogText("采集未满3分钟，无法分析出HRV的值，是否要继续采集？","直接分析","继续采集");
@@ -861,7 +879,8 @@ public class HealthyDataActivity extends BaseActivity {
         }
         else{
             jumpToAnalysis();
-        }
+        }*/
+        jumpToAnalysis();
     }
 
     private void jumpToAnalysis() {
@@ -1058,6 +1077,24 @@ public class HealthyDataActivity extends BaseActivity {
     }
 
     public static String getDataHexString(){
+        SimpleDateFormat formatter = new SimpleDateFormat("yy MM dd HH mm");
+        Date curDate = new Date();
+        String dateString = formatter.format(curDate);
+        System.out.println(dateString);
+        String[] split = dateString.split(" ");
+        String dateHexString = "";
+        for (String s:split){
+            String hex = Integer.toHexString(Integer.parseInt(s));
+            if (hex.length()==1){
+                hex ="0"+hex;
+            }
+            dateHexString += hex;
+        }
+        //Log.i(TAG,"dateHexString:"+dateHexString);
+        return dateHexString;
+    }
+
+    public static String getDataHexStringHaveScend(){
         SimpleDateFormat formatter = new SimpleDateFormat("yy MM dd HH mm ss");
         Date curDate = new Date();
         String dateString = formatter.format(curDate);
@@ -1071,7 +1108,7 @@ public class HealthyDataActivity extends BaseActivity {
             }
             dateHexString += hex;
         }
-        Log.i(TAG,"dateHexString:"+dateHexString);
+        //Log.i(TAG,"dateHexString:"+dateHexString);
         return dateHexString;
     }
 
@@ -1096,6 +1133,7 @@ public class HealthyDataActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
+        mActivity = null;
         unbindService(mConnection);
         if (MainActivity.mBluetoothAdapter!=null){
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描

@@ -8,16 +8,17 @@ android {
         applicationId "com.amsu.healthy"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 101
-        versionName "1.0.1"
+        versionCode 102
+        versionName "1.0.2"
     }
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
     useLibrary 'org.apache.http.legacy'
+
 
     // 友盟多渠道打包
     productFlavors {
@@ -31,7 +32,7 @@ android {
         _91helper {}   //91助手
         androidmarket {}   //安卓市场
         other {}   //其他
-        bet_test {}   //其他
+        beta_test {}   //测试
     }
 
     productFlavors.all { flavor ->
@@ -56,13 +57,11 @@ dependencies {
     compile(name: 'SMSSDKGUI-2.1.2', ext: 'aar')
     compile files('libs/AndroidBleApi_V1.1.0.jar')
     compile files('libs/gson-2.5.jar')
-    compile files('libs/AMap_Location_V3.3.0_20170118.jar')
-    compile files('libs/Amap_2DMap_V4.2.0_20170120.jar')
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:design:23.4.0'
     compile 'com.android.support:support-v4:23.4.0'
-    compile 'com.amap.api:map3d-native:latest.integration'
-    compile 'com.amap.api:map3d:latest.integration'
+    compile 'com.amap.api:3dmap:latest.integration'
     compile 'com.umeng.analytics:analytics:latest.integration'
     testCompile 'junit:junit:4.12'
+    compile files('libs/AMap_Location_V3.3.0_20170118.jar')
 }
