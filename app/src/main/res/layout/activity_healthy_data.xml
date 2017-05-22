@@ -45,6 +45,13 @@
             android:layout_centerHorizontal="true"/>
 
     </RelativeLayout>
+
+    <!--<Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x200"
+        android:text="关闭ecg"
+        android:onClick="stopEcgData"/>-->
     
     <RelativeLayout
         android:id="@+id/rl_healthydata_middle"

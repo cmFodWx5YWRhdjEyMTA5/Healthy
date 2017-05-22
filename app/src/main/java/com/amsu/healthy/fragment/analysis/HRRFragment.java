@@ -15,8 +15,10 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.activity.HistoryRecordActivity;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.activity.RateAnalysisActivity;
+import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 
 public class HRRFragment extends Fragment {
@@ -69,7 +71,15 @@ public class HRRFragment extends Fragment {
             else {
                 tv_hrr_value.setText(mUploadRecord.RA);  //注意：此处的是恢复数值，不是分数
             }
-            tv_hrr_suggestion.setText(mUploadRecord.HRs);
+
+            if (Integer.parseInt(mUploadRecord.RA)>0) {
+                IndicatorAssess indicatorAssess = HealthyIndexUtil.calculateScoreHRR(Integer.parseInt(mUploadRecord.RA));
+                tv_hrr_suggestion.setText(indicatorAssess.getSuggestion());
+
+            }
+
+
+
         }
     }
 

@@ -82,6 +82,9 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     private int currentcountIndex = 0;
     private Thread mThread;
 
+    private int yRangeValue = 34;
+    private float mOneValuePX = mSGridWidth*10/yRangeValue;
+
 
     public EcgView(Context context, AttributeSet attrs){
         super(context, attrs);
@@ -275,15 +278,11 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
      * @return
      */
     private int ecgConver(int data){
-        data = (int) (rateLineR*data * ecgYRatio);
 
-        return data+ mHeight / 2;
-        /*if (data==1){
-            return data+ mHeight / 2;
-        }*/
 
-        /*int i = data * 4 + mHeight / 2;
-        return i;*/
+        //data = (int) (rateLineR*data * ecgYRatio);
+
+        return (int) (mHeight/2-rateLineR*mOneValuePX*data);
 
 
     }
@@ -353,14 +352,24 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         int hNum = (int) (mHeight / mGridWidth);
 
         mLinePaint.setColor(mGridColor);
-        mLinePaint.setStrokeWidth(1);
+        mLinePaint.setStrokeWidth(smallGridWidth/2);
 
         //画竖线
         for(int i = 0;i<vNum+1;i++){
+            if (i%2==0){
+                mLinePaint.setStrokeWidth(smallGridWidth);
+            }else {
+                mLinePaint.setStrokeWidth(smallGridWidth/2);
+            }
             canvas.drawLine(i*mGridWidth,0,i*mGridWidth,hNum*mGridWidth,mLinePaint);
         }
         //画横线
         for(int i = 0;i<hNum+1;i++){
+            if (i%2==0){
+                mLinePaint.setStrokeWidth(smallGridWidth);
+            }else {
+                mLinePaint.setStrokeWidth(smallGridWidth/2);
+            }
             canvas.drawLine(0,i*mGridWidth,mWidth,i*mGridWidth,mLinePaint);
         }
     }
@@ -387,5 +396,10 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
             }
             isRunning = true;
         }
+       /* for (int i:ecgDatas){
+            Log.i(TAG,"i:"+i);
+        }*/
     }
+
+
 }

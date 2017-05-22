@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
@@ -59,6 +60,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -121,7 +123,7 @@ public class HealthyDataActivity extends BaseActivity {
     private static double ECGSCALE_MODE_ORIGINAL = 1;
     private static double ECGSCALE_MODE_DOUBLE = 2;
     private static double ECGSCALE_MODE_QUADRUPLE = 3;*/
-    public static double ECGSCALE_MODE_CURRENT = ECGSCALE_MODE_QUADRUPLE;
+    public static double ECGSCALE_MODE_CURRENT = ECGSCALE_MODE_DOUBLE;
 
     private BottomSheetDialog mBottomAdjustRateLineDialog;
     private boolean isLookupECGDataFromSport;
@@ -129,7 +131,7 @@ public class HealthyDataActivity extends BaseActivity {
     private ServiceReceiver mReceiver01, mReceiver02;
     private static String SMS_SEND_ACTIOIN = "SMS_SEND_ACTIOIN";
     private static String SMS_DELIVERED_ACTION = "SMS_DELIVERED_ACTION";
-    private int mCurrentHeartRate= -1;
+    private int mCurrentHeartRate= 0;
     private Activity mActivity = this;
 
     @Override
@@ -204,8 +206,44 @@ public class HealthyDataActivity extends BaseActivity {
     */
 
     private void initData() {
+        /*if (!MyUtil.isEmpty(MainActivity.connecMac)){
+            Log.i(TAG, "直接连接mac地址 " + MainActivity.connecMac);
+
+            new Thread(){
+                @Override
+                public void run() {
+                    super.run();
+                    try {
+                        Thread.sleep(1000);
+                        Log.i(TAG,"写配置");
+                        String writeConfigureOrder = "FF010A"+getDataHexString()+"0016";
+                        Log.i(TAG,"writeConfigureOrder:"+writeConfigureOrder);
+                        //mLeService.send(connecMac, Constant.writeConfigureOrder,true);
+                        MainActivity.mLeService.send(MainActivity.connecMac, writeConfigureOrder,true);
+
+                        Thread.sleep(1000);
+                        Log.i(TAG,"开启数据指令");
+                        MainActivity.mLeService.send(MainActivity.connecMac, Constant.openDataTransmitOrder,true);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        }
+        else if (MainActivity.mBluetoothAdapter!=null){
+            MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
+            //绑定蓝牙，获取蓝牙服务
+            bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
+        }*/
+
+
+
+    }
+
+    public void startLeScanBlue(){
         if (MainActivity.mBluetoothAdapter!=null){
             MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
+            Log.i(TAG,"startLeScan");
             //绑定蓝牙，获取蓝牙服务
             bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
         }
@@ -255,15 +293,20 @@ public class HealthyDataActivity extends BaseActivity {
                     if (!isConnectted && !isConnectting){
                         //没有链接上，并且没有正在链接
                         Log.i(TAG,"device.getAddress():"+device.getAddress());
-                        mLeService.connect(device.getAddress(),true);  //链接
-                        isConnectting  = true;
-                        Log.i(TAG,"开始连接");
+                        if (mLeService!=null){
+                            mLeService.connect(device.getAddress(),true);  //链接
+
+                            isConnectting  = true;
+                            Log.i(TAG,"开始连接");
+                        }
+
                     }
                 }
             }
         }
     };
 
+    boolean mIsDataStart;
     // ble数据交互的关键参数
     private final BleCallBack mBleCallBack = new BleCallBack() {
 
@@ -272,11 +315,15 @@ public class HealthyDataActivity extends BaseActivity {
             Log.i(TAG, "onConnected() - " + mac);
             mLeService.startReadRssi(mac, 1000);
             if (MainActivity.mBluetoothAdapter!=null){
-                MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+                //MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
             }
-            isConnectted = true;
+            Log.i(TAG,"MyApplication.isHaveDeviceConnectted: "+MyApplication.isHaveDeviceConnectted);
+            if (!MyApplication.isHaveDeviceConnectted){
+                MyApplication.isHaveDeviceConnectted = isConnectted = true;
+                MyUtil.showPopWindow(mActivity,getTv_base_rightText(),1);
+            }
+
             isConnectting = false;
-            MyUtil.showPopWindow(mActivity,getTv_base_rightText(),1);
         }
 
         @Override
@@ -294,8 +341,13 @@ public class HealthyDataActivity extends BaseActivity {
         @Override
         public void onDisconnected(String mac) {
             Log.w(TAG, "onDisconnected() - " + mac);
+            Log.i(TAG,"MyApplication.isHaveDeviceConnectted: "+MyApplication.isHaveDeviceConnectted);
+            if (MyApplication.isHaveDeviceConnectted){
+                MyApplication.isHaveDeviceConnectted = isConnectted = false;
+                MyUtil.showPopWindow(mActivity,getTv_base_rightText(),0);
+            }
             isConnectting = false;
-            MyUtil.showPopWindow(mActivity,getTv_base_rightText(),0);
+            mIsDataStart = false;
         }
 
         @Override
@@ -307,6 +359,7 @@ public class HealthyDataActivity extends BaseActivity {
                 public void run() {
                     super.run();
                     try {
+                        mIsDataStart = false;
                         Thread.sleep(1000);
                         Log.i(TAG,"写配置");
                         String writeConfigureOrder = "FF010A"+getDataHexString()+"0016";
@@ -353,6 +406,10 @@ public class HealthyDataActivity extends BaseActivity {
                 return;
             }
 
+            if (hexData.length() > 40) {
+                mIsDataStart = true;
+            }
+
             if (!isStartThreeMitTimer && !isLookupECGDataFromSport){
                 isStartThreeMitTimer = true;
                 startThreeMitTiming();
@@ -366,18 +423,35 @@ public class HealthyDataActivity extends BaseActivity {
             else if(hexData.startsWith("FF 86 11")){
                 //加速度数据
                 //Log.i(TAG,"加速度hexData:"+hexData);
-                dealWithAccelerationgData(hexData);
+                //dealWithAccelerationgData(hexData);
             }
         }
     };
 
 
+
+    int mMax;
+    int mMin;
+    String test10 = "";
+    List<Integer> integerList =  new ArrayList<>();
     //处理心电数据
     private void dealWithEcgData(String hexData) {
         final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
         if (!isLookupECGDataFromSport){
             writeEcgDataToBinaryFile(ints);
         }
+
+        for (int i:ints){
+            integerList.add(i);
+            test10 += i+" ";
+            if (i>mMax){
+                mMax = i;
+            }
+            if (i<mMin){
+                mMin = i;
+            }
+        }
+
 
         //滤波处理
         for (int i=0;i<ints.length;i++){
@@ -398,6 +472,7 @@ public class HealthyDataActivity extends BaseActivity {
             for (int aCalcuEcgRate : calcuEcgRate) {
                 data0 += aCalcuEcgRate + ",";
             }
+
             //Log.i(TAG,"data:"+data0);
             //Log.i(TAG,"calcuEcgRate.length:"+calcuEcgRate.length);
 
@@ -534,7 +609,6 @@ public class HealthyDataActivity extends BaseActivity {
         else if (ecgAmpSum<5){
             mRateLineRItemCount.put(ECGSCALE_MODE_QUADRUPLE,mRateLineRItemCount.get(ECGSCALE_MODE_QUADRUPLE)+1);
         }
-        
         calcuAndAdjustRateLine();
     }
 
@@ -652,7 +726,7 @@ public class HealthyDataActivity extends BaseActivity {
 
     //根据进度给心电View设置放大的倍数
     private void adjustRateLineRToEcgView(int endProgress) {
-        double type;
+        double type = 0;
                  /*
                 *  可以在 ecgAmpSum < 5时 放大4倍
                     在 5<=ecgAmpSum<12 时放大2倍
@@ -660,16 +734,16 @@ public class HealthyDataActivity extends BaseActivity {
                     在ecgAmpSum>=26时 缩小两倍
                 * */
         Log.i(TAG,"currentType:"+ECGSCALE_MODE_CURRENT);
-        if (endProgress<80){
+        if (endProgress<=20){
             type = ECGSCALE_MODE_HALF;
         }
-        else if(20<=endProgress && endProgress<40){
+        else if(20<endProgress && endProgress<=40){
             type = ECGSCALE_MODE_ORIGINAL;
         }
-        else if(40<=endProgress && endProgress<60){
+        else if(40<endProgress && endProgress<=60){
             type = ECGSCALE_MODE_DOUBLE;
         }
-        else{
+        else if(60<endProgress && endProgress<=80){
             type = ECGSCALE_MODE_QUADRUPLE;
         }
 
@@ -697,7 +771,7 @@ public class HealthyDataActivity extends BaseActivity {
         MyTimeTask.startTimeRiseTimerTask(this, 1000, new MyTimeTask.OnTimeChangeAtScendListener() {
             @Override
             public void onTimeChange(Date date) {
-                if (isNeedDrawEcgData && mCurrentHeartRate!=-1){
+                if (mIsDataStart){
                     int maxRate = 220- HealthyIndexUtil.getUserAge();
                     String hrateIndexHex = "02";
                     if (mCurrentHeartRate<=maxRate*0.75){
@@ -709,9 +783,15 @@ public class HealthyDataActivity extends BaseActivity {
                     else if (maxRate*0.95<mCurrentHeartRate ){
                         hrateIndexHex = "00";
                     }
-                    Log.i(TAG,"hrateIndexHex:"+hrateIndexHex);
+
                     String hexSynOrder = "FF070B"+getDataHexStringHaveScend()+hrateIndexHex+"16";
+
+
                     mLeService.send(connecMac, hexSynOrder,true);
+
+
+
+                    Log.i(TAG,"同步指令connecMac:"+connecMac+",hrateIndexHex:"+hrateIndexHex);
                 }
             }
         });
@@ -861,7 +941,23 @@ public class HealthyDataActivity extends BaseActivity {
         }));*/
     }
 
+    public boolean writeDataToFile(List<Integer> integerList, String fileName) {
+        FileWriter fileWriter = null;
+        boolean isWriteSuccess = false;
+        try {
+            fileWriter = new FileWriter(fileName);
+            for(int i:integerList){
+                fileWriter.write(i+" ");
+            }
+            fileWriter.flush();
+            isWriteSuccess =  true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
 
+        }
+        return isWriteSuccess;
+    }
 
     //开始分析
     public void startAnalysis(View view) {
@@ -880,7 +976,24 @@ public class HealthyDataActivity extends BaseActivity {
         else{
             jumpToAnalysis();
         }*/
+
         jumpToAnalysis();
+
+        /*new Thread(){
+            @Override
+            public void run() {
+                super.run();
+
+                List<Integer> list = new ArrayList<Integer>();
+                for (int i:integerList){
+                    list.add(i);
+                }
+
+
+                writeDataToFile(list,Environment.getExternalStorageDirectory().getAbsolutePath()+"/leb原始数据"+System.currentTimeMillis()+".txt");
+            }
+        }.start();*/
+
     }
 
     private void jumpToAnalysis() {
@@ -894,6 +1007,8 @@ public class HealthyDataActivity extends BaseActivity {
             intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
         }
         startActivity(intent);
+
+
     }
 
     //将心率数组保存到sp里
@@ -908,11 +1023,27 @@ public class HealthyDataActivity extends BaseActivity {
         heartRateDates.clear();
     }
 
+    boolean isonResumeEd ;
+
     @Override
     protected void onResume() {
         super.onResume();
         Log.i(TAG,"onResume");
         isNeedDrawEcgData = true;
+
+        MyApplication.mApplicationActivity = this;
+
+        if (!isonResumeEd){
+            if (MainActivity.mBluetoothAdapter!=null && !MainActivity.mBluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, MainActivity.REQUEST_ENABLE_BT);
+            }
+            isonResumeEd = true;
+        }
+
+        if (MainActivity.mBluetoothAdapter!=null && MainActivity.mBluetoothAdapter.isEnabled()) {
+            startLeScanBlue();
+        }
 
 /* 自定义IntentFilter为SENT_SMS_ACTIOIN Receiver */
         IntentFilter mFilter01;
@@ -1008,6 +1139,11 @@ public class HealthyDataActivity extends BaseActivity {
 
         unregisterReceiver(mReceiver01);
         unregisterReceiver(mReceiver02);
+    }
+
+    public void stopEcgData(View view) {
+        //stopTransmitData();
+        mLeService.disconnect(connecMac);
     }
 
     /* 自定义mServiceReceiver重写BroadcastReceiver监听短信状态信息 */
@@ -1134,11 +1270,14 @@ public class HealthyDataActivity extends BaseActivity {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
         mActivity = null;
+        MyApplication.mApplicationActivity = null;
+
         unbindService(mConnection);
         if (MainActivity.mBluetoothAdapter!=null){
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
         }
     }
+
 
     /*public void test(View view) {
         loadDatas();

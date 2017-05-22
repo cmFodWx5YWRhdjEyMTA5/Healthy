@@ -12,7 +12,9 @@ import android.widget.RelativeLayout;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.DeviceAdapter;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.bean.DeviceList;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.Gson;
@@ -44,11 +46,20 @@ public class MyDeviceActivity extends BaseActivity {
             }
         });
 
-        ListView lv_device_devicelist = (ListView) findViewById(R.id.lv_device_devicelist);
-        deviceList = MyUtil.getDeviceListFromSP();
 
+
+        deviceList = new ArrayList<>();
+        ListView lv_device_devicelist = (ListView) findViewById(R.id.lv_device_devicelist);
+        List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
+
+        for (Device device:deviceListFromSP){
+            if (MyUtil.getStringValueFromSP(Constant.currectDeviceLEName).equals(device.getLEName())){
+                deviceList.add(device);
+            }
+        }
 
         Log.i(TAG,"deviceList:"+deviceList.toString());
+
 
         /*List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
         if (deviceListFromSP!=null){
@@ -66,6 +77,10 @@ public class MyDeviceActivity extends BaseActivity {
         rl_device_adddevice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (MyApplication.isHaveDeviceConnectted){
+                    MyUtil.showToask(MyDeviceActivity.this,"设备正在连接，要连接其他设备，请先断开连接设备");
+                    return;
+                }
                 Intent intent = new Intent(MyDeviceActivity.this,SearchDevicehActivity.class);
                 startActivityForResult(intent,130);
             }

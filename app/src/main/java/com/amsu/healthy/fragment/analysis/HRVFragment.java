@@ -80,6 +80,8 @@ public class HRVFragment extends Fragment {
                 int PI = Integer.parseInt(mUploadRecord.PI);//抗压指数
                 int ES = Integer.parseInt(mUploadRecord.ES);//情绪指数
 
+                Log.i(TAG,"FI:"+FI+",PI:"+PI+",ES:"+ES);
+
                 IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(FI);
                 int FINeed = ESIndicatorAssess.getPercent();
                 IndicatorAssess PIIndicatorAssess = HealthyIndexUtil.calculateSDNNPressureIndex(PI);
@@ -101,7 +103,13 @@ public class HRVFragment extends Fragment {
                 iv_hrv_mood.setLayoutParams(moodLayoutParams);
 
                 String HRVs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
-                tv_hrv_suggestion.setText(HRVs);
+                Log.i(TAG,"HRVs:"+HRVs);
+
+                if (!MyUtil.isEmpty( mUploadRecord.HRVs)){
+                    tv_hrv_suggestion.setText(mUploadRecord.HRVs);
+                }
+
+
             }
         }
     }

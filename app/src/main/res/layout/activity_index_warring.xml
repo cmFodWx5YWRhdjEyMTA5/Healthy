@@ -74,7 +74,7 @@
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/y20"
-                    android:progressDrawable="@drawable/bg_progressbar_hor"
+                    android:progressDrawable="@drawable/bg_progressbar_hor_red"
                     android:layout_centerInParent="true"
                     android:max="100"
                     />
@@ -113,7 +113,7 @@
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/y20"
-                    android:progressDrawable="@drawable/bg_progressbar_hor"
+                    android:progressDrawable="@drawable/bg_progressbar_hor_red"
                     android:layout_centerInParent="true"
                     android:max="100"
                     />
@@ -193,7 +193,7 @@
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/y20"
-                    android:progressDrawable="@drawable/bg_progressbar_hor"
+                    android:progressDrawable="@drawable/bg_progressbar_hor_red"
                     android:layout_centerInParent="true"
                     android:max="100"
                     />

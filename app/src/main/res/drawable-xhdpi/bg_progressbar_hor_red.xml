@@ -11,7 +11,11 @@
     <item android:id="@android:id/progress">
         <clip>
             <shape>
-                <solid android:color="@android:color/holo_red_dark"></solid>
+                <gradient
+                    android:startColor="@android:color/holo_orange_light"
+                    android:centerColor="@android:color/holo_orange_dark"
+                    android:endColor="@android:color/holo_red_dark"
+                    android:angle="0" />  <!--设置方向-->
             </shape>
         </clip>
     </item>

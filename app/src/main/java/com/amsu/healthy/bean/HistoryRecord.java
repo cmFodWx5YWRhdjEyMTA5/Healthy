@@ -11,6 +11,7 @@ public class HistoryRecord implements Parcelable{
     private String ID;
     private String datatime;
     private int state;
+    private String analysisState;
 
     public String getID() {
         return ID;
@@ -69,4 +70,19 @@ public class HistoryRecord implements Parcelable{
             return new HistoryRecord[0];
         }
     };
+
+    public HistoryRecord(String ID, String datatime, int state, String analysisState) {
+        this.ID = ID;
+        this.datatime = datatime;
+        this.state = state;
+        this.analysisState = analysisState;
+    }
+
+    public String getAnalysisState() {
+        return analysisState;
+    }
+
+    public void setAnalysisState(String analysisState) {
+        this.analysisState = analysisState;
+    }
 }

@@ -23,6 +23,7 @@ import com.amsu.healthy.view.FoldLineView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HeartRateFragment extends Fragment {
@@ -84,7 +85,12 @@ public class HeartRateFragment extends Fragment {
                 Gson gson = new Gson();
                 List<Integer> heartDatas = gson.fromJson(hr, new TypeToken<List<Integer>>() {
                 }.getType());
-                int[] ints = MyUtil.listToIntArray(heartDatas);
+
+                List<Integer> tempHeartDatas = new ArrayList<>();
+                for (int i:heartDatas){
+                    tempHeartDatas.add(i);
+                }
+                int[] ints = MyUtil.listToIntArray(tempHeartDatas);
                 if (ints!=null && ints.length>0){
                     fv_rate_line.setData(ints);
                 }
@@ -93,8 +99,8 @@ public class HeartRateFragment extends Fragment {
 
 
 
-            if (!MyUtil.isEmpty(mUploadRecord.AHR)){
-                int heartRate = Integer.parseInt(mUploadRecord.AHR);
+            if (!MyUtil.isEmpty(mUploadRecord.HRVs)){
+                /*int heartRate = Integer.parseInt(mUploadRecord.AHR);
                 String suggestion ;
                 if (heartRate == 0) {
                     suggestion = "采样时间不够或设备脱落";
@@ -126,7 +132,8 @@ public class HeartRateFragment extends Fragment {
                     }
                 }
 
-                tv_rate_suggestion.setText(suggestion);
+                tv_rate_suggestion.setText(suggestion);*/
+                tv_rate_suggestion.setText(mUploadRecord.HRs);
             }
 
         }

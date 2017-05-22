@@ -31,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -105,9 +106,12 @@ public class ECGFragment extends Fragment {
                 int temp = (int) ((float) countIndex / mEcgGroupSize*100);
                 if (temp!=percent){
                     percent = temp;
-                    final String currentTimeString = calcuEcgDataTimeAtSecond((int) ((percent / 100.f) * mAllTimeAtSecond));
-                    Log.i(TAG,"percent:"+currentTimeString);
-                    Log.i(TAG,"currentTimeString:"+currentTimeString);
+                    int currTimeAtSecond = (int) ((percent / 100.f) * mAllTimeAtSecond);
+                    final String currentTimeString = calcuEcgDataTimeAtSecond(currTimeAtSecond);
+                    //Log.i(TAG,"mAllTimeAtSecond:"+mAllTimeAtSecond);
+                    //Log.i(TAG,"currTimeAtSecond:"+currTimeAtSecond);
+                    //Log.i(TAG,"percent:"+currentTimeString);
+                    //Log.i(TAG,"currentTimeString:"+currentTimeString);
 
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -150,77 +154,106 @@ public class ECGFragment extends Fragment {
             }
         });
 
-        UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
-        if (mUploadRecord!=null){
-            Log.i(TAG,"mUploadRecord:"+mUploadRecord.toString());
-            Log.i(TAG,"EC :"+mUploadRecord.EC);
-            long timestamp =  Long.valueOf(mUploadRecord.timestamp);
-            String eCGFilePath = MyUtil.generateECGFilePath(getActivity(), timestamp);
-            //String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
-            //String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";  //测试
-            if (!eCGFilePath.equals("")){
-                try {
-                    if (fileInputStream==null){
-                        File file = new File(eCGFilePath);
-                        if (!file.exists() && !mUploadRecord.EC.equals(Constant.uploadRecordDefaultString)){
-                            //文件不存在的话说明  1、本地文件已经被删除了  2、第一次从历史记录获取文件，需用Base64生成文件
-                            file = MyUtil.base64ToFile(mUploadRecord.EC, eCGFilePath);
-                        }
-                        if (file.exists()){
-                            datas = new ArrayList<>();
-                            fileInputStream = new FileInputStream(eCGFilePath);
-                            DataInputStream dataInputStream = new DataInputStream(fileInputStream); //读取二进制文件
-                            byte[] bytes = new byte[2];
-                            ByteBuffer buffer=  ByteBuffer.wrap(bytes);
-
-                            try {
-                                /*byte b;
-                                while ((b = (byte) dataInputStream.read()) != -1 ){
-                                    bytes[1] =b;
-                                    bytes[0] =(byte)dataInputStream.read();
-                                    short readCsharpInt = buffer.getShort();
-                                    buffer.clear();
-                                    //Log.i(TAG,"readByte:"+readByte);
-                                    //滤波处理
-                                    int temp = EcgFilterUtil.miniEcgFilterLp(readCsharpInt, 0);
-                                    temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
-                                    datas.add(temp);
+        final UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
 
 
-                                }*/
-                                while( dataInputStream.available() >0){
-                                    bytes[1] = dataInputStream.readByte();
-                                    bytes[0] = dataInputStream.readByte();
-                                    short readCsharpInt = buffer.getShort();
-                                    buffer.clear();
-                                    //滤波处理
-                                    int temp = EcgFilterUtil.miniEcgFilterLp(readCsharpInt, 0);
-                                    temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
-                                    datas.add(temp);
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                if (mUploadRecord!=null){
+                    Log.i(TAG,"mUploadRecord:"+mUploadRecord.toString());
+                    //Log.i(TAG,"EC :"+mUploadRecord.EC);
+                    long timestamp =  Long.valueOf(mUploadRecord.timestamp);
+                    String eCGFilePath = MyUtil.generateECGFilePath(getActivity(), timestamp);
+                    //String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
+                    //String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";  //测试
+                    if (!eCGFilePath.equals("")){
+                        try {
+                            if (fileInputStream==null){
+                                File file = new File(eCGFilePath);
+                                if (!file.exists() && !mUploadRecord.EC.equals(Constant.uploadRecordDefaultString)){
+                                    //文件不存在的话说明  1、本地文件已经被删除了  2、第一次从历史记录获取文件，需用Base64生成文件
+                                    file = MyUtil.base64ToFile(mUploadRecord.EC, eCGFilePath);
                                 }
-                                mEcgGroupSize = datas.size() / 10;
-                                Log.i(TAG,"ecgGroupSize:"+mEcgGroupSize);
-                /*for (int i = 0; i < Integer.MAX_VALUE; i++) {
-                    int readByte = 0;
-                    readByte = dataInputStream.readInt();
-                    Log.i(TAG,"readByte:"+readByte);
-                    //滤波处理
-                    int temp = EcgFilterUtil.miniEcgFilterLp(readByte, 0);
-                    temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
-                    readByte = temp;
-                    data0Q.add(readByte);
-                }*/
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                                if (file.exists()){
+                                    datas = new ArrayList<>();
+                                    fileInputStream = new FileInputStream(eCGFilePath);
+                                    DataInputStream dataInputStream = new DataInputStream(fileInputStream); //读取二进制文件
+
+
+                                    try {
+
+                                        /*byte[] bytes = new byte[2];
+                                        ByteBuffer buffer=  ByteBuffer.wrap(bytes);
+                                        while( dataInputStream.available() >1){
+                                            bytes[1] = dataInputStream.readByte();
+                                            bytes[0] = dataInputStream.readByte();
+                                            short readCsharpInt = buffer.getShort();
+                                            buffer.clear();
+                                            //滤波处理
+                                            int temp = EcgFilterUtil.miniEcgFilterLp(readCsharpInt, 0);
+                                            temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
+                                            datas.add(temp);
+                                        }
+                                        mEcgGroupSize = datas.size() / 10;
+                                        Log.i(TAG,"ecgGroupSize:"+mEcgGroupSize);*/
+
+                                        byte[] bytes = new byte[1024*1024];
+                                        System.out.println("dataInputStream.available():"+dataInputStream.available());
+                                        Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
+
+                                        while(dataInputStream.available() >0){
+                                            int read = dataInputStream.read(bytes);
+                                            for (int i = 0; i < read/2-1; i++) {
+                                                bytes[0] = bytes[i*2];
+                                                bytes[1] = bytes[i*2+1];
+                                                //滤波处理
+                                                int temp = EcgFilterUtil.miniEcgFilterLp((int) getShortByTwoBytes(bytes[0],bytes[1]), 0);
+                                                temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
+                                                datas.add(temp);
+                                            }
+                                        }
+                                        mEcgGroupSize = datas.size() / 10;
+                                        Log.i(TAG,"ecgGroupSize:"+mEcgGroupSize);
+                                        Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                             }
+
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
                         }
                     }
-
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 }
+
+                if (datas!=null && datas.size()>0){
+                    mAllTimeAtSecond = (int) (datas.size()/(Constant.oneSecondFrame*1f));  //计算总的时间秒数，1s为150帧，即为150个数据点
+                    mAllTimeString = calcuEcgDataTimeAtSecond(mAllTimeAtSecond);
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tv_ecg_protime.setText("0'0/"+mAllTimeString);
+                            if (isonResume){
+                                startDrawSimulator();
+                            }
+                        }
+                    });
+
+                    Log.i(TAG,"mAllTimeAtSecond:"+mAllTimeAtSecond);
+                    Log.i(TAG,"datas.size():"+datas.size());
+
+
+                }
+
             }
-        }
+        }.start();
+
+
+
 
         /*String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";  //测试
         if (!cacheFileName.equals("")){
@@ -269,17 +302,11 @@ public class ECGFragment extends Fragment {
             }
         }*/
 
-        if (datas!=null && datas.size()>0){
-            mAllTimeAtSecond = (int) (datas.size()/(Constant.oneSecondFrame*1f));  //计算总的时间秒数，1s为150帧，即为150个数据点
-            mAllTimeString = calcuEcgDataTimeAtSecond(mAllTimeAtSecond);
-            tv_ecg_protime.setText("0'0/"+mAllTimeString);
-            Log.i(TAG,"mAllTimeAtSecond:"+mAllTimeAtSecond);
-            Log.i(TAG,"datas.size():"+datas.size());
-        }
+
 
 
         if (mUploadRecord!=null){
-            String suggestion = "";
+            /*String suggestion = "";
             if (Integer.parseInt(mUploadRecord.zaobo)>0){
                 suggestion += "本次测量早搏"+mUploadRecord.zaobo+"次。室早出现在两个正常的窦性心搏之前，房早由心房组织自律性增强引起，健康人及各种器质性心脏病人都有可能发生，有明显症状时请及时就医。";
             }
@@ -289,9 +316,14 @@ public class ECGFragment extends Fragment {
             else {
                 suggestion += "正常心电图";
             }
-            tv_rate_suggestion.setText(suggestion);
+            tv_rate_suggestion.setText(suggestion);*/
+            tv_rate_suggestion.setText(mUploadRecord.ECs);
         }
 
+    }
+
+    public static short getShortByTwoBytes(byte argB1, byte argB2) {
+        return (short) (argB1| (argB2 << 8));
     }
 
     //将秒数换算成1'57这种时间个格式
@@ -301,12 +333,14 @@ public class ECGFragment extends Fragment {
         return minute+"'"+second;
     }
 
+    boolean isonResume;
 
     @Override
     public void onResume() {
         super.onResume();
         Log.i(TAG,"onResume");
         Log.i(TAG,"over:开始画图");
+        isonResume = true;
 
         if (isFirstCreate){
             startDrawSimulator();
@@ -317,6 +351,7 @@ public class ECGFragment extends Fragment {
     public void onPause() {
         super.onPause();
         Log.i(TAG,"onPause");
+        isonResume = false;
         pv_ecg_path.stopThread();
         iv_ecg_toggle.setImageResource(R.drawable.play_icon);
     }

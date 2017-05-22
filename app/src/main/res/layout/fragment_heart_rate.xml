@@ -34,8 +34,8 @@
                 android:textSize="@dimen/x28"
                 android:layout_marginRight="@dimen/x80"
                 android:textColor="#aaaaaa"/>
-
         </RelativeLayout>
+
         <LinearLayout
             android:id="@+id/ll_rate_color"
             android:layout_width="@dimen/x1008"
@@ -43,7 +43,8 @@
             android:orientation="vertical"
             android:layout_below="@+id/rl_rate_text1"
             android:layout_marginTop="@dimen/x10"
-            android:layout_centerHorizontal="true">
+            android:layout_centerHorizontal="true"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="match_parent"
@@ -109,16 +110,18 @@
             android:layout_below="@+id/rl_rate_text1"
             android:layout_toRightOf="@+id/ll_rate_color"></View>
 
+        <!-- android:background="#66990000"-->
         <com.amsu.healthy.view.FoldLineView
             android:id="@+id/fv_rate_line"
             android:layout_width="@dimen/x1008"
             android:layout_height="@dimen/x462"
+
             android:orientation="vertical"
             android:layout_below="@+id/rl_rate_text1"
             android:layout_marginTop="@dimen/x10"
             android:layout_centerHorizontal="true"
             foldlineview:line_color="#4d646d"
-            foldlineview:line_width="@dimen/x3"
+            foldlineview:line_width="@dimen/x5"
             foldlineview:radius_point="@dimen/x5"/>
         <!--foldlineview:radius_point="@dimen/x8"-->
 

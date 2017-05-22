@@ -197,6 +197,15 @@ public class MyUtil {
         }
     }
 
+    public static boolean isListIntegerEmpty(List<Integer> objectList){
+        if (objectList==null || objectList.size()>0){
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     //添加Cookie
     public static void addCookieForHttp(RequestParams requestParams){
         String cookie = getStringValueFromSP("Cookie");
@@ -570,8 +579,9 @@ public class MyUtil {
     }
 
     public static void showPopWindow(Activity activity, final View view, int connectType){
+        activity = MyApplication.mApplicationActivity;
         if (activity==null) return;
-        View popupView = activity.getLayoutInflater().inflate(R.layout.layout_popupwindow_onoffline, null);
+        View popupView = View.inflate(activity,R.layout.layout_popupwindow_onoffline,null);
         ImageView iv_pop_icon = (ImageView) popupView.findViewById(R.id.iv_pop_icon);
         TextView tv_pop_text = (TextView) popupView.findViewById(R.id.tv_pop_text);
         if (connectType == 0){

@@ -44,7 +44,7 @@ public class IndexWarringActivity extends BaseActivity {
     private ProgressBar pb_hrv_leaverate;
     private int mProgressNormal = 0;
     private int mProgressYellow = 10;
-    private int mProgressRed = 20;
+    private int mProgressRed = 30;
     private AlertDialog mAlertDialog;
     private ViewPager vp_assess_float;
     private View shape_point_blue;
@@ -146,7 +146,10 @@ public class IndexWarringActivity extends BaseActivity {
                 if (jsonBase.getRet() == 0) {
                     HealthIndicatorAssessActivity.WeekReport weekReport = gson.fromJson(result, HealthIndicatorAssessActivity.WeekReport.class);
                     Log.i(TAG, "weekReport:" + weekReport.toString());
-                    setIndicatorData(weekReport);
+                    if (weekReport!=null ){
+                        setIndicatorData(weekReport);
+                    }
+
                 }
             }
 
@@ -160,8 +163,6 @@ public class IndexWarringActivity extends BaseActivity {
     }
 
     public void setIndicatorData(HealthIndicatorAssessActivity.WeekReport weekReport) {
-
-
         List<String> guosuguohuan = weekReport.errDesc.guosuguohuan;
 
         /*for (int i=0;i<guosuguohuan.size();i++){
@@ -240,7 +241,13 @@ public class IndexWarringActivity extends BaseActivity {
             }
         }
 
+        if (guosuguohuan!=null&& guosuguohuan.size()==0 && zaoboloubo!=null && zaoboloubo.size()==0){
+            return;
+        }
+
         myListViewAdapter.notifyDataSetChanged();
+
+
 
         for (HealthIndicatorAssessActivity.WeekReport.WeekReportResult.HistoryRecordItem historyRecordItem:staticStateHistoryRecords){
             Log.i(TAG,"staticStateHistory:"+historyRecordItem.toString());

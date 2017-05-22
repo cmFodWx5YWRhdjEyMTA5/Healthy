@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.smssdk.SMSSDK;
+import im.fir.sdk.FIR;
 
 /**
  * Created by HP on 2016/11/23.
@@ -18,6 +19,8 @@ public class MyApplication extends Application{
 
     public static SharedPreferences sharedPreferences;
     public static List<Activity> mActivities;
+    public static boolean isHaveDeviceConnectted;
+    public static Activity mApplicationActivity;
 
 
     @Override
@@ -32,7 +35,7 @@ public class MyApplication extends Application{
         mActivities = new ArrayList<>();
 
 
-
+        FIR.init(this);
 
 
 

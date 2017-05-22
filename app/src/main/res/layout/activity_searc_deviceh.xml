@@ -30,7 +30,7 @@
         android:id="@+id/tv_search_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="loading"
+        android:text="正在搜索"
         android:textColor="#FFFFFF"
         android:textSize="@dimen/x48"
         android:layout_centerInParent="true"

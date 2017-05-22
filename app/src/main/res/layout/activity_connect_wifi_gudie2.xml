@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/x42"
         android:layout_gravity="center_horizontal"
-        android:text="连接Bunny5’30’’WIFI热点"
+        android:text="连接 ESP8266 热点"
         android:textSize="@dimen/x56"
         android:textColor="#FFFFFF"/>
 

@@ -1046,7 +1046,7 @@ public class HealthyIndexUtil {
         String suggestion = "";
         if (sdnn>200){
             state = 5;
-            suggestion="您的身体充满活力";
+            suggestion="您的身体充满活力。";
         }
         else if (181<sdnn && sdnn<=200){
             state = 10;
@@ -1056,7 +1056,7 @@ public class HealthyIndexUtil {
             state = 10;
             suggestion="您的身体充满活力，但是精神非常疲惫，适当做一些较高强度体育锻炼，劳逸结合才能保持身心健康!";
         }
-        else if (161<sdnn && sdnn<180){
+        else if (161<sdnn && sdnn<=180){
             state = 30;
             suggestion="您的身体状态不错哦，但是精神有些疲累，不要想太多事情，通过进行一些体能训练来调整一下！";
         }
@@ -1074,6 +1074,40 @@ public class HealthyIndexUtil {
         }
         IndicatorAssess indicatorAssess = new IndicatorAssess(sdnn,state,"运动疲劳",suggestion);
         return indicatorAssess;
+    }
+
+    public static String getHeartRateSuggetstion(int state,int heartRate){
+        String suggestion ="心率健康建议";
+        if (heartRate == 0) {
+            return "采样时间不够或设备脱落";
+        }
+
+        if (state == 1) {
+            if (heartRate > 220- HealthyIndexUtil.getUserAge()) {
+                suggestion ="心动过速：正常人可由运动或精神紧张引起,也可见于发热、甲状腺功能亢进、贫血、失血等情况。请您注意休息，保持情绪稳定，当感觉身体不适时，请及时就医。";
+            }else if(heartRate < 45 && heartRate >0){
+                suggestion ="心动过缓：常见于健康的青年人、运动员，及睡眠状态下的一般健康人群。也可见于窦房结功能障碍、甲状腺功能低下、颅内压增高及服用某些药物后的异常反应。请您注意休息，当心率<45次/分或感觉身体不适时请及时就医";
+            }else if(heartRate == 0){
+                suggestion ="采样时间不够或设备脱落";
+            }else{
+                suggestion ="心率正常";
+            }
+        }
+        else {
+            if (heartRate>105){
+                suggestion ="心动过速：正常人可由运动或精神紧张引起,也可见于发热、甲状腺功能亢进、贫血、失血等情况。请您注意休息，保持情绪稳定，当心率>160次/分时或感觉身体不适时，请及时就医。";
+            }
+            else if (heartRate<45){
+                suggestion ="心动过缓：常见于健康的青年人、运动员，及睡眠状态下的一般健康人群。也可见于窦房结功能障碍、甲状腺功能低下、颅内压增高及服用某些药物后的异常反应。请您注意休息，当心率<45次/分或感觉身体不适时请及时就医";
+            }
+            else if (heartRate==0){
+                suggestion ="采样时间不够或设备脱落";
+            }
+            else{
+                suggestion ="心率正常";
+            }
+        }
+        return suggestion;
     }
 
 }

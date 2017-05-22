@@ -26,6 +26,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.bean.HealthyPlan;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.JsonHealthyList;
+import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.QQListView;
@@ -131,11 +132,19 @@ public class SosActivity extends BaseActivity {
         });
     }
 
-    private void checkIsNeedUploadSosInfo() {
+    private boolean checkIsNeedUploadSosInfo() {
         String sosinfo = ed_sos_sosinfo.getText().toString();
-        if (MyUtil.isEmpty(sosinfo)){
-            MyUtil.showToask(SosActivity.this,"请输入求助信息");
-            return;
+        if (MyUtil.isEmpty(sosinfo) || (sosNumberList!=null && sosNumberList.size()==0)){
+            //MyUtil.showToask(SosActivity.this,"请输入求助信息");
+            ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(this);
+            chooseAlertDialogUtil.setAlertDialogText("未设置求助信息","继续设置","不设置");
+            chooseAlertDialogUtil.setOnCancelClickListener(new ChooseAlertDialogUtil.OnCancelClickListener() {
+                @Override
+                public void onCancelClick() {
+                    finish();
+                }
+            });
+            //return false;
         }
         else {
             if (!sosinfo.equals(mSosinfo)){
@@ -143,12 +152,13 @@ public class SosActivity extends BaseActivity {
             }
             finish();
         }
+        return true;
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK ){
-            checkIsNeedUploadSosInfo();
+            return checkIsNeedUploadSosInfo();
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -372,7 +382,6 @@ public class SosActivity extends BaseActivity {
 
 
     }
-
 
     private class SosListAdapter extends BaseAdapter{
 

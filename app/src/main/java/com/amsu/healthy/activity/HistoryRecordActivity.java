@@ -52,7 +52,7 @@ public class HistoryRecordActivity extends BaseActivity {
         initHeadView();
         setCenterText("历史记录");
         setLeftImage(R.drawable.back_icon);
-        //setRightImage(R.drawable.download_icon);
+        setRightImage(R.drawable.download_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,7 +62,7 @@ public class HistoryRecordActivity extends BaseActivity {
         getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(HistoryRecordActivity.this,UploadOfflineFileActivity.class));
+                startActivity(new Intent(HistoryRecordActivity.this,ConnectToWifiModuleGudieActivity1.class));
             }
         });
         lv_history_all = (LoadMoreListView) findViewById(R.id.lv_history_all);

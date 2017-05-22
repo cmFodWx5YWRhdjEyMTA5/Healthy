@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.HistoryRecord;
+import com.amsu.healthy.utils.MyUtil;
 
 import java.util.List;
 
@@ -56,6 +57,7 @@ public class UploadHistoryRecordAdapter extends BaseAdapter {
         String date = dateSplits[0]+"年"+dateSplits[1]+"月"+dateSplits[2]+"日";
         tv_history_date.setText(date);
         tv_history_time.setText(split[1]);
+
 
         return inflate;
     }

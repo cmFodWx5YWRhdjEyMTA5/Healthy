@@ -241,6 +241,8 @@ public class HeartRateActivity extends BaseActivity {
             int loubo = 0;
 
             String ECr = "1";
+            String HRVs ="";
+            String ECs = "";
             try {
                 Log.i(TAG,"DiagnosisNDK.AnalysisEcg: =====================");
                 HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, Constant.oneSecondFrame);
@@ -264,12 +266,29 @@ public class HeartRateActivity extends BaseActivity {
                 zaobo = heartRateResult.RR_Apb + heartRateResult.RR_Pvc;
                 loubo = heartRateResult.RR_Boleakage;
 
+
+                if (zaobo>0){
+                    ECs += "本次测量早搏"+zaobo+"次。室早出现在两个正常的窦性心搏之前，房早由心房组织自律性增强引起，健康人及各种器质性心脏病人都有可能发生，有明显症状时请及时就医。";
+                }
+                else if (loubo>0){
+                    ECs += "本次测量漏搏"+loubo+"次。与迷走神经张力增高有关，可见于正常人或运动员，也可见于急性心肌梗死、冠状动脉痉挛、心肌炎等情况，当有明显状况时请及时就医";
+                }
+                else {
+                    ECs += "正常心电图";
+                }
+
                 if (heartRateResult.RR_Kuanbo>0){  //漏博
                     ECr = "3";
                 }
                 else if (heartRateResult.RR_Apb+heartRateResult.RR_Pvc>0){ //早搏
                     ECr="4";
                 }
+
+                IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(Integer.parseInt(FI));
+                IndicatorAssess FIIndicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex(Integer.parseInt(ES));
+
+                HRVs = ESIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
+
             }catch (Exception e) {
                 e.printStackTrace();
             }
@@ -301,18 +320,20 @@ public class HeartRateActivity extends BaseActivity {
 
 
 
-            String HRs = "未测出恢复心率";  //心率恢复能力健康意见
-            String RA = hrr+"";  //心率恢复能力
-            if (hrr!=0){
-                IndicatorAssess hrrIndicatorAssess = HealthyIndexUtil.calculateScoreHRR(hrr);
-                HRs = hrrIndicatorAssess.getSuggestion();
+
+            String HRs = "心率健康建议";  //心率健康建议
+            String heartRateSuggetstion = HealthyIndexUtil.getHeartRateSuggetstion(sportState, averHeart);
+            if (!MyUtil.isEmpty(heartRateSuggetstion)){
+                HRs = heartRateSuggetstion;
             }
+
+            String RA = hrr+"";  //心率恢复能力
 
             //uploadRecord = new UploadRecord(FI,ES,PI,"10","xx",HRVs,AHR,String.valueOf(MaxHR),String.valueOf(MinHR),"xxxx",HRs,EC,ECr,"xxxx",RA);
             uploadRecord.setFI(FI);
             uploadRecord.setES(ES);
             uploadRecord.setPI(PI);
-            //uploadRecord.setHRVs(HRVs);
+            uploadRecord.setHRVs(HRVs);
             uploadRecord.setAHR(AHR);
             uploadRecord.setMaxHR(String.valueOf(MaxHR));
             uploadRecord.setMinHR(String.valueOf(MinHR));
@@ -321,8 +342,10 @@ public class HeartRateActivity extends BaseActivity {
             uploadRecord.setECr(ECr);
             uploadRecord.setRA(RA);
             uploadRecord.setHR(HR);
+            uploadRecord.setECs(ECs);
             uploadRecord.setZaobo(zaobo+"");
             uploadRecord.setLoubo(loubo+"");
+            uploadRecord.setCC((220-HealthyIndexUtil.getUserAge())+"");
         }
         //设置跑步数据
         if (sportCreateRecordID!=-1){

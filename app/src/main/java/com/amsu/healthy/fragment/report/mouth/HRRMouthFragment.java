@@ -44,8 +44,6 @@ public class HRRMouthFragment extends Fragment {
         return inflate;
     }
 
-
-
     private void initView() {
         mLineChart = (FoldLineViewWithPoint) inflate.findViewById(R.id.spread_line_chart);
         //initChart();

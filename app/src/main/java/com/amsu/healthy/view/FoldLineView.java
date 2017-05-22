@@ -79,7 +79,8 @@ public class FoldLineView extends View {
                 float y ;
                 if (i==0){
                     x = mGrigWidth/2;
-                    y  = mYIndex[i]*mGridHeight+mGridHeight/2;
+                    //y  = mYIndex[i]*mGridHeight+mGridHeight/2;
+                    y  = mGridHeight-mYIndex[i]*mGridHeight;
                     path.moveTo(x,y);
                 }
                 else {
@@ -88,7 +89,7 @@ public class FoldLineView extends View {
                     y  = mGridHeight-mYIndex[i]*mGridHeight;
                     path.lineTo(x,y);
                 }
-                canvas.drawCircle(x,y,mRadius_point,mPointPaint);
+                //canvas.drawCircle(x,y,mRadius_point,mPointPaint);
             }
             canvas.drawPath(path,mPaint);
         }
@@ -99,17 +100,20 @@ public class FoldLineView extends View {
         int maxRate = datas[0];
         int minRate = datas[0];
         for (int d :datas){
-            if (d>maxRate){
-                maxRate = d;
-            }
-            if (d<minRate){
-                minRate = d;
+            if (d>0){
+                if (d>maxRate){
+                    maxRate = d;
+                }
+                if (d<minRate){
+                    minRate = d;
+                }
             }
         }
+        minRate -= 5;
+        maxRate += 5;
         for (int i=0;i<datas.length;i++){
             float percent = (float) (datas[i]-minRate) / (maxRate-minRate);   //计算心率所占的百分比，然后将心率分类，分为5类
-            mYIndex[i] = percent-0.1f;
-
+            mYIndex[i] = percent;
             Log.i(TAG,"percent:"+percent);
 
             /*if (percent<0.6){

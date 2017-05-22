@@ -118,7 +118,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private int accDataLength = 1800;
     private ArrayList<String> mKcalData = new ArrayList<>();
     private ArrayList<Integer> mStridefreData = new ArrayList<>();
-    private int mCurrentHeartRate;
+    private int mCurrentHeartRate = 0;
     private Activity mActivity = this;
 
 
@@ -134,7 +134,18 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private void initView() {
         initHeadView();
         setCenterText("运动检测");
-        //setLeftImage(R.drawable.back_icon);
+        setLeftImage(R.drawable.back_icon);
+        getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mIsRunning){
+                    MyUtil.showToask(StartRunActivity.this,"正在运动，先长按结束运动");
+                }
+                else {
+                    finish();
+                }
+            }
+        });
         setRightText("心电图");
         getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -188,8 +199,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             }
         });
 
-        //绑定蓝牙，获取蓝牙服务
-        bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
 
     }
 
@@ -216,7 +225,24 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         return runEcgHandler;
     }
 
+    boolean isonResumeEd ;
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isonResumeEd){
+            if (MainActivity.mBluetoothAdapter!=null && !MainActivity.mBluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, MainActivity.REQUEST_ENABLE_BT);
+            }
+            isonResumeEd = true;
+        }
+
+        if (MainActivity.mBluetoothAdapter!=null && MainActivity.mBluetoothAdapter.isEnabled()) {
+            startLeScanBlue();
+        }
+
+    }
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
@@ -327,6 +353,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
     };
 
+    boolean mIsDataStart;
+
     // ble数据交互的关键参数
     private final BleCallBack mBleCallBack = new BleCallBack() {
 
@@ -334,12 +362,15 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         public void onConnected(String mac) {
             Log.i(TAG, "onConnected() - " + mac);
             mLeService.startReadRssi(mac, 1000);
-            if (MainActivity.mBluetoothAdapter != null) {
-                MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+            if (MainActivity.mBluetoothAdapter!=null){
+                //MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
             }
-            isConnectted = true;
+            if (!MyApplication.isHaveDeviceConnectted){
+                MyApplication.isHaveDeviceConnectted = isConnectted = true;
+                MyUtil.showPopWindow(mActivity,getTv_base_rightText(),1);
+            }
+
             isConnectting = false;
-            MyUtil.showPopWindow(mActivity,getTv_base_rightText(),1);
         }
 
         @Override
@@ -357,8 +388,13 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         @Override
         public void onDisconnected(String mac) {
             Log.w(TAG, "onDisconnected() - " + mac);
+            if (MyApplication.isHaveDeviceConnectted){
+                MyApplication.isHaveDeviceConnectted = isConnectted = false;
+                MyUtil.showPopWindow(mActivity,getTv_base_rightText(),0);
+            }
             isConnectting = false;
-            MyUtil.showPopWindow(mActivity,getTv_base_rightText(),0);
+            mIsDataStart = false;
+            isHaveDataTransfer = false;
         }
 
         @Override
@@ -370,6 +406,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 public void run() {
                     super.run();
                     try {
+                        mIsDataStart = false;
                         Thread.sleep(1000);
                         Log.i(TAG, "写配置");
                         mLeService.send(connecMac, Constant.writeConfigureOrder, true);
@@ -413,20 +450,28 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 return;
             }
 
+            if (hexData.length() > 40) {
+                mIsDataStart = true;
+            }
+
             if (!isStartThreeMitTimer) {
                 isStartThreeMitTimer = true;
                 startThreeMitTiming();
             }
-
-            if (hexData.startsWith("FF 83 0F")) {
-                //心电数据
-                //Log.i(TAG,"心电hexData:"+hexData);
-                dealWithEcgData(hexData);
-            } else if (hexData.startsWith("FF 86 11")) {
-                //加速度数据
-                //Log.i(TAG,"加速度hexData:"+hexData);
-                dealWithAccelerationgData(hexData);
+            if (mIsRunning){
+                if (hexData.startsWith("FF 83 0F")) {
+                    //心电数据
+                    //Log.i(TAG,"心电hexData:"+hexData);
+                    dealWithEcgData(hexData);
+                    isHaveDataTransfer = true;
+                } else if (hexData.startsWith("FF 86 11")) {
+                    //加速度数据
+                    //Log.i(TAG,"加速度hexData:"+hexData);
+                    dealWithAccelerationgData(hexData);
+                }
             }
+
+
         }
 
     };
@@ -634,50 +679,75 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     }
 
-    //开始扫描、连接蓝牙
-    private void startConnectBluetooth(){
+    public void startLeScanBlue(){
         if (MainActivity.mBluetoothAdapter!=null){
             MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
+            Log.i(TAG,"startLeScan");
+            //绑定蓝牙，获取蓝牙服务
+            bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
         }
     }
 
     ArrayList<Integer> mSpeedStringList = new ArrayList<>();
 
-    float tempSpeed;
+
+    List<Float> tempSpeedList = new ArrayList<>();
+
+
+    float tempSpeed = 0;
 
     //计算跑步速度，在室内和室外统一采用地图返回的传感器速度
     private void calculateSpeed(AMapLocation aMapLocation) {
-
         //float speed = aMapLocation.getSpeed()*3.6f;
-        float mapRetrurnSpeed = 0;
-        if (tempSpeed==0){
-            mapRetrurnSpeed=tempSpeed = aMapLocation.getSpeed();
+
+        if (tempSpeedList.size()>6){
+            tempSpeedList.remove(0);
         }
-        else {
-            mapRetrurnSpeed = (tempSpeed+aMapLocation.getSpeed())/2;
+        tempSpeedList.add(aMapLocation.getSpeed());
+        float sum = 0;
+        for (float i:tempSpeedList){
+            sum += i;
         }
-        tempSpeed = aMapLocation.getSpeed();
+
+        float mapRetrurnSpeed = sum/tempSpeedList.size();
+
 
         float speed = 0;
         String formatSpeed;
+
+
+
         if (mapRetrurnSpeed==0){
-            formatSpeed = "0’00’’";
+            formatSpeed = "0'00''";
         }
         else {
+
             speed = (1/mapRetrurnSpeed)*1000f;
-            formatSpeed = (int)speed/60+"’"+(int)speed%60+"’’";
+
+            if (speed>50*60){
+                speed = 0;
+            }
+
+            formatSpeed = (int)speed/60+"'"+(int)speed%60+"''";
         }
 
        /*
         DecimalFormat decimalFormat=new DecimalFormat("0.00");//构造方法的字符格式这里如果小数不足2位,会以0补足.
         String formatSpeed=decimalFormat.format(speed);//format 返回的是字符串*/
+
+       /*if (speed==0){
+           speed = tempSpeed + 5;
+       }
+       else {
+           tempSpeed = speed;
+       }*/
         tv_run_speed.setText(formatSpeed);
         mSpeedStringList.add((int) speed);
     }
 
     private void calculateDistance(AMapLocation aMapLocation) {
         //不关室内室外，首次定位几个点策略：定位5个点，这5个点的距离在100m范围之内属于正常情况，否则为定位不准，重新定位前5个点
-        if (record.getPathline().size()<=5){
+        if (record.getPathline().size()<=2){
             record.addpoint(aMapLocation);
             float distance = Util.getDistance(record.getPathline());
             if (distance>100){
@@ -685,7 +755,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             }
             return;
         }
-
         if(aMapLocation.getLocationType()==AMapLocation.LOCATION_TYPE_GPS){
             if (!mHaveOutSideGpsLocation){
                 mHaveOutSideGpsLocation = true;
@@ -752,16 +821,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 chooseOpenGps();
             }
             else {
-                if (MainActivity.isConnectted){
-                    //衣服链接成功，开始数据传输
-
-                }
 
                 bt_run_start.setText("长按结束");
 
-                if (!mIsRunning){
-                    startConnectBluetooth();
-                }
 
                 bt_run_lock.setVisibility(View.VISIBLE);
                 mIsRunning  =true;
@@ -806,7 +868,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         MyTimeTask.startTimeRiseTimerTask(this, 1000, new MyTimeTask.OnTimeChangeAtScendListener() {
             @Override
             public void onTimeChange(Date date) {
-                if (mIsRunning && mCurrentHeartRate!=-1){
+                if (mIsDataStart){
                     int maxRate = 220- HealthyIndexUtil.getUserAge();
                     String hrateIndexHex = "02";
                     if (mCurrentHeartRate<=maxRate*0.75){
@@ -818,72 +880,104 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                     else if (maxRate*0.95<mCurrentHeartRate ){
                         hrateIndexHex = "00";
                     }
-                    Log.i(TAG,"hrateIndexHex:"+hrateIndexHex);
+
                     String hexSynOrder = "FF070B"+HealthyDataActivity.getDataHexStringHaveScend()+hrateIndexHex+"16";
+
+
                     mLeService.send(connecMac, hexSynOrder,true);
+
+
+
+                    Log.i(TAG,"同步指令connecMac:"+connecMac+",hrateIndexHex:"+hrateIndexHex);
                 }
             }
         });
     }
 
+    boolean isHaveDataTransfer;
+
     //结束运动
     private void endRunning() {
         ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(this);
         if (isOneMit){
-            chooseAlertDialogUtil.setAlertDialogText("采集恢复心率需要继续采集一分钟的心电数据，是否进行采集？","是","否");
-            chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
-                @Override
-                public void onConfirmClick() {
-                    saveSportRecord();
-                    Intent intent = new Intent(StartRunActivity.this, CalculateHRRProcessActivity.class);
-                    intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
-                    if (createrecord!=-1){
-                        intent.putExtra(Constant.sportCreateRecordID,createrecord);
+            if (isHaveDataTransfer){
+                chooseAlertDialogUtil.setAlertDialogText("采集恢复心率需要继续采集一分钟的心电数据，是否进行采集？","是","否");
+                chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
+                    @Override
+                    public void onConfirmClick() {
+                        saveSportRecord();
+                        Intent intent = new Intent(StartRunActivity.this, CalculateHRRProcessActivity.class);
+                        intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
+                        if (createrecord!=-1){
+                            intent.putExtra(Constant.sportCreateRecordID,createrecord);
+                        }
+                        if (heartRateDates.size()>0){
+                            intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
+                            intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
+                        }
+                        if (mKcalData.size()>0){
+                            intent.putStringArrayListExtra(Constant.mKcalData,mKcalData);
+                        }
+                        if (mStridefreData.size()>0){
+                            intent.putIntegerArrayListExtra(Constant.mStridefreData,mStridefreData);
+                        }
+                        if (mSpeedStringList.size()>0){
+                            intent.putIntegerArrayListExtra(Constant.mSpeedStringListData,mSpeedStringList);
+                        }
+                        MyApplication.mActivities.add(StartRunActivity.this);
+                        startActivity(intent);
+                        //finish();
                     }
-                    if (heartRateDates.size()>0){
-                        intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
-                        intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
+                });
+                chooseAlertDialogUtil.setOnCancelClickListener(new ChooseAlertDialogUtil.OnCancelClickListener() {
+                    @Override
+                    public void onCancelClick() {
+                        saveSportRecord();
+                        Intent intent = new Intent(StartRunActivity.this, HeartRateActivity.class);
+                        intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
+                        if (createrecord!=-1){
+                            intent.putExtra(Constant.sportCreateRecordID,createrecord);
+                        }
+                        if (heartRateDates.size()>0){
+                            intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
+                            intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
+                        }
+                        if (mKcalData.size()>0){
+                            intent.putStringArrayListExtra(Constant.mKcalData,mKcalData);
+                        }
+                        if (mStridefreData.size()>0){
+                            intent.putIntegerArrayListExtra(Constant.mStridefreData,mStridefreData);
+                        }
+                        if (mSpeedStringList.size()>0){
+                            intent.putIntegerArrayListExtra(Constant.mSpeedStringListData,mSpeedStringList);
+                        }
+                        startActivity(intent);
+                        finish();
                     }
-                    if (mKcalData.size()>0){
-                        intent.putStringArrayListExtra(Constant.mKcalData,mKcalData);
-                    }
-                    if (mStridefreData.size()>0){
-                        intent.putIntegerArrayListExtra(Constant.mStridefreData,mStridefreData);
-                    }
-                    if (mSpeedStringList.size()>0){
-                        intent.putIntegerArrayListExtra(Constant.mSpeedStringListData,mSpeedStringList);
-                    }
-                    MyApplication.mActivities.add(StartRunActivity.this);
-                    startActivity(intent);
-                    //finish();
+                });
+            }else {
+                saveSportRecord();
+                Intent intent = new Intent(StartRunActivity.this, HeartRateActivity.class);
+                intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
+                if (createrecord!=-1){
+                    intent.putExtra(Constant.sportCreateRecordID,createrecord);
                 }
-            });
-            chooseAlertDialogUtil.setOnCancelClickListener(new ChooseAlertDialogUtil.OnCancelClickListener() {
-                @Override
-                public void onCancelClick() {
-                    saveSportRecord();
-                    Intent intent = new Intent(StartRunActivity.this, HeartRateActivity.class);
-                    intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
-                    if (createrecord!=-1){
-                        intent.putExtra(Constant.sportCreateRecordID,createrecord);
-                    }
-                    if (heartRateDates.size()>0){
-                        intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
-                        intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
-                    }
-                    if (mKcalData.size()>0){
-                        intent.putStringArrayListExtra(Constant.mKcalData,mKcalData);
-                    }
-                    if (mStridefreData.size()>0){
-                        intent.putIntegerArrayListExtra(Constant.mStridefreData,mStridefreData);
-                    }
-                    if (mSpeedStringList.size()>0){
-                        intent.putIntegerArrayListExtra(Constant.mSpeedStringListData,mSpeedStringList);
-                    }
-                    startActivity(intent);
-                    finish();
+                if (heartRateDates.size()>0){
+                    intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
+                    intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
                 }
-            });
+                if (mKcalData.size()>0){
+                    intent.putStringArrayListExtra(Constant.mKcalData,mKcalData);
+                }
+                if (mStridefreData.size()>0){
+                    intent.putIntegerArrayListExtra(Constant.mStridefreData,mStridefreData);
+                }
+                if (mSpeedStringList.size()>0){
+                    intent.putIntegerArrayListExtra(Constant.mSpeedStringListData,mSpeedStringList);
+                }
+                startActivity(intent);
+                finish();
+            }
         }
         else {
             chooseAlertDialogUtil.setAlertDialogText("跑步时间或距离太短，无法保存记录，是否继续跑步？","继续跑步","结束跑步");
@@ -998,8 +1092,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
 
         mActivity = null;
-
         unbindService(mConnection);
-
     }
 }

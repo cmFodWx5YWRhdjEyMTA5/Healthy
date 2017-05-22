@@ -60,6 +60,12 @@
     <!-- 接收消息 -->
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
 
+    <!-- BugHD 必选 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+
     <application
         android:name=".appication.MyApplication"
         android:allowBackup="true"
@@ -91,6 +97,8 @@
         <meta-data android:value="58d9cf4a717c19016700017c" android:name="UMENG_APPKEY"/>
         <meta-data android:value="${UMENG_CHANNEL_VALUE}" android:name="UMENG_CHANNEL"/>
 
+        <meta-data android:value="55a0d208d12c49a6170b18a8b99f12ef" android:name="BUG_HD_SDK_GENERAL_KEY" />
+
         <activity android:name=".activity.MeActivity"  android:screenOrientation="portrait"/>
         <activity android:name=".activity.HealthyDataActivity"  android:screenOrientation="portrait"/>
         <activity android:name=".activity.MoveStateActivity"  android:screenOrientation="portrait"/>
@@ -117,8 +125,8 @@
 
         </activity>
         <activity android:name=".activity.SystemSettingActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.MyDeviceActivity" />
-        <activity android:name=".activity.SearchDevicehActivity" />
+        <activity android:name=".activity.MyDeviceActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activity.SearchDevicehActivity" android:screenOrientation="portrait"/>
         <activity android:name=".activity.HealthIndicatorAssessActivity"  android:screenOrientation="portrait"/>
         <activity android:name=".activity.PhysicalAgeActivity"  android:screenOrientation="portrait"/>
         <activity android:name=".activity.IndexWarringActivity"  android:screenOrientation="portrait"/>
@@ -159,6 +167,7 @@
         <activity android:name=".activity.ApplyJionClubActivity" android:screenOrientation="portrait"></activity>
         <activity android:name=".activity.TestActivity" android:screenOrientation="portrait"></activity>
         <activity android:name=".activity.SosActivity" android:screenOrientation="portrait"></activity>
+        <activity android:name=".activity.UploadOfflineFileActivity" android:screenOrientation="portrait"></activity>
 
 
 

@@ -4,10 +4,12 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.HistoryRecord;
+import com.amsu.healthy.utils.MyUtil;
 
 import java.util.List;
 
@@ -61,9 +63,18 @@ public class HistoryRecordAdapter extends BaseAdapter {
             tv_history_sportstate.setText("动态");
             tv_history_sportstate.setBackgroundResource(R.drawable.button_lishi2);
         }
-        else {
+        else  if (historyRecord.getState()==0){
             tv_history_sportstate.setText("静态");
         }
+        else {
+            tv_history_sportstate.setVisibility(View.GONE);
+        }
+
+        if (!MyUtil.isEmpty(historyRecord.getAnalysisState())){
+            tv_history_alstate.setText(historyRecord.getAnalysisState());
+        }
+
+        ProgressBar pb_item_progress = (ProgressBar) inflate.findViewById(R.id.pb_item_progress);
 
 
 

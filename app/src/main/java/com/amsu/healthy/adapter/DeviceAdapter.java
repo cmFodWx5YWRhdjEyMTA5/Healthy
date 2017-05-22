@@ -47,7 +47,7 @@ public class DeviceAdapter extends BaseAdapter{
         TextView tv_item_name = (TextView) inflate.findViewById(R.id.tv_item_name);
         TextView tv_item_state = (TextView) inflate.findViewById(R.id.tv_item_state);
 
-        tv_item_name.setText(device.getName());
+        tv_item_name.setText(device.getName()+""+device.getMac());
         if (MyUtil.getStringValueFromSP(Constant.currectDeviceLEName).equals(device.getLEName())){
             //正在使用的
             tv_item_state.setText("已激活");

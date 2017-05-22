@@ -39,7 +39,7 @@ public class HeightCurveView extends View {
     private float mOneGridWidth ;  //相邻两个数值之间x方向上的偏移量
     private String[] yTexts = {"60","120","180","240"};  //y轴lable
     private String[] yAnotherTexts = {"60","120","180","240"};  //y轴lable
-    private float timeLong = 20;  //时间长度
+    private float timeLong = 0;  //时间长度
     private float mCoordinateAnixWidth; //坐标轴宽度
     private int fillstart_color;
     private int fillend_color;

@@ -8,8 +8,8 @@ android {
         applicationId "com.amsu.healthy"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 102
-        versionName "1.0.2"
+        versionCode 104
+        versionName "1.0.4"
     }
     buildTypes {
         release {
@@ -64,4 +64,5 @@ dependencies {
     compile 'com.umeng.analytics:analytics:latest.integration'
     testCompile 'junit:junit:4.12'
     compile files('libs/AMap_Location_V3.3.0_20170118.jar')
+    compile files('libs/Bughd_android_sdk_v1.3.7.jar')
 }

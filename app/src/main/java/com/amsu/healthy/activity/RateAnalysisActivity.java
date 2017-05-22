@@ -234,6 +234,7 @@ public class RateAnalysisActivity extends BaseActivity {
 
 
         mAnalysisRateAdapter = new AnalysisRateAdapter(getSupportFragmentManager(), fragmentList);
+
         vp_analysis_content.setAdapter(mAnalysisRateAdapter);
 
         Log.i(TAG,"adjustFeagmentCount");

@@ -548,6 +548,7 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
             方法必须在地图初始化完成之后使用。*/
             //mAMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getBounds(), 50));
             mAMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getBounds(), 50));
+
             if (originList.size()<10){//只有2个点，表示在室内跑步，只需要标注运动位置即可
                 mAMap.moveCamera(CameraUpdateFactory.changeLatLng(originList.get(0)));  //只改变定图中心点位置，不改变缩放级别
                 //mAMap.setMaxZoomLevel(19);
@@ -662,11 +663,11 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
 
             String formatSpeed;
             if (mapRetrurnSpeed==0){
-                formatSpeed = "0’00’’";
+                formatSpeed = "0'00''";
             }
             else {
                 float speed = (1/mapRetrurnSpeed)*1000f;
-                formatSpeed = (int)speed/60+"’"+(int)speed%60+"’’";
+                formatSpeed = (int)speed/60+"'"+(int)speed%60+"''";
             }
 
             tv_sport_speed.setText(formatSpeed);
