@@ -1,5 +1,6 @@
 package com.amsu.healthy.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,9 +15,11 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.EcgFilterUtil;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.OffLineDbAdapter;
 import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
@@ -50,6 +53,7 @@ public class HeartRateActivity extends BaseActivity {
     private Animation animation;
     private FileInputStream fileInputStream;
     private UploadRecord uploadRecord = null;
+    private long mCalKcalCurrentTimeMillis = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,73 +76,213 @@ public class HeartRateActivity extends BaseActivity {
 
     private void initData() {
         final Intent intent = getIntent();
-        final ArrayList<Integer> heartDataList_static = intent.getIntegerArrayListExtra(Constant.heartDataList_static);//静态心电心率，不为空则表示有静态心电数据
+
+        //final ArrayList<Integer> heartDataList_static = new ArrayList<>();
         final int sportState = intent.getIntExtra(Constant.sportState, -1);  // 运动类型，需要传到下个界面
+        final ArrayList<Integer> integerArrayListExtra = intent.getIntegerArrayListExtra(Constant.heartDataList_static);
+
         final int hrr = intent.getIntExtra(Constant.hrr, 0);  // 运动类型，需要传到下个界面
         final long sportCreateRecordID = intent.getLongExtra(Constant.sportCreateRecordID, -1);  //运动记录id
         final long ecgFiletimeMillis = intent.getLongExtra(Constant.ecgFiletimeMillis, -1);
 
-        if ((heartDataList_static==null || heartDataList_static.size()==0) && sportCreateRecordID==-1){
+
+        //heartDataList_static.add(90);
+
+        /*if ((heartDataList_static==null || heartDataList_static.size()==0) && sportCreateRecordID==-1){
             //没有数据。直接跳转
             Intent intentToRateAnalysis = new Intent(HeartRateActivity.this, RateAnalysisActivity.class);
             intentToRateAnalysis.putExtra(Constant.sportState,sportState);
             startActivity(intentToRateAnalysis);
             finish();
             return;
-        }
+        }*/
 
         //分析过程有可能耗时，在子线程中进行
-        new Thread(){
-            @Override
-            public void run() {
-                super.run();
-                UploadRecord uploadRecord = null;
-                if (heartDataList_static!=null && heartDataList_static.size()!=0){
-                    //心电数据 or 心电+运动
-                    String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
-                    if (!cacheFileName.equals("")) {
-                        File file = new File(cacheFileName);
-                        if (file.exists()){
-                            String fileBase64 = MyUtil.fileToBase64(file);
+
+
+            //String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
+       final String ecgLocalFileName = intent.getStringExtra(Constant.ecgLocalFileName);
+
+        //final ArrayList<Integer> heartDataList_static = intent.getIntegerArrayListExtra(Constant.heartDataList_static);//静态心电心率，不为空则表示有静态心电数据
+        //final String ecgLocalFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170516101758.ecg";
+            Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
+        Log.i(TAG,"integerArrayListExtra: "+integerArrayListExtra);
+            if (!MyUtil.isEmpty(ecgLocalFileName)) {
+                //心电数据 or 心电+运动
+                final File file = new File(ecgLocalFileName);
+                if (file.exists()){
+                    //String fileBase64 = "";
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            super.run();
+                            final ArrayList<Integer> heartDataList_static;
+
+
+                            if (integerArrayListExtra !=null){
+                                heartDataList_static = integerArrayListExtra;//静态心电心率，不为空则表示有静态心电数据
+                            }
+                            else {
+                                heartDataList_static = new ArrayList<>();
+                            }
+                            final String fileBase64 = MyUtil.fileToBase64(file);
                             Log.i(TAG,"fileBase64:"+fileBase64);
-                            List<Integer> ecgDataList = readEcgDataFromFile(file);
+                            final List<Integer> ecgDataList = readIntArrayDataFromFile(file);
 
-                            /*for (int i=0;i<1000000;i++){
-                                ecgDataList.add(100);
-                            }*/
+                            List<Integer> stridefreData = null;
+                            final List<String> mKcalData = new ArrayList<>();
+                            int mAllKcal = 0;
+                            if (heartDataList_static.size() == 0){
+                                //没有心率数组，则为离线分析
+                                Log.i(TAG,"离线分析:");
+
+                                //计算心率数组
+                                int[] calcuEcgRate = HealthyDataActivity.calcuEcgRate;
+                                int heartCount = ecgDataList.size() / calcuEcgRate.length;
+
+
+                                for (int j=0;j<heartCount;j++){
+                                    for (int i=0;i<calcuEcgRate.length;i++){
+                                        calcuEcgRate[i] = ecgDataList.get(j*heartCount+i);
+                                    }
+                                    int mCurrentHeartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+                                    //Log.i(TAG,"mCurrentHeartRate:"+ mCurrentHeartRate);
+                                    heartDataList_static.add(mCurrentHeartRate);
+
+                                    if (mCalKcalCurrentTimeMillis==0){
+                                        mCalKcalCurrentTimeMillis = System.currentTimeMillis();
+                                    }else {
+                                        long l = System.currentTimeMillis() - mCalKcalCurrentTimeMillis;
+                                        mCalKcalCurrentTimeMillis = System.currentTimeMillis();
+                                        float time = (float) (l / (1000 * 60.0));
+                                        int userSex = MyUtil.getUserSex();
+                                        int userAge = HealthyIndexUtil.getUserAge();
+                                        int userWeight = MyUtil.getUserWeight();
+                                        Log.i(TAG,"time:"+time+",userSex:"+userSex+",userAge:"+userAge+",userWeight"+userWeight);
+                                        float getkcal = DiagnosisNDK.getkcal(userSex, mCurrentHeartRate, userAge, userWeight, time);
+                                        Log.i(TAG,"getkcal:"+getkcal);
+                                        if (getkcal<0){
+                                            getkcal = 0;
+                                        }
+                                        mAllKcal += getkcal;
+                                        mKcalData.add(getkcal+"");
+
+                                    }
+                                }
+
+                                //计算加速度数据
+                                String accLocalFileName = intent.getStringExtra(Constant.accLocalFileName);
+                                Log.i(TAG,"accLocalFileName:"+ accLocalFileName);
+                                if (!MyUtil.isEmpty(accLocalFileName)){
+                                    File file = new File(accLocalFileName);
+                                    if (file.exists()){
+                                        List<Integer> accDataList = readIntArrayDataFromFile(file);
+                                        Log.i(TAG,"accDataList.size():"+ accDataList.size());
+                                        stridefreData = calcuAccStridefreData(accDataList);
+                                        Log.i(TAG,"stridefreData.size():"+stridefreData.size());
+                                        Log.i(TAG,"stridefreData:"+stridefreData);
+
+                                        /*for (int i:stridefreData){
+                                            Log.i(TAG,"stridefreData:"+i);
+                                        }*/
+
+
+
+
+                                    }
+                                }
+
+
+
+                            }
+
+                    /*for (int i=0;i<ecgDataList.size();i++){
+                        //Log.i(TAG,"ecgDataList:"+i+"  "+ecgDataList.get(i));
+                    }*/
                             Log.i(TAG,"ecgDataList.size()"+ecgDataList.size());
-                            uploadRecord = generateUploadData(ecgDataList, fileBase64, heartDataList_static, sportState, sportCreateRecordID, hrr,ecgFiletimeMillis,intent);
+                            final List<Integer> finalStridefreData = stridefreData;
+                            final int finalMAllKcal = mAllKcal;
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    UploadRecord uploadRecord = generateUploadData(ecgDataList, fileBase64, heartDataList_static, sportState, sportCreateRecordID, hrr,
+                                            ecgFiletimeMillis,intent,ecgLocalFileName, finalStridefreData,mKcalData, finalMAllKcal);
+
+                                }
+                            });
+
+
                         }
-                    }
-                }
-                else if (sportCreateRecordID!=-1){
-                    //运动数据
-                    uploadRecord = generateUploadData(null, null, heartDataList_static, sportState, sportCreateRecordID, hrr,ecgFiletimeMillis,intent);
-                }
+                    }.start();
 
-                if (uploadRecord!=null){
-                    uploadRecordDataToServer(uploadRecord);
                 }
+            }
+            else if (sportCreateRecordID!=-1){
+                //只有运动数据
+                UploadRecord uploadRecord = generateUploadData(null, null, null, sportState, sportCreateRecordID, hrr,ecgFiletimeMillis,intent,null,null,null,0);
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        animation.cancel();
-                    }
-                });
-
-                Intent intentToRateAnalysis = new Intent(HeartRateActivity.this, RateAnalysisActivity.class);
-                if (uploadRecord!=null){
-                    Bundle bundle = new Bundle();
-                    bundle.putParcelable("uploadRecord",uploadRecord);
-                    intentToRateAnalysis.putExtra("bundle",bundle);
-                    Log.i(TAG,"uploadRecord: putParcelable  "+uploadRecord);
-                }
-                intentToRateAnalysis.putExtra(Constant.sportState,sportState);
-                startActivity(intentToRateAnalysis);
+            }
+            else {
                 finish();
             }
-        }.start();
+
+    }
+
+    private List<Integer> calcuAccStridefreData(List<Integer> accDataList) {
+        List<Integer> stridefreData = new ArrayList<>();
+
+        //计算步频数组
+        int[] calcuEcgRate = new int[StartRunActivity.accDataLength];
+        int stridefreCount = accDataList.size() / calcuEcgRate.length;
+        for (int j=0;j<stridefreCount;j++){
+            for (int i=0;i<calcuEcgRate.length;i++){
+                calcuEcgRate[i] = accDataList.get(j*stridefreCount+i);
+            }
+            //int mCurrentHeartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+            //Log.i(TAG,"mCurrentHeartRate:"+ mCurrentHeartRate);
+            //stridefreData.add(mCurrentHeartRate);
+
+            //计算
+            byte[] bytes = new byte[calcuEcgRate.length];
+            for (int i=0;i<calcuEcgRate.length;i++){
+                bytes[i] = (byte)(int)calcuEcgRate[i];
+            }
+            int[] results = new int[2];
+
+            DiagnosisNDK.AnalysisPedo(bytes,calcuEcgRate.length,results);
+            //Log.i(TAG,"results: "+results[0]+"  "+results[1]);
+            final int stridefre = (int) (results[1] * 5.21); //每分钟的步数
+            stridefreData.add(stridefre);
+        }
+
+        return stridefreData;
+    }
+
+
+    private void uploadDataAndJumpToShowPage(UploadRecord uploadRecord,int sportState,String ecgLocalFileName) {
+        animation.cancel();
+
+        if (uploadRecord!=null){
+            uploadRecordDataToServer(uploadRecord,HeartRateActivity.this);
+        }
+        Intent intentToRateAnalysis = new Intent(HeartRateActivity.this, RateAnalysisActivity.class);
+        if (uploadRecord!=null){
+            Bundle bundle = new Bundle();
+            uploadRecord.EC = "";
+            bundle.putParcelable("uploadRecord",uploadRecord);
+            intentToRateAnalysis.putExtra("bundle",bundle);
+            Log.i(TAG,"uploadRecord: putParcelable  "+uploadRecord);
+        }
+        intentToRateAnalysis.putExtra(Constant.sportState,sportState);
+        intentToRateAnalysis.putExtra(Constant.ecgLocalFileName,ecgLocalFileName);
+        startActivity(intentToRateAnalysis);
+        finish();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //initData();
     }
 
     private void initData1() {
@@ -205,18 +349,19 @@ public class HeartRateActivity extends BaseActivity {
     }
 
     //生成上传数据，分为心电数据和运动数据
-    private UploadRecord generateUploadData(List<Integer> ecgDataList, String fileBase64,ArrayList<Integer> heartDataList,int sportState,long sportCreateRecordID,int hrr,long ecgFiletimeMillis,Intent intent) {
+    private UploadRecord generateUploadData(List<Integer> ecgDataList, String fileBase64,ArrayList<Integer> heartDataList,int sportState,long sportCreateRecordID,int hrr,
+                                            long ecgFiletimeMillis,Intent intent, String ecgLocalFileName,List<Integer> stridefreData,List<String> calData,int allKcal) {
         UploadRecord uploadRecord = new UploadRecord();
 
         String timestamp;
         String datatime ;
         if (ecgFiletimeMillis!=-1){
             timestamp = (ecgFiletimeMillis/1000)+"";
-            datatime = MyUtil.getSpecialFormatTime("yyyy/MM/dd H:m:s", new Date(ecgFiletimeMillis));
+            datatime = MyUtil.getSpecialFormatTime("yyyy/MM/dd HH:mm:ss", new Date(ecgFiletimeMillis));
         }
         else {
             timestamp = (System.currentTimeMillis()/1000)+"";
-            datatime = MyUtil.getSpecialFormatTime("yyyy/MM/dd H:m:s", new Date());
+            datatime = MyUtil.getSpecialFormatTime("yyyy/MM/dd HH:mm:ss", new Date());
         }
 
         uploadRecord.setTimestamp(timestamp);
@@ -230,7 +375,7 @@ public class HeartRateActivity extends BaseActivity {
         //设置心电数据
         if (ecgDataList!=null && ecgDataList.size()>0){
             Log.i(TAG,"ecgDataList.size(): ====================="+ecgDataList.size());
-            int[] calcuData = new int[ecgDataList.size()];
+            final int[] calcuData = new int[ecgDataList.size()];
             for (int i=0;i<ecgDataList.size();i++ ){
                 calcuData[i] = ecgDataList.get(i);
             }
@@ -243,10 +388,15 @@ public class HeartRateActivity extends BaseActivity {
             String ECr = "1";
             String HRVs ="";
             String ECs = "";
-            try {
-                Log.i(TAG,"DiagnosisNDK.AnalysisEcg: =====================");
-                HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, Constant.oneSecondFrame);
-                Log.i(TAG,"heartRateResult:"+heartRateResult.toString());
+
+            Log.i(TAG,"DiagnosisNDK.AnalysisEcg: =====================");
+            HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, Constant.oneSecondFrame);
+            Log.i(TAG,"heartRateResult:"+heartRateResult.toString());
+
+            int allTimeAtSecond = (int) (ecgDataList.size()/(Constant.oneSecondFrame*1f));
+            Log.i(TAG,"allTimeAtSecond:"+allTimeAtSecond);
+            uploadRecord.setTime(allTimeAtSecond+"");
+
                 //转化成json并存在sp里
 
 
@@ -257,42 +407,37 @@ public class HeartRateActivity extends BaseActivity {
             IndicatorAssess FIIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(heartRateResult.RR_SDNN);
             String FI = String.valueOf(FIIndicatorAssess.getPercent());*/
 
-                //String HRVs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
+            //String HRVs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
 
-                ES = (int)(heartRateResult.LF / heartRateResult.HF)+"";
-                PI = heartRateResult.RR_SDNN+"";
-                FI = heartRateResult.RR_SDNN+"";
+            ES = (int)(heartRateResult.LF / heartRateResult.HF)+"";
+            PI = heartRateResult.RR_SDNN+"";
+            FI = heartRateResult.RR_SDNN+"";
 
-                zaobo = heartRateResult.RR_Apb + heartRateResult.RR_Pvc;
-                loubo = heartRateResult.RR_Boleakage;
+            zaobo = heartRateResult.RR_Apb + heartRateResult.RR_Pvc;
+            loubo = heartRateResult.RR_Boleakage;
 
 
-                if (zaobo>0){
-                    ECs += "本次测量早搏"+zaobo+"次。室早出现在两个正常的窦性心搏之前，房早由心房组织自律性增强引起，健康人及各种器质性心脏病人都有可能发生，有明显症状时请及时就医。";
-                }
-                else if (loubo>0){
-                    ECs += "本次测量漏搏"+loubo+"次。与迷走神经张力增高有关，可见于正常人或运动员，也可见于急性心肌梗死、冠状动脉痉挛、心肌炎等情况，当有明显状况时请及时就医";
-                }
-                else {
-                    ECs += "正常心电图";
-                }
-
-                if (heartRateResult.RR_Kuanbo>0){  //漏博
-                    ECr = "3";
-                }
-                else if (heartRateResult.RR_Apb+heartRateResult.RR_Pvc>0){ //早搏
-                    ECr="4";
-                }
-
-                IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(Integer.parseInt(FI));
-                IndicatorAssess FIIndicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex(Integer.parseInt(ES));
-
-                HRVs = ESIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
-
-            }catch (Exception e) {
-                e.printStackTrace();
+            if (zaobo>0){
+                ECs += "本次测量早搏"+zaobo+"次。室早出现在两个正常的窦性心搏之前，房早由心房组织自律性增强引起，健康人及各种器质性心脏病人都有可能发生，有明显症状时请及时就医。";
+            }
+            else if (loubo>0){
+                ECs += "本次测量漏搏"+loubo+"次。与迷走神经张力增高有关，可见于正常人或运动员，也可见于急性心肌梗死、冠状动脉痉挛、心肌炎等情况，当有明显状况时请及时就医";
+            }
+            else {
+                ECs += "正常心电图";
             }
 
+            if (heartRateResult.RR_Kuanbo>0){  //漏博
+                ECr = "3";
+            }
+            else if (heartRateResult.RR_Apb+heartRateResult.RR_Pvc>0){ //早搏
+                ECr="4";
+            }
+
+            IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(Integer.parseInt(FI));
+            IndicatorAssess FIIndicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex(Integer.parseInt(ES));
+
+            HRVs = ESIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
 
             String HR = gson.toJson(heartDataList);
             int MaxHR= heartDataList.get(0);
@@ -309,7 +454,7 @@ public class HeartRateActivity extends BaseActivity {
             }
             int averHeart = sum / heartDataList.size();
             String AHR = String.valueOf(averHeart);
-            if (averHeart>0  && averHeart<150){
+            if (averHeart>30  && averHeart<150){
                 MyUtil.putIntValueFromSP(Constant.restingHR,averHeart);
             }
 
@@ -391,8 +536,21 @@ public class HeartRateActivity extends BaseActivity {
                 uploadRecord.setLatitude_longitude(latitude_longitude);
             }
         }
+        if (stridefreData!=null && stridefreData.size()>0){
+            String cadence = gson.toJson(stridefreData);
+            uploadRecord.setCadence(cadence);
+        }
+        if (calData!=null && calData.size()>0){
+            String cadence = gson.toJson(calData);
+            uploadRecord.setCalorie(cadence);
+        }
+        if (allKcal>0){
+            uploadRecord.setCalorie(allKcal+"");
+        }
 
         Log.i(TAG,"uploadRecord:"+uploadRecord);
+
+        uploadDataAndJumpToShowPage(uploadRecord,sportState, ecgLocalFileName);
         return uploadRecord;
     }
 
@@ -411,23 +569,26 @@ public class HeartRateActivity extends BaseActivity {
 
 
     //从文件中读取心电数据
-    private List<Integer> readEcgDataFromFile(File file) {
+    private List<Integer> readIntArrayDataFromFile(File file) {
         List<Integer> calcuData = new ArrayList<>();  //心电数据
         try {
             fileInputStream = new FileInputStream(file);
             DataInputStream dataInputStream = new DataInputStream(fileInputStream); //读取二进制文件
 
-            byte[] bytes = new byte[2];
-            ByteBuffer buffer=  ByteBuffer.wrap(bytes);
-            while( dataInputStream.available() >0){
-                bytes[1] = dataInputStream.readByte();
-                bytes[0] = dataInputStream.readByte();
-                short readCsharpInt = buffer.getShort();
-                buffer.clear();
-                //滤波处理
-                int temp = EcgFilterUtil.miniEcgFilterLp(readCsharpInt, 0);
-                temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
-                calcuData.add(temp);
+            byte[] bytes = new byte[1024*1024];
+            System.out.println("dataInputStream.available():"+dataInputStream.available());
+            Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
+
+            while(dataInputStream.available() >0){
+                int read = dataInputStream.read(bytes);
+                for (int i = 0; i < read/2-1; i++) {
+                    bytes[0] = bytes[i*2];
+                    bytes[1] = bytes[i*2+1];
+                    //滤波处理
+                    int temp = EcgFilterUtil.miniEcgFilterLp((int) MyUtil.getShortByTwoBytes(bytes[0],bytes[1]), 0);
+                    temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
+                    calcuData.add(temp);
+                }
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -437,10 +598,18 @@ public class HeartRateActivity extends BaseActivity {
         return calcuData;
     }
 
+    public void close(View view) {
+        if (animation!=null){
+            animation.cancel();
+        }
+        finish();
+    }
+
     //上传分析结果
-    private void uploadRecordDataToServer(UploadRecord uploadRecord) {
+    public static void uploadRecordDataToServer(final UploadRecord uploadRecord, final Context context) {
         String ahr = uploadRecord.AHR;
         Log.i(TAG,"AHR:"+ahr);
+        String eccString = uploadRecord.EC;
 
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
@@ -458,7 +627,7 @@ public class HeartRateActivity extends BaseActivity {
         params.addBodyParameter("MinHR",uploadRecord.MinHR);
         params.addBodyParameter("HRr",uploadRecord.HRr);
         params.addBodyParameter("HRs",uploadRecord.HRs);
-        params.addBodyParameter("EC",uploadRecord.EC);
+        params.addBodyParameter("EC",eccString);
         params.addBodyParameter("ECr",uploadRecord.ECr);
         params.addBodyParameter("ECs",uploadRecord.ECs);
         params.addBodyParameter("RA",uploadRecord.RA);
@@ -482,6 +651,17 @@ public class HeartRateActivity extends BaseActivity {
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;
                 Log.i(TAG,"onSuccess==result:"+result);
+                OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(context);
+                offLineDbAdapter.open();
+
+                uploadRecord.setUploadState("1");  //上传成功后，将状态改为已上传
+                uploadRecord.datatime = uploadRecord.datatime.replace("/", "-");  //将本地数据库时间改成和服务器一致，下次查看数据时，先从根据时间从本地查询
+                offLineDbAdapter.createOrUpdateUploadReportObject(uploadRecord);
+
+                List<UploadRecord> uploadRecords = offLineDbAdapter.queryRecordAll();
+
+                Log.i(TAG,"uploadRecords:"+uploadRecords);
+
                     /*{
                          {
                             "ret": "0",
@@ -504,18 +684,19 @@ public class HeartRateActivity extends BaseActivity {
             @Override
             public void onFailure(HttpException e, String s) {
                 Log.i(TAG,"onFailure==s:"+s);
+
+                OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(context);
+                offLineDbAdapter.open();
+
+                uploadRecord.setUploadState("0");
+                offLineDbAdapter.createOrUpdateUploadReportObject(uploadRecord);
+
+                List<UploadRecord> uploadRecords = offLineDbAdapter.queryRecordAll();
+
+                Log.i(TAG,"uploadRecords:"+uploadRecords);
             }
         });
     }
-
-    public void close(View view) {
-        if (animation!=null){
-            animation.cancel();
-        }
-        finish();
-    }
-
-
 
     private void analysisAndUpload(List<Integer> rateData,String fileBase64) {
         int[] calcuData = new int[rateData.size()];
@@ -644,7 +825,7 @@ public class HeartRateActivity extends BaseActivity {
         }
         startActivity(intentToRateAnalysis);
 
-        uploadRecordDataToServer(uploadRecord);
+        //uploadRecordDataToServer(uploadRecord);
 
         finish();
     }

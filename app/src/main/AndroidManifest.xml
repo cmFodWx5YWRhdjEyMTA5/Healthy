@@ -44,36 +44,39 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
-    <!--友盟-->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- 友盟 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-
-    <uses-permission android:name="android.permission.SEND_SMS"></uses-permission>
-    <!--  发送消息-->
-    <uses-permission android:name="android.permission.SEND_SMS"/>
-    <!--  阅读消息-->
-    <uses-permission android:name="android.permission.READ_SMS"/>
-    <!--  写入消息-->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <!-- 发送消息 -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <!-- 阅读消息 -->
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <!-- 写入消息 -->
     <uses-permission android:name="android.permission.WRITE_SMS" />
     <!-- 接收消息 -->
-    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
     <!-- BugHD 必选 -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:name=".appication.MyApplication"
         android:allowBackup="true"
+        android:hardwareAccelerated="false"
         android:icon="@drawable/logo_icon"
         android:label="@string/app_name"
+        android:persistent="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.SplashActivity" android:screenOrientation="portrait">
+        <activity
+            android:name=".activity.SplashActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -82,9 +85,7 @@
         </activity>
         <activity
             android:name=".activity.MainActivity"
-            android:hardwareAccelerated="false"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait" />
 
         <!-- 高德地图 -->
         <meta-data
@@ -93,88 +94,226 @@
         <!-- 定位需要的服务 -->
         <service android:name="com.amap.api.location.APSService" />
 
-        <!--友盟-->
-        <meta-data android:value="58d9cf4a717c19016700017c" android:name="UMENG_APPKEY"/>
-        <meta-data android:value="${UMENG_CHANNEL_VALUE}" android:name="UMENG_CHANNEL"/>
+        <!-- 友盟 -->
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="58d9cf4a717c19016700017c" />
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="${UMENG_CHANNEL_VALUE}" />
+        <meta-data
+            android:name="BUG_HD_SDK_GENERAL_KEY"
+            android:value="55a0d208d12c49a6170b18a8b99f12ef" />
 
-        <meta-data android:value="55a0d208d12c49a6170b18a8b99f12ef" android:name="BUG_HD_SDK_GENERAL_KEY" />
-
-        <activity android:name=".activity.MeActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.HealthyDataActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.MoveStateActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.HeartRateActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.RateAnalysisActivity"  android:screenOrientation="portrait">
-
-        </activity>
-        <activity android:name=".activity.SupplyPersionDataActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.LoginActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.PersionDataActivity"  android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.MeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HealthyDataActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.MoveStateActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HeartRateActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.RateAnalysisActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SupplyPersionDataActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.LoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.PersionDataActivity"
+            android:screenOrientation="portrait" />
 
         <service
             android:name="com.ble.ble.BleService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="true" />
 
-        <activity android:name=".activity.ModifyPersionDataActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.HealthyPlanActivity" android:screenOrientation="portrait" />
-        <activity android:name=".activity.HealthyPlanCalenActivity"  android:screenOrientation="portrait">
+        <activity
+            android:name=".activity.ModifyPersionDataActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HealthyPlanActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HealthyPlanCalenActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.LookupHealthPlanActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.MyReportActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SystemSettingActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.MyDeviceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SearchDevicehActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HealthIndicatorAssessActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.PhysicalAgeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.IndexWarringActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SportCommunityActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.StartRunActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.NewsDetialActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ShowCommentActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubHomePageActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubGroupActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubCampaignActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubDetialActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SetupCampaignActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.EditProtocolActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubGroupDetialActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SetupGroupActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubNumberActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubNumberDetialActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubNumberRankActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SetupClubActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubInfomationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubMoreActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubMyEnterInfoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubMyInfoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubMyInfoEditActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubMyEnterInfoEditActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubDynamicsDetialActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.LookupPictureActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HistoryRecordActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.CalculateHRRProcessActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.RunTrailMapActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.MotionDetectionActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ConnectToWifiModuleGudieActivity1"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ConnectToWifiModuleGudieActivity2"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AboutUsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AppUpdateActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AddDynamicsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AddHeathyPlanActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ApplyJionClubActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.TestActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SosActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.UploadOfflineFileActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ChooseWeekActivity"
+            android:screenOrientation="portrait" />
 
-        </activity>
-        <activity android:name=".activity.LookupHealthPlanActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.MyReportActivity" android:screenOrientation="portrait">
+        <service
+            android:name=".service.MyTestService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
 
-        </activity>
-        <activity android:name=".activity.SystemSettingActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.MyDeviceActivity" android:screenOrientation="portrait"/>
-        <activity android:name=".activity.SearchDevicehActivity" android:screenOrientation="portrait"/>
-        <activity android:name=".activity.HealthIndicatorAssessActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.PhysicalAgeActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.IndexWarringActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.SportCommunityActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.StartRunActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.NewsDetialActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ShowCommentActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubHomePageActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubGroupActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubCampaignActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubDetialActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.SetupCampaignActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.EditProtocolActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubGroupDetialActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.SetupGroupActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubNumberActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubNumberDetialActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubNumberRankActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.SetupClubActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubInfomationActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubMoreActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubMyEnterInfoActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubMyInfoActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubMyInfoEditActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubMyEnterInfoEditActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.ClubDynamicsDetialActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.LookupPictureActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.HistoryRecordActivity"  android:screenOrientation="portrait"/>
-        <activity android:name=".activity.CalculateHRRProcessActivity" android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.RunTrailMapActivity"  android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.MotionDetectionActivity" android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.ConnectToWifiModuleGudieActivity1" android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.ConnectToWifiModuleGudieActivity2" android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.AboutUsActivity" android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.AppUpdateActivity" android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.AddDynamicsActivity" android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.AddHeathyPlanActivity" android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.ApplyJionClubActivity" android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.TestActivity" android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.SosActivity" android:screenOrientation="portrait"></activity>
-        <activity android:name=".activity.UploadOfflineFileActivity" android:screenOrientation="portrait"></activity>
+        <receiver
+            android:name=".receiver.ServiceListenerReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="com.amsu.healthy.servicedestroy" />
+            </intent-filter>
+        </receiver>
 
-
-
-
-
-
+        <receiver
+            android:name=".receiver.WifiStateReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter >
+                <action android:name="android.NET.wifi.RSSI_CHANGED"/>
+                <action android:name="android.Net.wifi.STATE_CHANGE"/>
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED"/>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
-

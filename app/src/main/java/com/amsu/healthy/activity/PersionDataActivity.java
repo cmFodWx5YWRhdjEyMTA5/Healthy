@@ -215,7 +215,12 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         tv_persiondata_birthday.setText(year+"-"+month+"-"+day);   //          1998/12/21
         upLoadbirthday = year+"-"+month+"-"+day;
         if (month<10){
-            upLoadbirthday = year+"-0"+month+"-"+day;
+            if (day<10){
+                upLoadbirthday = year+"-0"+month+"-0"+day;
+            }
+            else {
+                upLoadbirthday = year+"-0"+month+"-"+day;
+            }
         }
         Log.i(TAG,"upLoadbirthday:"+upLoadbirthday);
     }

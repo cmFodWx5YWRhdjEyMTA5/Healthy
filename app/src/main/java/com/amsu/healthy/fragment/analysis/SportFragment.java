@@ -286,6 +286,16 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
                     hv_sport_rateline.setData(heartData,time);
                 }
 
+                int duration = (int) Float.parseFloat(mUploadRecord.time);
+                String myDuration;
+                if (duration>60*60) {
+                    myDuration = duration/(60*60)+"h"+(duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
+                }
+                else {
+                    myDuration = (duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
+                }
+                tv_sport_time.setText(myDuration);
+
                 hv_sport_aerobicanaerobic.setData(heartData, time);
 
                 /*int distance = (int) Double.parseDouble(mUploadRecord.distance);

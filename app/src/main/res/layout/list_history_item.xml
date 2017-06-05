@@ -83,6 +83,7 @@
         android:id="@+id/pb_item_progress"
         android:layout_width="match_parent"
         android:layout_height="@dimen/y172"
+        android:clickable="false"
         style="?android:attr/progressBarStyleHorizontal"
         android:progressDrawable="@drawable/bg_progressbar_offline_upload"
         android:max="100"/>

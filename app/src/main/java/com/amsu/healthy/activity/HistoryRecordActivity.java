@@ -45,7 +45,6 @@ public class HistoryRecordActivity extends BaseActivity {
 
         initView();
         initData();
-
     }
 
     private void initView() {

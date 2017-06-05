@@ -37,7 +37,10 @@ public class UploadRecord implements Parcelable {
     public String zaobo;
     public String loubo;
     public String latitude_longitude;
+    public String uploadState;
 
+    public String id;
+    public String serveId;
 
     public UploadRecord() {
         FI = Constant.uploadRecordDefaultString;
@@ -414,7 +417,6 @@ public class UploadRecord implements Parcelable {
         }
     };
 
-
     @Override
     public String toString() {
         return "UploadRecord{" +
@@ -429,6 +431,7 @@ public class UploadRecord implements Parcelable {
                 ", MinHR='" + MinHR + '\'' +
                 ", HRr='" + HRr + '\'' +
                 ", HRs='" + HRs + '\'' +
+                ", EC='" + EC + '\'' +
                 ", ECr='" + ECr + '\'' +
                 ", ECs='" + ECs + '\'' +
                 ", RA='" + RA + '\'' +
@@ -444,6 +447,33 @@ public class UploadRecord implements Parcelable {
                 ", zaobo='" + zaobo + '\'' +
                 ", loubo='" + loubo + '\'' +
                 ", latitude_longitude='" + latitude_longitude + '\'' +
+                ", uploadState='" + uploadState + '\'' +
+                ", id=" + id +
+                ", serveId=" + serveId +
                 '}';
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getUploadState() {
+        return uploadState;
+    }
+
+    public void setUploadState(String uploadState) {
+        this.uploadState = uploadState;
+    }
+
+    public String getServeId() {
+        return serveId;
+    }
+
+    public void setServeId(String serveId) {
+        this.serveId = serveId;
     }
 }

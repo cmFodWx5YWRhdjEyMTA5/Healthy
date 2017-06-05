@@ -1,8 +1,6 @@
 package com.amsu.healthy.activity;
 
 import android.content.Intent;
-import android.os.Parcelable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,10 +12,8 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.DeviceAdapter;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
-import com.amsu.healthy.bean.DeviceList;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,14 +48,14 @@ public class MyDeviceActivity extends BaseActivity {
         ListView lv_device_devicelist = (ListView) findViewById(R.id.lv_device_devicelist);
         List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
 
+        Log.i(TAG,"deviceListFromSP:"+deviceListFromSP.toString());
         for (Device device:deviceListFromSP){
-            if (MyUtil.getStringValueFromSP(Constant.currectDeviceLEName).equals(device.getLEName())){
+            if (MyUtil.getStringValueFromSP(Constant.currectDeviceLEMac).equals(device.getMac())){
                 deviceList.add(device);
             }
         }
 
         Log.i(TAG,"deviceList:"+deviceList.toString());
-
 
         /*List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
         if (deviceListFromSP!=null){
@@ -77,10 +73,10 @@ public class MyDeviceActivity extends BaseActivity {
         rl_device_adddevice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (MyApplication.isHaveDeviceConnectted){
+                /*if (MyApplication.isHaveDeviceConnectted){
                     MyUtil.showToask(MyDeviceActivity.this,"设备正在连接，要连接其他设备，请先断开连接设备");
                     return;
-                }
+                }*/
                 Intent intent = new Intent(MyDeviceActivity.this,SearchDevicehActivity.class);
                 startActivityForResult(intent,130);
             }
@@ -90,9 +86,9 @@ public class MyDeviceActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Device device = deviceList.get(position);
-                if (!device.getLEName().equals(MyUtil.getStringValueFromSP(Constant.currectDeviceLEName))){
+                if (!device.getMac().equals(MyUtil.getStringValueFromSP(Constant.currectDeviceLEMac))){
                     //切换当前设备
-                    MyUtil.putStringValueFromSP(Constant.currectDeviceLEName,device.getLEName());
+                    MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,device.getMac());
                     MyUtil.showToask(MyDeviceActivity.this,"已切换设备");
                     deviceAdapter.notifyDataSetChanged();
                 }

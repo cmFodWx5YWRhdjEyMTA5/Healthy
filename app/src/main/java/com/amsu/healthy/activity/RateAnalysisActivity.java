@@ -23,6 +23,7 @@ import com.amsu.healthy.fragment.analysis.HeartRateFragment;
 import com.amsu.healthy.fragment.analysis.SportFragment;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.OffLineDbAdapter;
 import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,6 +53,7 @@ public class RateAnalysisActivity extends BaseActivity {
     private AnalysisRateAdapter mAnalysisRateAdapter;
     private float mOneTableWidth;
     private int subFormAlCount = 0 ;  //当有四个fragment是为0，有5个fragment时为1
+    public static String ecgLocalFileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class RateAnalysisActivity extends BaseActivity {
 
     private void initView() {
         fragmentList = new ArrayList<>();
+        ecgLocalFileName = null;
         initHeadView();
         setLeftImage(R.drawable.back_icon);
         vp_analysis_content = (ViewPager) findViewById(R.id.vp_analysis_content);
@@ -132,8 +135,25 @@ public class RateAnalysisActivity extends BaseActivity {
                         mAnalysisRateAdapter.notifyDataSetChanged();
                     }*/
 
+                    Log.i(TAG,"historyRecord:"+historyRecord.toString());
+
                     //根据历史记录id进行网络查询
-                    setCenterText(historyRecord.getDatatime());  // 2016-10-28 10:56:04
+                    String datatime = historyRecord.getDatatime();
+                    setCenterText(datatime);  // 2016-10-28 10:56:04
+
+                    //奔溃缓存策略
+                    //先从本地数据库中根据datatime查询数据，没有的话根据id从服务器获取
+                    OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(RateAnalysisActivity.this);
+                    offLineDbAdapter.open();
+
+                    UploadRecord uploadRecord = offLineDbAdapter.queryRecordByDatatime(datatime);
+                    Log.i(TAG,"本地uploadRecord:"+uploadRecord);
+                    if (uploadRecord!=null){
+                        //本地有数据
+                        mUploadRecord = uploadRecord;
+                        adjustFeagmentCount(Integer.parseInt(mUploadRecord.state));
+                        return;
+                    }
 
                     MyUtil.showDialog("加载数据",RateAnalysisActivity.this);
                     HttpUtils httpUtils = new HttpUtils();
@@ -210,7 +230,8 @@ public class RateAnalysisActivity extends BaseActivity {
                     //当前分析结果，直接显示
                     mUploadRecord = bundle.getParcelable("uploadRecord");
                     Log.i(TAG,"直接显示uploadRecord:"+mUploadRecord.toString());
-                    //Log.i(TAG,"EC:"+mUploadRecord.EC);
+                    ecgLocalFileName = intent.getStringExtra(Constant.ecgLocalFileName);
+                    Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
                     adjustFeagmentCount(intent.getIntExtra(Constant.sportState,-1));
                 }
             }

@@ -1,9 +1,12 @@
 package com.amsu.healthy.adapter;
 
 import android.content.Context;
+import android.nfc.Tag;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -11,6 +14,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.utils.MyUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,6 +22,7 @@ import java.util.List;
  */
 
 public class HistoryRecordAdapter extends BaseAdapter {
+    private static final String TAG = "HistoryRecordAdapter";
     private List<HistoryRecord> historyRecords ;
     private Context context;
 
@@ -43,43 +48,62 @@ public class HistoryRecordAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        Log.i(TAG,"getView:position "+position);
         HistoryRecord historyRecord = historyRecords.get(position);
-        View inflate = View.inflate(context, R.layout.list_history_item, null);
 
-        TextView tv_history_date = (TextView) inflate.findViewById(R.id.tv_history_date);
-        TextView tv_history_time = (TextView) inflate.findViewById(R.id.tv_history_time);
-        TextView tv_history_alstate = (TextView) inflate.findViewById(R.id.tv_history_alstate);
-        TextView tv_history_sportstate = (TextView) inflate.findViewById(R.id.tv_history_sportstate);
+        MyHolder myHolder;
+        View inflate;
+        if (convertView!=null){
+            inflate = convertView;
+            myHolder = (MyHolder) inflate.getTag();
+        }
+        else {
+            inflate = View.inflate(context, R.layout.list_history_item, null);
+            myHolder = new MyHolder();
+            myHolder.tv_history_date = (TextView) inflate.findViewById(R.id.tv_history_date);
+            myHolder.tv_history_time = (TextView) inflate.findViewById(R.id.tv_history_time);
+            myHolder.tv_history_alstate = (TextView) inflate.findViewById(R.id.tv_history_alstate);
+            myHolder.tv_history_sportstate = (TextView) inflate.findViewById(R.id.tv_history_sportstate);
+            inflate.setTag(myHolder);
+        }
+
 
         //"datatime": "2016-10-28 10:56:04"
         String datatime = historyRecord.getDatatime();
         String[] split = datatime.split(" ");
         String[] dateSplits = split[0].split("-");
         String date = dateSplits[0]+"年"+dateSplits[1]+"月"+dateSplits[2]+"日";
-        tv_history_date.setText(date);
-        tv_history_time.setText(split[1]);
+        myHolder.tv_history_date.setText(date);
+        myHolder.tv_history_time.setText(split[1]);
 
         if (historyRecord.getState()==1){
-            tv_history_sportstate.setText("动态");
-            tv_history_sportstate.setBackgroundResource(R.drawable.button_lishi2);
+            myHolder.tv_history_sportstate.setText("动态");
+            myHolder.tv_history_sportstate.setBackgroundResource(R.drawable.button_lishi2);
         }
         else  if (historyRecord.getState()==0){
-            tv_history_sportstate.setText("静态");
+            myHolder.tv_history_sportstate.setText("静态");
+            myHolder.tv_history_sportstate.setBackgroundResource(R.drawable.button_lishi1);
         }
         else {
-            tv_history_sportstate.setVisibility(View.GONE);
+            myHolder.tv_history_sportstate.setVisibility(View.GONE);
         }
 
         if (!MyUtil.isEmpty(historyRecord.getAnalysisState())){
-            tv_history_alstate.setText(historyRecord.getAnalysisState());
+            myHolder.tv_history_alstate.setText(historyRecord.getAnalysisState());
         }
 
         ProgressBar pb_item_progress = (ProgressBar) inflate.findViewById(R.id.pb_item_progress);
 
-
-
         return inflate;
     }
+
+    class MyHolder {
+        TextView tv_history_date;
+        TextView tv_history_time;
+        TextView tv_history_alstate;
+        TextView tv_history_sportstate;
+    }
+
 
 
 }

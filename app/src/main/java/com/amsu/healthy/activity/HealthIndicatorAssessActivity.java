@@ -53,7 +53,8 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
     private List<IndicatorAssess> indicatorAssesses;
     private AlertDialog mAlertDialog;
     private ViewPager vp_assess_float;
-    private WeekReport weekReport;
+    private WeekReport thisWeekReport;
+    private WeekReport lastWeekReport;
     private int mCurrYear;
     private int mCurrWeekOfYear;
     private MyViewPageAdapter myViewPageAdapter;
@@ -91,7 +92,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final SelectDialog selectDialog = new SelectDialog(HealthIndicatorAssessActivity.this,R.style.dialog);//创建Dialog并设置样式主题
+               /* final SelectDialog selectDialog = new SelectDialog(HealthIndicatorAssessActivity.this,R.style.dialog);//创建Dialog并设置样式主题
 
                 //设置尺寸
                 Window win = selectDialog.getWindow();
@@ -120,7 +121,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                         Log.i(TAG,"position:"+position);
                         selectDialog.dismiss();
 
-                       /* if (position==0){
+                       *//* if (position==0){
                             //测试
                             if (indicatorAssesses.size()==7){
                                 indicatorAssesses.get(0).setPercent(60);
@@ -155,7 +156,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                                 rc_assess_radar.setDatas(data1,null,null);
                             }
 
-                        }*/
+                        }*//*
 
                         int weekOfYear = mCurrWeekOfYear -(position+1);
                         downlaodWeekRepore(mCurrYear,weekOfYear);
@@ -163,7 +164,9 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                 });
 
                 selectDialog.setCanceledOnTouchOutside(true);//设置点击Dialog外部任意区域关闭Dialog
-                selectDialog.show();
+                selectDialog.show();*/
+
+                        startActivity(new Intent(HealthIndicatorAssessActivity.this,ChooseWeekActivity.class));
             }
         });
 
@@ -185,9 +188,10 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
 
     private void initData() {
         downlaodWeekRepore(-1,-1);
+        downlaodWeekRepore(mCurrYear,mCurrWeekOfYear-1);
     }
 
-    private void downlaodWeekRepore(int year,int weekOfYear) {
+    private void downlaodWeekRepore(final int year, int weekOfYear) {
         MyUtil.showDialog("加载数据",this);
         Log.i(TAG,"year:"+year+"  weekOfYear:"+weekOfYear);
         HttpUtils httpUtils = new HttpUtils();
@@ -214,8 +218,17 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                 JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
                 Log.i(TAG,"jsonBase:"+jsonBase);
                 if (jsonBase.getRet()==0){
-                    weekReport = gson.fromJson(result, WeekReport.class);
-                    Log.i(TAG,"weekReport:"+ weekReport.toString());
+                    if (year==-1){
+                        //本周数据
+                        thisWeekReport = gson.fromJson(result, WeekReport.class);
+                        Log.i(TAG,"thisWeekReport:"+ thisWeekReport.toString());
+
+                    }
+                    else {
+                        lastWeekReport = gson.fromJson(result, WeekReport.class);
+                        Log.i(TAG,"lastWeekReport:"+ lastWeekReport.toString());
+                    }
+
                     setIndicatorData();
                 }
             }
@@ -223,13 +236,28 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             @Override
             public void onFailure(HttpException e, String s) {
                 MyUtil.hideDialog();
-
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });
     }
 
     private void setIndicatorData(){
+        if (thisWeekReport!=null && lastWeekReport!=null){
+            //2周数据都不为空时
+            float[] thisWeekdata = dealWithWeekData(thisWeekReport,true);
+            float[] lastWeekdata = dealWithWeekData(lastWeekReport,false);
+
+            rc_assess_radar.setDatas(thisWeekdata,lastWeekdata,null);
+
+            if (myViewPageAdapter!=null){
+                myViewPageAdapter.notifyDataSetChanged();
+            }
+        }
+
+
+    }
+
+    private  float[] dealWithWeekData(WeekReport weekReport,boolean isCurrWeek) {
         //BMI
         IndicatorAssess scoreBMI = HealthyIndexUtil.calculateScoreBMI();
         //储备心率
@@ -314,42 +342,52 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
 
             // 健康储备(按训练时间计算)
             IndicatorAssess scoreReserveHealth = HealthyIndexUtil.calculateScoreReserveHealth((int) Float.parseFloat(weekReport.errDesc.chubeijiankang)/60);
-
-            if (scoreOver_slow!=null){
-                indicatorAssesses.add(scoreOver_slow);
+            if (isCurrWeek){
+                return getFloats(scoreBMI, scorehrReserve, scoreHRR, scoreHRV, scoreOver_slow, scoreBeat, scoreReserveHealth,indicatorAssesses);
             }
-            if (scoreBeat!=null){
-                indicatorAssesses.add(scoreBeat);
-            }
-            if (scoreReserveHealth!=null){
-                indicatorAssesses.add(scoreReserveHealth);
-            }
-            if (scoreBMI!=null){
-                indicatorAssesses.add(scoreBMI);
-            }
-            if (scorehrReserve!=null){
-                indicatorAssesses.add(scorehrReserve);
-            }
-            if (scoreHRR!=null){
-                indicatorAssesses.add(scoreHRR);
-            }
-            if (scoreHRV!=null){
-                indicatorAssesses.add(scoreHRV);
+            else {
+                List<IndicatorAssess> indicatorAssesses = new ArrayList<>();
+                return getFloats(scoreBMI, scorehrReserve, scoreHRR, scoreHRV, scoreOver_slow, scoreBeat, scoreReserveHealth,indicatorAssesses);
             }
 
-            float[] data1 = new float[7];
-            for (int i=0;i<indicatorAssesses.size();i++){
-                data1[i] = indicatorAssesses.get(i).getPercent();
-            }
-            rc_assess_radar.setDatas(data1,null,null);
 
-            for (IndicatorAssess indicatorAssess:indicatorAssesses){
-                Log.i(TAG,"indicatorAssess:"+indicatorAssess);
-            }
-            if (myViewPageAdapter!=null){
-                myViewPageAdapter.notifyDataSetChanged();
-            }
         }
+        return null;
+    }
+
+    private float[] getFloats(IndicatorAssess scoreBMI, IndicatorAssess scorehrReserve, IndicatorAssess scoreHRR, IndicatorAssess scoreHRV,
+                              IndicatorAssess scoreOver_slow, IndicatorAssess scoreBeat, IndicatorAssess scoreReserveHealth ,List<IndicatorAssess> indicatorAssesses) {
+        if (scoreOver_slow!=null){
+            indicatorAssesses.add(scoreOver_slow);
+        }
+        if (scoreBeat!=null){
+            indicatorAssesses.add(scoreBeat);
+        }
+        if (scoreReserveHealth!=null){
+            indicatorAssesses.add(scoreReserveHealth);
+        }
+        if (scoreBMI!=null){
+            indicatorAssesses.add(scoreBMI);
+        }
+        if (scorehrReserve!=null){
+            indicatorAssesses.add(scorehrReserve);
+        }
+        if (scoreHRR!=null){
+            indicatorAssesses.add(scoreHRR);
+        }
+        if (scoreHRV!=null){
+            indicatorAssesses.add(scoreHRV);
+        }
+
+        for (IndicatorAssess indicatorAssess:indicatorAssesses){
+            Log.i(TAG,"indicatorAssess:"+indicatorAssess);
+        }
+
+        float[] data = new float[7];
+        for (int i=0;i<indicatorAssesses.size();i++){
+            data[i] = indicatorAssesses.get(i).getPercent();
+        }
+        return data;
     }
 
     @Override

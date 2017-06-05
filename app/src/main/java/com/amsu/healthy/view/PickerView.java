@@ -135,8 +135,7 @@ public class PickerView extends View
         mDataList.add(head);
     }
 
-    private void moveTailToHead()
-    {
+    private void moveTailToHead() {
         String tail = mDataList.get(mDataList.size() - 1);
         mDataList.remove(mDataList.size() - 1);
         mDataList.add(0, tail);
@@ -179,8 +178,8 @@ public class PickerView extends View
             drawData(canvas);
     }
 
-    private void drawData(Canvas canvas)
-    {
+    private void drawData(Canvas canvas) {
+        if (mDataList==null || mDataList.size()==0)return;
         // 先绘制选中的text再往上往下绘制其余的text
         float scale = parabola(mViewHeight / 4.0f, mMoveLen);
         float size = (mMaxTextSize - mMinTextSize) * scale + mMinTextSize;
@@ -279,15 +278,13 @@ public class PickerView extends View
 
         mMoveLen += (event.getY() - mLastDownY);
 
-        if (mMoveLen > MARGIN_ALPHA * mMinTextSize / 2)
-        {
+        if (mMoveLen > MARGIN_ALPHA * mMinTextSize / 2) {
             // 往下滑超过离开距离
-            moveTailToHead();
+            //moveTailToHead();
             mMoveLen = mMoveLen - MARGIN_ALPHA * mMinTextSize;
-        } else if (mMoveLen < -MARGIN_ALPHA * mMinTextSize / 2)
-        {
+        } else if (mMoveLen < -MARGIN_ALPHA * mMinTextSize / 2) {
             // 往上滑超过离开距离
-            moveHeadToTail();
+            //moveHeadToTail();
             mMoveLen = mMoveLen + MARGIN_ALPHA * mMinTextSize;
         }
 

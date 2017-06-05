@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/y100"
-        android:text="为了准确记录你的运动数据，智能鞋垫需要你开启GPS定位"
+        android:text="为了准确记录你的运动数据，需要你开启GPS定位"
         android:textSize="@dimen/x36"
         android:layout_centerHorizontal="true"/>
     <LinearLayout

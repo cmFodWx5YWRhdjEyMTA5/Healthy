@@ -222,10 +222,14 @@ public class HeightCurveView extends View {
             canvas.drawText(String.valueOf(yText),x,y,mLablePaint);
         }
 
-
-
-        //timeLong=timeLong-timeLong%4;
-        DecimalFormat decimalFormat=new DecimalFormat("0.0");//构造方法的字符格式这里如果小数不足2位,会以0补足.
+        DecimalFormat decimalFormat;
+        if (timeLong>4){
+            timeLong=timeLong-timeLong%4;
+            decimalFormat=new DecimalFormat("0");//构造方法的字符格式这里如果小数不足2位,会以0补足.
+        }
+        else {
+            decimalFormat=new DecimalFormat("0.0");//构造方法的字符格式这里如果小数不足2位,会以0补足.
+        }
 
         //横坐标数值
         for (int i=0;i<5;i++){
@@ -352,6 +356,7 @@ public class HeightCurveView extends View {
     }
 
     public void setData(int[] data, int time){
+
         if (data!=null && data.length>0){
             this.timeLong = time;
             float[] dataTemp = new float[data.length];

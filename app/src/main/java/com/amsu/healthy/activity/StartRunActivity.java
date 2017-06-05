@@ -1,6 +1,5 @@
 package com.amsu.healthy.activity;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
@@ -50,6 +49,7 @@ import com.ble.ble.BleService;
 import com.test.utils.DiagnosisNDK;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -115,11 +115,11 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private long mCalKcalCurrentTimeMillis = 0;
     private float mAllKcal;
     private List<Integer> accData = new ArrayList<>();
-    private int accDataLength = 1800;
+    public static int accDataLength = 1800;
     private ArrayList<String> mKcalData = new ArrayList<>();
     private ArrayList<Integer> mStridefreData = new ArrayList<>();
     private int mCurrentHeartRate = 0;
-    private Activity mActivity = this;
+    private String ecgLocalFileName;
 
 
     @Override
@@ -198,38 +198,18 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 rl_run_bootom.setVisibility(View.VISIBLE);
             }
         });
-
+        MyApplication.runningActivity = MyApplication.StartRunActivity;
 
     }
 
-    Handler runEcgHandler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            String hexData = (String) msg.obj;
-            Log.i(TAG,"hexData:"+hexData);
-            if (hexData.startsWith("FF 83 0F")) {
-                //心电数据
-                //Log.i(TAG,"心电hexData:"+hexData);
-                dealWithEcgData(hexData);
-            } else if (hexData.startsWith("FF 86 11")) {
-                //加速度数据
-                //Log.i(TAG,"加速度hexData:"+hexData);
-                dealWithAccelerationgData(hexData);
-            }
-
-            return false;
-        }
-    });
-
-    public Handler getRunEcgHandlerInstance(){
-        return runEcgHandler;
-    }
 
     boolean isonResumeEd ;
 
     @Override
     protected void onResume() {
         super.onResume();
+        MyApplication.mApplicationActivity = this;
+
         if (!isonResumeEd){
             if (MainActivity.mBluetoothAdapter!=null && !MainActivity.mBluetoothAdapter.isEnabled()) {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -239,7 +219,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
 
         if (MainActivity.mBluetoothAdapter!=null && MainActivity.mBluetoothAdapter.isEnabled()) {
-            startLeScanBlue();
+            bindBluetoothService();
         }
 
     }
@@ -313,7 +293,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.i(TAG,"onServiceDisconnected");
-            mLeService = null;
+            //mLeService = null;
         }
 
         @Override
@@ -327,32 +307,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
     };
 
-    //扫描蓝牙回调
-    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
-
-        @Override
-        public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-            //BLE#0x44A6E51FC5BF,44:A6:E5:1F:C5:BF,null,10,2
-            //null,72:A8:23:AF:25:42,null,10,0
-            //null,63:5C:3E:B6:A0:AE,null,10,0
-            Log.i(TAG,"onLeScan  device:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
-            String leName = device.getName();
-            if (leName!=null && leName.startsWith("BLE")) {
-                String stringValueFromSP = MyUtil.getStringValueFromSP(Constant.currectDeviceLEName);
-                if (leName.equals(stringValueFromSP)){  //只有扫描到的蓝牙是sp里的当前设备时（激活状态），才能进行连接
-                    //配对成功
-                    connecMac = device.getAddress();
-                    if (!isConnectted && !isConnectting){
-                        //没有链接上，并且没有正在链接
-                        mLeService.connect(device.getAddress(),true);  //链接
-                        isConnectting  = true;
-                        Log.i(TAG,"开始连接");
-                    }
-                }
-            }
-        }
-    };
-
     boolean mIsDataStart;
 
     // ble数据交互的关键参数
@@ -361,64 +315,27 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         @Override
         public void onConnected(String mac) {
             Log.i(TAG, "onConnected() - " + mac);
-            mLeService.startReadRssi(mac, 1000);
-            if (MainActivity.mBluetoothAdapter!=null){
-                //MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
-            }
-            if (!MyApplication.isHaveDeviceConnectted){
-                MyApplication.isHaveDeviceConnectted = isConnectted = true;
-                MyUtil.showPopWindow(mActivity,getTv_base_rightText(),1);
-            }
-
-            isConnectting = false;
         }
 
         @Override
         public void onConnectTimeout(String mac) {
             Log.w(TAG, "onConnectTimeout() - " + mac);
-            isConnectting = false;
         }
 
         @Override
         public void onConnectionError(String mac, int status, int newState) {
             Log.w(TAG, "onConnectionError() - " + mac + ", status = " + status + ", newState = " + newState);
-            isConnectting = false;
         }
 
         @Override
         public void onDisconnected(String mac) {
             Log.w(TAG, "onDisconnected() - " + mac);
-            if (MyApplication.isHaveDeviceConnectted){
-                MyApplication.isHaveDeviceConnectted = isConnectted = false;
-                MyUtil.showPopWindow(mActivity,getTv_base_rightText(),0);
-            }
-            isConnectting = false;
-            mIsDataStart = false;
-            isHaveDataTransfer = false;
         }
 
         @Override
         public void onServicesDiscovered(String mac) {
             // !!!到这一步才可以与从机进行数据交互
             Log.i(TAG, "onServicesDiscovered() - " + mac);
-            new Thread() {
-                @Override
-                public void run() {
-                    super.run();
-                    try {
-                        mIsDataStart = false;
-                        Thread.sleep(1000);
-                        Log.i(TAG, "写配置");
-                        mLeService.send(connecMac, Constant.writeConfigureOrder, true);
-
-                        Thread.sleep(1000);
-                        Log.i(TAG, "开启数据指令");
-                        mLeService.send(connecMac, Constant.openDataTransmitOrder, true);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }.start();
         }
 
         @Override
@@ -453,11 +370,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             if (hexData.length() > 40) {
                 mIsDataStart = true;
             }
-
-            if (!isStartThreeMitTimer) {
-                isStartThreeMitTimer = true;
-                startThreeMitTiming();
-            }
             if (mIsRunning){
                 if (hexData.startsWith("FF 83 0F")) {
                     //心电数据
@@ -470,17 +382,15 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                     dealWithAccelerationgData(hexData);
                 }
             }
-
-
         }
-
     };
 
     //处理心电数据
     private void dealWithEcgData(String hexData) {
         final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
-        writeEcgDataToBinaryFile(ints);
-
+        if (mIsRunning){
+            writeEcgDataToBinaryFile(ints);
+        }
         //滤波处理
         for (int i=0;i<ints.length;i++){
             int temp = EcgFilterUtil.miniEcgFilterLp(ints[i], 0);
@@ -545,11 +455,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                         tv_run_kcal.setText((int)mAllKcal+"");
                     }
                 });
-
-
             }
-
-
         }
         currentGroupIndex++;
     }
@@ -578,9 +484,17 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 ecgFiletimeMillis = System.currentTimeMillis();
                 //String filePath = MyUtil.generateECGFilePath(HealthyDataActivity.this, ecgFiletimeMillis); //随机生成一个ecg格式文件
                 //String filePath = getCacheDir()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";  //随机生成一个文件
-                String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+ MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";
-                fileOutputStream = new FileOutputStream(filePath,true);
-                MyUtil.putStringValueFromSP("cacheFileName",filePath);
+                String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/abluedata";
+                File file = new File(filePath);
+                if (!file.exists()) {
+                    boolean mkdirs = file.mkdirs();
+                    Log.i(TAG,"mkdirs:"+mkdirs);
+                }
+                String fileAbsolutePath = filePath+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";
+                ecgLocalFileName = fileAbsolutePath;
+                Log.i(TAG,"fileAbsolutePath:"+fileAbsolutePath);
+                fileOutputStream = new FileOutputStream(fileAbsolutePath,true);
+                //MyUtil.putStringValueFromSP("cacheFileName",fileAbsolutePath);
                 dataOutputStream = new DataOutputStream(fileOutputStream);
                 byteBuffer = ByteBuffer.allocate(2);
             }
@@ -679,20 +593,21 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     }
 
-    public void startLeScanBlue(){
+    //绑定蓝牙，获取蓝牙服务
+    public void bindBluetoothService(){
         if (MainActivity.mBluetoothAdapter!=null){
-            MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
-            Log.i(TAG,"startLeScan");
-            //绑定蓝牙，获取蓝牙服务
+            Log.i(TAG,"bindBluetoothService");
             bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
+            isBindService = true;
         }
     }
+
+    boolean isBindService;
 
     ArrayList<Integer> mSpeedStringList = new ArrayList<>();
 
 
     List<Float> tempSpeedList = new ArrayList<>();
-
 
     float tempSpeed = 0;
 
@@ -821,9 +736,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 chooseOpenGps();
             }
             else {
-
                 bt_run_start.setText("长按结束");
-
 
                 bt_run_lock.setVisibility(View.VISIBLE);
                 mIsRunning  =true;
@@ -854,46 +767,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
     }
 
-    //开始三分钟计时
-    public void startThreeMitTiming(){
-        /*MyTimeTask.startCountDownTimerTask(1000 * 60 * 3, new MyTimeTask.OnTimeOutListener() {
-            @Override
-            public void onTomeOut() {
-                Log.i(TAG,"TimerTask:到点了");
-                isThreeMit = true;
-            }
-        });*/
-
-        //给蓝牙设备同步指令
-        MyTimeTask.startTimeRiseTimerTask(this, 1000, new MyTimeTask.OnTimeChangeAtScendListener() {
-            @Override
-            public void onTimeChange(Date date) {
-                if (mIsDataStart){
-                    int maxRate = 220- HealthyIndexUtil.getUserAge();
-                    String hrateIndexHex = "02";
-                    if (mCurrentHeartRate<=maxRate*0.75){
-                        hrateIndexHex = "02";
-                    }
-                    else if (maxRate*0.75<mCurrentHeartRate && mCurrentHeartRate<=maxRate*0.95){
-                        hrateIndexHex = "01";
-                    }
-                    else if (maxRate*0.95<mCurrentHeartRate ){
-                        hrateIndexHex = "00";
-                    }
-
-                    String hexSynOrder = "FF070B"+HealthyDataActivity.getDataHexStringHaveScend()+hrateIndexHex+"16";
-
-
-                    mLeService.send(connecMac, hexSynOrder,true);
-
-
-
-                    Log.i(TAG,"同步指令connecMac:"+connecMac+",hrateIndexHex:"+hrateIndexHex);
-                }
-            }
-        });
-    }
-
     boolean isHaveDataTransfer;
 
     //结束运动
@@ -908,6 +781,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                         saveSportRecord();
                         Intent intent = new Intent(StartRunActivity.this, CalculateHRRProcessActivity.class);
                         intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
+                        if (!MyUtil.isEmpty(ecgLocalFileName)){
+                            intent.putExtra(Constant.ecgLocalFileName,ecgLocalFileName);
+                        }
                         if (createrecord!=-1){
                             intent.putExtra(Constant.sportCreateRecordID,createrecord);
                         }
@@ -935,6 +811,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                         saveSportRecord();
                         Intent intent = new Intent(StartRunActivity.this, HeartRateActivity.class);
                         intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
+                        if (!MyUtil.isEmpty(ecgLocalFileName)){
+                            intent.putExtra(Constant.ecgLocalFileName,ecgLocalFileName);
+                        }
                         if (createrecord!=-1){
                             intent.putExtra(Constant.sportCreateRecordID,createrecord);
                         }
@@ -959,6 +838,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 saveSportRecord();
                 Intent intent = new Intent(StartRunActivity.this, HeartRateActivity.class);
                 intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
+                if (!MyUtil.isEmpty(ecgLocalFileName)){
+                    intent.putExtra(Constant.ecgLocalFileName,ecgLocalFileName);
+                }
+
                 if (createrecord!=-1){
                     intent.putExtra(Constant.sportCreateRecordID,createrecord);
                 }
@@ -996,7 +879,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         createrecord = Util.saveRecord(record.getPathline(), record.getDate(), this,mStartTime,mAllDistance);
         Log.i(TAG,"createrecord:"+createrecord);
         mlocationClient.stopLocation();
-        mIsRunning = false;
+        fileOutputStream = null;
     }
 
     //初始化定位
@@ -1087,11 +970,17 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (MainActivity.mBluetoothAdapter!=null){
+        Log.i(TAG,"onDestroy");
+        mIsRunning = false;
+        /*if (MainActivity.mBluetoothAdapter!=null){
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
-        }
+        }*/
 
-        mActivity = null;
-        unbindService(mConnection);
+        MyApplication.mApplicationActivity = null;
+        MyApplication.runningActivity = MyApplication.MainActivity;
+
+        if (isBindService){
+            unbindService(mConnection);
+        }
     }
 }

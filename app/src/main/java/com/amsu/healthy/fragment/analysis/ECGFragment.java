@@ -95,6 +95,8 @@ public class ECGFragment extends Fragment {
             }
         });
 
+        mAllTimeAtSecond = 0;
+
 
 
         //心电进度监听器
@@ -164,69 +166,94 @@ public class ECGFragment extends Fragment {
                 if (mUploadRecord!=null){
                     Log.i(TAG,"mUploadRecord:"+mUploadRecord.toString());
                     //Log.i(TAG,"EC :"+mUploadRecord.EC);
-                    long timestamp =  Long.valueOf(mUploadRecord.timestamp);
-                    String eCGFilePath = MyUtil.generateECGFilePath(getActivity(), timestamp);
+                    //long timestamp =  Long.valueOf(mUploadRecord.timestamp);
+                    long timestamp =  System.currentTimeMillis();
+                    String eCGFilePath;
+                    if (!MyUtil.isEmpty(RateAnalysisActivity.ecgLocalFileName)){
+                        //有分析过来的心电数据，则从本地获取数据
+                        eCGFilePath  = RateAnalysisActivity.ecgLocalFileName;
+                    }
+                    else {
+                        eCGFilePath = MyUtil.generateECGFilePath(getActivity(), timestamp);
+                    }
+                    //eCGFilePath  = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170516101758.ecg";
+                    Log.i(TAG,"eCGFilePath:"+eCGFilePath);
+
+                    if (MyUtil.isEmpty(eCGFilePath)){
+                        return;
+                    }
+
                     //String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
                     //String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";  //测试
-                    if (!eCGFilePath.equals("")){
-                        try {
-                            if (fileInputStream==null){
-                                File file = new File(eCGFilePath);
-                                if (!file.exists() && !mUploadRecord.EC.equals(Constant.uploadRecordDefaultString)){
-                                    //文件不存在的话说明  1、本地文件已经被删除了  2、第一次从历史记录获取文件，需用Base64生成文件
-                                    file = MyUtil.base64ToFile(mUploadRecord.EC, eCGFilePath);
-                                }
-                                if (file.exists()){
-                                    datas = new ArrayList<>();
-                                    fileInputStream = new FileInputStream(eCGFilePath);
-                                    DataInputStream dataInputStream = new DataInputStream(fileInputStream); //读取二进制文件
 
-
-                                    try {
-
-                                        /*byte[] bytes = new byte[2];
-                                        ByteBuffer buffer=  ByteBuffer.wrap(bytes);
-                                        while( dataInputStream.available() >1){
-                                            bytes[1] = dataInputStream.readByte();
-                                            bytes[0] = dataInputStream.readByte();
-                                            short readCsharpInt = buffer.getShort();
-                                            buffer.clear();
-                                            //滤波处理
-                                            int temp = EcgFilterUtil.miniEcgFilterLp(readCsharpInt, 0);
-                                            temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
-                                            datas.add(temp);
-                                        }
-                                        mEcgGroupSize = datas.size() / 10;
-                                        Log.i(TAG,"ecgGroupSize:"+mEcgGroupSize);*/
-
-                                        byte[] bytes = new byte[1024*1024];
-                                        System.out.println("dataInputStream.available():"+dataInputStream.available());
-                                        Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
-
-                                        while(dataInputStream.available() >0){
-                                            int read = dataInputStream.read(bytes);
-                                            for (int i = 0; i < read/2-1; i++) {
-                                                bytes[0] = bytes[i*2];
-                                                bytes[1] = bytes[i*2+1];
-                                                //滤波处理
-                                                int temp = EcgFilterUtil.miniEcgFilterLp((int) getShortByTwoBytes(bytes[0],bytes[1]), 0);
-                                                temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
-                                                datas.add(temp);
-                                            }
-                                        }
-                                        mEcgGroupSize = datas.size() / 10;
-                                        Log.i(TAG,"ecgGroupSize:"+mEcgGroupSize);
-                                        Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
+                    try {
+                        if (fileInputStream==null){
+                            File file = new File(eCGFilePath);
+                            if (!file.exists() && !MyUtil.isEmpty(mUploadRecord.EC) && !mUploadRecord.EC.equals(Constant.uploadRecordDefaultString)){
+                                //文件不存在的话说明  1、本地文件已经被删除了  2、第一次从历史记录获取文件，需用Base64生成文件
+                                file = MyUtil.base64ToFile(mUploadRecord.EC, eCGFilePath);
+                                Log.i(TAG,"base64ToFile");
                             }
 
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
+                            if (file.exists()){
+
+                                fileInputStream = new FileInputStream(eCGFilePath);
+                                DataInputStream dataInputStream = new DataInputStream(fileInputStream); //读取二进制文件
+
+                                try {
+                                    datas = new ArrayList<>();
+                                    /*byte[] bytes = new byte[2];
+                                    ByteBuffer buffer=  ByteBuffer.wrap(bytes);
+                                    while( dataInputStream.available() >1){
+                                        bytes[1] = dataInputStream.readByte();
+                                        bytes[0] = dataInputStream.readByte();
+                                        short readCsharpInt = buffer.getShort();
+                                        buffer.clear();
+                                        //滤波处理
+                                        int temp = EcgFilterUtil.miniEcgFilterLp(readCsharpInt, 0);
+                                        temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
+                                        datas.add(temp);
+                                    }
+
+                                    mEcgGroupSize = datas.size() / 10;
+                                    Log.i(TAG,"ecgGroupSize:"+mEcgGroupSize);*/
+
+                                    byte[] bytes = new byte[1024*1024];
+                                    Log.i(TAG,"dataInputStream.available():"+dataInputStream.available());
+                                    Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
+                                    datas = new ArrayList<>();
+
+
+                                    while(dataInputStream.available() >0){
+                                        int read = dataInputStream.read(bytes);
+                                        for (int i = 0; i < read/2-1; i++) {
+                                            bytes[0] = bytes[i*2];
+                                            bytes[1] = bytes[i*2+1];
+
+                                            //滤波处理
+                                            int temp = EcgFilterUtil.miniEcgFilterLp((int)MyUtil.getShortByTwoBytes(bytes[0],bytes[1]), 0);
+                                            temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
+                                            datas.add(temp);
+
+                                        }
+                                    }
+
+                                    /*for (int i:datas){
+                                        Log.i(TAG,"i:"+i);
+                                    }*/
+                                    mEcgGroupSize = datas.size() / 10;
+                                    Log.i(TAG,"ecgGroupSize:"+mEcgGroupSize);
+                                    Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
+
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
                     }
+
                 }
 
                 if (datas!=null && datas.size()>0){
@@ -238,15 +265,13 @@ public class ECGFragment extends Fragment {
                         public void run() {
                             tv_ecg_protime.setText("0'0/"+mAllTimeString);
                             if (isonResume){
-                                startDrawSimulator();
+                                //startDrawSimulator();
                             }
                         }
                     });
 
                     Log.i(TAG,"mAllTimeAtSecond:"+mAllTimeAtSecond);
                     Log.i(TAG,"datas.size():"+datas.size());
-
-
                 }
 
             }
@@ -322,8 +347,8 @@ public class ECGFragment extends Fragment {
 
     }
 
-    public static short getShortByTwoBytes(byte argB1, byte argB2) {
-        return (short) (argB1| (argB2 << 8));
+    public  short getShortByTwoBytes(byte argB1, byte argB2) {
+        return (short) ((argB1 & 0xFF)| (argB2 << 8));
     }
 
     //将秒数换算成1'57这种时间个格式

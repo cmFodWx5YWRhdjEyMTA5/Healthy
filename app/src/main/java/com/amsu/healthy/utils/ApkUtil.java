@@ -135,13 +135,14 @@ public class ApkUtil {
     }
 
     //和本地对比，判断更新状态
-    public static void checkAndUpdateVersion(int version, final String path, final Activity context,boolean isShowToask) {
+    public static void checkAndUpdateVersion(int version, final String path, final Activity context,boolean isShowToask,final String remark) {
         int versionCode = getVersionCode(context);
         if (version>versionCode){
             //有更新
             AlertDialog alertDialog = new AlertDialog.Builder(context)
 
                     .setTitle("有新版本")
+                    .setMessage(remark)
                     .setPositiveButton("更新", new DialogInterface.OnClickListener() {
 
                         @Override

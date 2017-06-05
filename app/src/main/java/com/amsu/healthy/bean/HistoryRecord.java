@@ -85,4 +85,15 @@ public class HistoryRecord implements Parcelable{
     public void setAnalysisState(String analysisState) {
         this.analysisState = analysisState;
     }
+
+
+    @Override
+    public String toString() {
+        return "HistoryRecord{" +
+                "ID='" + ID + '\'' +
+                ", datatime='" + datatime + '\'' +
+                ", state=" + state +
+                ", analysisState='" + analysisState + '\'' +
+                '}';
+    }
 }

@@ -95,8 +95,12 @@ public class CalculateHRRProcessActivity extends BaseActivity {
                 intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
             }
             long ecgFiletimeMillis = runIntent.getLongExtra(Constant.ecgFiletimeMillis,-1);
+            String ecgLocalFileName = runIntent.getStringExtra(Constant.ecgLocalFileName);
             if (ecgFiletimeMillis!=-1){
                 intent.putExtra(Constant.ecgFiletimeMillis,ecgFiletimeMillis);
+            }
+            if (!MyUtil.isEmpty(ecgLocalFileName)){
+                intent.putExtra(Constant.ecgLocalFileName,ecgLocalFileName);
             }
 
             intent.putExtra(Constant.sportState,1);

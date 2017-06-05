@@ -2,8 +2,6 @@ package com.amsu.healthy.activity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,7 +17,6 @@ import com.amsu.healthy.bean.DeviceList;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +54,7 @@ public class SearchDevicehActivity extends BaseActivity {
 
         iv_heartrate_rotateimage.setAnimation(animation);
 
-        MyTimeTask.startCountDownTimerTask(1000 * 10, new MyTimeTask.OnTimeOutListener() {
+        MyTimeTask.startCountDownTimerTask(1000 * 4, new MyTimeTask.OnTimeOutListener() {
             @Override
             public void onTomeOut() {
                 Log.i(TAG,"10秒钟定时器onTomeOut");
@@ -105,24 +102,24 @@ public class SearchDevicehActivity extends BaseActivity {
         Log.i(TAG,"deviceListFromSP:"+deviceListFromSP.toString());
         if (deviceListFromSP.size()==0){
             Log.i(TAG,"没有扫描到设备");
-            MyUtil.showToask(SearchDevicehActivity.this,"没有扫描到设备");
+            //MyUtil.showToask(SearchDevicehActivity.this,"没有扫描到设备");
 
 
         }
         else {
-            if (deviceListFromSP.size()>1){
+            if (deviceListFromSP.size()==1){
+                //发现一个设备，有可能是当前设备，有可能是新的设备
+                MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,deviceListFromSP.get(0).getMac());
+            }
+            else {
                 //有新设备
                 Log.i(TAG,"添加新设备成功");
                 MyUtil.showToask(SearchDevicehActivity.this,"发现新设备,点击设置需要运行的设备");
             }
-            else {
-                MyUtil.putStringValueFromSP(Constant.currectDeviceLEName,deviceListFromSP.get(0).getLEName());
-            }
-
 
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
             //tv_search_state.setText("查找成功");
-            //MyUtil.putStringValueFromSP(Constant.currectDeviceLEName,leName);
+            //MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,leName);
             animation.cancel();
             //MyUtil.showToask(SearchDevicehActivity.this,"设备切换成功");
             setResult(RESULT_OK,getIntent());
@@ -161,7 +158,7 @@ public class SearchDevicehActivity extends BaseActivity {
                     Log.i(TAG,"添加新设备成功");
                     MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
                     //tv_search_state.setText("查找成功");
-                    MyUtil.putStringValueFromSP(Constant.currectDeviceLEName,leName);
+                    MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,leName);
                     animation.cancel();
                     setResult(RESULT_OK,getIntent());
                     finish();
@@ -183,7 +180,7 @@ public class SearchDevicehActivity extends BaseActivity {
                         Log.i(TAG,"添加新设备成功");
                         MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
                         //tv_search_state.setText("查找成功");
-                        MyUtil.putStringValueFromSP(Constant.currectDeviceLEName,leName);
+                        MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,leName);
                         animation.cancel();
                         setResult(RESULT_OK,getIntent());
                         finish();

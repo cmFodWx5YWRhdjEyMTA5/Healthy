@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 
+import com.amsu.healthy.activity.BaseActivity;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,9 +21,13 @@ public class MyApplication extends Application{
 
     public static SharedPreferences sharedPreferences;
     public static List<Activity> mActivities;
-    public static boolean isHaveDeviceConnectted;
-    public static Activity mApplicationActivity;
-
+    public static boolean isHaveDeviceConnectted = false;
+    public static BaseActivity mApplicationActivity;
+    public static boolean isBlueServiceWorked;
+    public static final int MainActivity = 1;
+    public static final int HealthyDataActivity = 2;
+    public static final int StartRunActivity = 3;
+    public static int runningActivity = 1;
 
     @Override
     public void onCreate() {
@@ -36,8 +42,5 @@ public class MyApplication extends Application{
 
 
         FIR.init(this);
-
-
-
     }
 }

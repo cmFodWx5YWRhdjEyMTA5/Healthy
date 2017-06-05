@@ -35,6 +35,10 @@ public class ChooseAlertDialogUtil {
         setAlertDialogText(null,content,confirmString,cancelString);
     }
 
+    public void setAlertDialogTextHaveTitle(String title,String confirmString,String cancelString){
+        setAlertDialogText(title,null,confirmString,cancelString);
+    }
+
     public void setAlertDialogText(String title,String content,String confirmString,String cancelString){
         View inflate = View.inflate(context, R.layout.view_dialog_showchoose, null);
         TextView tv_choose_title = (TextView) inflate.findViewById(R.id.tv_choose_title);
@@ -47,7 +51,10 @@ public class ChooseAlertDialogUtil {
         }
         if (!MyUtil.isEmpty(content)){
             tv_choose_tip.setText(content);
+        }else {
+            tv_choose_tip.setVisibility(View.GONE);
         }
+
         if (!MyUtil.isEmpty(confirmString)){
             bt_choose_ok.setText(confirmString);
         }

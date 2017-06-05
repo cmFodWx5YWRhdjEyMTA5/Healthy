@@ -1,5 +1,10 @@
 package com.amsu.healthy.utils.wifiTramit.uilt;
 
+import android.util.Log;
+
+import com.amsu.healthy.utils.EcgFilterUtil;
+import com.amsu.healthy.utils.MyUtil;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
@@ -8,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,7 +21,9 @@ import java.util.List;
  */
 
 public class WriteReadDataToBinaryFile implements WriteReadDataToFileStrategy {
-    @Override
+    private static final String TAG = "WriteReadDataToBinaryFile";
+
+    /*@Override
     public boolean writeDataToFile(List<Integer> integerList, String fileName) {
         DataOutputStream dataOutputStream = null;
         boolean isWriteSuccess = false;
@@ -36,7 +44,54 @@ public class WriteReadDataToBinaryFile implements WriteReadDataToFileStrategy {
             IOUtil.closeIOStream(dataOutputStream);
         }
         return isWriteSuccess;
+    }*/
+
+    @Override
+    public boolean writeDataToFile(List<Integer> integerList, String fileName) {
+        DataOutputStream dataOutputStream = null;
+        boolean isWriteSuccess = false;
+        try {
+            dataOutputStream = new DataOutputStream(new FileOutputStream(fileName));
+            byte[] bytes = new byte[1024*1024];
+            int byteLength = integerList.size()*2;
+
+            int count = byteLength/bytes.length;
+            int reminder = byteLength%bytes.length;
+
+            System.out.println("count: "+count);
+            System.out.println("reminder: "+reminder);
+            for (int i = 0; i < count; i++) {
+                for (int j = 0; j < bytes.length/2; j++) {
+                    int integer = integerList.get((bytes.length/2)*(count/2)+j);
+                    byte[] shortToByte = MyUtil.shortToByte((short)integer);
+                    bytes[j*2]  = shortToByte[0];
+                    bytes[j*2+1]  = shortToByte[1];
+                }
+                //写入文件
+                dataOutputStream.write(bytes);
+            }
+            if (reminder>0) {
+                int index;
+                for (int i = count*bytes.length; i < integerList.size(); i++) {
+                    index = i-count*bytes.length;
+                    int integer = integerList.get(index);
+                    byte[] shortToByte = MyUtil.shortToByte((short)integer);
+                    bytes[index*2]  = shortToByte[0];
+                    bytes[index*2+1]  = shortToByte[1];
+                }
+                //写入文件
+                dataOutputStream.write(bytes, 0, reminder);;
+            }
+            dataOutputStream.flush();
+            isWriteSuccess = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtil.closeIOStream(dataOutputStream);
+        }
+        return isWriteSuccess;
     }
+
 
     @Override
     public List<Integer> readDataFromFile(String fileName) {
@@ -44,14 +99,21 @@ public class WriteReadDataToBinaryFile implements WriteReadDataToFileStrategy {
         DataInputStream dataInputStream = null;
         try {
             dataInputStream= new DataInputStream(new FileInputStream(fileName));
-            byte[] bytes = new byte[2];
-            ByteBuffer byteBuffer=  ByteBuffer.wrap(bytes);
+
+            byte[] bytes = new byte[1024*1024];
+            Log.i(TAG,"dataInputStream.available():"+dataInputStream.available());
+            Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
+
             while(dataInputStream.available() >0){
-                bytes[1] = dataInputStream.readByte();
-                bytes[0] = dataInputStream.readByte();
-                short readCsharpInt = byteBuffer.getShort();
-                byteBuffer.clear();
-                integerList.add((int) readCsharpInt);
+                int read = dataInputStream.read(bytes);
+                for (int i = 0; i < read/2-1; i++) {
+                    bytes[0] = bytes[i*2];
+                    bytes[1] = bytes[i*2+1];
+                    //滤波处理
+                    int temp = EcgFilterUtil.miniEcgFilterLp((int) MyUtil.getShortByTwoBytes(bytes[0],bytes[1]), 0);
+                    temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
+                    integerList.add(temp);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

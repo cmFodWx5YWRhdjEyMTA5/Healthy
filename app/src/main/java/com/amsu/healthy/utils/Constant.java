@@ -50,10 +50,10 @@ public class Constant {
 
     public static int oneSecondFrame = 150; //帧为150，即1s有150个数据点
 
-    public static String currectDeviceLEName = "currectDeviceLEName";
+    public static String currectDeviceLEMac = "currectDeviceLEMac";
     public static String sportState = "sportState";
     public static String isLookupECGDataFromSport = "isLookupECGDataFromSport";
-    public static String heartDataList_static = "heartDataList_static";
+    public static String heartDataList_static = "heartDataListstatic";
     public static String heartDataList_athletic = "heartDataList_athletic";
     public static String mKcalData = "mKcalData";
     public static String mStridefreData = "mStridefreData";
@@ -66,6 +66,8 @@ public class Constant {
     public static String restingHR = "restingHR";
     public static String sosinfo = "sosinfo";
     public static String sosNumberList = "sosNumberList";
+    public static String ecgLocalFileName = "ecgLocalFileName";
+    public static String accLocalFileName = "accLocalFileName";
 
     public static String uploadRecordDefaultString = "0";
 

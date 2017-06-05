@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.activity.BaseActivity;
 import com.amsu.healthy.activity.SosActivity;
 import com.amsu.healthy.activity.SystemSettingActivity;
 import com.amsu.healthy.appication.MyApplication;
@@ -578,8 +579,12 @@ public class MyUtil {
         MyUtil.putStringValueFromSP(Constant.sosNumberList,sosNumberListString);
     }
 
-    public static void showPopWindow(Activity activity, final View view, int connectType){
-        activity = MyApplication.mApplicationActivity;
+    public static void showPopWindow(int connectType){
+        //Log.i(TAG,"showPopWindow:"+activity.getClass());
+        final BaseActivity activity = MyApplication.mApplicationActivity;
+        //Log.i(TAG,"MyApplication.mApplicationActivity:"+MyApplication.mApplicationActivity);
+        //Log.i(TAG,"activity:"+activity.getClass());
+
         if (activity==null) return;
         View popupView = View.inflate(activity,R.layout.layout_popupwindow_onoffline,null);
         ImageView iv_pop_icon = (ImageView) popupView.findViewById(R.id.iv_pop_icon);
@@ -600,21 +605,16 @@ public class MyUtil {
         mPopupWindow.setOutsideTouchable(true);
         mPopupWindow.setBackgroundDrawable(new BitmapDrawable(activity.getResources(), (Bitmap) null));
 
-        /*new Thread(){
-            @Override
-            public void run() {
-
-                super.run();
-            }
-        }.start();*/
-
-
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mPopupWindow.showAtLocation(view, Gravity.TOP,0,0);
+                //showToask(finalActivity,"设备连接或断开");
+                mPopupWindow.showAtLocation(activity.getTv_base_rightText(), Gravity.TOP,0,0);
+                Log.i(TAG,"PopupWindow.showAtLocation:");
             }
         });
+
+
         try {
             Thread.sleep(2000);
             activity.runOnUiThread(new Runnable() {
@@ -628,6 +628,29 @@ public class MyUtil {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+    }
+
+
+    public static short getShortByTwoBytes(byte argB1, byte argB2) {
+        return (short) ((argB1 & 0xFF)| (argB2 << 8));
+    }
+
+    /**
+     * 注释：short到字节数组的转换！
+     *
+     * @param
+     * @return
+     */
+    public static byte[] shortToByte(short number){
+        int temp = number;
+        byte[] b =new byte[2];
+        for(int i =0; i < b.length; i++){
+            b[i]=new Integer(temp &0xff).byteValue();
+            // 将最低位保存在最低位
+            temp = temp >>8;// 向右移8位
+        }
+        return b;
     }
 }
 

@@ -400,6 +400,4 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
             Log.i(TAG,"i:"+i);
         }*/
     }
-
-
 }

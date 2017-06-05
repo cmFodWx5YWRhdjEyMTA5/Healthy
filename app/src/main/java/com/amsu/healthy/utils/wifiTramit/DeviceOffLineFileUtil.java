@@ -268,6 +268,23 @@ public class DeviceOffLineFileUtil {
         };
     }
 
+    public static void setTransferTimeOverTime(final OnTimeOutListener onTimeOutListener, int count){
+        final int TimeOutAllCount = count;
+        mTimerTask=new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("run TimeOutCountIndex:"+TimeOutCountIndex);
+                if (mIsTimeerRunning){
+                    TimeOutCountIndex++;
+                }
+                if (TimeOutCountIndex==TimeOutAllCount) {
+                    TimeOutCountIndex = 0;
+                    onTimeOutListener.onTomeOut();//时间到
+                }
+            }
+        };
+    }
+
     public static void startTime(){
         if (mTimer==null){
             mTimer = new Timer();
@@ -357,9 +374,10 @@ public class DeviceOffLineFileUtil {
 
     //写到文件里，二进制方式写入
     public static boolean writeEcgDataToBinaryFile(List<Integer> mAllData,String fileName){
-        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+ fileName;
+        //fileName  20170413172800.ecg
+        //String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+ fileName;
         WriteReadDataToFileStrategy writeReadDataToFileStrategy = new WriteReadDataToBinaryFile();
-        boolean isWriteSuccess = writeReadDataToFileStrategy.writeDataToFile(mAllData, filePath);
+        boolean isWriteSuccess = writeReadDataToFileStrategy.writeDataToFile(mAllData, fileName);
         //writeFileListToSP(filePath);
         return isWriteSuccess;
     }
