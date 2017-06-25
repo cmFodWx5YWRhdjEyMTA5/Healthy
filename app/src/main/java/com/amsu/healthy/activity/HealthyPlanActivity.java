@@ -1,8 +1,6 @@
 package com.amsu.healthy.activity;
 
 import android.content.Intent;
-import android.os.Parcelable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,20 +10,18 @@ import android.widget.ListView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.HealthyPlanDataAdapter;
 import com.amsu.healthy.bean.HealthyPlan;
+import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.bean.JsonBase;
-import com.amsu.healthy.bean.JsonHealthyList;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,8 +43,6 @@ public class HealthyPlanActivity extends BaseActivity {
         initView();
         initData();
     }
-
-
 
     private void initView() {
         initHeadView();
@@ -91,7 +85,7 @@ public class HealthyPlanActivity extends BaseActivity {
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
         Date date = new Date();
-        date.setMonth(date.getMonth()-1);
+        date.setMonth(date.getMonth());
         String formatTime = MyUtil.getFormatTime(date);
         params.addBodyParameter("date",formatTime);
         params.addBodyParameter("page","1");
@@ -101,18 +95,14 @@ public class HealthyPlanActivity extends BaseActivity {
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
-                Gson gson = new Gson();
-                JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+                JsonBase<List<HealthyPlan>> jsonBase = MyUtil.commonJsonParse(result, new TypeToken<JsonBase<List<HealthyPlan>>>() {}.getType());
                 Log.i(TAG,"jsonBase:"+jsonBase);
-                if (jsonBase.getRet()==0){
-                    JsonHealthyList jsonHealthyList = gson.fromJson(result, JsonHealthyList.class);
-                    List<HealthyPlan> errDesc = jsonHealthyList.getErrDesc();
-                    for (int i=0;i<errDesc.size();i++){
-                        healthyPlanList.add(errDesc.get(i));
+                if (jsonBase!=null&&jsonBase.getRet()==0){
+                    if (jsonBase.errDesc!=null && jsonBase.errDesc.size()>0){
+                        healthyPlanList.addAll(jsonBase.errDesc);
+                        healthyPlanDataAdapter.notifyDataSetChanged();
                     }
-
                     Log.i(TAG,"healthyPlanList:"+healthyPlanList.size());
-                    healthyPlanDataAdapter.notifyDataSetChanged();
                 }
             }
 

@@ -10,11 +10,12 @@ public class Constant {
     public static int MODIFY_SEX = 1;
     public static int MODIFY_EMAIL = 2;
     public static int MODIFY_PHONE = 3;
-    public static int MODIFY_STILLRATE = 3;
+    public static int MODIFY_STILLRATE = 4;
 
     public static String writeConfigureOrder = "FF010A100C080E010016";
     public static String openDataTransmitOrder = "FF0206010016";
     public static String stopDataTransmitOrder = "FF0206000016";
+    public static String readDeviceIDOrder = "FF04050016";
     public static String checkIsHaveDataOrder = "FF05050016";  //4.6	查询SD卡是否有数据
     public static String synchronizeOrder = "FF05050016";  //4.6	设备同步
 
@@ -45,6 +46,7 @@ public class Constant {
 
     //public static String checkAppUpdateURL = "https://bodylistener.amsu-new.com/intellingence/VersionController/getLastVersion";
     public static String checkAppUpdateURL = "http://www.amsu-new.com:8081/intellingence-web/getLastVersion.do";
+    public static String disclaimerAssertsURL = "http://www.amsu-new.com:8081/intellingence-web/upload/disclaimerAsserts.html";
 
     public static long AnimatorDuration = 2000;  //动画时长，2s
 
@@ -68,6 +70,9 @@ public class Constant {
     public static String sosNumberList = "sosNumberList";
     public static String ecgLocalFileName = "ecgLocalFileName";
     public static String accLocalFileName = "accLocalFileName";
+    public static String hardWareVersion = "hardWareVersion";
+    public static String softWareVersion = "softWareVersion";
+    public static String myDeceiveName = "myDeceiveName";
 
     public static String uploadRecordDefaultString = "0";
 

@@ -9,7 +9,7 @@ import com.amsu.healthy.utils.Constant;
  * Created by HP on 2017/3/19.
  */
 
-public class UploadRecord implements Parcelable {
+public class UploadRecord implements Parcelable,Cloneable {
     public String FI;                      //疲劳指数(Fatigue index)
     public String ES;                      //	情绪状态(emotional state)
     public String PI;         //压力指数(Pressure index)
@@ -41,6 +41,17 @@ public class UploadRecord implements Parcelable {
 
     public String id;
     public String serveId;
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        UploadRecord o = null;
+        try{
+            o = (UploadRecord)super.clone();
+        }catch(CloneNotSupportedException e){
+            e.printStackTrace();
+        }
+        return o;
+    }
 
     public UploadRecord() {
         FI = Constant.uploadRecordDefaultString;

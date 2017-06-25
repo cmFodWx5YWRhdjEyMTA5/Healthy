@@ -4,6 +4,7 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -14,7 +15,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.DeadObjectException;
 import android.os.IBinder;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -29,10 +32,13 @@ import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Apk;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.service.MyTestService;
 import com.amsu.healthy.utils.ApkUtil;
+import com.amsu.healthy.utils.AppAbortDataSaveUtil;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
@@ -43,6 +49,8 @@ import com.amsu.healthy.view.DashboardView;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
 import com.ble.ble.BleService;
+import com.google.gson.Gson;
+import com.test.utils.DiagnosisNDK;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,6 +78,7 @@ public class MainActivity extends BaseActivity {
     private boolean isConnectting  =false;
 
     private BaseActivity mActivity = this;
+    private DeviceOffLineFileUtil deviceOffLineFileUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +90,6 @@ public class MainActivity extends BaseActivity {
 
         initView();
         initData();
-
-
 
         /*String text = MyUtil.encodeBase64String("haha");
         Log.i(TAG,"text:"+text);
@@ -143,10 +150,43 @@ public class MainActivity extends BaseActivity {
             }
         });*/
 
-        Intent intent = new Intent();
-        intent.setClass(MainActivity.this, MyTestService.class);
 
-        startService(intent);
+        /*int[] test = new int[1800];
+        for (int i=0;i<1800;i++){
+            test[i] = 60+i%20;
+        }
+        for (int i=0;i<1800;i++){
+            System.out.println(test[i]);
+        }
+
+        int currentHeartRate = DiagnosisNDK.ecgHeart(test, test.length, Constant.oneSecondFrame);
+
+        Log.i(TAG,"currentHeartRate:"+currentHeartRate);*/
+
+        //List<AppAbortDataSaveUtil.AbortData> abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
+        //Log.i(TAG,"abortDataListFromSP:"+abortDataListFromSP.toString());
+
+        //AppAbortDataSaveUtil.putAbortDataListToSP(new ArrayList<AppAbortDataSaveUtil.AbortData>());
+
+
+        /*ActivityManager myManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        ArrayList<ActivityManager.RunningServiceInfo> runningService = (ArrayList<ActivityManager.RunningServiceInfo>) myManager.getRunningServices(Integer.MAX_VALUE);
+        //Log.i(TAG,"runningService:"+runningService);
+        if (runningService!=null){
+            for (int i = 0; i < runningService.size(); i++) {
+                Log.i(TAG,"runningService:"+runningService.get(i).service.getClassName());
+            }
+        }*/
+
+
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        Log.i(TAG,"heigth : " + dm.heightPixels);
+        Log.i(TAG,"width : " + dm.widthPixels);
+
+
+
+
     }
 
 
@@ -253,9 +293,14 @@ public class MainActivity extends BaseActivity {
         List<UploadRecord> uploadRecordsState1 = offLineDbAdapter.queryRecordByUploadState("0");
         Log.i(TAG,"uploadRecordsState1:"+uploadRecordsState1);*/
 
+        /*Intent service = new Intent(this, CommunicateToBleService.class);
+        startService(service);*/
+
+
+
+
 
     }
-
 
     //给文本年龄设置文字动画
     private void setAgeTextAnimator(final TextView textView,int startAge,int endAge) {
@@ -322,10 +367,6 @@ public class MainActivity extends BaseActivity {
                 dv_main_compass.setAgeData(physicalAge-10);
             }
         }
-        if (mBluetoothAdapter!=null && mBluetoothAdapter.isEnabled()) {
-            startLeScanBlue();
-        }
-
     }
 
 
@@ -394,8 +435,8 @@ public class MainActivity extends BaseActivity {
                     startActivity(new Intent(MainActivity.this,MotionDetectionActivity.class));
                     break;
                 case R.id.rl_main_sportarea:
-                    //startActivity(new Intent(MainActivity.this,SportCommunityActivity.class));
-                    startActivity(new Intent(MainActivity.this,MotionDetectionActivity.class));
+                    startActivity(new Intent(MainActivity.this,SportCommunityActivity.class));
+                    //startActivity(new Intent(MainActivity.this,MotionDetectionActivity.class));
                     break;
                 case R.id.rl_main_me:
                     startActivity(new Intent(MainActivity.this,MeActivity.class));
@@ -437,7 +478,7 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .show();*/
-        //finish();
+       finish();
     }
 
     public void showdialogToSupplyData(){
@@ -459,18 +500,7 @@ public class MainActivity extends BaseActivity {
                 .show();
     }
 
-    private void showUploadOffLineData(){
-        ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(this);
-        chooseAlertDialogUtil.setAlertDialogText("发现有离线文件，是否现在进行上传","是","否");
-        chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
-            @Override
-            public void onConfirmClick() {
-                Intent intent = new Intent(MainActivity.this, ConnectToWifiModuleGudieActivity1.class);
-                startActivity(intent);
 
-            }
-        });
-    }
 
     @Override
     protected void onPause() {
@@ -486,13 +516,6 @@ public class MainActivity extends BaseActivity {
        // ShowLocationOnMap.mMapView = null;
         //android.os.Process.killProcess(android.os.Process.myPid());  //退出应用程序
 
-        if (isBindService){
-            unbindService(mConnection);
-        }
-
-        if (MainActivity.mBluetoothAdapter!=null){
-            MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
-        }
     }
 
     // 用来计算返回键的点击间隔时间
@@ -506,311 +529,15 @@ public class MainActivity extends BaseActivity {
                 Toast.makeText(getApplicationContext(), "再按一次退出程序", Toast.LENGTH_SHORT).show();
                 exitTime = System.currentTimeMillis();
             } else {
+               /* NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                notificationManager.cancel(1);*/
                 finish();
+
             }
             return true;
         }
         return super.onKeyDown(keyCode, event);
     }
 
-    public void startLeScanBlue(){
-        if (MainActivity.mBluetoothAdapter!=null){
-            MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
-            Log.i(TAG,"startLeScan");
-            //绑定蓝牙，获取蓝牙服务
-            bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
-            isBindService = true;
-        }
-
-
-    }
-
-    boolean isBindService;
-
-    //扫描蓝牙回调
-    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
-
-        @Override
-        public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-            //BLE#0x44A6E51FC5BF,44:A6:E5:1F:C5:BF,null,10,2
-            //null,72:A8:23:AF:25:42,null,10,0
-            //null,63:5C:3E:B6:A0:AE,null,10,0
-            Log.i(TAG,"onLeScan  device:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
-            String leName = device.getName();
-            if (leName!=null && leName.startsWith("BLE")) {
-                String stringValueFromSP = MyUtil.getStringValueFromSP(Constant.currectDeviceLEMac);
-                if (device.getAddress().equals(stringValueFromSP)){  //只有扫描到的蓝牙是sp里的当前设备时（激活状态），才能进行连接
-                    Log.i(TAG,"stringValueFromSP:"+stringValueFromSP);
-                    Log.i(TAG,"isConnectted:"+isConnectted);
-                    Log.i(TAG,"isConnectting:"+isConnectting);
-
-                    //配对成功
-                    connecMac = device.getAddress();
-                    if (!isConnectted && !isConnectting){
-                        //没有链接上，并且没有正在链接
-                        Log.i(TAG,"device.getAddress():"+device.getAddress());
-                        if (mLeService!=null){
-
-                            isConnectting  = true;
-
-                            boolean connect = mLeService.connect(device.getAddress(), false);//链接
-                            Log.i(TAG,"connect:"+connect);
-
-                            if (!connect){
-                                isConnectting = false;
-                            }
-
-                            Log.i(TAG,"开始连接");
-                        }
-
-                    }
-                }
-            }
-        }
-    };
-
-
-    private final ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.i(TAG,"onServiceDisconnected");
-            mLeService = null;
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.i(TAG,"onServiceConnected");
-            mLeService = ((BleService.LocalBinder) service).getService(mBleCallBack);
-            // mLeService.setMaxConnectedNumber(max);// 设置最大可连接从机数量，默认为4
-            mLeService.setDecode(true);
-            // 必须调用初始化函数
-            mLeService.initialize();
-        }
-    };
-
-
-
-    // ble数据交互的关键参数
-    private final BleCallBack mBleCallBack = new BleCallBack() {
-
-        @Override
-        public void onConnected(String mac) {
-            //if ()
-            Log.i(TAG, "onConnected() - " + mac);
-            mLeService.startReadRssi(mac, 1000);
-            if (MainActivity.mBluetoothAdapter!=null){
-                //MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
-            }
-            if (!MyApplication.isHaveDeviceConnectted){
-                MyApplication.isHaveDeviceConnectted = isConnectted = true;
-                MyUtil.showPopWindow(1);
-            }
-            isConnectting = false;
-            DeviceOffLineFileUtil.stopTime();
-        }
-
-        @Override
-        public void onConnectTimeout(String mac) {
-            Log.w(TAG, "onConnectTimeout() - " + mac);
-            isConnectted = false;
-            if (MyApplication.isHaveDeviceConnectted){
-                MyApplication.isHaveDeviceConnectted = false;
-                MyUtil.showPopWindow(0);
-            }
-            isConnectting = false;
-            mIsDataStart = false;
-            DeviceOffLineFileUtil.stopTime();
-        }
-
-        @Override
-        public void onConnectionError(String mac, int status, int newState) {
-            Log.w(TAG, "onConnectionError() - " + mac + ", status = " + status + ", newState = " + newState);
-            isConnectted = false;
-            if (MyApplication.isHaveDeviceConnectted){
-                MyApplication.isHaveDeviceConnectted = false;
-                MyUtil.showPopWindow(0);
-            }
-            isConnectting = false;
-            mIsDataStart = false;
-            DeviceOffLineFileUtil.stopTime();
-        }
-
-        @Override
-        public void onDisconnected(String mac) {
-            Log.w(TAG, "onDisconnected() - " + mac);
-            isConnectted = false;
-            if (MyApplication.isHaveDeviceConnectted){
-                MyApplication.isHaveDeviceConnectted = false;
-                MyUtil.showPopWindow(0);
-            }
-            isConnectting = false;
-            mIsDataStart = false;
-            DeviceOffLineFileUtil.stopTime();
-        }
-
-        @Override
-        public void onServicesDiscovered(String mac) {
-            // !!!到这一步才可以与从机进行数据交互
-            Log.i(TAG, "onServicesDiscovered() - " + mac);
-            //数据交互指令放在线程中
-            sendStartDataTransmitOrderToBlueTooth();
-        }
-
-        @Override
-        public void onServicesUndiscovered(String mac, int status) {
-            Log.e(TAG, "onServicesUndiscovered() - " + mac + ", status = " + status);
-            if (MyApplication.isHaveDeviceConnectted){
-                MyApplication.isHaveDeviceConnectted = isConnectted = false;
-                MyUtil.showPopWindow(0);
-            }
-            isConnectting = false;
-            mIsDataStart = false;
-            DeviceOffLineFileUtil.stopTime();
-        }
-
-        @Override
-        public void onReadRemoteRssi(String mac, int rssi, int status) {
-            //Log.i(TAG,"onReadRemoteRssi==="+"mac:"+mac+",rssi:"+rssi+",status:"+status);
-        }
-
-        @Override
-        public void onCharacteristicChanged(String mac, android.bluetooth.BluetoothGattCharacteristic c) {
-            // 接收到从机数据
-            String uuid = c.getUuid().toString();
-            String hexData = DataUtil.byteArrayToHex(c.getValue());
-            Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
-            //4.2写配置信息   onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 81 05 00 16
-            //4.5App读主机设备的版本号  onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 84 07 88 88 00 16
-            /*数据：
-                FF 83 0F 00 00 00 00 00 00 00 00 00 00 00 16
-                FF 83 0F 00 00 00 00 00 00 00 00 00 00 01 16
-                FF 83 0F 00 00 00 00 00 00 00 00 00 00 02 16
-                只有倒数2位变化
-            */
-
-            //FF 85 06 00 00 16
-
-
-            if (hexData.startsWith("FF 85")){
-                Log.i(TAG,"SDhexData："+hexData);
-                if (hexData.split(" ")[3].equals("00")){
-                    //有数据
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showUploadOffLineData();
-                        }
-                    });
-                }
-            }
-            else {
-                if (hexData.length() > 40) {
-                    if (!mIsDataStart){
-                        mIsDataStart = true;
-                        sendDeviceSynOrderToBlueTooth();
-                    }
-
-                    /*if (mOneFrameEcgDataCount<15){
-                        mOneFrameEcgDataCount++;
-                    }
-                    else {
-                        mOneFrameEcgDataCount = 0;
-                        DeviceOffLineFileUtil.startTime();
-                    }*/
-                }
-            }
-        }
-    };
-
-    int mOneFrameEcgDataCount = 0;
-
-    //给蓝牙发开始数据传输指令
-    private void sendStartDataTransmitOrderToBlueTooth(){
-        Log.i(TAG,"sendStartDataTransmitOrderToBlueTooth");
-        Log.i(TAG,"isConnectted:"+isConnectted+"          mIsDataStart: "+mIsDataStart);
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-                while (isConnectted && !mIsDataStart){
-                    try {
-                        Thread.sleep(10);
-                        Log.i(TAG, "查询SD卡是否有数据");
-                        mLeService.send(connecMac, Constant.checkIsHaveDataOrder,true);
-
-                        Thread.sleep(10);
-                        Log.i(TAG,"写配置");
-                        String writeConfigureOrder = "FF010A"+HealthyDataActivity.getDataHexString()+"0016";
-                        Log.i(TAG,"writeConfigureOrder:"+writeConfigureOrder);
-                        //mLeService.send(connecMac, Constant.writeConfigureOrder,true);
-                        mLeService.send(connecMac, writeConfigureOrder,true);
-
-                        Thread.sleep(10);
-                        Log.i(TAG,"开启数据指令");
-                        mLeService.send(connecMac, Constant.openDataTransmitOrder,true);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }.start();
-
-    }
-
-    //给蓝牙设备同步指令
-    private void sendDeviceSynOrderToBlueTooth(){
-        Log.i(TAG,"sendDeviceSynOrderToBlueTooth");
-        final int mCurrentHeartRate = 0;
-        MyTimeTask.startTimeRiseTimerTask(MainActivity.this, 1000, new MyTimeTask.OnTimeChangeAtScendListener() {
-            @Override
-            public void onTimeChange(Date date) {
-                if (mIsDataStart){
-                    int maxRate = 220- HealthyIndexUtil.getUserAge();
-                    String hrateIndexHex = "02";
-                    if (mCurrentHeartRate<=maxRate*0.75){
-                        hrateIndexHex = "02";
-                    }
-                    else if (maxRate*0.75<mCurrentHeartRate && mCurrentHeartRate<=maxRate*0.95){
-                        hrateIndexHex = "01";
-                    }
-                    else if (maxRate*0.95<mCurrentHeartRate ){
-                        hrateIndexHex = "00";
-                    }
-
-                    String hexSynOrder = "FF070B"+HealthyDataActivity.getDataHexStringHaveScend()+hrateIndexHex+"16";
-
-                    boolean send = mLeService.send(connecMac, hexSynOrder, true);
-                    Log.i(TAG,"同步指令connecMac:"+connecMac+",hrateIndexHex:"+hrateIndexHex+"  send:"+send);
-
-                    /*boolean blueServiceWorked = isBlueServiceWorked();
-                    Log.i(TAG,"blueServiceWorked:"+blueServiceWorked);
-                    if (blueServiceWorked){
-                        boolean send = mLeService.send(connecMac, hexSynOrder, true);
-                        Log.i(TAG,"同步指令connecMac:"+connecMac+",hrateIndexHex:"+hrateIndexHex+"  send:"+send);
-                        MyApplication.isBlueServiceWorked = true;
-                    }
-                    else {
-                        MyApplication.isBlueServiceWorked = false;
-                    }*/
-
-                }
-            }
-        });
-    }
-
-    boolean mIsDataStart = false;
-
-    //本方法判断自己些的一个Service-->com.android.controlAddFunctions.PhoneService是否已经运行
-    public  boolean isBlueServiceWorked() {
-        ActivityManager myManager=(ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
-        ArrayList<ActivityManager.RunningServiceInfo> runningService = (ArrayList<ActivityManager.RunningServiceInfo>) myManager.getRunningServices(30);
-        for(int i = 0 ; i<runningService.size();i++) {
-            if(runningService.get(i).service.getClassName().toString().equals("com.ble.ble.BleService")) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 }

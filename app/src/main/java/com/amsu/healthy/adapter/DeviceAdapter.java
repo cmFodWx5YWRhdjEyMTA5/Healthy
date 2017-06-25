@@ -7,6 +7,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
@@ -47,12 +48,24 @@ public class DeviceAdapter extends BaseAdapter{
         TextView tv_item_name = (TextView) inflate.findViewById(R.id.tv_item_name);
         TextView tv_item_state = (TextView) inflate.findViewById(R.id.tv_item_state);
 
-        tv_item_name.setText(device.getName()+""+device.getMac());
-        if (MyUtil.getStringValueFromSP(Constant.currectDeviceLEMac).equals(device.getMac())){
+        Device deviceFromSP = MyUtil.getDeviceFromSP();
+        String stringValueFromSP = MyUtil.getStringValueFromSP(device.getMac());
+        if (!MyUtil.isEmpty(stringValueFromSP)){
+            tv_item_name.setText(stringValueFromSP);
+        }
+        else {
+            tv_item_name.setText(device.getLEName());
+        }
+
+        /*if (deviceFromSP!=null && deviceFromSP.getMac().equals(device.getMac())){
             //正在使用的
             tv_item_state.setText("已激活");
+        }*/
+
+        if (!MyUtil.isEmpty(MyApplication.connectedMacAddress) && MyApplication.connectedMacAddress.equals(device.getMac())){
+            //已经连接上，则显示设备已激活
+            tv_item_state.setText("已连接");
         }
         return inflate;
     }
-
 }

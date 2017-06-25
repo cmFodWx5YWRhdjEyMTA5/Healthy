@@ -4,6 +4,7 @@
     android:id="@+id/activity_index_warring"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_background_color"
     tools:context="com.amsu.healthy.activity.IndexWarringActivity">
     <LinearLayout
         android:layout_width="match_parent"

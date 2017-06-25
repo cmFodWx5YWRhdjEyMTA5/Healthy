@@ -83,6 +83,7 @@ public class MeActivity extends BaseActivity {
         }
     }
 
+
     private void initData() {
         User userFromSP = MyUtil.getUserFromSP();
         if (userFromSP!=null){

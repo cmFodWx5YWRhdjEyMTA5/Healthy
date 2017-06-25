@@ -10,6 +10,7 @@ public class IndicatorAssess {
     private String name;
     private String suggestion;
     private String evaluate;
+    private int differenceValue;
 
     public int getValue() {
         return value;
@@ -87,6 +88,15 @@ public class IndicatorAssess {
                 ", name='" + name + '\'' +
                 ", suggestion='" + suggestion + '\'' +
                 ", evaluate='" + evaluate + '\'' +
+                ", differenceValue='" + differenceValue + '\'' +
                 '}';
+    }
+
+    public int getDifferenceValue() {
+        return differenceValue;
+    }
+
+    public void setDifferenceValue(int differenceValue) {
+        this.differenceValue = differenceValue;
     }
 }

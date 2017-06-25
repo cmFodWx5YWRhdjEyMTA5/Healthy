@@ -11,13 +11,14 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.MyReportActivity;
+import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.PieChart;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class EcgYearFragment extends Fragment {
+public class EcgYearFragment extends BaseFragment {
 
 
     private static final String TAG = "EcgYearFragment";
@@ -51,7 +52,7 @@ public class EcgYearFragment extends Fragment {
         if (MyReportActivity.mQuarterFullReport!=null){
             Log.i(TAG,"MyReportActivity.mQuarterFullReport:"+MyReportActivity.mQuarterFullReport.toString());
             if (MyReportActivity.mQuarterFullReport!=null){
-                float[] eCrep = MyReportActivity.mQuarterFullReport.errDesc.ECrep;
+                float[] eCrep = MyReportActivity.mQuarterFullReport.ECrep;
                 if (eCrep!=null && eCrep.length>0){
                     pc_ecg_chart.setDatas(eCrep);
                 }

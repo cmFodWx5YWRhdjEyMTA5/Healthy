@@ -1,5 +1,9 @@
 package com.amsu.healthy.bean;
 
+import com.google.gson.Gson;
+
+import java.lang.reflect.Type;
+
 /**
  * Created by HP on 2016/12/21.
  */
@@ -30,4 +34,5 @@ public class JsonBase<T> {
                 ", errDesc='" + errDesc + '\'' +
                 '}';
     }
+
 }

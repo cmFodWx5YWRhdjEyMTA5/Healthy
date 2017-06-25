@@ -19,8 +19,10 @@ import com.amsu.healthy.activity.HistoryRecordActivity;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.EcgFilterUtil;
+import com.amsu.healthy.utils.EcgFilterUtil_1;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.EcgView;
 
@@ -36,7 +38,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ECGFragment extends Fragment {
+public class ECGFragment extends BaseFragment {
 
     private static final String TAG = "ECGFragment";
     private View inflate;
@@ -231,8 +233,9 @@ public class ECGFragment extends Fragment {
                                             bytes[1] = bytes[i*2+1];
 
                                             //滤波处理
-                                            int temp = EcgFilterUtil.miniEcgFilterLp((int)MyUtil.getShortByTwoBytes(bytes[0],bytes[1]), 0);
-                                            temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
+                                            int temp = EcgFilterUtil_1.miniEcgFilterLp(EcgFilterUtil_1.miniEcgFilterHp (EcgFilterUtil_1.NotchPowerLine((int)MyUtil.getShortByTwoBytes(bytes[0],bytes[1]), 1)));
+                                            /*int temp = EcgFilterUtil.miniEcgFilterLp((int)MyUtil.getShortByTwoBytes(bytes[0],bytes[1]), 0);
+                                            temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);*/
                                             datas.add(temp);
 
                                         }

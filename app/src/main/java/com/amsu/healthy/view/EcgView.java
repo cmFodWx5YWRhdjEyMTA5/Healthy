@@ -121,6 +121,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        Log.i(TAG,"surfaceCreated");
         Canvas canvas = holder.lockCanvas();
         initBackground(canvas);
         holder.unlockCanvasAndPost(canvas);
@@ -129,7 +130,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+        Log.i(TAG,"surfaceChanged");
     }
 
     @Override
@@ -149,6 +150,9 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+        //按home键时会调用次方法，界面销毁。则将画图的起点设为0，从头开始画
+        Log.i(TAG,"surfaceDestroyed");
+        startX = 0;
         stopThread();
     }
 
@@ -208,7 +212,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
     //画一组的数据
     private void drawWaveOneGroup(){
-        Log.i(TAG,"ecgOneGroupData.size():"+ecgOneGroupData.size());
+        //Log.i(TAG,"ecgOneGroupData.size():"+ecgOneGroupData.size());
         try{
             float mStartX = startX;
             if(ecgOneGroupData.size() == ecgPerCount){
@@ -216,7 +220,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
                     float newX = (float) (mStartX + ecgXOffset);
                     int newY = ecgConver(ecgOneGroupData.poll());
                     mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
-                    Log.i(TAG,"x1:"+mStartX+",y1:"+startY0+"。x1:"+newX+",y1:"+newY);
+                    //Log.i(TAG,"x1:"+mStartX+",y1:"+startY0+"。x1:"+newX+",y1:"+newY);
                     mStartX = newX;
                     startY0 = newY;
                 }

@@ -1,12 +1,9 @@
 package com.amsu.healthy.activity;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.ProvinceModel;
 import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.Constant;
@@ -220,6 +216,14 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
             }
             else {
                 upLoadbirthday = year+"-0"+month+"-"+day;
+            }
+        }
+        else {
+            if (day<10){
+                upLoadbirthday = year+"-"+month+"-0"+day;
+            }
+            else {
+                upLoadbirthday = year+"-"+month+"-"+day;
             }
         }
         Log.i(TAG,"upLoadbirthday:"+upLoadbirthday);
@@ -729,7 +733,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     String errDesc = jsonObject.getString("errDesc");
                     MyUtil.showToask(PersionDataActivity.this,errDesc);
                     if (ret==0){
-                        MyUtil.saveUserToSP(user);
+                        MyUtil.saveDeviceToSP(user);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

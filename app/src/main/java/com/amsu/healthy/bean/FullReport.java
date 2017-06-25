@@ -8,29 +8,12 @@ import java.util.List;
  */
 
 public class FullReport {
-    public String ret;
-    public Result errDesc;
 
-    public class Result{
-        /*List<ReportItem> HRrep;
-        List<Integer> ECrep;
-        List<ReportItem> HRRrep;
-        List<ReportItem> HRVrep;*/
-        public List<HRrepBean> HRrep;
-        public float[] ECrep;
-        public List<HRRrepBean> HRRrep;
-        public List<HRVrepBean> HRVrep;
-        public List<List<String>> HRlist;
-
-		@Override
-		public String toString() {
-			return "Result [HRrep=" + HRrep + ", ECrep="
-					+ Arrays.toString(ECrep) + ", HRRrep=" + HRRrep
-					+ ", HRVrep=" + HRVrep + ", HRlist=" + HRlist + "]";
-		}
-    }
-
-
+    public List<HRrepBean> HRrep;
+    public float[] ECrep;
+    public List<HRRrepBean> HRRrep;
+    public List<HRVrepBean> HRVrep;
+    public List<List<String>> HRlist;
 
     public  class HRrepBean{
         public String id;
@@ -76,12 +59,15 @@ public class FullReport {
                     '}';
         }
     }
-    
+
     @Override
     public String toString() {
-        return "Report{" +
-                "ret='" + ret + '\'' +
-                ", errDesc=" + errDesc +
+        return "FullReport{" +
+                "HRrep=" + HRrep +
+                ", ECrep=" + Arrays.toString(ECrep) +
+                ", HRRrep=" + HRRrep +
+                ", HRVrep=" + HRVrep +
+                ", HRlist=" + HRlist +
                 '}';
     }
 }

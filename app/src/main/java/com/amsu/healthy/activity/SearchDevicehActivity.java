@@ -2,6 +2,7 @@ package com.amsu.healthy.activity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,7 +15,6 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.DeviceList;
-import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 
@@ -25,9 +25,10 @@ public class SearchDevicehActivity extends BaseActivity {
     private static final String TAG = "SearchDevicehActivity";
     private Animation animation;
     private TextView tv_search_state;
-    private List<Device> deviceListFromSP;
+    private ArrayList<Device> searchDeviceList;
     DeviceList deviceList;
     private boolean timeTask10ScendOver;
+    private Device mDeviceFromSP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +42,9 @@ public class SearchDevicehActivity extends BaseActivity {
 
     private void initView() {
         deviceList = new DeviceList();
-        deviceListFromSP = new ArrayList<>();
+        //deviceListFromSP = MyUtil.getDeviceListFromSP();
+        searchDeviceList = new ArrayList<>();
+        mDeviceFromSP = MyUtil.getDeviceFromSP();
 
 
         ImageView iv_heartrate_rotateimage = (ImageView) findViewById(R.id.iv_heartrate_rotateimage);
@@ -57,7 +60,7 @@ public class SearchDevicehActivity extends BaseActivity {
         MyTimeTask.startCountDownTimerTask(1000 * 4, new MyTimeTask.OnTimeOutListener() {
             @Override
             public void onTomeOut() {
-                Log.i(TAG,"10秒钟定时器onTomeOut");
+                Log.i(TAG,"4秒钟定时器onTomeOut");
                 timeTask10ScendOver = true;
                 runOnUiThread(new Runnable() {
                     @Override
@@ -65,56 +68,48 @@ public class SearchDevicehActivity extends BaseActivity {
                         stopScan();
                     }
                 });
-
-
             }
         });
 
-        MyTimeTask.startCountDownTimerTask(1000 * 60, new MyTimeTask.OnTimeOutListener() {
+        MyTimeTask.startCountDownTimerTask(1000 * 20, new MyTimeTask.OnTimeOutListener() {
             @Override
             public void onTomeOut() {
-                Log.i(TAG,"1分钟定时器：onTomeOut");
+                Log.i(TAG,"20s定时器：onTomeOut");
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (deviceListFromSP.size()>0){
-                            return;
+                        if (searchDeviceList!=null && searchDeviceList.size()==0){
+                            scanTimeOver();
                         }
-                        scanTimeOver();
                     }
                 });
             }
         });
     }
 
+    //20s没有搜到设备，停止扫描
     private void scanTimeOver() {
         Log.i(TAG,"没有扫描到设备");
-        MyUtil.showToask(SearchDevicehActivity.this,"没有扫描到设备");
+        //MyUtil.showToask(SearchDevicehActivity.this,"没有扫描到设备");
         animation.cancel();
-        setResult(RESULT_OK,getIntent());
         finish();
     }
 
     private void stopScan() {
-        deviceList.setDeviceList(deviceListFromSP);
-        MyUtil.putDeviceListToSP(deviceList);
-
-        Log.i(TAG,"deviceListFromSP:"+deviceListFromSP.toString());
-        if (deviceListFromSP.size()==0){
+        if (searchDeviceList.size()==0){
             Log.i(TAG,"没有扫描到设备");
             //MyUtil.showToask(SearchDevicehActivity.this,"没有扫描到设备");
-
-
         }
         else {
-            if (deviceListFromSP.size()==1){
+            if (searchDeviceList.size()==1){
                 //发现一个设备，有可能是当前设备，有可能是新的设备
-                MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,deviceListFromSP.get(0).getMac());
+                //MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,deviceListFromSP.get(0).getMac());
+                MyUtil.saveDeviceToSP(searchDeviceList.get(0));
             }
             else {
                 //有新设备
                 Log.i(TAG,"添加新设备成功");
-                MyUtil.showToask(SearchDevicehActivity.this,"发现新设备,点击设置需要运行的设备");
+                MyUtil.showToask(SearchDevicehActivity.this,"发现多个设备,点击设置需要运行的设备");
             }
 
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
@@ -122,7 +117,10 @@ public class SearchDevicehActivity extends BaseActivity {
             //MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,leName);
             animation.cancel();
             //MyUtil.showToask(SearchDevicehActivity.this,"设备切换成功");
-            setResult(RESULT_OK,getIntent());
+
+            Intent intent = getIntent();
+            intent.putParcelableArrayListExtra("searchDeviceList",searchDeviceList);
+            setResult(RESULT_OK, intent);
             finish();
             Log.i(TAG,"finish");
 
@@ -149,7 +147,7 @@ public class SearchDevicehActivity extends BaseActivity {
             Log.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
 
             String leName = device.getName();
-            if (leName!=null && leName.startsWith("BLE")){
+            if (leName!=null && (leName.startsWith("BLE") || leName.startsWith("AMSU"))){
                 /*if (deviceListFromSP.size()==0){
                     deviceListFromSP.add(new Device("智能运动衣1","",device.getAddress(), leName,1));
                     DeviceList deviceList = new DeviceList();
@@ -191,21 +189,17 @@ public class SearchDevicehActivity extends BaseActivity {
                
 
                 boolean isAddToList = true;
-                for (Device d:deviceListFromSP){
-                    if (d.getLEName().equals(leName)){
+                for (Device device1:searchDeviceList){
+                    if (device1.getLEName().equals(leName)){
                         isAddToList = false;
                     }
                 }
-                
                 if (isAddToList){
-                    deviceListFromSP.add(new Device("智能运动衣","",device.getAddress(), leName,1));
+                    searchDeviceList.add(new Device("智能运动衣","",device.getAddress(), leName,1));
                 }
-
                 if (timeTask10ScendOver){
                     stopScan();
                 }
-
-
             }
         }
     };

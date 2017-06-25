@@ -14,6 +14,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.activity.ClubHomePageActivity;
 import com.amsu.healthy.adapter.AllClubsAdapter;
 import com.amsu.healthy.bean.Club;
+import com.amsu.healthy.fragment.BaseFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ClubsFragment extends Fragment {
+public class ClubsFragment extends BaseFragment {
 
 
     private View inflate;

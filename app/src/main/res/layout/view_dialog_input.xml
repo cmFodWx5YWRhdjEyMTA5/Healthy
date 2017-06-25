@@ -5,31 +5,28 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/x500"
+        android:layout_height="wrap_content"
         android:paddingLeft="@dimen/x50"
         android:paddingRight="@dimen/x50"
-        android:layout_marginTop="@dimen/x100"
+        android:gravity="center"
         android:background="@drawable/bg_title_custom_dialog">
+        <TextView
+            android:id="@+id/tv_choose_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/y20"
+            android:text="修改"
+            android:textSize="@dimen/x64"
+            android:textColor="#666"
+            android:layout_centerHorizontal="true"/>
         <EditText
-            android:id="@+id/tv_sos_name"
+            android:id="@+id/tv_input_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/y20"
+            android:layout_below="@+id/tv_choose_title"
             android:padding="@dimen/x20"
-            android:hint="姓名"
-            android:background="@drawable/bg_dialog_input"
-            android:textSize="@dimen/x48"
-            android:textColor="#666"
-            android:textColorHint="#c7c7c7"
-            android:layout_centerHorizontal="true"/>
-        <EditText
-            android:id="@+id/tv_sos_number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_sos_name"
-            android:layout_marginTop="@dimen/y50"
-            android:hint="电话号码"
-            android:padding="@dimen/x20"
+            android:hint="输入设备名称"
             android:background="@drawable/bg_dialog_input"
             android:textSize="@dimen/x48"
             android:textColor="#666"
@@ -40,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_marginTop="@dimen/x50"
-            android:layout_marginBottom="@dimen/x60" >
+            android:paddingBottom="@dimen/x90">
             <TextView
                 android:id="@+id/bt_choose_cancel"
                 android:layout_width="0dp"

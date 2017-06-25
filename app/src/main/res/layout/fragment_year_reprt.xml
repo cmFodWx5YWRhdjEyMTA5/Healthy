@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="@color/app_background_color"
     tools:context="com.amsu.healthy.fragment.report.YearReprtFragment">
 
     <include layout="@layout/head_report"
@@ -12,6 +12,7 @@
         android:id="@+id/vp_report_content_year"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#FFFFFF"
         android:layout_marginTop="@dimen/x64"
         android:layout_below="@+id/ll_report_head">
     </android.support.v4.view.ViewPager>

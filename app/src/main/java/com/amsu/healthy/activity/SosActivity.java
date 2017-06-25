@@ -5,33 +5,23 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Contacts;
 import android.provider.ContactsContract;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.bean.HealthyPlan;
 import com.amsu.healthy.bean.JsonBase;
-import com.amsu.healthy.bean.JsonHealthyList;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.QQListView;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.RequestParams;
@@ -40,7 +30,6 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class SosActivity extends BaseActivity {
@@ -61,8 +50,6 @@ public class SosActivity extends BaseActivity {
         initData();
     }
 
-
-
     private void initView() {
         initHeadView();
         setCenterText("紧急求助");
@@ -74,17 +61,23 @@ public class SosActivity extends BaseActivity {
             }
         });
 
-        RelativeLayout rl_sos_add = (RelativeLayout) findViewById(R.id.rl_sos_add);
-        QQListView lv_sos_list = (QQListView) findViewById(R.id.lv_sos_list);
-        ed_sos_sosinfo = (EditText) findViewById(R.id.ed_sos_sosinfo);
+
+        final QQListView lv_sos_list = (QQListView) findViewById(R.id.lv_sos_list);
 
 
-        /*rl_sos_add.setOnClickListener(new View.OnClickListener() {
+        View footView = View.inflate(this, R.layout.view_foot_add_contant, null);
+        lv_sos_list.addFooterView(footView);
+
+        RelativeLayout rl_sos_add = (RelativeLayout) footView.findViewById(R.id.rl_sos_add);
+        ed_sos_sosinfo = (EditText) footView.findViewById(R.id.ed_sos_sosinfo);
+
+        rl_sos_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                startActivityForResult(new Intent(Intent.ACTION_PICK,ContactsContract.Contacts.CONTENT_URI), 0);
 
             }
-        });*/
+        });
 
         sosNumberList = new ArrayList<>();
 
@@ -323,8 +316,6 @@ public class SosActivity extends BaseActivity {
             int nameFieldColumnIndex=cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
             contact[0]=cursor.getString(nameFieldColumnIndex);
 
-
-
             Log.i(TAG,"contact[0] :"+contact[0]);
             //取得电话号码
             String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
@@ -332,10 +323,13 @@ public class SosActivity extends BaseActivity {
             Cursor phone = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + contactId, null, null);
 
             Log.i(TAG,"phone.getCount(): "+phone.getCount());
-            if(phone != null){
-                boolean moveToFirst = phone.moveToFirst();
+             boolean moveToFirst = phone.moveToFirst();
+            if(phone != null && moveToFirst){
                 Log.i(TAG,"moveToFirst: "+moveToFirst);
                 contact[1] = phone.getString(phone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            }
+            else {
+                MyUtil.showToask(SosActivity.this,"号码格式不正确");
             }
             phone.close();
             cursor.close();
@@ -359,15 +353,20 @@ public class SosActivity extends BaseActivity {
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 Gson gson = new Gson();
+                //JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
                 JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
                 Log.i(TAG,"jsonBase:"+jsonBase);
                 if (jsonBase.getRet()==0){
-                    double id = (double) jsonBase.errDesc;
+                    double id = (double)jsonBase.errDesc;
                     int intID = (int) id;
                     sosNumber.setId(intID+"");
                     sosNumberList.add(sosNumber);
                     sosListAdapter.notifyDataSetChanged();
                     MyUtil.putSosNumberList(sosNumberList);
+                    MyUtil.showToask(SosActivity.this,"添加成功");
+                }
+                else {
+                    MyUtil.showToask(SosActivity.this,"添加失败,"+jsonBase.errDesc);
                 }
             }
 
@@ -375,12 +374,9 @@ public class SosActivity extends BaseActivity {
             public void onFailure(HttpException e, String s) {
                 MyUtil.hideDialog();
                 Log.i(TAG,"上传onFailure==s:"+s);
+                MyUtil.showToask(SosActivity.this,"添加失败,"+s);
             }
         });
-
-
-
-
     }
 
     private class SosListAdapter extends BaseAdapter{

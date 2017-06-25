@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.bean.FullReport;
+import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.PieChart;
 
@@ -20,7 +21,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class EcgMouthFragment extends Fragment {
+public class EcgMouthFragment extends BaseFragment {
 
 
     private static final String TAG = "EcgYearFragment";
@@ -52,7 +53,7 @@ public class EcgMouthFragment extends Fragment {
     private void initData() {
         if (MyReportActivity.mMouthFullReport!=null){
             if (MyReportActivity.mMouthFullReport!=null){
-                float[] eCrep = MyReportActivity.mMouthFullReport.errDesc.ECrep;
+                float[] eCrep = MyReportActivity.mMouthFullReport.ECrep;
                 if (eCrep!=null && eCrep.length>0){
                     pc_ecg_chart.setDatas(eCrep);
                 }

@@ -2,7 +2,6 @@ package com.amsu.healthy.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -12,7 +11,8 @@ import android.view.View;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.wifiTramit.WifiAdmin;
+import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
+import com.amsu.healthy.utils.wifiTramit.WifiAutoConnectManager;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -26,6 +26,7 @@ import java.util.Date;
 public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
     private static final String TAG = "ConnectToWifi2";
     public static Socket mSock;
+    private WifiManager mWifiManage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,22 +50,71 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
     }
 
     public void connectNow(View view) {
-        //WifiAdmin.connectToWifi(this);
-        createSocketConnect();
+        mWifiManage = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        final WifiInfo wifiinfo = mWifiManage.getConnectionInfo();
+        Log.i(TAG,"wifiinfo:"+wifiinfo);
+        Log.i(TAG,"wifiinfo.getSSID():"+wifiinfo.getSSID());  //  "ESP8266"
+        if (wifiinfo!=null && ("\""+DeviceOffLineFileUtil.HOST_SPOT_SSID+"\"").equals(wifiinfo.getSSID())){
+            Log.i(TAG,"WiFi已连接");
+            MyUtil.showToask(this,"WiFi已连接");
+            MyUtil.showDialog("WiFi已连接，正在创建socket连接",this);
+            loopCreateSocketConnect();
+        }
+        else {
+            MyUtil.showDialog("正在连接WiFi，请稍等",this);
+            final WifiAutoConnectManager wifiAutoConnectManager = new WifiAutoConnectManager(this,mWifiManage);
+            wifiAutoConnectManager.setConnectStateResultChanged(new WifiAutoConnectManager.ConnectStateResultChanged() {
+                @Override
+                public void onConnectStateChanged(boolean isConnected) {
+                    MyUtil.hideDialog();
+                    Log.i(TAG,"isConnected:"+isConnected);
+                    if (isConnected){
+                        Log.i(TAG,"WiFi连接成功:");
+                        MyUtil.showDialog("WiFi已连接，正在创建socket连接",ConnectToWifiModuleGudieActivity2.this);
+                        loopCreateSocketConnect();
+                    }
+                    else {
+                        Log.i(TAG,"WiFi连接失败:");
+                        //连接失败
+                        MyUtil.showToask(ConnectToWifiModuleGudieActivity2.this,"WiFi连接失败，请点击重连");
+                    }
+                }
+            });
+            wifiAutoConnectManager.connect(DeviceOffLineFileUtil.HOST_SPOT_SSID, DeviceOffLineFileUtil.HOST_SPOT_PASS_WORD, WifiAutoConnectManager.WifiCipherType.WIFICIPHER_WPA);
+        }
+
+
+    }
+    boolean mIsSocketConnected = false;
+
+    private void loopCreateSocketConnect(){
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                while (!mIsSocketConnected){
+                    Log.i(TAG, "createSocketConnect" );
+                    createSocketConnect();
+                    try {
+                        Log.i(TAG, "睡眠" );
+                        Thread.sleep(300);
+                    } catch (InterruptedException ie) {
+                    }
+                }
+            }
+        }.start();
 
     }
 
-    public void createSocketConnect() {
-        WifiManager wifiManage = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        DhcpInfo info = wifiManage.getDhcpInfo();
-        WifiInfo wifiinfo = wifiManage.getConnectionInfo();
+    private void createSocketConnect() {
+        DhcpInfo info = mWifiManage.getDhcpInfo();
+        WifiInfo wifiinfo = mWifiManage.getConnectionInfo();
+        Log.i(TAG,"wifiinfo:"+wifiinfo);
+
         String ip = intToIp(wifiinfo.getIpAddress());
         String serverAddress = intToIp(info.serverAddress);
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");// 设置日期格式
-        String message = "Hello this is dawin ! send time:" + df.format(new Date());
-        new Sender(serverAddress, message).start();
+        new Sender(serverAddress).start();
         String msg = "ip:" + ip + "serverAddress:" + serverAddress + info;
-        //servic_info.setText(msg);
         Log.i(TAG, msg);
     }
 
@@ -73,43 +123,46 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
         return (i & 0xFF) + "." + ((i >> 8) & 0xFF) + "." + ((i >> 16) & 0xFF) + "." + ((i >> 24) & 0xFF);
     }
 
-
     /* 客户端发送数据 */
     private class Sender extends Thread {
         String serverIp;
-        String message;
 
-        Sender(String serverAddress, String message) {
+        Sender(String serverAddress) {
             super();
             serverIp = serverAddress;
-            this.message = message;
         }
 
         public void run() {
             try {
                 // 声明sock，其中参数为服务端的IP地址与自定义端口
                 Log.i(TAG, "serverIp：" + serverIp);
+
+                Log.i(TAG, "创建Socket" );
                 mSock = new Socket(serverIp, 8080);
-                Log.i(TAG, "WifiConnection I am try to writer" + mSock);
+                mIsSocketConnected = true;
+                Log.i(TAG, "创建Socket成功" );
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         MyUtil.showToask(ConnectToWifiModuleGudieActivity2.this,"主机连接成功");
+                        MyUtil.hideDialog();
                         startActivity(new Intent(ConnectToWifiModuleGudieActivity2.this,UploadOfflineFileActivity.class));
                         finish();
                     }
                 });
             } catch (IOException e) {
+                Log.e(TAG,"e:"+e);
                 e.printStackTrace();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        MyUtil.hideDialog();
                         MyUtil.showToask(ConnectToWifiModuleGudieActivity2.this,"主机连接失败，请检查WiFi连接是否成功");
                     }
                 });
             }
         }
     }
-
 
 }

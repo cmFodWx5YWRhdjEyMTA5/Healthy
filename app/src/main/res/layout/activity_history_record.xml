@@ -4,6 +4,7 @@
     android:id="@+id/activity_history_record"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_background_color"
     tools:context="com.amsu.healthy.activity.HistoryRecordActivity">
 
     <include layout="@layout/page_head"
@@ -14,6 +15,7 @@
         android:id="@+id/lv_history_all"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#FFFFFF"
         android:layout_below="@+id/rl_base_head"
         android:footerDividersEnabled="true">
     </com.amsu.healthy.view.LoadMoreListView>

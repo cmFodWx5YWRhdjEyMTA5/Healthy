@@ -1,19 +1,16 @@
 package com.amsu.healthy.utils;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
-import android.support.v7.app.AlertDialog;
 import android.util.Base64;
-import android.util.Base64InputStream;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -28,12 +25,16 @@ import android.widget.Toast;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
 import com.amsu.healthy.activity.SosActivity;
-import com.amsu.healthy.activity.SystemSettingActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.DeviceList;
-import com.amsu.healthy.bean.HeartRateList;
+import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.User;
+import com.amsu.healthy.service.MyTestService;
+import com.amsu.healthy.service.MyTestService2;
+import com.amsu.healthy.service.MyTestService3;
+import com.amsu.healthy.service.MyTestService4;
+import com.ble.ble.BleService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.http.RequestParams;
@@ -46,8 +47,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -65,7 +68,7 @@ public class MyUtil {
         try {
             if (dialog == null) {
                 dialog = new ProgressDialog(context);
-                dialog.setCancelable(true);
+                dialog.setCancelable(false);
             }
             dialog.setMessage(message);
             dialog.show();
@@ -108,7 +111,7 @@ public class MyUtil {
         Toast.makeText(context,text,Toast.LENGTH_SHORT).show();
     }
 
-    public static void saveUserToSP(User user) {
+    public static void saveDeviceToSP(User user) {
         //将登陆用户信息保存在MyApplication类的sharedPreferences
         SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
         if (!MyUtil.isEmpty(user.getUsername())){
@@ -160,6 +163,34 @@ public class MyUtil {
         return user;
     }
 
+    public static void saveDeviceToSP(Device device) {
+        SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
+        if (!MyUtil.isEmpty(device.getName())){
+            edit.putString("name",device.getName());
+        }
+        if (!MyUtil.isEmpty(device.getLEName())){
+            edit.putString("LEName",device.getLEName());
+        }
+        if (!MyUtil.isEmpty(device.getState())){
+            edit.putString("state",device.getState());
+        }
+        if (!MyUtil.isEmpty(device.getMac())){
+            edit.putString("mac",device.getMac());
+        }
+        edit.apply();
+    }
+
+    public static Device getDeviceFromSP(){
+        String name = getStringValueFromSP("name");
+        String LEName = getStringValueFromSP("LEName");
+        String state = getStringValueFromSP("state");
+        String mac = getStringValueFromSP("mac");
+        Device device = null;
+        if (!LEName.equals("") && !mac.equals("")){
+            device = new Device(name,state,mac,LEName,0);
+        }
+        return device;
+    }
 
     public static String getStringValueFromSP(String key){
         return MyApplication.sharedPreferences.getString(key,"");
@@ -449,7 +480,64 @@ public class MyUtil {
             weekFirstDay = preWeekFirstDay;
             weeklistDay = pretWeekListDay;
 
-            preWeekString =+preWeekFirstDayMouth+"."+preWeekFirstDay+" - "+preWeekListDayMouth+"."+pretWeekListDay; // 3.13-3.19
+            preWeekString =+preWeekFirstDayMouth+"."+preWeekFirstDay+" — "+preWeekListDayMouth+"."+pretWeekListDay; // 3.13-3.19
+            weekStringLiStrings.add(preWeekString);
+        }
+        for(String w:weekStringLiStrings){
+            System.out.println(w);
+        }
+        return weekStringLiStrings;
+    }
+
+    public static  List<String> getWeekStringList(int weekCount,int year) {
+        List<String> weekStringLiStrings = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR,year);
+        calendar.set(Calendar.MONTH,11);
+        calendar.set(Calendar.DAY_OF_MONTH,29);
+
+        int onWeekDayCount = 7;
+
+        int weekOfDay = calendar.get(Calendar.DAY_OF_WEEK)-1;  //星期几
+        int day = calendar.get(Calendar.DAY_OF_MONTH);   //哪一日
+        int currMouth = calendar.get(Calendar.MONTH)+1;
+        int currYear = calendar.get(Calendar.YEAR);
+
+        int weekFirstDay = day-(weekOfDay-1);
+        int weeklistDay = day-weekOfDay+1+6;
+
+        int preWeekFirstDay ;
+        int pretWeekListDay ;
+        int preWeekFirstDayMouth = currMouth ;
+        int preWeekListDayMouth = currMouth ;
+
+        String preWeekString = "";
+
+        for (int i = 0; i < weekCount; i++) {
+            int currDayOfPreMouth = getDaysByYearMonth(currYear, currMouth-1);
+            preWeekFirstDay = weekFirstDay -onWeekDayCount;
+            pretWeekListDay = weeklistDay -onWeekDayCount;
+            int tempMouth = currMouth;
+            if (preWeekFirstDay<=0) {
+                preWeekFirstDay = currDayOfPreMouth +preWeekFirstDay;
+                preWeekFirstDayMouth = tempMouth-1;
+            }
+
+            if (pretWeekListDay<=0) {
+                pretWeekListDay = currDayOfPreMouth + pretWeekListDay;
+                preWeekListDayMouth = tempMouth-1;
+                currMouth = currMouth-1;
+            }
+
+            if (currMouth==1) {
+                currYear = currYear-1;
+                currMouth = 13;
+            }
+
+            weekFirstDay = preWeekFirstDay;
+            weeklistDay = pretWeekListDay;
+
+            preWeekString =+preWeekFirstDayMouth+"."+preWeekFirstDay+" — "+preWeekListDayMouth+"."+pretWeekListDay; // 3.13-3.19
             weekStringLiStrings.add(preWeekString);
         }
         for(String w:weekStringLiStrings){
@@ -609,6 +697,7 @@ public class MyUtil {
             @Override
             public void run() {
                 //showToask(finalActivity,"设备连接或断开");
+                //mPopupWindow.showAsDropDown(activity.getTv_base_rightText());
                 mPopupWindow.showAtLocation(activity.getTv_base_rightText(), Gravity.TOP,0,0);
                 Log.i(TAG,"PopupWindow.showAtLocation:");
             }
@@ -638,7 +727,6 @@ public class MyUtil {
 
     /**
      * 注释：short到字节数组的转换！
-     *
      * @param
      * @return
      */
@@ -651,6 +739,95 @@ public class MyUtil {
             temp = temp >>8;// 向右移8位
         }
         return b;
+    }
+
+    //判断一个服务是否正在运行
+    public static boolean isServiceWorked(Context context, String serviceName) {
+        ActivityManager myManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        ArrayList<ActivityManager.RunningServiceInfo> runningService = (ArrayList<ActivityManager.RunningServiceInfo>) myManager.getRunningServices(Integer.MAX_VALUE);
+
+        if (runningService!=null){
+            for (int i = 0; i < runningService.size(); i++) {
+                if (runningService.get(i).service.getClassName().equals(serviceName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // 将Json数组解析成相应的映射对象列表
+    public static <T> List<T> parseJsonArrayWithGson(JsonBase jsonBase, Class<T[]> clazz) {
+        Gson gson = new Gson();
+        List<T> errDesc= (List<T>) jsonBase.errDesc;
+        System.out.println(errDesc);
+        String json = gson.toJson(errDesc);
+        System.out.println(json);
+        T[]  result = gson.fromJson(json, clazz);
+        return  Arrays.asList(result);
+    }
+
+    public static <T> JsonBase<T> commonJsonParse(String result, Type type){
+        Gson gson = new Gson();
+        JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+        if (jsonBase!=null && jsonBase.ret==0) {
+            return gson.fromJson(result, type);
+        }
+        return jsonBase;
+    }
+
+    public static void startAllService(final Context context) {
+        new Thread(){
+            @Override
+            public void run() {
+                startServices(context);
+                //每隔1s判断其他2个服务是否运行，没有运行则开始运行
+                MyTimeTask.startTimeRiseTimerTask(3000, new MyTimeTask.OnTimeChangeAtScendListener() {
+                    @Override
+                    public void onTimeChange(Date date) {
+                        startServices(context);
+                    }
+                });
+            }
+        }.start();
+    }
+
+    private static void startServices(Context context) {
+        if(!MyUtil.isServiceWorked(context, "com.ble.ble.BleService")) {
+            Intent service = new Intent(context, BleService.class);
+            context.startService(service);
+            Log.i(TAG, "Start BleService");
+        }
+
+                        /*if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService")) {
+                            Intent service = new Intent(context, com.amsu.healthy.service.MyTestService.class);
+                            context.startService(service);
+                            Log.i(TAG, "Start MyTestService");
+                        }*/
+
+        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService2")) {
+            Intent service = new Intent(context, MyTestService2.class);
+            context.startService(service);
+            Log.i(TAG, "Start MyTestService2");
+        }
+
+        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService3")) {
+            Intent service = new Intent(context, MyTestService3.class);
+            context.startService(service);
+            Log.i(TAG, "Start MyTestService3");
+        }
+
+                        /*if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService4")) {
+                            Intent service = new Intent(context, com.amsu.healthy.service.MyTestService4.class);
+                            context.startService(service);
+                            Log.i(TAG, "Start MyTestService4");
+                        }*/
+
+        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.CommunicateToBleService")) {
+            Intent service = new Intent(context, com.amsu.healthy.service.CommunicateToBleService.class);
+            context.startService(service);
+            Log.i(TAG, "Start CommunicateToBleService");
+        }
     }
 }
 

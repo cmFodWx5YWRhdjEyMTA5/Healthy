@@ -16,21 +16,23 @@ import com.amsu.healthy.activity.HistoryRecordActivity;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineView;
+import com.amsu.healthy.view.HeightCurveView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HeartRateFragment extends Fragment {
+public class HeartRateFragment extends BaseFragment {
 
     private static final String TAG = "HeartRateFragment";
     private View inflate;
-    private FoldLineView fv_rate_line;
+    private HeightCurveView hv_rate_rateline;
     private TextView tv_rate_max;
     private TextView tv_rate_average;
     private TextView tv_rate_suggestion;
@@ -45,7 +47,7 @@ public class HeartRateFragment extends Fragment {
     }
 
     private void initView() {
-        fv_rate_line = (FoldLineView) inflate.findViewById(R.id.fv_rate_line);
+        hv_rate_rateline = (HeightCurveView) inflate.findViewById(R.id.hv_rate_rateline);
         tv_rate_max = (TextView) inflate.findViewById(R.id.tv_rate_max);
         tv_rate_average = (TextView) inflate.findViewById(R.id.tv_rate_average);
 
@@ -92,7 +94,11 @@ public class HeartRateFragment extends Fragment {
                 }
                 int[] ints = MyUtil.listToIntArray(tempHeartDatas);
                 if (ints!=null && ints.length>0){
-                    fv_rate_line.setData(ints);
+                    int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
+                    if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
+                        Log.i(TAG,"time:"+time);
+                        hv_rate_rateline.setData(ints,time,HeightCurveView.LINETYPE_HEART);
+                    }
                 }
             }
 

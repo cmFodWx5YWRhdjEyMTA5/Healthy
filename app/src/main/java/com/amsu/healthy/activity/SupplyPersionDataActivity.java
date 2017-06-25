@@ -15,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.ProvinceModel;
 import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.MyUtil;
@@ -28,6 +27,7 @@ import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
+import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -120,7 +120,20 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
         tv_step2_birthday.setText(year +"-"+ month +"-"+ day);   //          1998/12/21
         birthday = year +"-"+ month +"-"+ day;
         if (month<10){
-            birthday = year+"-0"+month+"-"+day;
+            if (day<10){
+                birthday = year+"-0"+month+"-0"+day;
+            }
+            else {
+                birthday = year+"-0"+month+"-"+day;
+            }
+        }
+        else {
+            if (day<10){
+                birthday = year+"-"+month+"-0"+day;
+            }
+            else {
+                birthday = year+"-"+month+"-"+day;
+            }
         }
     }
 
@@ -441,9 +454,11 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
                         //个人资料完善成功
                         MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
 
+                        MobclickAgent.onProfileSignIn(phone); //友盟登陆账号统计
+
                         birthday = year+"-"+month+"-"+day;
                         user.setBirthday(birthday);
-                        MyUtil.saveUserToSP(user);
+                        MyUtil.saveDeviceToSP(user);
                         startActivity(new Intent(SupplyPersionDataActivity.this,MainActivity.class));
                         finish();
                     }

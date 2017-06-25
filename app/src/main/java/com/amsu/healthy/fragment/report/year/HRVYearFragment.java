@@ -10,13 +10,14 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.bean.FullReport;
+import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineViewWithPoint;
 import com.amsu.healthy.view.FoldLineViewWithTextOne;
 
 import java.util.List;
 
-public class HRVYearFragment extends Fragment {
+public class HRVYearFragment extends BaseFragment {
     private FoldLineViewWithPoint mLineChart;
     private View inflate;
     private TextView tv_mouth_value;
@@ -55,7 +56,7 @@ public class HRVYearFragment extends Fragment {
 
     private void initData() {
         if (MyReportActivity.mQuarterFullReport!=null){
-            List<FullReport.HRVrepBean> hRrep = MyReportActivity.mQuarterFullReport.errDesc.HRVrep;
+            List<FullReport.HRVrepBean> hRrep = MyReportActivity.mQuarterFullReport.HRVrep;
             if (hRrep!=null && hRrep.size()>0){
                 int[] datas = new int[hRrep.size()];
                 String[] labels = new String[hRrep.size()];

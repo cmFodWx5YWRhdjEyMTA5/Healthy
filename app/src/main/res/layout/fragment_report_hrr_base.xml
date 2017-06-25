@@ -1,6 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_background_color"
     xmlns:foldlineview="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
@@ -43,6 +44,7 @@
         android:layout_height="@dimen/y820"
         android:layout_below="@+id/view"
         android:layout_marginTop="@dimen/x40"
+        android:background="#FFFFFF"
         android:orientation="vertical">
         <RelativeLayout
             android:layout_width="@dimen/x228"

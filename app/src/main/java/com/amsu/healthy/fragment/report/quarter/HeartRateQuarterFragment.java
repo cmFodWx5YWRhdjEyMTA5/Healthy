@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.bean.FullReport;
+import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineViewWithPoint;
 import com.amsu.healthy.view.FoldLineViewWithTextOne;
@@ -23,7 +24,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HeartRateQuarterFragment extends Fragment {
+public class HeartRateQuarterFragment extends BaseFragment {
 
     private static final String TAG = "HeartRateQuarter";
     private FoldLineViewWithPoint mLineChart;
@@ -66,7 +67,7 @@ public class HeartRateQuarterFragment extends Fragment {
 
     private void initData() {
         if (MyReportActivity.mQuarterFullReport!=null){
-            List<FullReport.HRrepBean> hRrep = MyReportActivity.mQuarterFullReport.errDesc.HRrep;
+            List<FullReport.HRrepBean> hRrep = MyReportActivity.mQuarterFullReport.HRrep;
             if (hRrep!=null && hRrep.size()>0){
                 List<Integer> dataIntegerList = new ArrayList<>();
                 List<String> datetimesList = new ArrayList<>();

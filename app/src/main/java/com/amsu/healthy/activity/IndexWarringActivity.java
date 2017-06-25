@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -32,6 +33,7 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -42,9 +44,9 @@ public class IndexWarringActivity extends BaseActivity {
     private ProgressBar pb_hrv_rateover;
     private ProgressBar pb_hrv_morningrate;
     private ProgressBar pb_hrv_leaverate;
-    private int mProgressNormal = 0;
-    private int mProgressYellow = 10;
-    private int mProgressRed = 30;
+    private int mProgressNormal = 10;
+    private int mProgressYellow = 30;
+    private int mProgressRed = 40;
     private AlertDialog mAlertDialog;
     private ViewPager vp_assess_float;
     private View shape_point_blue;
@@ -114,6 +116,20 @@ public class IndexWarringActivity extends BaseActivity {
         myListViewAdapter = new MyListViewAdapter();
         lv_wring_fromdata.setAdapter(myListViewAdapter);
 
+
+        lv_wring_fromdata.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                HealthIndicatorAssessActivity.WeekReport.WeekReportResult.HistoryRecordItem historyRecordItem = staticStateHistoryRecords.get(position);
+                Intent intent = new Intent(IndexWarringActivity.this, RateAnalysisActivity.class);
+                Bundle bundle = new Bundle();
+                String cueMapDate = MyUtil.getCueMapDate(Long.parseLong(historyRecordItem.timestamp) * 1000);
+                HistoryRecord historyRecord = new HistoryRecord(historyRecordItem.ID,cueMapDate,Integer.parseInt(historyRecordItem.state));
+                bundle.putParcelable("historyRecord",historyRecord);
+                intent.putExtra("bundle",bundle);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initData() {
@@ -212,13 +228,15 @@ public class IndexWarringActivity extends BaseActivity {
         boolean isFirst =true;
         weekAllHistoryRecords = weekReport.errDesc.list;
 
+        Collections.reverse(weekAllHistoryRecords);
+
         for (HealthIndicatorAssessActivity.WeekReport.WeekReportResult.HistoryRecordItem historyRecordItem:weekAllHistoryRecords){
             Log.i(TAG,"historyRecordItem:"+historyRecordItem.toString());
         }
 
         for (int i=0;i<weekAllHistoryRecords.size();i++){
             HealthIndicatorAssessActivity.WeekReport.WeekReportResult.HistoryRecordItem historyRecord = weekAllHistoryRecords.get(i);
-            if (Integer.parseInt(historyRecord.state)==0){
+            /*if (Integer.parseInt(historyRecord.state)==0){
                 staticStateHistoryRecords.add(historyRecord);
 
                 IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateTypeSlow(Integer.parseInt(guosuguohuan.get(i)));
@@ -238,6 +256,25 @@ public class IndexWarringActivity extends BaseActivity {
                         scoreOverCount++;
                     }
                 }
+            }*/
+            staticStateHistoryRecords.add(historyRecord);
+
+            IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateTypeSlow(Integer.parseInt(guosuguohuan.get(i)));
+            IndicatorAssess indicatorAssess2 = HealthyIndexUtil.calculateTypeOver(Integer.parseInt(guosuguohuan.get(i)));
+            if (isFirst){
+                scoreSlow = indicatorAssess1;
+                scoreOver = indicatorAssess2;
+                isFirst = false;
+            }
+            else{
+                if (indicatorAssess1.getPercent()!=0){
+                    scoreSlow = indicatorAssess1;
+                    scoreSlowCount ++;
+                }
+                if (indicatorAssess2.getPercent()!=0){
+                    scoreOver = indicatorAssess2;
+                    scoreOverCount++;
+                }
             }
         }
 
@@ -246,7 +283,6 @@ public class IndexWarringActivity extends BaseActivity {
         }
 
         myListViewAdapter.notifyDataSetChanged();
-
 
 
         for (HealthIndicatorAssessActivity.WeekReport.WeekReportResult.HistoryRecordItem historyRecordItem:staticStateHistoryRecords){
@@ -501,6 +537,13 @@ public class IndexWarringActivity extends BaseActivity {
             TextView tv_wring_day = (TextView) inflate.findViewById(R.id.tv_wring_day);
 
             String timestamp = historyRecord.timestamp;
+
+            if (historyRecord.state.equals("1")){
+                tv_wring_type.setText("动态");
+            }
+            else {
+                tv_wring_type.setText("静态");
+            }
 
             Date date = new Date(Long.parseLong(timestamp)*1000);
             int year = date.getYear()+1900;

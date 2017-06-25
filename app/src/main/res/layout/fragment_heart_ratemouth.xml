@@ -3,6 +3,7 @@
     xmlns:foldlineview="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/app_background_color"
     tools:context="com.amsu.healthy.fragment.report.mouth.HeartRatemouthFragment">
 
     <include layout="@layout/fragment_report_heartrate_base"></include>

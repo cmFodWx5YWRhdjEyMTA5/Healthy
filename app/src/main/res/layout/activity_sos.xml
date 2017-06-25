@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/app_background_color"
     tools:context="com.amsu.healthy.activity.AboutUsActivity">
 
     <include layout="@layout/page_head"
@@ -15,17 +16,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#FFFFFF"
-        android:paddingLeft="@dimen/x36"
-        android:paddingRight="@dimen/x36"></com.amsu.healthy.view.QQListView>
+       ></com.amsu.healthy.view.QQListView>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/x1"
-        android:layout_marginLeft="@dimen/x36"
-        android:layout_marginRight="@dimen/x36"
-        android:background="#D1D1D1"></View>
-
-    <RelativeLayout
+    <!--<RelativeLayout
         android:id="@+id/rl_sos_add"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/y140"
@@ -79,7 +72,7 @@
             android:textColor="#c7c7c7"
             android:textSize="@dimen/x48"
             android:background="@null"/>
-    </LinearLayout>
+    </LinearLayout>-->
 
 
 

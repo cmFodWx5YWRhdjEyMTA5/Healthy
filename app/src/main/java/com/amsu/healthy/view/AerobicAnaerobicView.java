@@ -100,9 +100,9 @@ public class AerobicAnaerobicView extends View {
             for (int i=0;i<data.length-1;i++){
                 float averageX = (xIndex+xIndex+xOneGridWidth)/2;
                 float x1 = averageX;
-                float y1 = (float) ((1-data[i]/dataMax)*(mHeight-mMarginBotom))+mLine_width;
+                float y1 = (float) ((1-data[i]/dataMax)*(mHeight-mMarginBotom))-mLine_width;
                 float x2 = averageX;
-                float y2 = (float) ((1-data[i+1]/dataMax)*(mHeight-mMarginBotom))+mLine_width;
+                float y2 = (float) ((1-data[i+1]/dataMax)*(mHeight-mMarginBotom))-mLine_width;
 
                 path.moveTo(xIndex, y1);
                 path.cubicTo(x1,y1,x2,y2,xIndex+xOneGridWidth,y2);

@@ -144,18 +144,17 @@ public class QQListView extends ListView
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent ev)
-    {
+    public boolean onTouchEvent(MotionEvent ev) {
         int action = ev.getAction();
+
+        if (mCurrentViewPos == (getCount() - 1))
+            return true;
         /**
          * 如果是从右到左的滑动才相应
          */
-        if (isSliding)
-        {
-            switch (action)
-            {
+        if (isSliding) {
+            switch (action){
                 case MotionEvent.ACTION_MOVE:
-
                     int[] location = new int[2];
                     // 获得当前item的位置x与y
                     mCurrentView.getLocationOnScreen(location);
@@ -171,8 +170,7 @@ public class QQListView extends ListView
                         @Override
                         public void onClick(View v)
                         {
-                            if (mListener != null)
-                            {
+                            if (mListener != null) {
                                 mListener.clickHappend(mCurrentViewPos);
                                 mPopupWindow.dismiss();
                             }

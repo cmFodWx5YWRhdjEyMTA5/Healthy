@@ -12,6 +12,7 @@ import android.widget.ImageView;
 
 import com.amap.api.maps.model.LatLng;
 import com.amsu.healthy.R;
+import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.utils.Constant;
@@ -44,6 +45,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -85,6 +87,19 @@ public class HeartRateActivity extends BaseActivity {
         final long sportCreateRecordID = intent.getLongExtra(Constant.sportCreateRecordID, -1);  //运动记录id
         final long ecgFiletimeMillis = intent.getLongExtra(Constant.ecgFiletimeMillis, -1);
 
+        Log.i(TAG,"sportCreateRecordID:"+sportCreateRecordID);
+
+        /*Bundle bundle = intent.getParcelableExtra("bundle");
+        if (bundle!=null){
+            HistoryRecord historyRecord = bundle.getParcelable("historyRecord");
+            if (historyRecord!=null){
+                Log.i(TAG,"historyRecord:"+historyRecord.toString());
+                if (historyRecord.getAnalysisState()==HistoryRecord.analysisState_abort){
+                    //异常中断数据
+
+                }
+            }
+        }*/
 
         //heartDataList_static.add(90);
 
@@ -128,6 +143,7 @@ public class HeartRateActivity extends BaseActivity {
                             final String fileBase64 = MyUtil.fileToBase64(file);
                             Log.i(TAG,"fileBase64:"+fileBase64);
                             final List<Integer> ecgDataList = readIntArrayDataFromFile(file);
+                            Log.i(TAG,"ecgDataList.size()"+ecgDataList.size());
 
                             List<Integer> stridefreData = null;
                             final List<String> mKcalData = new ArrayList<>();
@@ -145,16 +161,17 @@ public class HeartRateActivity extends BaseActivity {
                                     for (int i=0;i<calcuEcgRate.length;i++){
                                         calcuEcgRate[i] = ecgDataList.get(j*heartCount+i);
                                     }
-                                    int mCurrentHeartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
-                                    //Log.i(TAG,"mCurrentHeartRate:"+ mCurrentHeartRate);
+                                    int mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+                                    Log.i(TAG,"mCurrentHeartRate:"+ mCurrentHeartRate);
                                     heartDataList_static.add(mCurrentHeartRate);
 
                                     if (mCalKcalCurrentTimeMillis==0){
                                         mCalKcalCurrentTimeMillis = System.currentTimeMillis();
                                     }else {
-                                        long l = System.currentTimeMillis() - mCalKcalCurrentTimeMillis;
-                                        mCalKcalCurrentTimeMillis = System.currentTimeMillis();
-                                        float time = (float) (l / (1000 * 60.0));
+                                        /*long l = System.currentTimeMillis() - mCalKcalCurrentTimeMillis;
+                                        mCalKcalCurrentTimeMillis = System.currentTimeMillis();*/
+                                        float time =  6.6f/60f;
+                                        //float time = (float) (timeLong / (1000 * 60.0));
                                         int userSex = MyUtil.getUserSex();
                                         int userAge = HealthyIndexUtil.getUserAge();
                                         int userWeight = MyUtil.getUserWeight();
@@ -166,9 +183,10 @@ public class HeartRateActivity extends BaseActivity {
                                         }
                                         mAllKcal += getkcal;
                                         mKcalData.add(getkcal+"");
-
                                     }
                                 }
+
+                                Log.i(TAG,"calcuEcgRate:"+calcuEcgRate.length);
 
                                 //计算加速度数据
                                 String accLocalFileName = intent.getStringExtra(Constant.accLocalFileName);
@@ -206,7 +224,7 @@ public class HeartRateActivity extends BaseActivity {
                                 @Override
                                 public void run() {
                                     UploadRecord uploadRecord = generateUploadData(ecgDataList, fileBase64, heartDataList_static, sportState, sportCreateRecordID, hrr,
-                                            ecgFiletimeMillis,intent,ecgLocalFileName, finalStridefreData,mKcalData, finalMAllKcal);
+                                            ecgFiletimeMillis,intent,ecgLocalFileName, finalStridefreData,mKcalData);
 
                                 }
                             });
@@ -219,8 +237,7 @@ public class HeartRateActivity extends BaseActivity {
             }
             else if (sportCreateRecordID!=-1){
                 //只有运动数据
-                UploadRecord uploadRecord = generateUploadData(null, null, null, sportState, sportCreateRecordID, hrr,ecgFiletimeMillis,intent,null,null,null,0);
-
+                UploadRecord uploadRecord = generateUploadData(null, null, null, sportState, sportCreateRecordID, hrr,ecgFiletimeMillis,intent,null,null,null);
             }
             else {
                 finish();
@@ -258,12 +275,17 @@ public class HeartRateActivity extends BaseActivity {
         return stridefreData;
     }
 
-
     private void uploadDataAndJumpToShowPage(UploadRecord uploadRecord,int sportState,String ecgLocalFileName) {
         animation.cancel();
 
         if (uploadRecord!=null){
-            uploadRecordDataToServer(uploadRecord,HeartRateActivity.this);
+            UploadRecord uploadRecordCopy = null;
+            try {
+                uploadRecordCopy = (UploadRecord) uploadRecord.clone();   //后面会有对对象的重新改变值，所以获取该对象的克隆，以后对此对象的改变将不会影响克隆对象
+                uploadRecordDataToServer(uploadRecordCopy,HeartRateActivity.this);
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
         }
         Intent intentToRateAnalysis = new Intent(HeartRateActivity.this, RateAnalysisActivity.class);
         if (uploadRecord!=null){
@@ -350,7 +372,7 @@ public class HeartRateActivity extends BaseActivity {
 
     //生成上传数据，分为心电数据和运动数据
     private UploadRecord generateUploadData(List<Integer> ecgDataList, String fileBase64,ArrayList<Integer> heartDataList,int sportState,long sportCreateRecordID,int hrr,
-                                            long ecgFiletimeMillis,Intent intent, String ecgLocalFileName,List<Integer> stridefreData,List<String> calData,int allKcal) {
+                                            long ecgFiletimeMillis,Intent intent, String ecgLocalFileName,List<Integer> stridefreData,List<String> calData) {
         UploadRecord uploadRecord = new UploadRecord();
 
         String timestamp;
@@ -409,7 +431,9 @@ public class HeartRateActivity extends BaseActivity {
 
             //String HRVs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
 
-            ES = (int)(heartRateResult.LF / heartRateResult.HF)+"";
+            if (heartRateResult.HF>0){
+                ES = (int)(heartRateResult.LF / heartRateResult.HF)+"";
+            }
             PI = heartRateResult.RR_SDNN+"";
             FI = heartRateResult.RR_SDNN+"";
 
@@ -462,9 +486,6 @@ public class HeartRateActivity extends BaseActivity {
             if (!MyUtil.isEmpty(fileBase64)){
                 EC = fileBase64;
             }
-
-
-
 
             String HRs = "心率健康建议";  //心率健康建议
             String heartRateSuggetstion = HealthyIndexUtil.getHeartRateSuggetstion(sportState, averHeart);
@@ -544,9 +565,9 @@ public class HeartRateActivity extends BaseActivity {
             String cadence = gson.toJson(calData);
             uploadRecord.setCalorie(cadence);
         }
-        if (allKcal>0){
+        /*if (allKcal>0){
             uploadRecord.setCalorie(allKcal+"");
-        }
+        }*/
 
         Log.i(TAG,"uploadRecord:"+uploadRecord);
 
@@ -576,7 +597,7 @@ public class HeartRateActivity extends BaseActivity {
             DataInputStream dataInputStream = new DataInputStream(fileInputStream); //读取二进制文件
 
             byte[] bytes = new byte[1024*1024];
-            System.out.println("dataInputStream.available():"+dataInputStream.available());
+            Log.i(TAG,"dataInputStream.available():"+dataInputStream.available());
             Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
 
             while(dataInputStream.available() >0){
@@ -627,7 +648,7 @@ public class HeartRateActivity extends BaseActivity {
         params.addBodyParameter("MinHR",uploadRecord.MinHR);
         params.addBodyParameter("HRr",uploadRecord.HRr);
         params.addBodyParameter("HRs",uploadRecord.HRs);
-        params.addBodyParameter("EC",eccString);
+        params.addBodyParameter("EC",uploadRecord.EC);
         params.addBodyParameter("ECr",uploadRecord.ECr);
         params.addBodyParameter("ECs",uploadRecord.ECs);
         params.addBodyParameter("RA",uploadRecord.RA);
@@ -651,16 +672,10 @@ public class HeartRateActivity extends BaseActivity {
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;
                 Log.i(TAG,"onSuccess==result:"+result);
-                OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(context);
-                offLineDbAdapter.open();
 
-                uploadRecord.setUploadState("1");  //上传成功后，将状态改为已上传
-                uploadRecord.datatime = uploadRecord.datatime.replace("/", "-");  //将本地数据库时间改成和服务器一致，下次查看数据时，先从根据时间从本地查询
-                offLineDbAdapter.createOrUpdateUploadReportObject(uploadRecord);
+                /*List<UploadRecord> uploadRecords = offLineDbAdapter.queryRecordAll();
 
-                List<UploadRecord> uploadRecords = offLineDbAdapter.queryRecordAll();
-
-                Log.i(TAG,"uploadRecords:"+uploadRecords);
+                Log.i(TAG,"uploadRecords:"+uploadRecords);*/
 
                     /*{
                          {
@@ -668,17 +683,24 @@ public class HeartRateActivity extends BaseActivity {
                             "errDesc":"数据上传成！"
                           }
                     }*/
+
+                OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(context);
+                offLineDbAdapter.open();
+                uploadRecord.datatime = uploadRecord.datatime.replace("/", "-");  //将本地数据库时间改成和服务器一致，下次查看数据时，先从根据时间从本地查询
+
                 JSONObject jsonObject = null;
                 try {
                     jsonObject = new JSONObject(result);
                     int ret = jsonObject.getInt("ret");
                     String errDesc = jsonObject.getString("errDesc");
                     if (ret==0){
+                        uploadRecord.setUploadState("1");  //上传成功后，将状态改为已上传
 
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                offLineDbAdapter.createOrUpdateUploadReportObject(uploadRecord);
             }
 
             @Override
@@ -689,11 +711,14 @@ public class HeartRateActivity extends BaseActivity {
                 offLineDbAdapter.open();
 
                 uploadRecord.setUploadState("0");
-                offLineDbAdapter.createOrUpdateUploadReportObject(uploadRecord);
+                long orUpdateUploadReportObject = offLineDbAdapter.createOrUpdateUploadReportObject(uploadRecord);
+                Log.i(TAG,"orUpdateUploadReportObject:"+orUpdateUploadReportObject);
 
                 List<UploadRecord> uploadRecords = offLineDbAdapter.queryRecordAll();
-
                 Log.i(TAG,"uploadRecords:"+uploadRecords);
+
+                List<UploadRecord> uploadRecordsState = offLineDbAdapter.queryRecordByUploadState("0");
+                Log.i(TAG,"uploadRecordsState:"+uploadRecordsState);
             }
         });
     }

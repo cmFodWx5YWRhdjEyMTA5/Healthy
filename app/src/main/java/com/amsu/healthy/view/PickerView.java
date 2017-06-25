@@ -128,11 +128,13 @@ public class PickerView extends View
         mCurrentSelected = selected;
     }
 
-    private void moveHeadToTail()
-    {
+    private void moveHeadToTail() {
         String head = mDataList.get(0);
         mDataList.remove(0);
         mDataList.add(head);
+
+
+
     }
 
     private void moveTailToHead() {
@@ -142,8 +144,7 @@ public class PickerView extends View
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-    {
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mViewHeight = getMeasuredHeight();
         mViewWidth = getMeasuredWidth();
@@ -170,8 +171,7 @@ public class PickerView extends View
     }
 
     @Override
-    protected void onDraw(Canvas canvas)
-    {
+    protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         // 根据index绘制view
         if (isInit)
@@ -193,13 +193,11 @@ public class PickerView extends View
 
         canvas.drawText(mDataList.get(mCurrentSelected), x, baseline, mPaint);
         // 绘制上方data
-        for (int i = 1; (mCurrentSelected - i) >= 0; i++)
-        {
+        for (int i = 1; (mCurrentSelected - i) >= 0; i++) {
             drawOtherText(canvas, i, -1);
         }
         // 绘制下方data
-        for (int i = 1; (mCurrentSelected + i) < mDataList.size(); i++)
-        {
+        for (int i = 1; (mCurrentSelected + i) < mDataList.size(); i++) {
             drawOtherText(canvas, i, 1);
         }
 
@@ -212,10 +210,8 @@ public class PickerView extends View
      * @param type
      *            1表示向下绘制，-1表示向上绘制
      */
-    private void drawOtherText(Canvas canvas, int position, int type)
-    {
-        float d = (float) (MARGIN_ALPHA * mMinTextSize * position + type
-                * mMoveLen);
+    private void drawOtherText(Canvas canvas, int position, int type) {
+        float d = (float) (MARGIN_ALPHA * mMinTextSize * position + type * mMoveLen);
         float scale = parabola(mViewHeight / 4.0f, d);
         //float size = (mMaxTextSize - mMinTextSize) * scale + mMinTextSize;
         float size =  mMinTextSize;
@@ -225,8 +221,21 @@ public class PickerView extends View
         float y = (float) (mViewHeight / 2.0 + type * d);
         FontMetricsInt fmi = mPaint.getFontMetricsInt();
         float baseline = (float) (y - (fmi.bottom / 2.0 + fmi.top / 2.0));
-        canvas.drawText(mDataList.get(mCurrentSelected + type * position),
-                (float) (mViewWidth / 2.0), baseline, mPaint);
+
+
+       /* List<String> tmepList = new ArrayList<>();
+        tmepList.addAll(mDataList);
+        for (int i=0;i<tmepList.size()-1;i++){
+            if (Integer.parseInt(tmepList.get(i))>Integer.parseInt(tmepList.get(i+1))){
+                tmepList.remove(i);
+            }
+        }
+
+        if (mCurrentSelected + type * position<tmepList.size()){
+            canvas.drawText(tmepList.get(mCurrentSelected + type * position), (float) (mViewWidth / 2.0), baseline, mPaint);
+        }*/
+
+        canvas.drawText(mDataList.get(mCurrentSelected + type * position), (float) (mViewWidth / 2.0), baseline, mPaint);
 
     }
 
@@ -239,17 +248,14 @@ public class PickerView extends View
      *            偏移量
      * @return scale
      */
-    private float parabola(float zero, float x)
-    {
+    private float parabola(float zero, float x) {
         float f = (float) (1 - Math.pow(x / zero, 2));
         return f < 0 ? 0 : f;
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event)
-    {
-        switch (event.getActionMasked())
-        {
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 doDown(event);
                 break;
@@ -263,28 +269,23 @@ public class PickerView extends View
         return true;
     }
 
-    private void doDown(MotionEvent event)
-    {
-        if (mTask != null)
-        {
+    private void doDown(MotionEvent event) {
+        if (mTask != null) {
             mTask.cancel();
             mTask = null;
         }
         mLastDownY = event.getY();
     }
 
-    private void doMove(MotionEvent event)
-    {
-
+    private void doMove(MotionEvent event) {
         mMoveLen += (event.getY() - mLastDownY);
-
         if (mMoveLen > MARGIN_ALPHA * mMinTextSize / 2) {
             // 往下滑超过离开距离
-            //moveTailToHead();
+            moveTailToHead();
             mMoveLen = mMoveLen - MARGIN_ALPHA * mMinTextSize;
         } else if (mMoveLen < -MARGIN_ALPHA * mMinTextSize / 2) {
             // 往上滑超过离开距离
-            //moveHeadToTail();
+            moveHeadToTail();
             mMoveLen = mMoveLen + MARGIN_ALPHA * mMinTextSize;
         }
 
@@ -292,16 +293,13 @@ public class PickerView extends View
         invalidate();
     }
 
-    private void doUp(MotionEvent event)
-    {
+    private void doUp(MotionEvent event) {
         // 抬起手后mCurrentSelected的位置由当前位置move到中间选中位置
-        if (Math.abs(mMoveLen) < 0.0001)
-        {
+        if (Math.abs(mMoveLen) < 0.0001) {
             mMoveLen = 0;
             return;
         }
-        if (mTask != null)
-        {
+        if (mTask != null) {
             mTask.cancel();
             mTask = null;
         }
@@ -309,8 +307,7 @@ public class PickerView extends View
         timer.schedule(mTask, 0, 10);
     }
 
-    class MyTimerTask extends TimerTask
-    {
+    class MyTimerTask extends TimerTask {
         Handler handler;
 
         public MyTimerTask(Handler handler)

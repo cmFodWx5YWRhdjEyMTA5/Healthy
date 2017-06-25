@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.bean.FullReport;
+import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineViewWithPoint;
 import com.amsu.healthy.view.FoldLineViewWithTextOne;
@@ -21,7 +22,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HRRYearFragment extends Fragment {
+public class HRRYearFragment extends BaseFragment {
     private FoldLineViewWithPoint mLineChart;
     private View inflate;
     private TextView tv_mouth_value;
@@ -69,7 +70,7 @@ public class HRRYearFragment extends Fragment {
 
     private void initData() {
         if (MyReportActivity.mQuarterFullReport!=null){
-            List<FullReport.HRRrepBean> hRrep = MyReportActivity.mQuarterFullReport.errDesc.HRRrep;
+            List<FullReport.HRRrepBean> hRrep = MyReportActivity.mQuarterFullReport.HRRrep;
             if (hRrep!=null && hRrep.size()>0){
                 List<Integer> dataList = new ArrayList<>();
                 List<String> labeList = new ArrayList<>();

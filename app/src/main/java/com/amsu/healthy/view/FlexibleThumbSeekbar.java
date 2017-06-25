@@ -27,7 +27,7 @@ public class FlexibleThumbSeekbar extends SeekBar {
         super(context, attrs);
 
         Bitmap bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.slider);
-        int width = (int) getResources().getDimension(R.dimen.x32);
+        int width = (int) getResources().getDimension(R.dimen.x48);
         Bitmap thumb=Bitmap.createBitmap(width,width, Bitmap.Config.ARGB_8888);
         Canvas canvas=new Canvas(thumb);
         canvas.drawBitmap(bitmap,new Rect(0,0,bitmap.getWidth(),bitmap.getHeight()),

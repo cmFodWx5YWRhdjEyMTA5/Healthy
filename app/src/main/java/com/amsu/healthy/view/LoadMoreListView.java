@@ -24,6 +24,7 @@ public class LoadMoreListView extends ListView {
     private RotateAnimation circleAnimation;
     private boolean isFootNeedLoadMore;
     private boolean isFootNeedLoadMoring;
+    private boolean isAllowLoadMore = true;
 
     public LoadMoreListView(Context context) {
         super(context);
@@ -69,7 +70,7 @@ public class LoadMoreListView extends ListView {
                 if (downY-startY>20){
                     //下拉
                     if (getLastVisiblePosition()==getCount()-1 ){
-                        if (!isFootNeedLoadMore){
+                        if (!isFootNeedLoadMore && isAllowLoadMore){
                             //可见最后一个是最后一条,需要加载更多
                             viewFoot.setPadding(0,0,0,0);
                             iv_chatt_refresh.setAnimation(circleAnimation);
@@ -81,7 +82,7 @@ public class LoadMoreListView extends ListView {
 
                 break;
             case MotionEvent.ACTION_UP:
-                if (isFootNeedLoadMore && !isFootNeedLoadMoring){
+                if (isFootNeedLoadMore && !isFootNeedLoadMoring && isAllowLoadMore){
                     refreshDataListener.loadMore();
                     isFootNeedLoadMore = false;
                     isFootNeedLoadMoring = true;
@@ -109,5 +110,9 @@ public class LoadMoreListView extends ListView {
         }
         isFootNeedLoadMoring = false;
         viewFoot.setPadding(0,0,0,-viewFoot.getMeasuredHeight());
+    }
+
+    public void setAllowLoadMore(boolean allowLoadMore) {
+        isAllowLoadMore = allowLoadMore;
     }
 }

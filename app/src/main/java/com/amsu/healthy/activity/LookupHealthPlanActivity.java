@@ -1,7 +1,6 @@
 package com.amsu.healthy.activity;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,7 +9,6 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.HealthyPlan;
 import com.amsu.healthy.bean.JsonBase;
-import com.amsu.healthy.bean.JsonHealthy;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.Gson;
@@ -44,7 +42,7 @@ public class LookupHealthPlanActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("健康计划");
+        setCenterText("健康计划详情");
         setRightText("修改");
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
@@ -93,8 +91,9 @@ public class LookupHealthPlanActivity extends BaseActivity {
                     Gson gson = new Gson();
                     JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
                     if (jsonBase.getRet()==0){
-                        JsonHealthy jsonHealthy = gson.fromJson(result, JsonHealthy.class);
-                        mHealthyPlan = jsonHealthy.getErrDesc();
+                        HealthyPlan jsonHealthy = gson.fromJson(String.valueOf(jsonBase.errDesc), HealthyPlan.class);
+
+                        mHealthyPlan = jsonHealthy;
                         mHealthyPlan.setId(mPlanId);
                         tv_addplan_title.setText(mHealthyPlan.getTitle());
                         tv_addplan_content.setText(mHealthyPlan.getContent());

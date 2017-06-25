@@ -350,7 +350,7 @@ public class HealthyIndexUtil {
         if (181<=hrv){
             //	91-100
             //scoreHRV = (int) (91+(hrv-181)*((100.0-91.0)/(200.0-181.0)));
-            scoreHRV = ((int) (91+(10)*(hrv-181.0)/(400-181.0)));
+            scoreHRV = ((int) (91+(10)*(hrv-181.0)/(1200-181.0)));
             suggestion = "您的身体充满活力，力拔山兮气盖世！再累的锻炼都不怕哦！";
             state = "优秀";
         }
@@ -822,6 +822,11 @@ public class HealthyIndexUtil {
         else if (121<=sportTime&& sportTime<=180){
             //41-60
             scoreReserveHealth = (int) (41+(sportTime-121)*(float)((60.0-41.0)/(180.0-121.0)));
+            suggestion = "不要让人把您看扁了，请适度增加有氧训练，路漫漫其修远兮，吾将上下而求索！";
+        }
+        else if (0<=sportTime&& sportTime<=120){
+            //41-60
+            scoreReserveHealth = (int) (0+(sportTime-0)*(float)((41.0-0.0)/(120.0-0.0)));
             suggestion = "不要让人把您看扁了，请适度增加有氧训练，路漫漫其修远兮，吾将上下而求索！";
         }
         IndicatorAssess indicatorAssess = new IndicatorAssess(sportTime,scoreReserveHealth,"健康储备",suggestion);

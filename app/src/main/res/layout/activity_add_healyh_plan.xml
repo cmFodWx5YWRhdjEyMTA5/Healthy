@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_background_color"
     tools:context=".activity.AddHeathyPlanActivity">
 
     <include layout="@layout/page_head"
@@ -16,6 +17,7 @@
         android:divider="@drawable/deiver_horiz_line"
         android:showDividers="middle|end"
         android:padding="@dimen/x36"
+        android:background="#FFFFFF"
         android:layout_below="@+id/rl_base_head">
         <EditText
             android:id="@+id/et_addplan_title"

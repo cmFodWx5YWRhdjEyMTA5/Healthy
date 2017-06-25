@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background_color"
+    tools:context="com.amsu.healthy.activity.AboutUsActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <RelativeLayout
+        android:id="@+id/rl_ele"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y900"
+        android:layout_below="@+id/rl_base_head"
+        android:background="#0c64b5">
+        <TextView
+            android:id="@+id/tv_device_electric"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="--"
+            android:textSize="@dimen/x240"
+            android:textColor="#FFFFFF"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/x160" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="%"
+            android:textSize="@dimen/x72"
+            android:textColor="#FFFFFF"
+            android:layout_toRightOf="@+id/tv_device_electric"
+            android:layout_marginLeft="@dimen/x20"
+            android:layout_alignBaseline="@+id/tv_device_electric"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/x160" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_device_electric"
+            android:text="设备电量"
+            android:textSize="@dimen/x40"
+            android:textColor="#99FFFFFF"
+            android:layout_centerHorizontal="true"/>
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x394"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/shebeixiangqing_bg"/>
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rl_ele"
+        android:orientation="vertical"
+        android:divider="@drawable/deiver_horiz_line"
+        android:background="#FFFFFF"
+        android:showDividers="middle|end"
+        android:paddingLeft="@dimen/x36"
+        android:paddingRight="@dimen/x36">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x140"
+            android:onClick="changeDeviceName"
+            android:clickable="true"
+            android:background="@drawable/list_item_background">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="设备名称"
+                android:textSize="@dimen/x48"
+                android:textColor="#1a1a1a"
+                android:layout_centerVertical="true"/>
+
+            <ImageView
+                android:id="@+id/iv_persion_1"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+
+            <TextView
+                android:id="@+id/tv_device_devicename"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/iv_persion_1"
+                android:textSize="@dimen/x48"
+                android:textColor="#c8c8cd"
+                android:layout_marginRight="5dp"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x140"
+            android:background="@drawable/list_item_background">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="硬件版本号"
+                android:textSize="@dimen/x48"
+                android:textColor="#1a1a1a"
+                android:layout_centerVertical="true"/>
+
+            <TextView
+                android:id="@+id/tv_device_hardware"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:textSize="@dimen/x48"
+                android:textColor="#c8c8cd"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x140"
+            android:background="@drawable/list_item_background">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="软件版本号"
+                android:textSize="@dimen/x48"
+                android:textColor="#1a1a1a"
+                android:layout_centerVertical="true"/>
+            <TextView
+                android:id="@+id/tv_device_software"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:textSize="@dimen/x48"
+                android:textColor="#c8c8cd"/>
+        </RelativeLayout>
+    </LinearLayout>
+
+
+
+
+</RelativeLayout>

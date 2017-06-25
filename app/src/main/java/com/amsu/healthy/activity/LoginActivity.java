@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,7 +16,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MD5Util;
@@ -28,6 +26,7 @@ import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
+import com.umeng.analytics.MobclickAgent;
 
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
@@ -184,6 +183,10 @@ public class LoginActivity extends BaseActivity {
         SMSSDK.getVerificationCode(country, phone);
     }
 
+    public void lookAsset(View view) {
+        startActivity(new Intent(this,DisclaimerAssertsActivity.class));
+    }
+
     class MyTimerTask extends TimerTask {
         @Override
         public void run() {
@@ -246,7 +249,6 @@ public class LoginActivity extends BaseActivity {
         RequestParams params = new RequestParams();
 
         params.addBodyParameter("phone",phone);
-
         String param = String.valueOf(System.currentTimeMillis());
         params.addBodyParameter("param", param);  //时间戳
 
@@ -255,7 +257,6 @@ public class LoginActivity extends BaseActivity {
         params.addBodyParameter("mobtype","1");
 
         Log.i(TAG,"phone:"+phone+",param:"+param+",inputVerifycode:"+inputVerifycode);
-
         String oldface = "";
         try {
             oldface = MD5Util.getMD5(phone + param + Constant.tokenKey);
@@ -347,6 +348,8 @@ public class LoginActivity extends BaseActivity {
                                             startActivity(new Intent(LoginActivity.this,SupplyPersionDataActivity.class));
                                         }
                                         else {
+                                            MobclickAgent.onProfileSignIn(phone);  //友盟登陆账号统计
+
                                             String sex = jsonObject1.getString("Sex");
                                             String height = jsonObject1.getString("Height");
                                             String address = jsonObject1.getString("Address");
@@ -354,9 +357,10 @@ public class LoginActivity extends BaseActivity {
                                             String icon = jsonObject1.getString("Icon");
                                             String stillRate = jsonObject1.getString("RestingHeartRate");
                                             User user = new User(phone,userName,birthday,sex,weight,height,address,email,icon,stillRate);
-                                            MyUtil.saveUserToSP(user);
+                                            MyUtil.saveDeviceToSP(user);
                                             MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
-                                            startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                                            SplashActivity.downlaodWeekReport(-1,-1,true,LoginActivity.this);
+                                            //startActivity(new Intent(LoginActivity.this,MainActivity.class));
                                         }
                                     }
                                     else {

@@ -11,17 +11,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.bean.Apk;
 import com.amsu.healthy.bean.FullReport;
-import com.amsu.healthy.bean.HealthyPlan;
 import com.amsu.healthy.bean.JsonBase;
-import com.amsu.healthy.bean.JsonHealthyList;
-import com.amsu.healthy.bean.Report;
 import com.amsu.healthy.fragment.report.MouthReprtFragment;
 import com.amsu.healthy.fragment.report.QuarterReprtFragment;
 import com.amsu.healthy.fragment.report.YearReprtFragment;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.RequestParams;
@@ -29,12 +28,7 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class MyReportActivity extends BaseActivity {
 
@@ -215,13 +209,10 @@ public class MyReportActivity extends BaseActivity {
                 Log.i(TAG,"上传onSuccess==result:"+result);
 
                 loadDataSucces();
-
-
-                Gson gson = new Gson();
-                JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+                JsonBase<FullReport> jsonBase =  MyUtil.commonJsonParse(result,new TypeToken<JsonBase<FullReport>>() {}.getType());
                 Log.i(TAG,"jsonBase:"+jsonBase);
-                if (jsonBase.getRet()==0){
-                    mMouthFullReport = gson.fromJson(result, FullReport.class);
+                if (jsonBase!=null&&jsonBase.getRet()==0){
+                    mMouthFullReport = jsonBase.errDesc;
                     Log.i(TAG,"mFullReport:"+mMouthFullReport.toString());
                 }
             }
@@ -341,11 +332,10 @@ public class MyReportActivity extends BaseActivity {
                         "    }\n" +
                         "}";*/
 
-                Gson gson = new Gson();
-                JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+                JsonBase<FullReport> jsonBase =  MyUtil.commonJsonParse(result,new TypeToken<JsonBase<FullReport>>() {}.getType());
                 Log.i(TAG,"jsonBase:"+jsonBase);
-                if (jsonBase.getRet()==0){
-                    mQuarterFullReport = gson.fromJson(result, FullReport.class);
+                if (jsonBase!=null&&jsonBase.getRet()==0){
+                    mQuarterFullReport = jsonBase.errDesc;
                     Log.i(TAG,"mQuarterFullReport:"+mQuarterFullReport.toString());
                 }
             }
@@ -458,11 +448,10 @@ public class MyReportActivity extends BaseActivity {
                         "    }\n" +
                         "}";
 */
-                Gson gson = new Gson();
-                JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+                JsonBase<FullReport> jsonBase =  MyUtil.commonJsonParse(result,new TypeToken<JsonBase<FullReport>>() {}.getType());
                 Log.i(TAG,"jsonBase:"+jsonBase);
-                if (jsonBase.getRet()==0){
-                    mYearFullReport = gson.fromJson(result, FullReport.class);
+                if (jsonBase!=null&&jsonBase.getRet()==0){
+                    mYearFullReport = jsonBase.errDesc;
                     Log.i(TAG,"mYearFullReport:"+mYearFullReport.toString());
                 }
             }

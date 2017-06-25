@@ -245,14 +245,14 @@ public class DeviceOffLineFileUtil {
         return fileHexlength;
     }
 
-    private static boolean mIsTimeerRunning;  //是否正在运行
-    private static Timer mTimer;
-    private static long timeSpan = 1000;
-    private static TimerTask mTimerTask;
-    private static int TimeOutCountIndex;
-    private static int TimeOutAllCount = 3;
+    private  boolean mIsTimeerRunning;  //是否正在运行
+    private  Timer mTimer;
+    private  long timeSpan = 1000;
+    private  TimerTask mTimerTask;
+    private  int TimeOutCountIndex;
+    private  int TimeOutAllCount = 3;
 
-    public static void setTransferTimeOverTime(final OnTimeOutListener onTimeOutListener){
+    public void setTransferTimeOverTime(final OnTimeOutListener onTimeOutListener){
         mTimerTask=new TimerTask() {
             @Override
             public void run() {
@@ -268,7 +268,7 @@ public class DeviceOffLineFileUtil {
         };
     }
 
-    public static void setTransferTimeOverTime(final OnTimeOutListener onTimeOutListener, int count){
+    public void setTransferTimeOverTime(final OnTimeOutListener onTimeOutListener, int count){
         final int TimeOutAllCount = count;
         mTimerTask=new TimerTask() {
             @Override
@@ -285,7 +285,24 @@ public class DeviceOffLineFileUtil {
         };
     }
 
-    public static void startTime(){
+    private void setTimeOverTime(final OnTimeOutListener onTimeOutListener, int count){
+        final int TimeOutAllCount = count;
+        mTimerTask=new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("run TimeOutCountIndex:"+TimeOutCountIndex);
+                if (mIsTimeerRunning){
+                    TimeOutCountIndex++;
+                }
+                if (TimeOutCountIndex==TimeOutAllCount) {
+                    TimeOutCountIndex = 0;
+                    onTimeOutListener.onTomeOut();//时间到
+                }
+            }
+        };
+    }
+
+    public void startTime(){
         if (mTimer==null){
             mTimer = new Timer();
             mTimer.schedule(mTimerTask,timeSpan,timeSpan);
@@ -293,14 +310,14 @@ public class DeviceOffLineFileUtil {
         mIsTimeerRunning = true;
     }
 
-    public static void stopTime(){
+    public void stopTime(){
         if (mIsTimeerRunning && mTimer!=null){
             mIsTimeerRunning = false;
             TimeOutCountIndex = 0;
         }
     }
 
-    public static void destoryTime(){
+    public  void destoryTime(){
         if (!mIsTimeerRunning && mTimer!=null){
             mTimer.cancel();
             mTimer = null;
@@ -322,8 +339,6 @@ public class DeviceOffLineFileUtil {
             mAllData.addAll(integers);
         }
     }
-
-
 
     //写到文件里，二进制方式写入
     public static void addRemainderEcgDataToList(String hexStringData,int onePackageReadLength,List<Integer> mAllData){

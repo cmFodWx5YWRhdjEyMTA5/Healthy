@@ -11,19 +11,22 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.utils.MyUtil;
 
 /**
  * 日历控件 功能：获得点选的日期区间
  * 
  */
 public class MyCalendarView extends View implements View.OnTouchListener {
-	private final static String TAG = "anCalendar";
+	private final static String TAG = "MyCalendarView";
 	private Date selectedStartDate;
 	private Date selectedEndDate;
 	private Date curDate; // 当前日历显示的月
@@ -39,12 +42,14 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 	private boolean isSelectMore = false;
 	//给控件设置监听事件
 	private OnItemClickListener onItemClickListener;
+	private OnItemLongClickListener onItemLongClickListener;
 	private float textSize;
 	float testHeight;
 	private int dayInWeek;
 	private boolean isNeedDrawCircle;
 	private boolean isNeedDrawBack = true;
 	private int[] planDays;
+	private boolean isCurrMouth = false;
 
 
 	public MyCalendarView(Context context) {
@@ -192,9 +197,14 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 		monthStart -= 1;  //以日为开头-1，以星期一为开头-2
 		curStartIndex = monthStart;
 		if (planDays!=null){
-			for (int i=0;i<planDays.length;i++){
-				planDays[i] = planDays[i]+monthStart-1;
+			int temp = 0;
+			if (!isCurrMouth){
+				temp = monthStart-1;
 			}
+			for (int i=0;i<planDays.length;i++){
+				planDays[i] = planDays[i]+temp;
+			}
+			isCurrMouth = true;
 		}
 		date[monthStart] = 1;
 		// last month
@@ -288,6 +298,7 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 	//设置当月有计划的日期列表，然后会在日期下面显示小圆点
 	public void setPlanDays(int[] planDays){
 		this.planDays = planDays;
+		isCurrMouth = false;
 		invalidate();
 	}
 
@@ -372,8 +383,8 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 	}
 	
 	//获取日历时间
-	public void getCalendatData(){
-		calendar.getTime();	
+	public Date getCalendatData(){
+		return calendar.getTime();
 	}
 	
 	//设置是否多选
@@ -385,7 +396,7 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 		this.isSelectMore = isSelectMore;
 	}
 
-	private void setSelectedDateByCoor(float x, float y) {
+	private int setSelectedDateByCoor(float x, float y) {
 		// change month
 //		if (y < surface.monthHeight) {
 //			// pre month
@@ -402,6 +413,7 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 //			}
 //		}
 		// cell click down
+		int dayInmonth = -1;
 		if (y > surface.monthHeight + surface.weekHeight) {
 			int m = (int) (Math.floor(x / surface.cellWidth) + 1);
 			int n = (int) (Math.floor((y - (surface.monthHeight + surface.weekHeight)) / Float.valueOf(surface.cellHeight)) + 1);
@@ -420,26 +432,49 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 
 
 
-			int dayInmonth = calendar.get(Calendar.DAY_OF_MONTH);
+			dayInmonth = calendar.get(Calendar.DAY_OF_MONTH);
 			Log.i(TAG,"dayInmonth:"+dayInmonth);
 			if (downIndex<dayInWeek-1 || downIndex>=dayInmonth+dayInWeek){
 				isNeedDrawCircle = false;
-				return;
+				return -1;
 			}
 			else {
 				isNeedDrawCircle = true;
 			}
 		}
+		return dayInmonth;
 		//invalidate();
 	}
 
+	Handler mHandler = new Handler();
+
+	Runnable mRunnable = new Runnable(){
+		@Override
+		public void run(){
+			int getnum = MyUtil.getIntValueFromSP("value");
+			Log.i(TAG,"getnum:"+getnum);
+			Log.i(TAG,"mDayInmonth:"+mDayInmonth);
+			if(getnum == 1) {
+				//此处根据判断可添加自己延迟后要执行的逻辑
+				//MyUtil.showToask(getContext(),mDayInmonth+"");
+				if (onItemClickListener!=null){
+					onItemLongClickListener.OnItemLongClick(mDayInmonth);
+				}
+
+			}
+		}
+	};
+	int mDayInmonth;
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
-			setSelectedDateByCoor(event.getX(), event.getY());
+			mDayInmonth = setSelectedDateByCoor(event.getX(), event.getY());
+			MyUtil.putIntValueFromSP("value",1);
+			mHandler.postDelayed(mRunnable,1000);
 			break;
 		case MotionEvent.ACTION_UP:
+
 			Log.i(TAG,"isNeedDrawCircle:"+isNeedDrawCircle);
 			if (!isNeedDrawCircle){
 				break;
@@ -465,9 +500,10 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 					//响应监听事件
 					onItemClickListener.OnItemClick(selectedStartDate,selectedEndDate,downDate);
 				}
-				//invalidate();
+				invalidate();
 			}
-			
+			MyUtil.putIntValueFromSP("value",2);
+			mHandler.removeCallbacks(mRunnable);
 			break;
 		}
 		return true;
@@ -480,6 +516,14 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 	//监听接口
 	public interface OnItemClickListener {
 		void OnItemClick(Date selectedStartDate, Date selectedEndDate, Date downDate);
+	}
+
+	public interface OnItemLongClickListener{
+		void OnItemLongClick(int dayInmonth);
+	}
+
+	public void setOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
+		this.onItemLongClickListener = onItemLongClickListener;
 	}
 
 	/**

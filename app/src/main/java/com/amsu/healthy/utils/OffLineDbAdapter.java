@@ -31,7 +31,8 @@ public class OffLineDbAdapter {
 	public static final String KEY_END = "endpoint";
 	public static final String KEY_DATE = "date";
 	private final static String DATABASE_PATH = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/recordPath";
-	static final String DATABASE_NAME = DATABASE_PATH + "/" + "report.db";
+	//static String DATABASE_NAME = DATABASE_PATH + "/" + "report.db";
+	static String DATABASE_NAME ;
 	private static final int DATABASE_VERSION = 1;
 	private static final String RECORD_TABLE = "uploadreport";
 
@@ -95,6 +96,7 @@ public class OffLineDbAdapter {
 		Log.i(TAG,"OffLineDbAdapter");
 		this.mCtx = ctx;
 		dbHelper = new DatabaseHelper(mCtx);
+		DATABASE_NAME = ctx.getCacheDir()+"/recordPath/report.db";
 	}
 
 	public OffLineDbAdapter open() throws SQLException {

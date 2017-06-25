@@ -32,19 +32,19 @@ import java.util.List;
 public class TestActivity extends BaseActivity {
 
     private static final String TAG = "TestActivity";
-    private LoadMoreListView lv_history_all;
+    /*private LoadMoreListView lv_history_all;
     private List<HistoryRecord> historyRecords;
-    private HistoryRecordAdapter historyRecordAdapter;
+    private HistoryRecordAdapter historyRecordAdapter;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
-        initView();
+
     }
 
-    private void initView() {
-        /*FoldLineViewWithPoint spread_line_chart = (FoldLineViewWithPoint) findViewById(R.id.spread_line_chart);
+    /*private void initView() {
+        *//*FoldLineViewWithPoint spread_line_chart = (FoldLineViewWithPoint) findViewById(R.id.spread_line_chart);
         final TextView tv_mouth_value = (TextView) findViewById(R.id.tv_mouth_value);
         final TextView tv_mouth_datetime = (TextView) findViewById(R.id.tv_mouth_datetime);
 
@@ -58,7 +58,7 @@ public class TestActivity extends BaseActivity {
                 tv_mouth_value.setText(heartRate+"");
                 tv_mouth_datetime.setText(dateTime);
             }
-        });*/
+        });*//*
 
 
         lv_history_all = (LoadMoreListView) findViewById(R.id.lv_list);
@@ -109,5 +109,5 @@ public class TestActivity extends BaseActivity {
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });
-    }
+    }*/
 }

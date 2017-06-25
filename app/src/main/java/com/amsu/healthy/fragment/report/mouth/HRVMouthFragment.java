@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.bean.FullReport;
+import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineViewWithPoint;
 import com.amsu.healthy.view.FoldLineViewWithText;
@@ -19,7 +20,7 @@ import java.util.List;
 
 import static com.amsu.healthy.R.id.tv_mouth_value;
 
-public class HRVMouthFragment extends Fragment {
+public class HRVMouthFragment extends BaseFragment {
     private FoldLineViewWithPoint mLineChart;
     private View inflate;
     private TextView tv_mouth_value;
@@ -57,7 +58,7 @@ public class HRVMouthFragment extends Fragment {
 
     private void initData() {
         if (MyReportActivity.mMouthFullReport!=null){
-            List<FullReport.HRVrepBean> hRrep = MyReportActivity.mMouthFullReport.errDesc.HRVrep;
+            List<FullReport.HRVrepBean> hRrep = MyReportActivity.mMouthFullReport.HRVrep;
             if (hRrep!=null && hRrep.size()>0){
                 int[] datas = new int[hRrep.size()];
                 String[] labels = new String[hRrep.size()];

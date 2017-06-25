@@ -150,7 +150,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="卡里路"
+                        android:text="卡路里"
                         android:textColor="#999999"
                         android:textSize="@dimen/x36"
                         android:gravity="center"/>
@@ -195,7 +195,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/y644"
-            android:layout_marginTop="@dimen/y48"
             android:background="#FFFFFF"
             android:paddingLeft="@dimen/x36"
             android:paddingRight="@dimen/x36"
@@ -249,7 +248,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="卡里路曲线"
+                android:text="卡路里曲线"
                 android:layout_centerInParent="true"
                 android:textColor="#3b3841"
                 android:textSize="@dimen/x50"/>
@@ -265,7 +264,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/y644"
-            android:layout_marginTop="@dimen/y48"
             android:background="#FFFFFF"
             android:paddingLeft="@dimen/x36"
             android:paddingRight="@dimen/x36"
@@ -332,7 +330,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/y644"
-            android:layout_marginTop="@dimen/y48"
             android:background="#FFFFFF"
             android:paddingLeft="@dimen/x36"
             android:paddingRight="@dimen/x36"
@@ -400,7 +397,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/y644"
-            android:layout_marginTop="@dimen/y48"
             android:background="#FFFFFF"
             android:paddingLeft="@dimen/x36"
             android:paddingRight="@dimen/x36"
@@ -496,7 +492,7 @@
                 android:layout_marginBottom="@dimen/x28"
                 HeightCurve:curve_line_width="@dimen/x6"
                 HeightCurve:fillstart_color="#FFFFFF"
-                HeightCurve:fillend_color="#FF0000"
+                HeightCurve:fillend_color="#FFb9ba"
                 HeightCurve:curve_line_color="#3599db"/>
 
         </RelativeLayout>

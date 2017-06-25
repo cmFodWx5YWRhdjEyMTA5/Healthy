@@ -1,6 +1,7 @@
 package com.amsu.healthy.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.nfc.Tag;
 import android.util.Log;
 import android.view.View;
@@ -88,8 +89,18 @@ public class HistoryRecordAdapter extends BaseAdapter {
             myHolder.tv_history_sportstate.setVisibility(View.GONE);
         }
 
-        if (!MyUtil.isEmpty(historyRecord.getAnalysisState())){
-            myHolder.tv_history_alstate.setText(historyRecord.getAnalysisState());
+        if (historyRecord.getAnalysisState()==HistoryRecord.analysisState_noAnalysised){
+            myHolder.tv_history_alstate.setText("未同步");
+            myHolder.tv_history_alstate.setTextColor(Color.parseColor("#CCCCCC"));
+        }
+        else if ( historyRecord.getAnalysisState()==HistoryRecord.analysisState_abort){
+            myHolder.tv_history_alstate.setText("未同步");
+            myHolder.tv_history_alstate.setTextColor(Color.RED);
+        }
+        else {
+            //默认，已分析
+            myHolder.tv_history_alstate.setText("已分析");
+            myHolder.tv_history_alstate.setTextColor(Color.parseColor("#CCCCCC"));
         }
 
         ProgressBar pb_item_progress = (ProgressBar) inflate.findViewById(R.id.pb_item_progress);

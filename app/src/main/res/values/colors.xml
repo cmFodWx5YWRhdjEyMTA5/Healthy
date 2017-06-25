@@ -12,4 +12,7 @@
     <color name="list_item_background_pressed">#efefef</color>
 
     <color name="transparent">#00000000</color>
+
+    <color name="app_background_color">#EBEBEB</color>
+
 </resources>

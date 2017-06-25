@@ -149,6 +149,38 @@ public class Util {
         }
     }
 
+	//保存数据到数据库
+	public static long saveOrUdateRecord(List<AMapLocation> list, String time, Context context, long startTime,double allDistance,long id) {
+		if (list != null ) {
+			long mEndTime = System.currentTimeMillis();
+			DbAdapter dbAdapter = new DbAdapter(context);
+			dbAdapter.open();
+			String duration = getDuration(startTime,mEndTime);
+			float distance = getDistance(list);  //室外运动总距离
+			//String average = getAverage(distance,startTime,mEndTime);  //室外运动平均速度
+			String average = getAverage((float) allDistance,startTime,mEndTime);
+			String pathlineSring = getPathLineString(list);
+			long createrecord;
+			if (list.size()>0){
+				AMapLocation firstLocaiton = list.get(0);
+				AMapLocation lastLocaiton = list.get(list.size() - 1);
+				String stratpoint = amapLocationToString(firstLocaiton);
+				String endpoint = amapLocationToString(lastLocaiton);
+				createrecord = dbAdapter.saveOrUdateRecord(String.valueOf(allDistance), duration, average, pathlineSring, stratpoint, endpoint, time,id);
+			}
+			else{
+				createrecord = dbAdapter.saveOrUdateRecord(String.valueOf(allDistance), duration, average, pathlineSring, "", "", time,id);
+			}
+			//Log.i(TAG,"createrecord:"+createrecord);
+			dbAdapter.close();
+			return createrecord;
+		} else {
+            /*Toast.makeText(RunTrailMapActivity.this, "没有记录到路径", Toast.LENGTH_SHORT)
+                    .show();*/
+			return -1;
+		}
+	}
+
     public static String getDuration(long mStartTime,long mEndTime) {
         return String.valueOf((mEndTime - mStartTime) / 1000f);
     }

@@ -1,6 +1,7 @@
 package com.amsu.healthy.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,9 +12,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.PickerView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 public class ChooseWeekActivity extends BaseActivity {
@@ -21,6 +25,9 @@ public class ChooseWeekActivity extends BaseActivity {
     private static final String TAG = "ChooseWeekActivity";
     private List<String> yearStringList;
     private List<String> weekStringList;
+    private PickerView pv_choose_week;
+    private String year ;
+    private String week ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +53,28 @@ public class ChooseWeekActivity extends BaseActivity {
         getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String[] split = week.split(" — ")[0].split("\\.");
 
+                System.out.println(split.length);
+                int mouth = Integer.parseInt(split[0])-1;
+                int day = Integer.parseInt(split[1]);
+
+
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.YEAR,Integer.parseInt(year));
+                calendar.set(Calendar.MONTH,mouth);
+                calendar.set(Calendar.DATE,day);
+                int currWeekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+
+                Log.i(TAG,"year:"+year+" ,currWeekOfYear:"+currWeekOfYear);
+
+                Intent intent = getIntent();
+                intent.putExtra("year",Integer.parseInt(year));
+                intent.putExtra("currWeekOfYear",currWeekOfYear);
+                intent.putExtra("week",week);
+                setResult(RESULT_OK,intent);
+                finish();
             }
         });
 
@@ -54,76 +82,79 @@ public class ChooseWeekActivity extends BaseActivity {
         weekStringList = new ArrayList<>();
 
         PickerView pv_choose_year = (PickerView) findViewById(R.id.pv_choose_year);
-        PickerView pv_choose_week = (PickerView) findViewById(R.id.pv_choose_week);
+        pv_choose_week = (PickerView) findViewById(R.id.pv_choose_week);
 
-/*
-        pv_choose_year.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-                Log.i(TAG,"onScrollStateChanged");
-            }
+        final Calendar calendar = Calendar.getInstance();
+        int currYear = calendar.get(Calendar.YEAR);
 
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                Log.i(TAG,"onScroll");
-            }
-        });*/
+        yearStringList.add(currYear-1+"");
+        yearStringList.add(currYear+"");
+        yearStringList.add("");
 
-        yearStringList.add("2017");
-        yearStringList.add("2016");
-        yearStringList.add("2015");
-        yearStringList.add("2014");
-        yearStringList.add("2013");
-        yearStringList.add("2012");
+        year = currYear+"";
 
-        //省份的数据
         pv_choose_year.setData(yearStringList);
 
         pv_choose_year.setOnSelectListener(new PickerView.onSelectListener() {
             @Override
             public void onSelect(int position) {
-                Log.i(TAG,"选择了"+yearStringList.get(position));
+                Log.i(TAG,"选择了年："+yearStringList.get(position));
+                if (!MyUtil.isEmpty(yearStringList.get(position))){
+                    weekStringList.clear();
+                    List<String> weeks;
+                    int tempYear = Integer.parseInt(yearStringList.get(position));
+                    year = tempYear+"";
+                    int i = calendar.get(Calendar.YEAR);
+                    if (tempYear== i){
+                        int currWeekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+                        weeks = MyUtil.getWeekStringList(currWeekOfYear);
+                    }
+                    else {
+                       weeks = MyUtil.getWeekStringList(52,tempYear);
+                    }
+                    setYearWeekData(weeks);
+                }
+            }
+        });
 
+        int currWeekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+        List<String> oneYearweeks = MyUtil.getWeekStringList(currWeekOfYear);
+
+        Log.i(TAG,"oneYearweeks:"+oneYearweeks.size());
+        Log.i(TAG,"oneYearweeks:"+oneYearweeks);
+
+        setYearWeekData(oneYearweeks);
+
+        pv_choose_week.setData(weekStringList);
+        pv_choose_week.setOnSelectListener(new PickerView.onSelectListener() {
+            @Override
+            public void onSelect(int position) {
+                Log.i(TAG,"选择了周："+weekStringList.get(position));
+                //week = weekStringList.get(position));
+                week = weekStringList.get(position);
             }
         });
 
     }
 
-    private class ChooseAdapter extends BaseAdapter{
-        List<String> dataStringList;
-        Context context;
+    private void setYearWeekData(List<String> oneYearweeks) {
+        if (oneYearweeks==null || oneYearweeks.size()==0)return;
+        weekStringList.addAll(oneYearweeks);
+        Collections.reverse(weekStringList);
+        weekStringList.add("");
+        weekStringList.add("");
+        weekStringList.add("");
+        weekStringList.add("");
+        weekStringList.add("");
+        weekStringList.add("");
+        weekStringList.add("");
+        weekStringList.add("");
+        weekStringList.add("");
+        weekStringList.add("");
+        weekStringList.add("");
 
-        ChooseAdapter(List<String> dataStringList, Context context) {
-            this.dataStringList = dataStringList;
-            this.context = context;
-        }
-
-        @Override
-        public int getCount() {
-            return dataStringList.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            TextView textView = new TextView(context);
-
-
-            textView.setText(dataStringList.get(position));
-            return textView;
-        }
+        pv_choose_week.setData(weekStringList);
     }
-
-
 
 
 }

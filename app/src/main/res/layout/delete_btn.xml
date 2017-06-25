@@ -5,7 +5,7 @@
     android:orientation="vertical" >
       <Button 
         android:id="@+id/id_item_btn"
-        android:layout_width="60dp"
+        android:layout_width="@dimen/x300"
         android:singleLine="true"
         android:layout_height="wrap_content"
         android:text="删除"
@@ -15,7 +15,6 @@
       	android:paddingRight="15dp"
       	android:layout_alignParentRight="true"
       	android:layout_centerVertical="true"
-      	android:layout_marginRight="15dp"
         />
 
 </LinearLayout>

@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.AnalysisRateAdapter;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.UploadRecord;
@@ -146,13 +147,15 @@ public class RateAnalysisActivity extends BaseActivity {
                     OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(RateAnalysisActivity.this);
                     offLineDbAdapter.open();
 
-                    UploadRecord uploadRecord = offLineDbAdapter.queryRecordByDatatime(datatime);
-                    Log.i(TAG,"本地uploadRecord:"+uploadRecord);
-                    if (uploadRecord!=null){
-                        //本地有数据
-                        mUploadRecord = uploadRecord;
-                        adjustFeagmentCount(Integer.parseInt(mUploadRecord.state));
-                        return;
+                    if (offLineDbAdapter!=null){
+                        UploadRecord uploadRecord = offLineDbAdapter.queryRecordByDatatime(datatime);
+                        Log.i(TAG,"本地uploadRecord:"+uploadRecord);
+                        if (uploadRecord!=null){
+                            //本地有数据
+                            mUploadRecord = uploadRecord;
+                            adjustFeagmentCount(Integer.parseInt(mUploadRecord.state));
+                            return;
+                        }
                     }
 
                     MyUtil.showDialog("加载数据",RateAnalysisActivity.this);
@@ -209,6 +212,13 @@ public class RateAnalysisActivity extends BaseActivity {
                                     mUploadRecord = new UploadRecord(FI,ES,PI,CC,HRVr,HRVs,AHR,MaxHR,MinHR,HRr,HRs,EC,ECr,ECs,RA,timestamp,datatime,HR,
                                             AE,distance,time,cadence,calorie,state,zaobo,loubo,latitude_longitude);
                                     Log.i(TAG,"mUploadRecord:"+mUploadRecord);
+
+                                    OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(RateAnalysisActivity.this);
+                                    offLineDbAdapter.open();
+                                    mUploadRecord.datatime = mUploadRecord.datatime.replace("/", "-");  //将本地数据库时间改成和服务器一致，下次查看数据时，先从根据时间从本地查询
+                                    long orUpdateUploadReportObject = offLineDbAdapter.createOrUpdateUploadReportObject(mUploadRecord);
+                                    Log.i(TAG,"orUpdateUploadReportObject:"+orUpdateUploadReportObject);
+
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -231,6 +241,8 @@ public class RateAnalysisActivity extends BaseActivity {
                     mUploadRecord = bundle.getParcelable("uploadRecord");
                     Log.i(TAG,"直接显示uploadRecord:"+mUploadRecord.toString());
                     ecgLocalFileName = intent.getStringExtra(Constant.ecgLocalFileName);
+                    String replace = mUploadRecord.getDatatime().replace("/", "-");//2016/10/24 10:56:4
+                    setCenterText(replace);
                     Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
                     adjustFeagmentCount(intent.getIntExtra(Constant.sportState,-1));
                 }
@@ -238,7 +250,6 @@ public class RateAnalysisActivity extends BaseActivity {
             else {
                 adjustFeagmentCount(intent.getIntExtra(Constant.sportState,-1));
             }
-
         }
     }
 

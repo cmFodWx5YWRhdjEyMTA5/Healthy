@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_background_color"
     tools:context="com.amsu.healthy.activity.LoginActivity">
 
     <include layout="@layout/page_head"
@@ -98,6 +99,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="true"
+            android:onClick="lookAsset"
             android:layout_toRightOf="@id/cb_login_isagree"
             android:layout_centerVertical="true"
             android:textColor="#0c64b5"

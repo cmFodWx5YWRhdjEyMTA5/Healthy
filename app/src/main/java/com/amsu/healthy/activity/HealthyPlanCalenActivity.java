@@ -4,14 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.CalendarView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.HealthyPlan;
 import com.amsu.healthy.bean.JsonBase;
-import com.amsu.healthy.bean.JsonHealthyList;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.MyCalendarView;
@@ -31,12 +28,13 @@ import java.util.List;
 
 public class HealthyPlanCalenActivity extends BaseActivity {
 
-    private static final String TAG = "month";
+    private static final String TAG = "HealthyPlanCalenActivity";
     private MyCalendarView vl_healthycalen_calen;
     private TextView tv_plancalen_yearndmouth;
     private TextView tv_healthycalen_day;
     private List<HealthyPlan> mMonthHealthyPlanList;
     private TextView tv_healthycalen_title;
+    private int[] planDays;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +49,7 @@ public class HealthyPlanCalenActivity extends BaseActivity {
         initHeadView();
         setCenterText("健康计划");
         setLeftImage(R.drawable.back_icon);
+        setHeadBackgroudColor("#0c64b5");
         setRightImage(R.drawable.plan_list);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,6 +100,52 @@ public class HealthyPlanCalenActivity extends BaseActivity {
             }
         });
         tv_healthycalen_day.setText(new Date().getDate()+"");
+
+        vl_healthycalen_calen.setOnItemLongClickListener(new MyCalendarView.OnItemLongClickListener() {
+            @Override
+            public void OnItemLongClick(int dayInmonth) {
+                Log.i(TAG,"dayInmonth:"+dayInmonth)     ;
+                Date calendatData = vl_healthycalen_calen.getCalendatData();
+                String formatDate = simpleDateFormat.format(calendatData);
+                Log.i(TAG,"formatDate:"+ formatDate);
+
+
+                boolean isNewAddPlan = true;
+                /*String temp ="";
+                if (planDays!=null){
+                    for (int i:planDays){
+                        temp += i+",";
+                        if (dayInmonth==i){
+                            isNewAddPlan = false;
+                        }
+                    }
+                }
+                 Log.i(TAG,"temp:"+temp);
+                */
+
+                String id = null;
+                for (HealthyPlan healthyPlan:mMonthHealthyPlanList){
+                    if (healthyPlan.getDate().equals(formatDate)){
+                        isNewAddPlan = false;
+                        id = healthyPlan.getId();
+                    }
+                }
+
+                Log.i(TAG,"id:"+ id);
+                if (isNewAddPlan){
+                    Intent intent = new Intent(HealthyPlanCalenActivity.this, AddHeathyPlanActivity.class);
+                    intent.putExtra("formatDate",formatDate);
+                    startActivityForResult(intent,120);
+                }
+                else {
+                    Intent intent = new Intent(HealthyPlanCalenActivity.this, LookupHealthPlanActivity.class);
+                    if (!MyUtil.isEmpty(id)){
+                        intent.putExtra("id",id);
+                        startActivity(intent);
+                    }
+                }
+            }
+        });
 
     }
 
@@ -173,16 +218,7 @@ public class HealthyPlanCalenActivity extends BaseActivity {
                     String errDesc = jsonBase.errDesc+"";
                     mMonthHealthyPlanList = gson.fromJson(errDesc, new TypeToken<List<HealthyPlan>>() {
                     }.getType());
-                    int[] planDays = new int[mMonthHealthyPlanList.size()];
-                    int i=0;
-                    for (HealthyPlan healthyPlan: mMonthHealthyPlanList){
-                        String[] split = healthyPlan.getDate().split("-");
-                        planDays[i] = Integer.parseInt(split[split.length-1]);
-                        i++;
-                    }
-
-                    vl_healthycalen_calen.setPlanDays(planDays);
-                    Log.i(TAG, mMonthHealthyPlanList.toString());
+                    updatePlanDaysList(mMonthHealthyPlanList);
                 }
                 else {
                     vl_healthycalen_calen.setPlanDays(new int[0]);
@@ -197,6 +233,35 @@ public class HealthyPlanCalenActivity extends BaseActivity {
         });
 
     }
+
+    private void updatePlanDaysList(List<HealthyPlan> mMonthHealthyPlanList) {
+        planDays = new int[mMonthHealthyPlanList.size()];
+        int i=0;
+        for (HealthyPlan healthyPlan: mMonthHealthyPlanList){
+            String[] split = healthyPlan.getDate().split("-");
+            planDays[i] = Integer.parseInt(split[split.length-1]);
+            i++;
+        }
+
+        vl_healthycalen_calen.setPlanDays(planDays);
+        Log.i(TAG, mMonthHealthyPlanList.toString());
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i(TAG,"onActivityResult");
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode==120 && resultCode==RESULT_OK){
+            Bundle bundle = data.getBundleExtra("bundle");
+            HealthyPlan healthyPlan = bundle.getParcelable("healthyPlan");
+            mMonthHealthyPlanList.add(healthyPlan);
+            updatePlanDaysList(mMonthHealthyPlanList);
+
+            Log.i(TAG,"add");
+        }
+    }
+
 
     //点击上一月 同样返回年月
     public void preMouth(View view) {

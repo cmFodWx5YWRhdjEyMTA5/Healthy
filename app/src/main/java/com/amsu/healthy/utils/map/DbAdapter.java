@@ -110,6 +110,21 @@ public class DbAdapter {
 		return db.insert(RECORD_TABLE, null, args);
 	}
 
+	public long saveOrUdateRecord(String distance, String duration, String averagespeed, String pathline, String stratpoint, String endpoint, String date,long id) {
+		ContentValues args = new ContentValues();
+		if(id!=-1){
+			args.put(KEY_ROWID, id);
+		}
+		args.put("distance", distance);
+		args.put("duration", duration);
+		args.put("averagespeed", averagespeed);
+		args.put("pathline", pathline);
+		args.put("stratpoint", stratpoint);
+		args.put("endpoint", endpoint);
+		args.put("date", date);
+		return db.replace(RECORD_TABLE, null, args);
+	}
+
 	/**
 	 * 查询所有轨迹记录
 	 * 

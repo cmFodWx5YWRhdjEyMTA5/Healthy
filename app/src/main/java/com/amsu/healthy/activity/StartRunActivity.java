@@ -1,16 +1,13 @@
 package com.amsu.healthy.activity;
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.LocationManager;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.provider.Settings;
 import android.support.design.widget.BottomSheetDialog;
 import android.os.Bundle;
@@ -32,6 +29,8 @@ import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.model.LatLng;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.AppAbortDataSave;
+import com.amsu.healthy.utils.AppAbortDataSaveUtil;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
@@ -42,6 +41,7 @@ import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.RunTimerTaskUtil;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
+import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
 import com.amsu.healthy.view.GlideRelativeView;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
@@ -105,12 +105,14 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private int groupCalcuLength = 100; //
     private int oneGroupLength = 10; //
     private int[] calcuEcgRate = new int[groupCalcuLength*oneGroupLength]; //1000条数据:（100组，一组有10个数据点）
-    private DataOutputStream dataOutputStream;  //二进制文件输出流，写入文件
-    private ByteBuffer byteBuffer;
+    private DataOutputStream ecgDataOutputStream;  //二进制文件输出流，写入文件
+    private DataOutputStream accDataOutputStream;  //二进制文件输出流，写入文件
+    private ByteBuffer ecgByteBuffer;
+    private ByteBuffer accByteBuffer;
     private Intent mSendHeartRateBroadcastIntent;
     public static final String action = "jason.broadcast.action";    //发送广播，将心率值以广播的方式放松出去，在其他Activity可以接受
-    private FileOutputStream fileOutputStream;
     private long ecgFiletimeMillis =-1;  //开始有心电数据时的秒数，作为心电文件命名。静态变量，在其他界面会用到
+    private long accFiletimeMillis =-1;  //开始有心电数据时的秒数，作为心电文件命名。静态变量，在其他界面会用到
     private boolean mHaveOutSideGpsLocation;
     private long mCalKcalCurrentTimeMillis = 0;
     private float mAllKcal;
@@ -120,30 +122,32 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private ArrayList<Integer> mStridefreData = new ArrayList<>();
     private int mCurrentHeartRate = 0;
     private String ecgLocalFileName;
+    private DeviceOffLineFileUtil deviceOffLineFileUtil;
+    private AppAbortDataSave mAbortData;
+    private DeviceOffLineFileUtil saveDeviceOffLineFileUtil;
+
+    boolean isBindService;
+    ArrayList<Integer> mSpeedStringList = new ArrayList<>();
+    List<Float> tempSpeedList = new ArrayList<>();
+    List<AMapLocation> mGpsCal7ScendSpeedList = new ArrayList<>();
+    List<Float> mIndoorCal7ScendSpeedList = new ArrayList<>();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_run);
-
         initView();
-
     }
 
     private void initView() {
         initHeadView();
-        setCenterText("运动检测");
+        setCenterText("运动监测");
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mIsRunning){
-                    MyUtil.showToask(StartRunActivity.this,"正在运动，先长按结束运动");
-                }
-                else {
-                    finish();
-                }
+                backJudge();
             }
         });
         setRightText("心电图");
@@ -196,10 +200,40 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             public void onLock() {
                 rl_run_lock.setVisibility(View.GONE);
                 rl_run_bootom.setVisibility(View.VISIBLE);
+                getIv_base_leftimage().setClickable(true);
+                getTv_base_rightText().setClickable(true);
+                isLockScreen = false;
             }
         });
         MyApplication.runningActivity = MyApplication.StartRunActivity;
 
+        List<AppAbortDataSave> abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
+        Log.i(TAG,"abortDataListFromSP:"+abortDataListFromSP);
+
+    }
+
+    private boolean isLockScreen;
+
+    private void backJudge() {
+        if (mIsRunning){
+            ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(StartRunActivity.this);
+            chooseAlertDialogUtil.setAlertDialogText("正在跑步，是否退出？","按错了","退出");
+            chooseAlertDialogUtil.setOnCancelClickListener(new ChooseAlertDialogUtil.OnCancelClickListener() {
+                @Override
+                public void onCancelClick() {
+                    //将离线数据记录删除
+                    List<AppAbortDataSave> abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
+                    if (abortDataListFromSP!=null && abortDataListFromSP.size()>0){
+                        abortDataListFromSP.remove(abortDataListFromSP.size()-1); // 删除最后一个（刚年纪大饿一条记录）
+                    }
+                    AppAbortDataSaveUtil.putAbortDataListToSP(abortDataListFromSP);
+                    finish();
+                }
+            });
+        }
+        else {
+            finish();
+        }
     }
 
 
@@ -218,7 +252,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             isonResumeEd = true;
         }
 
-        if (MainActivity.mBluetoothAdapter!=null && MainActivity.mBluetoothAdapter.isEnabled()) {
+        if (MainActivity.mBluetoothAdapter!=null && MainActivity.mBluetoothAdapter.isEnabled() && !isBindService) {
             bindBluetoothService();
         }
 
@@ -258,7 +292,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             tyep += "CELL  "+aMapLocation.getSpeed();
         }
         tv_run_test.setText(tyep);
-
 
 
         calculateSpeed(aMapLocation);
@@ -353,7 +386,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             // 接收到从机数据
             String uuid = c.getUuid().toString();
             String hexData = DataUtil.byteArrayToHex(c.getValue());
-            //Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
+            Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
             //4.2写配置信息   onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 81 05 00 16
             //4.5App读主机设备的版本号  onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 84 07 88 88 00 16
             /*数据：
@@ -388,9 +421,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     //处理心电数据
     private void dealWithEcgData(String hexData) {
         final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
-        if (mIsRunning){
-            writeEcgDataToBinaryFile(ints);
-        }
+
+        writeEcgDataToBinaryFile(ints);
+
         //滤波处理
         for (int i=0;i<ints.length;i++){
             int temp = EcgFilterUtil.miniEcgFilterLp(ints[i], 0);
@@ -407,12 +440,14 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         else{
             currentGroupIndex = 0;
             //带入公式，计算心率
-            mCurrentHeartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+            //mCurrentHeartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+            mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
             Log.i(TAG,"heartRate0:"+ mCurrentHeartRate);
+            MyApplication.currentHeartRate = mCurrentHeartRate;
             //calcuEcgRate = new int[groupCalcuLength*10];
-            if (mCurrentHeartRate >0){
-                heartRateDates.add(mCurrentHeartRate);
-            }
+
+            heartRateDates.add(mCurrentHeartRate);
+
             if (mSendHeartRateBroadcastIntent==null){
                 mSendHeartRateBroadcastIntent = new Intent(action);
             }
@@ -426,8 +461,14 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tv_run_rate.setText(mCurrentHeartRate+"");
-                    tv_run_isoxygen.setText(OxygenState);
+                    if (mCurrentHeartRate ==0){
+                        tv_run_rate.setText("--");
+                        tv_run_isoxygen.setText("--");
+                    }
+                    else {
+                        tv_run_rate.setText(mCurrentHeartRate+"");
+                        tv_run_isoxygen.setText(OxygenState);
+                    }
                 }
             });
             System.arraycopy(ints, 0, calcuEcgRate, currentGroupIndex * 10 + 0, ints.length);
@@ -477,10 +518,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         return "有氧";
     }
 
-    //写到文件里，二进制方式写入
+    //ecg数据写到文件里，二进制方式写入
     private void writeEcgDataToBinaryFile(int[] ints) {
         try {
-            if (fileOutputStream==null){
+            if (ecgDataOutputStream==null){
                 ecgFiletimeMillis = System.currentTimeMillis();
                 //String filePath = MyUtil.generateECGFilePath(HealthyDataActivity.this, ecgFiletimeMillis); //随机生成一个ecg格式文件
                 //String filePath = getCacheDir()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";  //随机生成一个文件
@@ -493,26 +534,99 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 String fileAbsolutePath = filePath+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";
                 ecgLocalFileName = fileAbsolutePath;
                 Log.i(TAG,"fileAbsolutePath:"+fileAbsolutePath);
-                fileOutputStream = new FileOutputStream(fileAbsolutePath,true);
                 //MyUtil.putStringValueFromSP("cacheFileName",fileAbsolutePath);
-                dataOutputStream = new DataOutputStream(fileOutputStream);
-                byteBuffer = ByteBuffer.allocate(2);
+                ecgDataOutputStream = new DataOutputStream(new FileOutputStream(fileAbsolutePath,true));
+                ecgByteBuffer = ByteBuffer.allocate(2);
+                if (mAbortData!=null){
+                    mAbortData.setEcgFileName(ecgLocalFileName);
+                    saveOrUpdateAbortDatareordToSP(mAbortData,false);
+                }
+                else {
+                    mAbortData = new AppAbortDataSave(ecgFiletimeMillis, ecgLocalFileName, "", -1, 1,mSpeedStringList);
+                    saveOrUpdateAbortDatareordToSP(mAbortData,true);
+                }
             }
             for (int anInt : ints) {
-                byteBuffer.clear();
-                byteBuffer.putShort((short) anInt);
-                dataOutputStream.writeByte(byteBuffer.get(1));
-                dataOutputStream.writeByte(byteBuffer.get(0));
-                dataOutputStream.flush();
+                ecgByteBuffer.clear();
+                ecgByteBuffer.putShort((short) anInt);
+                ecgDataOutputStream.writeByte(ecgByteBuffer.get(1));
+                ecgDataOutputStream.writeByte(ecgByteBuffer.get(0));
+            }
+            ecgDataOutputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //acc数据写到文件里，二进制方式写入
+    private void writeAccDataToBinaryFile(int[] ints) {
+        try {
+            if (accDataOutputStream==null){
+                accFiletimeMillis = System.currentTimeMillis();
+                //String filePath = MyUtil.generateECGFilePath(HealthyDataActivity.this, ecgFiletimeMillis); //随机生成一个ecg格式文件
+                //String filePath = getCacheDir()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";  //随机生成一个文件
+                String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/abluedata";
+                File file = new File(filePath);
+                if (!file.exists()) {
+                    boolean mkdirs = file.mkdirs();
+                    Log.i(TAG,"mkdirs:"+mkdirs);
+                }
+                String fileAbsolutePath = filePath+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".acc";
+                String accLocalFileName = fileAbsolutePath;
+                Log.i(TAG,"fileAbsolutePath:"+fileAbsolutePath);
+                //MyUtil.putStringValueFromSP("cacheFileName",fileAbsolutePath);
+                accDataOutputStream = new DataOutputStream(new FileOutputStream(fileAbsolutePath,true));
+                accByteBuffer = ByteBuffer.allocate(2);
+                if (mAbortData!=null){
+                    mAbortData.setAccFileName(accLocalFileName);
+                    saveOrUpdateAbortDatareordToSP(mAbortData,false);
+                }
+                else {
+                    mAbortData = new AppAbortDataSave(accFiletimeMillis, "", accLocalFileName, -1, 1,mSpeedStringList);
+                    saveOrUpdateAbortDatareordToSP(mAbortData,true);
+                }
+            }
+            for (int anInt : ints) {
+                accByteBuffer.clear();
+                accByteBuffer.putShort((short) anInt);
+                accDataOutputStream.writeByte(accByteBuffer.get(1));
+                accDataOutputStream.writeByte(accByteBuffer.get(0));
+                accDataOutputStream.flush();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     *  @describe 异常中断时数据保存在本地
+     *  @param abortData:异常数据对象
+     *  @param isSave：保存还是修改 true为保存，false为修改时
+     *  @return
+     */
+    private void saveOrUpdateAbortDatareordToSP(AppAbortDataSave abortData,boolean isSave) {
+        List<AppAbortDataSave> abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
+        if (!isSave && abortDataListFromSP.size()>0){
+            abortDataListFromSP.remove(abortDataListFromSP.size()-1);
+        }
+        abortDataListFromSP.add(abortData);
+        AppAbortDataSaveUtil.putAbortDataListToSP(abortDataListFromSP);
+    }
+
+    private void deleteAbortDataRecordFomeSP(AppAbortDataSave abortData){
+        if (abortData!=null){
+            List<AppAbortDataSave> abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
+            if (abortDataListFromSP.size()>0){
+                abortDataListFromSP.remove(abortDataListFromSP.size()-1);
+                AppAbortDataSaveUtil.putAbortDataListToSP(abortDataListFromSP);
+            }
+        }
+    }
+
     //处理加速度数据
     private void dealWithAccelerationgData(String hexData) {
         final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 12); //一次的数据，12位
+        writeAccDataToBinaryFile(ints);
         for (int i:ints){
             accData.add(i);
         }
@@ -602,20 +716,23 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
     }
 
-    boolean isBindService;
-
-    ArrayList<Integer> mSpeedStringList = new ArrayList<>();
 
 
-    List<Float> tempSpeedList = new ArrayList<>();
 
     float tempSpeed = 0;
 
     //计算跑步速度，在室内和室外统一采用地图返回的传感器速度
     private void calculateSpeed(AMapLocation aMapLocation) {
         //float speed = aMapLocation.getSpeed()*3.6f;
+        if (aMapLocation.getLocationType()==AMapLocation.LOCATION_TYPE_GPS){
+            mGpsCal7ScendSpeedList.add(aMapLocation);
+        }
+        else {
+            mIndoorCal7ScendSpeedList.add(aMapLocation.getSpeed());
+        }
 
-        if (tempSpeedList.size()>6){
+
+        /*if (tempSpeedList.size()>6){
             tempSpeedList.remove(0);
         }
         tempSpeedList.add(aMapLocation.getSpeed());
@@ -629,8 +746,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         float speed = 0;
         String formatSpeed;
-
-
 
         if (mapRetrurnSpeed==0){
             formatSpeed = "0'00''";
@@ -646,18 +761,18 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             formatSpeed = (int)speed/60+"'"+(int)speed%60+"''";
         }
 
-       /*
+       *//*
         DecimalFormat decimalFormat=new DecimalFormat("0.00");//构造方法的字符格式这里如果小数不足2位,会以0补足.
-        String formatSpeed=decimalFormat.format(speed);//format 返回的是字符串*/
+        String formatSpeed=decimalFormat.format(speed);//format 返回的是字符串*//*
 
-       /*if (speed==0){
+       *//*if (speed==0){
            speed = tempSpeed + 5;
        }
        else {
            tempSpeed = speed;
-       }*/
+       }*//*
         tv_run_speed.setText(formatSpeed);
-        mSpeedStringList.add((int) speed);
+        mSpeedStringList.add((int) speed);*/
     }
 
     private void calculateDistance(AMapLocation aMapLocation) {
@@ -746,7 +861,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
                 //开启三分钟计时，保存记录最短为3分钟
                // MyTimeTask.startCountDownTimerTask(1000 * 60 * 1, new MyTimeTask.OnTimeOutListener() {
-                MyTimeTask.startCountDownTimerTask(1000 * 10 * 1, new MyTimeTask.OnTimeOutListener() {
+                MyTimeTask.startCountDownTimerTask(1000 * 60 * 3, new MyTimeTask.OnTimeOutListener() {
                     @Override
                     public void onTomeOut() {
                         isOneMit = true;
@@ -762,15 +877,121 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                     }
                 });
 
+                //开始计时，保存数据到本地，防止app异常，每隔
+                saveDeviceOffLineFileUtil = new DeviceOffLineFileUtil();
+                saveDeviceOffLineFileUtil.setTransferTimeOverTime(new DeviceOffLineFileUtil.OnTimeOutListener() {
+                    @Override
+                    public void onTomeOut() {
+                        Log.i(TAG,"1min 保存数据到本地");
+                        createrecord = Util.saveOrUdateRecord(record.getPathline(), record.getDate(), StartRunActivity.this,mStartTime,mAllDistance,createrecord);
+                        Log.i(TAG,"createrecord:"+createrecord);
+
+                        if (createrecord==-1)return;
+
+                        if (mAbortData==null){
+                            mAbortData = new AppAbortDataSave(System.currentTimeMillis(), "", "", createrecord, 1,mSpeedStringList);
+                            saveOrUpdateAbortDatareordToSP(mAbortData,true);
+                        }
+                        else {
+                            if (mAbortData.getMapTrackID()==-1){
+                                mAbortData.setMapTrackID(createrecord);
+                            }
+                            mAbortData.setSpeedStringList(mSpeedStringList);
+                            saveOrUpdateAbortDatareordToSP(mAbortData,false);
+                        }
+                        /*else if (MyUtil.isEmpty(mAbortData.getMapTrackID())){
+                            mAbortData.setMapTrackID(createrecord+"");
+                            saveOrUpdateAbortDatareordToSP(mAbortData,false);
+                        }*/
+                    }
+                },60*1);//1min 保存数据到本地
+
+                saveDeviceOffLineFileUtil.startTime();
                 initMapLoationTrace();
+                startCalSpeedTimerStask();
             }
         }
+    }
+
+    private void startCalSpeedTimerStask() {
+        if (deviceOffLineFileUtil==null){
+            deviceOffLineFileUtil = new DeviceOffLineFileUtil();
+            deviceOffLineFileUtil.setTransferTimeOverTime(new DeviceOffLineFileUtil.OnTimeOutListener() {
+                @Override
+                public void onTomeOut() {
+                    Log.i(TAG,"8s 计算速度");
+                    startCal7ScendSpeed();
+                }
+            },8);//8s 计算速度
+        }
+
+        deviceOffLineFileUtil.startTime();
+    }
+
+    private void startCal7ScendSpeed() {
+        String formatSpeed = "--";
+        float speed = 0;
+        Log.i(TAG,"mGpsCal7ScendSpeedList.size():"+mGpsCal7ScendSpeedList.size());
+        Log.i(TAG,"mIndoorCal7ScendSpeedList.size():"+mIndoorCal7ScendSpeedList.size());
+        if (mGpsCal7ScendSpeedList.size() <= mIndoorCal7ScendSpeedList.size()){
+            float sum = 0;
+            for (float i:mIndoorCal7ScendSpeedList){
+                sum += i;
+            }
+            float mapRetrurnSpeed = sum/mIndoorCal7ScendSpeedList.size();
+            speed = (1/mapRetrurnSpeed)*1000f;
+            if (speed>30*60){
+                speed = 0;
+            }
+
+            if (speed==0){
+                //formatSpeed = "0'00''";
+                formatSpeed = "--";
+            }
+            else {
+                formatSpeed = (int)speed/60+"'"+(int)speed%60+"''";
+            }
+            mIndoorCal7ScendSpeedList.clear();
+            mGpsCal7ScendSpeedList.clear();
+            Log.i(TAG,"startCal7ScendSpeed 室内:"+formatSpeed);
+        }
+        else {
+            float distance = Util.getDistance(mGpsCal7ScendSpeedList);
+            float mapRetrurnSpeed = distance / 8f;
+            speed = (1/mapRetrurnSpeed)*1000f;
+            if (speed>30*60){
+                speed = 0;
+            }
+
+            if (speed==0){
+                //formatSpeed = "0'00''";
+                formatSpeed = "--";
+            }
+            else {
+                formatSpeed = (int)speed/60+"'"+(int)speed%60+"''";
+            }
+            mIndoorCal7ScendSpeedList.clear();
+            mGpsCal7ScendSpeedList.clear();
+            Log.i(TAG,"startCal7ScendSpeed 室外:"+formatSpeed);
+        }
+
+        mSpeedStringList.add((int) speed);
+
+        final String finalFormatSpeed = formatSpeed;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tv_run_speed.setText(finalFormatSpeed);
+            }
+        });
+
     }
 
     boolean isHaveDataTransfer;
 
     //结束运动
     private void endRunning() {
+        Log.i(TAG,"isOneMit:"+isOneMit+", isHaveDataTransfer:"+isHaveDataTransfer);
         ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(this);
         if (isOneMit){
             if (isHaveDataTransfer){
@@ -778,7 +999,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
                     @Override
                     public void onConfirmClick() {
-                        saveSportRecord();
+                        saveSportRecord(createrecord);
                         Intent intent = new Intent(StartRunActivity.this, CalculateHRRProcessActivity.class);
                         intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
                         if (!MyUtil.isEmpty(ecgLocalFileName)){
@@ -808,7 +1029,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 chooseAlertDialogUtil.setOnCancelClickListener(new ChooseAlertDialogUtil.OnCancelClickListener() {
                     @Override
                     public void onCancelClick() {
-                        saveSportRecord();
+                        saveSportRecord(createrecord);
                         Intent intent = new Intent(StartRunActivity.this, HeartRateActivity.class);
                         intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
                         if (!MyUtil.isEmpty(ecgLocalFileName)){
@@ -835,13 +1056,12 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                     }
                 });
             }else {
-                saveSportRecord();
+                saveSportRecord(createrecord);
                 Intent intent = new Intent(StartRunActivity.this, HeartRateActivity.class);
                 intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
                 if (!MyUtil.isEmpty(ecgLocalFileName)){
                     intent.putExtra(Constant.ecgLocalFileName,ecgLocalFileName);
                 }
-
                 if (createrecord!=-1){
                     intent.putExtra(Constant.sportCreateRecordID,createrecord);
                 }
@@ -858,6 +1078,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 if (mSpeedStringList.size()>0){
                     intent.putIntegerArrayListExtra(Constant.mSpeedStringListData,mSpeedStringList);
                 }
+                Log.i(TAG,"startActivity");
                 startActivity(intent);
                 finish();
             }
@@ -868,6 +1089,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 @Override
                 public void onCancelClick() {
                     mlocationClient.stopLocation();
+
+                    deleteAbortDataRecordFomeSP(mAbortData);
                     finish();
                 }
             });
@@ -875,11 +1098,29 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     }
 
     //记录运动休信息（和地图有关的）
-    private void saveSportRecord() {
-        createrecord = Util.saveRecord(record.getPathline(), record.getDate(), this,mStartTime,mAllDistance);
+    private void saveSportRecord(long createrecord) {
+        createrecord = Util.saveOrUdateRecord(record.getPathline(), record.getDate(), this,mStartTime,mAllDistance,createrecord);
         Log.i(TAG,"createrecord:"+createrecord);
         mlocationClient.stopLocation();
-        fileOutputStream = null;
+        ecgDataOutputStream = null;
+        accDataOutputStream = null;
+        if (deviceOffLineFileUtil!=null){
+            deviceOffLineFileUtil.stopTime();
+            deviceOffLineFileUtil = null;
+        }
+        if (saveDeviceOffLineFileUtil!=null){
+            saveDeviceOffLineFileUtil.stopTime();
+            saveDeviceOffLineFileUtil = null;
+        }
+
+        List<AppAbortDataSave> abortDataListFromSP1 = AppAbortDataSaveUtil.getAbortDataListFromSP();
+        Log.i(TAG,"abortDataListFromSP1:"+abortDataListFromSP1);
+
+        deleteAbortDataRecordFomeSP(mAbortData);
+
+        List<AppAbortDataSave> abortDataListFromSP2 = AppAbortDataSaveUtil.getAbortDataListFromSP();
+        Log.i(TAG,"abortDataListFromSP2:"+abortDataListFromSP2);
+
     }
 
     //初始化定位
@@ -947,6 +1188,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 case R.id.bt_run_lock:
                     rl_run_lock.setVisibility(View.VISIBLE);
                     rl_run_bootom.setVisibility(View.GONE);
+
+                    getIv_base_leftimage().setClickable(false);
+                    getTv_base_rightText().setClickable(false);
+                    isLockScreen = true;
                     break;
 
                 case R.id.bt_run_location:
@@ -959,11 +1204,13 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK ){
+        /*if (keyCode == KeyEvent.KEYCODE_BACK ){
             if (mIsRunning){
                 return false;
             }
-        }
+        }*/
+        if (isLockScreen)return false;
+        backJudge();
         return super.onKeyDown(keyCode, event);
     }
 

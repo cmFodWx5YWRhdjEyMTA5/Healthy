@@ -16,6 +16,7 @@ import com.amsu.healthy.activity.ClubHomePageActivity;
 import com.amsu.healthy.activity.SetupClubActivity;
 import com.amsu.healthy.adapter.AllClubsAdapter;
 import com.amsu.healthy.bean.Club;
+import com.amsu.healthy.fragment.BaseFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ import static android.app.Activity.RESULT_OK;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MyCommunityFragment extends Fragment {
+public class MyCommunityFragment extends BaseFragment {
     private View inflate;
     private ListView lv_clubs_list;
     private List<Club> clubList;

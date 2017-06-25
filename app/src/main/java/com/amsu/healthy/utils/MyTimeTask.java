@@ -66,6 +66,28 @@ public class MyTimeTask {
         timer.schedule(tt, timeSpan,timeSpan);
     }
 
+    //时间计时器，timeSpan为时间间隔，会一直执行。返回Date类型的日期
+    public static void startTimeRiseTimerTask(final long timeSpan, final OnTimeChangeAtScendListener onTimeChangeAtScendListener){
+        final Timer timer = new Timer();
+        TimerTask tt=new TimerTask() {
+            boolean mIsFirstStart = true;
+            Date nowDate;
+            @Override
+            public void run() {
+                if (mIsFirstStart){
+                    mIsFirstStart = false;
+                    nowDate = new Date();
+                    nowDate.setHours(0);
+                    nowDate.setMinutes(0);
+                    nowDate.setSeconds(0);
+                }
+                nowDate = new Date(nowDate.getTime()+timeSpan);
+                onTimeChangeAtScendListener.onTimeChange(nowDate);
+            }
+        };
+        timer.schedule(tt, timeSpan,timeSpan);
+    }
+
     public interface OnTimeChangeAtScendListener{
         void onTimeChange(Date date);
     }

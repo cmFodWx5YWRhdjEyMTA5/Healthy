@@ -5,6 +5,7 @@
     android:id="@+id/activity_physical_age"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_background_color"
     tools:context="com.amsu.healthy.activity.PhysicalAgeActivity">
 
     <include layout="@layout/page_head_special"

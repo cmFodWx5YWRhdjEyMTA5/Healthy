@@ -18,6 +18,7 @@ import android.support.design.widget.BottomSheetDialog;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -26,9 +27,13 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.AppAbortDataSave;
+import com.amsu.healthy.utils.AppAbortDataSaveUtil;
+import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.EcgFilterUtil;
+import com.amsu.healthy.utils.EcgFilterUtil_1;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
@@ -37,6 +42,7 @@ import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
 import com.ble.ble.BleService;
 import com.google.gson.Gson;
+import com.test.utils.DiagnosisNDK;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -80,6 +86,7 @@ public class HealthyDataActivity extends BaseActivity {
     private MyTimeTask mAdjustLineTimeTask; //文字闪烁计时器
     private boolean isFirstAdjust = true;
     private boolean isNeedDrawEcgData = true; //是否要画心电数据，在跳到下个界面时则不需要画
+    private boolean isActivityFinsh = false; //是否要画心电数据，在跳到下个界面时则不需要画
     private DataOutputStream dataOutputStream;  //二进制文件输出流，写入文件
     private ByteBuffer byteBuffer;
     private long ecgFiletimeMillis =-1;  //开始有心电数据时的秒数，作为心电文件命名。静态变量，在其他界面会用到
@@ -89,7 +96,7 @@ public class HealthyDataActivity extends BaseActivity {
     private static double ECGSCALE_MODE_DOUBLE = 2;
     private static double ECGSCALE_MODE_QUADRUPLE = 4;
 
-    public static double ECGSCALE_MODE_CURRENT = ECGSCALE_MODE_DOUBLE;
+    public static double ECGSCALE_MODE_CURRENT = ECGSCALE_MODE_ORIGINAL;
 
     private BottomSheetDialog mBottomAdjustRateLineDialog;
     private boolean isLookupECGDataFromSport;
@@ -111,14 +118,13 @@ public class HealthyDataActivity extends BaseActivity {
     private void initView() {
         initHeadView();
         setCenterText("健康数据");
-        //setRightText("我的设备");
         setLeftImage(R.drawable.back_icon);
         setRightImage(R.drawable.yifu);
 
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                backJudge();
             }
         });
         getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
@@ -148,6 +154,29 @@ public class HealthyDataActivity extends BaseActivity {
 
         heartRateDates = new ArrayList<>();
         MyApplication.runningActivity = MyApplication.HealthyDataActivity;
+    }
+
+    //按返回键时的处理
+    private void backJudge() {
+        if (mIsHaveEcgDataReceived && !isLookupECGDataFromSport){
+            ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(HealthyDataActivity.this);
+            chooseAlertDialogUtil.setAlertDialogText("正在测试心电，是否退出？","按错了","退出");
+            chooseAlertDialogUtil.setOnCancelClickListener(new ChooseAlertDialogUtil.OnCancelClickListener() {
+                @Override
+                public void onCancelClick() {
+                    //将离线数据记录删除
+                    List<AppAbortDataSave> abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
+                    if (abortDataListFromSP!=null && abortDataListFromSP.size()>0){
+                        abortDataListFromSP.remove(abortDataListFromSP.size()-1); // 删除最后一个（刚年纪大饿一条记录）
+                    }
+                    AppAbortDataSaveUtil.putAbortDataListToSP(abortDataListFromSP);
+                    finish();
+                }
+            });
+        }
+        else {
+            finish();
+        }
     }
 
     private void initData() {
@@ -254,6 +283,8 @@ public class HealthyDataActivity extends BaseActivity {
                 //心电数据
                 //Log.i(TAG,"心电hexData:"+hexData);
                 dealWithEcgData(hexData);
+                mIsHaveEcgDataReceived = true;
+
             }
             else if(hexData.startsWith("FF 86 11")){
                 //加速度数据
@@ -263,20 +294,24 @@ public class HealthyDataActivity extends BaseActivity {
         }
     };
 
+    private boolean mIsHaveEcgDataReceived;
+    private int mPreHeartRate;
+
     //处理心电数据
     private void dealWithEcgData(String hexData) {
-        if (!isNeedDrawEcgData) return;
+        if (isActivityFinsh) return;
         final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
-        if (!isLookupECGDataFromSport && isNeedDrawEcgData){
+        if (!isLookupECGDataFromSport){
             writeEcgDataToBinaryFile(ints);
         }
 
         //滤波处理
         for (int i=0;i<ints.length;i++){
-            int temp = EcgFilterUtil.miniEcgFilterLp(ints[i], 0);
+            ints[i] = EcgFilterUtil_1.miniEcgFilterLp(EcgFilterUtil_1.miniEcgFilterHp (EcgFilterUtil_1.NotchPowerLine(ints[i], 1)));
+            /*int temp = EcgFilterUtil_1.miniEcgFilterLp(ints[i], 0);
             temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
-            ints[i] = temp;
-            Log.i(TAG,"temp:"+temp);
+            ints[i] = temp;*/
+            //Log.i(TAG,"temp:"+ints[i]);
         }
 
         //Log.i(TAG,"currentGroupIndex:"+currentGroupIndex);
@@ -296,10 +331,18 @@ public class HealthyDataActivity extends BaseActivity {
             //Log.i(TAG,"calcuEcgRate.length:"+calcuEcgRate.length);
 
             //带入公式，计算心率
-            mCurrentHeartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+            //mCurrentHeartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+            mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+
+
+
             Log.i(TAG,"heartRate0:"+ mCurrentHeartRate);
             //calcuEcgRate = new int[groupCalcuLength*10];
             heartRateDates.add(mCurrentHeartRate);
+
+            if (!isLookupECGDataFromSport && heartRateDates.size()==1){
+                saveAbortDatareordToSP(ecgFiletimeMillis,ecgLocalFileName,0);
+            }
 
             //更新心率
             runOnUiThread(new Runnable() {
@@ -308,9 +351,23 @@ public class HealthyDataActivity extends BaseActivity {
                     if (mCurrentHeartRate ==0){
                         tv_healthydata_rate.setText("--");
                     }
-                    else {
+                    else if (mPreHeartRate>0){
+                        int count = 0;
+                        int temp = mCurrentHeartRate-mPreHeartRate;
+                        if (temp>20) {
+                            count = (temp) / 20 + 1;
+                        }
+                        else if (temp<-20){
+                            count = (temp) / 20 - 1;
+                        }
+                        System.out.println(count);
+                        if (count!=0){
+                            mCurrentHeartRate = mPreHeartRate + Math.abs(temp)/count;
+                        }
+
                         tv_healthydata_rate.setText(mCurrentHeartRate +"");
                     }
+                    MyApplication.currentHeartRate = mCurrentHeartRate;
                 }
             });
             System.arraycopy(ints, 0, calcuEcgRate, currentGroupIndex * 10 + 0, ints.length);
@@ -319,6 +376,7 @@ public class HealthyDataActivity extends BaseActivity {
             //Log.i(TAG,"calcuEcgRate.length:"+calcuEcgRate.length);
             //Log.i(TAG,"ecgAmpSum:"+ecgAmpSum);
             setReteLineR(ecgAmpSum);
+            mPreHeartRate = mCurrentHeartRate;
         }
         currentGroupIndex++;
         if (isNeedDrawEcgData){
@@ -326,6 +384,7 @@ public class HealthyDataActivity extends BaseActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    Log.i(TAG,"绘图");
                     pv_healthydata_path.addEcgOnGroupData(ints);
                 }
             });
@@ -353,6 +412,7 @@ public class HealthyDataActivity extends BaseActivity {
                 dataOutputStream = new DataOutputStream(fileOutputStream);
                 byteBuffer = ByteBuffer.allocate(2);
                 heartRateDates.clear();
+
             }
             for (int anInt : ints) {
                 byteBuffer.clear();
@@ -363,6 +423,24 @@ public class HealthyDataActivity extends BaseActivity {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    //异常中断时数据保存在本地
+    private void saveAbortDatareordToSP(long ecgFiletimeMillis,String ecgLocalFileName, int state) {
+        List<AppAbortDataSave> abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
+        AppAbortDataSave abortData = new AppAbortDataSave(ecgFiletimeMillis,ecgLocalFileName,state);
+        abortDataListFromSP.add(abortData);
+        AppAbortDataSaveUtil.putAbortDataListToSP(abortDataListFromSP);
+    }
+
+    private void deleteAbortDataRecordFomeSP(long ecgFiletimeMillis){
+        if (ecgFiletimeMillis!=-1){
+            List<AppAbortDataSave> abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
+            if (abortDataListFromSP.size()>0){
+                abortDataListFromSP.remove(abortDataListFromSP.size()-1);
+                AppAbortDataSaveUtil.putAbortDataListToSP(abortDataListFromSP);
+            }
         }
     }
 
@@ -598,14 +676,17 @@ public class HealthyDataActivity extends BaseActivity {
             return;
         }
 
+        deleteAbortDataRecordFomeSP(ecgFiletimeMillis);
 
 
         startActivity(intent);
 
         isNeedDrawEcgData = false;
+        isActivityFinsh = true;
         isStartAdjustLineTimeTask = false;
         fileOutputStream = null;
         heartRateDates.clear();
+        finish();
     }
 
     //将心率数组保存到sp里
@@ -638,7 +719,7 @@ public class HealthyDataActivity extends BaseActivity {
             isonResumeEd = true;
         }
 
-        if (MainActivity.mBluetoothAdapter!=null && MainActivity.mBluetoothAdapter.isEnabled()) {
+        if (MainActivity.mBluetoothAdapter!=null && MainActivity.mBluetoothAdapter.isEnabled() && !isBindService) {
             bindBluetoothService();
         }
 
@@ -792,6 +873,12 @@ public class HealthyDataActivity extends BaseActivity {
         /*if (MainActivity.mBluetoothAdapter!=null){
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
         }*/
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        backJudge();
+        return super.onKeyDown(keyCode, event);
     }
 
 }

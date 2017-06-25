@@ -32,6 +32,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
@@ -46,10 +47,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
-public class SportFragment extends Fragment implements AMap.OnMapLoadedListener {
+public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListener {
     private static final String TAG = "SportFragment";
     private View inflate;
     private MyMapView mv_finish_map;
@@ -123,12 +125,12 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
 
     }
 
-    class TogatherOnClickListener implements View.OnClickListener {
+    private class TogatherOnClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
             final List<TogetherItem> togetherItemList = new ArrayList<>();
-            togetherItemList.add(new TogetherItem(R.drawable.bupin_icon,"步频里曲线"));
+            togetherItemList.add(new TogetherItem(R.drawable.bupin_icon,"步频曲线"));
             togetherItemList.add(new TogetherItem(R.drawable.kaluli_icon,"卡路里曲线"));
             togetherItemList.add(new TogetherItem(R.drawable.xinlv_icon,"心率曲线"));
             togetherItemList.add(new TogetherItem(R.drawable.peisu,"配速曲线"));
@@ -175,11 +177,10 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
                 @Override
                 public void onClick(View v) {
                     TogetherItem togetherItem = togetherItemList.get(mChoosedItem);
-
                     switch (togetherItem.name){
-                        case "步频里曲线":
+                        case "步频曲线":
                             //addTogetherLine()
-                            clickView.setTogetherShowData(stepData,-1);
+                            clickView.setTogetherShowData(stepData,HeightCurveView.LINETYPE_SETP);
                             break;
                         case "卡路里曲线":
                             //addTogetherLine()
@@ -187,7 +188,7 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
                             break;
                         case "心率曲线":
                             //addTogetherLine()
-                            clickView.setTogetherShowData(heartData,-1);
+                            clickView.setTogetherShowData(heartData,HeightCurveView.LINETYPE_HEART);
                             break;
                         case "配速曲线":
                             //addTogetherLine()
@@ -202,19 +203,14 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
                     alertDialog.dismiss();
                 }
             });
-
-
-
-
         }
-
-
     }
-    class TogetherItem{
+
+    private class TogetherItem{
         int iconID;
         String name;
 
-        public TogetherItem(int iconID, String name) {
+        TogetherItem(int iconID, String name) {
             this.iconID = iconID;
             this.name = name;
         }
@@ -259,8 +255,9 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
             View grayColorView;
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.i(TAG,"onItemClick:"+position);
                 view.setBackgroundColor(Color.parseColor("#D4D4D4"));
-                if (grayColorView!=null){
+                if (grayColorView!=null && grayColorView!=view){
                     grayColorView.setBackgroundColor(Color.parseColor("#FFFFFF"));
                 }
                 grayColorView = view;
@@ -283,7 +280,7 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
                 int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
                 if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
                     Log.i(TAG,"time:"+time);
-                    hv_sport_rateline.setData(heartData,time);
+                    hv_sport_rateline.setData(heartData,time,HeightCurveView.LINETYPE_HEART);
                 }
 
                 int duration = (int) Float.parseFloat(mUploadRecord.time);
@@ -335,7 +332,7 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
                 stepData = MyUtil.listToIntArray(fromJson);
                 if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
                     int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
-                    hv_sport_stepline.setData(stepData,time);
+                    hv_sport_stepline.setData(stepData,time,HeightCurveView.LINETYPE_SETP);
                     int allcadence = 0 ;
                     for (int i: stepData){
                         allcadence+=i;
@@ -349,12 +346,14 @@ public class SportFragment extends Fragment implements AMap.OnMapLoadedListener 
                 List<String> fromJson = gson.fromJson(mUploadRecord.calorie,new TypeToken<List<String>>() {
                 }.getType());
                 kaliluliData = MyUtil.listToFloatArray(fromJson);
+                Log.i(TAG,"kaliluliData:"+ Arrays.toString(kaliluliData));
                 if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
                     int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
                     hv_sport_kaliluline.setData(kaliluliData,time,HeightCurveView.LINETYPE_CALORIE);
                     float allcalorie = 0 ;
                     for (float i: kaliluliData){
                         allcalorie+=i;
+                        Log.i(TAG,"i:"+(int)i);
                     }
                     tv_sport_kalilu.setText((int)allcalorie+"");
                 }

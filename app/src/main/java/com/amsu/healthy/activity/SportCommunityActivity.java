@@ -38,6 +38,7 @@ public class SportCommunityActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
+        setHeadBackgroudColor("#60afe7");
         setLeftImage(R.drawable.back_icon);
         setCenterText("运动社区");
 

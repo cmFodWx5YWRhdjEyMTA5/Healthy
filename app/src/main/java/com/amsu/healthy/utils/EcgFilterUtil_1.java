@@ -248,7 +248,7 @@ public class EcgFilterUtil_1 {
     private static final int ECG_HPASS_LEN=12;
 
     private static double hx0[] = new double[ECG_HPASS_LEN];
-    static int miniEcgFilterHp(int d)
+    public static int miniEcgFilterHp(int d)
     {
         //输入 int d  待滤波的点
         //输出 int    滤波后的点
@@ -282,7 +282,7 @@ public class EcgFilterUtil_1 {
     private static final int ECG_LPASS_LEN=22;
 
     private static double lx0[] = new double[ECG_LPASS_LEN];
-    static int miniEcgFilterLp(int d)
+    public static int miniEcgFilterLp(int d)
     {
         //输入 int d  待滤波的点
         //输出 int    滤波后的点

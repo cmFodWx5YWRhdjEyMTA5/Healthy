@@ -1,5 +1,6 @@
 package com.amsu.healthy.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -63,12 +64,12 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void initData() {
-        downlaodWeekReport(-1,-1);
+        downlaodWeekReport(-1,-1,false,null);
         ApkUtil.checkUpdate(this);
     }
 
     //下载最新周报告
-    private void downlaodWeekReport(int year,int weekOfYear) {
+    public static void downlaodWeekReport(int year, int weekOfYear, final boolean isFromLogin, final Activity activity) {
 
         Log.i(TAG,"year:"+year+"  weekOfYear:"+weekOfYear);
         HttpUtils httpUtils = new HttpUtils();
@@ -85,7 +86,9 @@ public class SplashActivity extends BaseActivity {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 MyUtil.hideDialog();
-
+                if (isFromLogin){
+                    activity.startActivity(new Intent(activity,MainActivity.class));
+                }
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 Gson gson = new Gson();
@@ -101,13 +104,15 @@ public class SplashActivity extends BaseActivity {
             @Override
             public void onFailure(HttpException e, String s) {
                 MyUtil.hideDialog();
-
+                if (isFromLogin){
+                    activity.startActivity(new Intent(activity,MainActivity.class));
+                }
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });
     }
 
-    private void setIndicatorData(HealthIndicatorAssessActivity.WeekReport weekReport){
+    public static void setIndicatorData(HealthIndicatorAssessActivity.WeekReport weekReport){
         if (weekReport!=null){
             //BMI
             IndicatorAssess scoreBMI = HealthyIndexUtil.calculateScoreBMI();

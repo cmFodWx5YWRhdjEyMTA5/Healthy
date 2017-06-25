@@ -23,6 +23,7 @@ public class WifiStateReceiver extends BroadcastReceiver {
     private static final String TAG = "WifiStateReceiver";
     private boolean mIsStartUpload;
     private boolean mIsSetTimerTask;
+    private DeviceOffLineFileUtil deviceOffLineFileUtil;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -30,7 +31,8 @@ public class WifiStateReceiver extends BroadcastReceiver {
 
         //设置60秒定时器，60秒之后默认数据传输完毕
         if (!mIsSetTimerTask){
-            DeviceOffLineFileUtil.setTransferTimeOverTime(new DeviceOffLineFileUtil.OnTimeOutListener() {
+            deviceOffLineFileUtil = new DeviceOffLineFileUtil();
+            deviceOffLineFileUtil.setTransferTimeOverTime(new DeviceOffLineFileUtil.OnTimeOutListener() {
                 @Override
                 public void onTomeOut() {
                     Log.i(TAG,"60秒时间到了");
@@ -62,11 +64,12 @@ public class WifiStateReceiver extends BroadcastReceiver {
 
                             if (!mIsStartUpload){
                                 mIsStartUpload = true;
-                                DeviceOffLineFileUtil.startTime();
+                                if (deviceOffLineFileUtil!=null){
+                                    deviceOffLineFileUtil.startTime();
+                                }
                                 startUploadOffLineData(context);
                             }
                         }
-
                         return;
                     }
                 }

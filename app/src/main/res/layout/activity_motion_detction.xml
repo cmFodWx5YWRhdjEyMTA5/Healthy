@@ -7,20 +7,130 @@
     <include layout="@layout/page_head"
         android:id="@+id/rl_base_head">
     </include>
+    
 
-    <ImageView
-        android:layout_width="@dimen/x600"
-        android:layout_height="@dimen/x700"
-        android:src="@drawable/default_1"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/x200"/>
-
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/x296"
+            android:clickable="true"
+            android:onClick="defaultOnclick">
+            <ImageView
+                android:layout_width="@dimen/x172"
+                android:layout_height="@dimen/x172"
+                android:layout_marginTop="@dimen/x68"
+                android:src="@drawable/ydm_paobu"
+                android:layout_centerHorizontal="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="跑步"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/x296"
+            android:clickable="true"
+            android:onClick="defaultOnclick"
+            >
+            <ImageView
+                android:layout_width="@dimen/x172"
+                android:layout_height="@dimen/x172"
+                android:layout_marginTop="@dimen/x68"
+                android:src="@drawable/ydm_youyong"
+                android:layout_centerHorizontal="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="游泳"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/x296"
+            android:clickable="true"
+            android:onClick="defaultOnclick">
+            <ImageView
+                android:layout_width="@dimen/x172"
+                android:layout_height="@dimen/x172"
+                android:layout_marginTop="@dimen/x68"
+                android:src="@drawable/ydm_qixing"
+                android:layout_centerHorizontal="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="骑行"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true" />
+        </RelativeLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="程序员加班开发中"
-        android:textColor="#666666"
-        android:textSize="@dimen/x48"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/x200"/>
+        android:clickable="true"
+        android:onClick="defaultOnclick">
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/x296">
+            <ImageView
+                android:layout_width="@dimen/x172"
+                android:layout_height="@dimen/x172"
+                android:layout_marginTop="@dimen/x68"
+                android:src="@drawable/ydm_jianshen"
+                android:layout_centerHorizontal="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="健身"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/x296"
+            android:clickable="true"
+            android:onClick="defaultOnclick">
+            <ImageView
+                android:layout_width="@dimen/x172"
+                android:layout_height="@dimen/x172"
+                android:layout_marginTop="@dimen/x68"
+                android:src="@drawable/ydm_butai"
+                android:layout_centerHorizontal="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="步态"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/x296"
+            android:visibility="invisible">
+            <ImageView
+                android:layout_width="@dimen/x172"
+                android:layout_height="@dimen/x172"
+                android:layout_marginTop="@dimen/x68"
+                android:src="@drawable/ydm_paobu"
+                android:layout_centerHorizontal="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="跑步"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    
 </LinearLayout>

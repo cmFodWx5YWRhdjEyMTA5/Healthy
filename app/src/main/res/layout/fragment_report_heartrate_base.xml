@@ -3,6 +3,7 @@
     xmlns:foldlineview="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/app_background_color"
     tools:context="com.amsu.healthy.fragment.report.mouth.HeartRatemouthFragment">
 
     <RelativeLayout
@@ -45,6 +46,7 @@
         android:layout_height="@dimen/y820"
         android:layout_below="@+id/view"
         android:layout_marginTop="@dimen/x40"
+        android:background="#FFFFFF"
         android:orientation="vertical">
         <RelativeLayout
             android:layout_width="@dimen/x228"
@@ -77,7 +79,6 @@
             android:layout_height="match_parent"
             android:layout_marginTop="@dimen/x10"
             android:layout_below="@+id/view"
-            android:background="#FFFFFF"
             foldlineview:line_color="#FF0000"
             foldlineview:line_width="@dimen/x6"
             foldlineview:radius_point="@dimen/x8"

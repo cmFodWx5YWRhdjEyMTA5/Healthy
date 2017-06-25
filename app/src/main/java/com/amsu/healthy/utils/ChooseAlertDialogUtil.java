@@ -63,6 +63,7 @@ public class ChooseAlertDialogUtil {
         }
 
         final AlertDialog alertDialog = new AlertDialog.Builder(context, R.style.myCorDialog).setView(inflate).create();
+        alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();
         float width = context.getResources().getDimension(R.dimen.x800);
         float height = context.getResources().getDimension(R.dimen.x500);
@@ -77,7 +78,6 @@ public class ChooseAlertDialogUtil {
                 if (onCancelClickListener!=null){
                     onCancelClickListener.onCancelClick();
                 }
-
             }
         });
 

@@ -51,24 +51,9 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
         initData();
     }
 
-    private void initData() {
-        Intent intent = getIntent();
-        if (intent!=null){
-            Bundle bundle = intent.getBundleExtra("bundle");
-            if (bundle!=null){
-                mHealthyPlan = bundle.getParcelable("mHealthyPlan");
-                if (mHealthyPlan!=null){
-                    et_addplan_title.setText(mHealthyPlan.getTitle());
-                    et_addplan_content.setText(mHealthyPlan.getContent());
-                    tv_addplan_time.setText(mHealthyPlan.getDate());
-                }
-            }
-        }
-    }
-
     private void initView() {
         initHeadView();
-        setCenterText("健康计划");
+        setCenterText("新建健康计划");
         setLeftImage(R.drawable.back_icon);
         setRightText("保存");
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
@@ -162,6 +147,26 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
 
 
 
+    }
+
+
+    private void initData() {
+        Intent intent = getIntent();
+        if (intent!=null){
+            Bundle bundle = intent.getBundleExtra("bundle");
+            String formatDate = intent.getStringExtra("formatDate");
+            if (bundle!=null){
+                mHealthyPlan = bundle.getParcelable("mHealthyPlan");
+                if (mHealthyPlan!=null){
+                    et_addplan_title.setText(mHealthyPlan.getTitle());
+                    et_addplan_content.setText(mHealthyPlan.getContent());
+                    tv_addplan_time.setText(mHealthyPlan.getDate());
+                }
+            }
+            if (!MyUtil.isEmpty(formatDate)){
+                tv_addplan_time.setText(formatDate);
+            }
+        }
     }
 
     @Override

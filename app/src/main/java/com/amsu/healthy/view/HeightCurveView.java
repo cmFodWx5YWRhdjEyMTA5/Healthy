@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Shader;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import com.amsu.healthy.R;
@@ -48,8 +49,11 @@ public class HeightCurveView extends View {
     public static int LINETYPE_CALORIE = 1;
     public static int LINETYPE_SPEED = 2;
     public static int LINETYPE_AEROBICANAEROBIC = 3;
+    public static int LINETYPE_HEART = 4;
+    public static int LINETYPE_SETP = 5;
     private float mYTextsMaxValue = 0;
     private float mAnotherYTextsMaxValue = 0;
+    private float line_width;
 
     public HeightCurveView(Context context) {
         super(context);
@@ -71,7 +75,7 @@ public class HeightCurveView extends View {
         fillstart_color = typedArray.getColor(R.styleable.HeightCurve_fillstart_color, Color.WHITE);
         fillend_color = typedArray.getColor(R.styleable.HeightCurve_fillend_color, Color.WHITE);
         int line_color = typedArray.getColor(R.styleable.HeightCurve_curve_line_color, Color.WHITE);
-        float line_width = typedArray.getDimension(R.styleable.HeightCurve_curve_line_width, 0);
+        line_width = typedArray.getDimension(R.styleable.HeightCurve_curve_line_width, 0);
 
         mCoordinatePaint = new Paint();
         mCoordinatePaint.setColor(Color.parseColor("#d2d2d2"));
@@ -81,7 +85,7 @@ public class HeightCurveView extends View {
 
 
         mLablePaint = new Paint();
-        mLablePaint.setColor(Color.parseColor("#999999"));
+        mLablePaint.setColor(Color.parseColor("#666666"));
         float textWidth = getResources().getDimension(R.dimen.x28);
         mLablePaint.setTextSize(textWidth);
         mLablePaint.setAntiAlias(true);
@@ -151,7 +155,14 @@ public class HeightCurveView extends View {
             //if (data[i]>40  && data[i]<220){
             if (data[i]>=0){
                 //y = mHeight-mYOneSpanHeight-mMarginBotom-(mYOneSpanHeight/10)*(data[i]-yTexts[0]);
-                y = mHeight-mMarginBotom-mYCoordinateHight*(data[i]/mYTextsMaxValue);
+                if (mLineType== LINETYPE_SPEED){
+                    if (data[i]==0){
+                        data[i] = mYTextsMaxValue;
+                    }
+                    y = mHeight-mMarginBotom-mYCoordinateHight*(1-data[i]/mYTextsMaxValue);
+                }else {
+                    y = mHeight-mMarginBotom-mYCoordinateHight*(data[i]/mYTextsMaxValue);
+                }
                 if (y>yMax){
                     yMax = y;
                 }
@@ -186,6 +197,9 @@ public class HeightCurveView extends View {
         canvas.drawPath(curvePath,mCurveLinePaint);  //画曲线*/
     }
 
+    boolean isAdjust ;
+    boolean anothreIsAdjust ;
+
     //画坐标背景
     private void drawBackCoordinate(Canvas canvas) {
         float marginBotom1 = getResources().getDimension(R.dimen.y46); //坐标线与底部距离   使得坐标线交点重合
@@ -196,11 +210,27 @@ public class HeightCurveView extends View {
         String yText;
 
         if (mLineType== LINETYPE_SPEED){
+            if (!isAdjust){
+                mYTextsMaxValue = ((int)mYTextsMaxValue/120+1)*120;
+                isAdjust = true;
+            }
             double ceil = Math.ceil(mYTextsMaxValue / 4f);
             for (int i=0;i<4;i++){
-                yTexts[i] = (int)(ceil*(i+1))/60+"’"+(int)(ceil*(i+1))%60+"’’";
+                yTexts[3-i] = (int)(ceil*(i))/60+"’"+(int)(ceil*(i))%60+"’’";
             }
             //yTexts = new String[]{"2’28’’", "4’57’’", "7’26’’", "9’56’’"};  //y轴lable
+        }
+        else if (mLineType== LINETYPE_HEART || mLineType== LINETYPE_SETP){
+            //float tempYMax = (mYTextsMaxValue/20+1)*20;
+            if (!isAdjust){
+                mYTextsMaxValue = ((int)mYTextsMaxValue/20+1)*20;
+                isAdjust = true;
+            }
+
+            double ceil = Math.ceil(mYTextsMaxValue / 4f);
+            for (int i=0;i<4;i++){
+                yTexts[i] = (int)ceil*(i+1)+"";
+            }
         }
         else {
             double ceil = Math.ceil(mYTextsMaxValue / 4f);
@@ -223,13 +253,15 @@ public class HeightCurveView extends View {
         }
 
         DecimalFormat decimalFormat;
-        if (timeLong>4){
+        /*if (timeLong>4){
             timeLong=timeLong-timeLong%4;
             decimalFormat=new DecimalFormat("0");//构造方法的字符格式这里如果小数不足2位,会以0补足.
         }
         else {
             decimalFormat=new DecimalFormat("0.0");//构造方法的字符格式这里如果小数不足2位,会以0补足.
-        }
+        }*/
+        decimalFormat=new DecimalFormat("0.0");//构造方法的字符格式这里如果小数不足2位,会以0补足.
+
 
         //横坐标数值
         for (int i=0;i<5;i++){
@@ -253,21 +285,33 @@ public class HeightCurveView extends View {
             else if (i==4){
                 x = x - mLablePaint.measureText(xLable);
             }
-
             y = mHeight;
             canvas.drawText(String.valueOf(xLable),x,y,mLablePaint);
-
         }
-
-
     }
 
     private void drawAnotherBackCoordinate(Canvas canvas) {
         if (anotherData!=null && anotherData.length>0){
             if (mAnothermLineType== LINETYPE_SPEED){
+                if (!anothreIsAdjust){
+                    mAnotherYTextsMaxValue = ((int)mAnotherYTextsMaxValue/120+1)*120;
+                    anothreIsAdjust = true;
+                }
                 double ceil_another = Math.ceil(mAnotherYTextsMaxValue / 4f);
                 for (int i=0;i<4;i++){
-                    yAnotherTexts[i] = (int)(ceil_another*(i+1))/60+"’"+(int)(ceil_another*(i+1))%60+"’’";
+                    yAnotherTexts[i] = (int)(ceil_another*(i))/60+"’"+(int)(ceil_another*(i))%60+"’’";
+                }
+            }
+            else if (mAnothermLineType== LINETYPE_HEART || mAnothermLineType== LINETYPE_SETP){
+                //float tempYMax = (mYTextsMaxValue/20+1)*20;
+                if (!anothreIsAdjust){
+                    mAnotherYTextsMaxValue = ((int)mAnotherYTextsMaxValue/20+1)*20;
+                    anothreIsAdjust = true;
+                }
+
+                double ceil = Math.ceil(mAnotherYTextsMaxValue / 4f);
+                for (int i=0;i<4;i++){
+                    yAnotherTexts[3-i] = (int)ceil*(i+1)+"";
                 }
             }
             else if (mAnothermLineType== LINETYPE_AEROBICANAEROBIC){
@@ -307,9 +351,9 @@ public class HeightCurveView extends View {
             for (int i=0;i<anotherData.length-1;i++){
                 float averageX = (xIndex+xIndex+xOneGridWidth)/2;
                 float x1 = averageX;
-                float y1 = (float) ((1-anotherData[i]/dataMax)*(mHeight-mMarginBotom))+mLine_width;
+                float y1 = (float) ((1-anotherData[i]/dataMax)*(mHeight-mMarginBotom))-mLine_width;
                 float x2 = averageX;
-                float y2 = (float) ((1-anotherData[i+1]/dataMax)*(mHeight-mMarginBotom))+mLine_width;
+                float y2 = (float) ((1-anotherData[i+1]/dataMax)*(mHeight-mMarginBotom))-mLine_width;
 
                 path.moveTo(xIndex, y1);
                 path.cubicTo(x1,y1,x2,y2,xIndex+xOneGridWidth,y2);
@@ -321,7 +365,6 @@ public class HeightCurveView extends View {
             mCurveLinePaint.setStyle(Paint.Style.STROKE);
             mCurveLinePaint.setStrokeWidth(mLine_width);
             canvas.drawPath(path, mCurveLinePaint);
-
         }
         else {
             Path curvePath = new Path();
@@ -330,13 +373,23 @@ public class HeightCurveView extends View {
 
             float x =0 ;
             float y =0 ;
+
             for (int i=0;i<anotherData.length;i++){
+
                 x = mMarginleft+(i)*mOneGridWidth+mOneGridWidth/2;
                 y = 0;
                 //if (data[i]>40  && data[i]<220){
                 if (anotherData[i]>=0){
                     //y = mHeight-mYOneSpanHeight-mMarginBotom-(mYOneSpanHeight/10)*(data[i]-yTexts[0]);
-                    y = mHeight-mMarginBotom-mYCoordinateHight*((float)anotherData[i]/mAnotherYTextsMaxValue);
+                    if (mAnothermLineType== LINETYPE_SPEED){
+                        if (anotherData[i]==0){
+                            anotherData[i] = mAnotherYTextsMaxValue;
+                        }
+                        y = mHeight-mMarginBotom -line_width -mYCoordinateHight*(1-anotherData[i]/mAnotherYTextsMaxValue); // line_width为线的宽度
+                    }else {
+                        y = mHeight-mMarginBotom-line_width-mYCoordinateHight*(anotherData[i]/mAnotherYTextsMaxValue);
+                    }
+
                     if (y>yMax){
                         yMax = y;
                     }
@@ -386,7 +439,7 @@ public class HeightCurveView extends View {
             this.data = dataTemp;
             invalidate();
         }
-
+        Log.i(TAG,"mYTextsMaxValue:"+mYTextsMaxValue);
     }
 
     public void setData(float[] data, int time, int mLineType){
@@ -419,6 +472,10 @@ public class HeightCurveView extends View {
             this.anotherData = dataTemp;
             invalidate();
         }
+        else if (data==null || data.length==0){
+            this.anotherData = new float[0];
+        }
+        Log.i(TAG,"mAnotherYTextsMaxValue:"+mAnotherYTextsMaxValue);
 
     }
 
@@ -434,7 +491,9 @@ public class HeightCurveView extends View {
             }
             invalidate();
         }
-
+        else if (data==null || data.length==0){
+            this.anotherData = new float[0];
+        }
     }
 
     /*public void setData(String[] data, int time, int mLineType){

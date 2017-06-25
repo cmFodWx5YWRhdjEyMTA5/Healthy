@@ -21,6 +21,14 @@
 #-libraryjars libs/AMap_Location_V3.3.0_20170118.jar
 #-libraryjars libs/Android_Map3D_SDK_V5.0.0_20170311.jar
 
+#-libraryjars src/main/jniLibs/arm64-v8a/libecg.so
+#-libraryjars src/main/jniLibs/armeabi/libecg.so
+#-libraryjars src/main/jniLibs/armeabi-v7a/libecg.so
+#-libraryjars src/main/jniLibs/mips/libecg.so
+#-libraryjars src/main/jniLibs/mips64/libecg.so
+#-libraryjars src/main/jniLibs/x86/libecg.so
+#-libraryjars src/main/jniLibs/x86_64/libecg.so
+
 
 -dontwarn com.amap.api.**
 -dontwarn com.a.a.**
@@ -66,3 +74,77 @@ public static final int *;
     java.lang.Object writeReplace();
     java.lang.Object readResolve();
 }
+
+
+
+-ignorewarnings
+
+-keepattributes Signature,*Annotation*
+
+# keep BmobSDK
+-dontwarn cn.bmob.v3.**
+-keep class cn.bmob.v3.** {*;}
+
+# 确保JavaBean不被混淆-否则gson将无法将数据解析成具体对象
+-keep class * extends cn.bmob.v3.BmobObject {
+    *;
+}
+-keep class com.example.bmobexample.bean.BankCard{*;}
+-keep class com.example.bmobexample.bean.GameScore{*;}
+-keep class com.example.bmobexample.bean.MyUser{*;}
+-keep class com.example.bmobexample.bean.Person{*;}
+-keep class com.example.bmobexample.file.Movie{*;}
+-keep class com.example.bmobexample.file.Song{*;}
+-keep class com.example.bmobexample.relation.Post{*;}
+-keep class com.example.bmobexample.relation.Comment{*;}
+
+# keep BmobPush
+-dontwarn  cn.bmob.push.**
+-keep class cn.bmob.push.** {*;}
+
+# keep okhttp3、okio
+-dontwarn okhttp3.**
+-keep class okhttp3.** { *;}
+-keep interface okhttp3.** { *; }
+-dontwarn okio.**
+
+# keep rx
+-dontwarn sun.misc.**
+-keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
+ long producerIndex;
+ long consumerIndex;
+}
+-keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueProducerNodeRef {
+ rx.internal.util.atomic.LinkedQueueNode producerNode;
+}
+-keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueConsumerNodeRef {
+ rx.internal.util.atomic.LinkedQueueNode consumerNode;
+}
+
+# 如果你需要兼容6.0系统，请不要混淆org.apache.http.legacy.jar
+-dontwarn android.net.compatibility.**
+-dontwarn android.net.http.**
+-dontwarn com.android.internal.http.multipart.**
+-dontwarn org.apache.commons.**
+-dontwarn org.apache.http.**
+-keep class android.net.compatibility.**{*;}
+-keep class android.net.http.**{*;}
+-keep class com.android.internal.http.multipart.**{*;}
+-keep class org.apache.commons.**{*;}
+-keep class org.apache.http.**{*;}
+
+
+
+
+-keep class sun.misc.Unsafe { *; }
+
+-keep class com.google.gson.** { *; }
+
+# Application classes that will be serialized/deserialized over Gson
+
+#-keep class com.google.gson.examples.android.model.** { *; }
+
+-keep class com.amsu.healthy.bean.** {*;}  #这句非常重要，主要是滤掉XXXX.entity包下的所有.class文件不进行混淆编译
+-keep class com.amsu.healthy.utils.** {*;}  #这句非常重要，主要是滤掉XXXX.entity包下的所有.class文件不进行混淆编译
+-keep class com.amsu.healthy.activity.** {*;}  #这句非常重要，主要是滤掉XXXX.entity包下的所有.class文件不进行混淆编译
+-keep class com.test.** {*;}  #这句非常重要，主要是滤掉XXXX.entity包下的所有.class文件不进行混淆编译

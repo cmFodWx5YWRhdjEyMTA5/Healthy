@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.MouthReportAdapter;
+import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.fragment.report.mouth.EcgMouthFragment;
 import com.amsu.healthy.fragment.report.mouth.HRRMouthFragment;
 import com.amsu.healthy.fragment.report.mouth.HRVMouthFragment;
@@ -31,7 +32,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class QuarterReprtFragment extends Fragment implements View.OnClickListener {
+public class QuarterReprtFragment extends BaseFragment implements View.OnClickListener {
 
     private static final String TAG = "QuarterReprtFragment";
     public View inflate;

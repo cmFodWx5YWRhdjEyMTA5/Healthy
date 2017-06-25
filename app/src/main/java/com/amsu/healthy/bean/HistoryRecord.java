@@ -11,7 +11,11 @@ public class HistoryRecord implements Parcelable{
     private String ID;
     private String datatime;
     private int state;
-    private String analysisState;
+    private int analysisState;  //""：已分析(正常，默认的)，1：未分析（在离线传输时），2：异常中断
+
+    public static int analysisState_haveAnalysised = 0;
+    public static int analysisState_noAnalysised = 1;
+    public static int analysisState_abort = 2;
 
     public String getID() {
         return ID;
@@ -71,18 +75,18 @@ public class HistoryRecord implements Parcelable{
         }
     };
 
-    public HistoryRecord(String ID, String datatime, int state, String analysisState) {
+    public HistoryRecord(String ID, String datatime, int state, int analysisState) {
         this.ID = ID;
         this.datatime = datatime;
         this.state = state;
         this.analysisState = analysisState;
     }
 
-    public String getAnalysisState() {
+    public int getAnalysisState() {
         return analysisState;
     }
 
-    public void setAnalysisState(String analysisState) {
+    public void setAnalysisState(int analysisState) {
         this.analysisState = analysisState;
     }
 

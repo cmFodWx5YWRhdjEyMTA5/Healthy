@@ -21,11 +21,12 @@ import com.amsu.healthy.activity.MyReportActivity;
 import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 
-public class HRVFragment extends Fragment {
+public class HRVFragment extends BaseFragment {
 
     private static final String TAG = "HRVFragment";
     private View inflate;
