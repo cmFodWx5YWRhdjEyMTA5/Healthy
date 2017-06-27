@@ -7,6 +7,11 @@
     android:background="@color/app_background_color"
     tools:context="com.amsu.healthy.activity.MeActivity">
 
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head"
+        android:visibility="gone">
+    </include>
+
     <!--<Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,7 +22,9 @@
         android:id="@+id/rl_me_image"
         android:layout_width="match_parent"
         android:layout_height="@dimen/y624"
-        android:background="@drawable/head_bg">
+        android:background="@drawable/head_bg"
+        android:layout_below="@+id/rl_base_head"
+        android:layout_alignParentStart="true">
 
         <ImageView
             android:id="@+id/iv_me_back"

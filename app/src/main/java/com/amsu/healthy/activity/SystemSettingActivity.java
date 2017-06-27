@@ -43,12 +43,14 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         RelativeLayout rl_persiondata_update = (RelativeLayout) findViewById(R.id.rl_persiondata_update);
         RelativeLayout rl_persiondata_aboutus = (RelativeLayout) findViewById(R.id.rl_persiondata_aboutus);
         RelativeLayout rl_persiondata_exit = (RelativeLayout) findViewById(R.id.rl_persiondata_exit);
+        RelativeLayout rl_persiondata_questionnaire = (RelativeLayout) findViewById(R.id.rl_persiondata_questionnaire);
 
         rl_persiondata_persiondata.setOnClickListener(this);
         rl_persiondata_device.setOnClickListener(this);
         rl_persiondata_update.setOnClickListener(this);
         rl_persiondata_aboutus.setOnClickListener(this);
         rl_persiondata_exit.setOnClickListener(this);
+        rl_persiondata_questionnaire.setOnClickListener(this);
 
         if (!MyApplication.mActivities.contains(this)){
             MyApplication.mActivities.add(this);
@@ -70,6 +72,9 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
                 break;
             case R.id.rl_persiondata_aboutus:
                 startActivity(new Intent(SystemSettingActivity.this,AboutUsActivity.class));
+                break;
+            case R.id.rl_persiondata_questionnaire:
+                startActivity(new Intent(SystemSettingActivity.this,QuestionnaireActivity.class));
                 break;
             case R.id.rl_persiondata_exit:
                 exit();

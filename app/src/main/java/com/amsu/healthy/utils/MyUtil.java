@@ -25,15 +25,14 @@ import android.widget.Toast;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
 import com.amsu.healthy.activity.SosActivity;
+import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.DeviceList;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.User;
-import com.amsu.healthy.service.MyTestService;
 import com.amsu.healthy.service.MyTestService2;
 import com.amsu.healthy.service.MyTestService3;
-import com.amsu.healthy.service.MyTestService4;
 import com.ble.ble.BleService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -68,7 +67,7 @@ public class MyUtil {
         try {
             if (dialog == null) {
                 dialog = new ProgressDialog(context);
-                dialog.setCancelable(false);
+                dialog.setCanceledOnTouchOutside(false);
             }
             dialog.setMessage(message);
             dialog.show();
@@ -667,25 +666,30 @@ public class MyUtil {
         MyUtil.putStringValueFromSP(Constant.sosNumberList,sosNumberListString);
     }
 
-    public static void showPopWindow(int connectType){
+    public static void showPopWindow(int connectType) {
         //Log.i(TAG,"showPopWindow:"+activity.getClass());
-        final BaseActivity activity = MyApplication.mApplicationActivity;
-        //Log.i(TAG,"MyApplication.mApplicationActivity:"+MyApplication.mApplicationActivity);
+        final BaseActivity activity = MyApplication.mCurrApplicationActivity;
+        //Log.i(TAG,"MyApplication.mCurrApplicationActivity:"+MyApplication.mCurrApplicationActivity);
         //Log.i(TAG,"activity:"+activity.getClass());
 
-        if (activity==null) return;
-        View popupView = View.inflate(activity,R.layout.layout_popupwindow_onoffline,null);
+        final boolean isConnectedSuccess;
+
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
+        View popupView = View.inflate(activity, R.layout.layout_popupwindow_onoffline, null);
         ImageView iv_pop_icon = (ImageView) popupView.findViewById(R.id.iv_pop_icon);
         TextView tv_pop_text = (TextView) popupView.findViewById(R.id.tv_pop_text);
-        if (connectType == 0){
+        if (connectType == 0) {
             //断开
             iv_pop_icon.setImageResource(R.drawable.duankai);
             tv_pop_text.setText("设备连接已断开");
-        }
-        else {
+            isConnectedSuccess = false;
+
+        } else {
             //连接
             iv_pop_icon.setImageResource(R.drawable.yilianjie);
             tv_pop_text.setText("设备已连接");
+
+            isConnectedSuccess = true;
         }
 
         final PopupWindow mPopupWindow = new PopupWindow(popupView, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
@@ -698,8 +702,15 @@ public class MyUtil {
             public void run() {
                 //showToask(finalActivity,"设备连接或断开");
                 //mPopupWindow.showAsDropDown(activity.getTv_base_rightText());
-                mPopupWindow.showAtLocation(activity.getTv_base_rightText(), Gravity.TOP,0,0);
-                Log.i(TAG,"PopupWindow.showAtLocation:");
+                if (activity.isFinishing() || activity.isDestroyed()) return;
+                if (!mPopupWindow.isShowing()) {
+                    mPopupWindow.showAtLocation(activity.getTv_base_rightText(), Gravity.TOP, 0, 0);
+                    Log.i(TAG, "PopupWindow.showAtLocation:");
+                }
+
+                if (activity.getClass().getSimpleName().equals("StartRunActivity")) {
+                    StartRunActivity.setDeviceConnectedState(isConnectedSuccess);
+                }
             }
         });
 
@@ -709,7 +720,8 @@ public class MyUtil {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (mPopupWindow != null && mPopupWindow.isShowing()) {
+                    if (activity.isFinishing() || activity.isDestroyed()) return;
+                    if (mPopupWindow.isShowing()) {
                         mPopupWindow.dismiss();
                     }
                 }
@@ -799,17 +811,17 @@ public class MyUtil {
             Log.i(TAG, "Start BleService");
         }
 
-                        /*if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService")) {
-                            Intent service = new Intent(context, com.amsu.healthy.service.MyTestService.class);
-                            context.startService(service);
-                            Log.i(TAG, "Start MyTestService");
-                        }*/
+        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService")) {
+            Intent service = new Intent(context, com.amsu.healthy.service.MyTestService.class);
+            context.startService(service);
+            Log.i(TAG, "Start MyTestService");
+        }
 
-        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService2")) {
+       /* if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService2")) {
             Intent service = new Intent(context, MyTestService2.class);
             context.startService(service);
             Log.i(TAG, "Start MyTestService2");
-        }
+        }*/
 
         if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService3")) {
             Intent service = new Intent(context, MyTestService3.class);
@@ -817,11 +829,11 @@ public class MyUtil {
             Log.i(TAG, "Start MyTestService3");
         }
 
-                        /*if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService4")) {
-                            Intent service = new Intent(context, com.amsu.healthy.service.MyTestService4.class);
-                            context.startService(service);
-                            Log.i(TAG, "Start MyTestService4");
-                        }*/
+        /*if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService4")) {
+            Intent service = new Intent(context, com.amsu.healthy.service.MyTestService4.class);
+            context.startService(service);
+            Log.i(TAG, "Start MyTestService4");
+        }*/
 
         if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.CommunicateToBleService")) {
             Intent service = new Intent(context, com.amsu.healthy.service.CommunicateToBleService.class);
@@ -829,5 +841,7 @@ public class MyUtil {
             Log.i(TAG, "Start CommunicateToBleService");
         }
     }
+
+
 }
 

@@ -4,6 +4,7 @@
 
     <!-- 地图SDK（包含其搜索功能）需要的基础权限 -->
     <!-- 允许程序打开网络套接字 -->
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- 允许程序设置内置sd卡的写权限 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -134,7 +135,7 @@
         <service
             android:name="com.ble.ble.BleService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
 
         <activity
             android:name=".activity.ModifyPersionDataActivity"
@@ -296,7 +297,8 @@
         <service
             android:name=".service.MyTestService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true"
+            android:process=":MyTestService" />
         <service
             android:name=".service.MyTestService2"
             android:enabled="true"
@@ -310,12 +312,12 @@
         <service
             android:name=".service.MyTestService4"
             android:enabled="true"
-            android:exported="true"/>
-
+            android:exported="true"
+            android:process="com.remote2" />
         <service
             android:name=".service.CommunicateToBleService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <receiver
             android:name=".receiver.ServiceListenerReceiver"
@@ -339,7 +341,17 @@
             </intent-filter>
         </receiver>
 
+        <activity android:name=".activity.QuestionnaireActivity">
+        </activity>
 
+        <activity android:name=".activity.LockScreenActivity"
+            android:launchMode="singleInstance">
+            <!--<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>-->
+        </activity>
     </application>
 
 </manifest>

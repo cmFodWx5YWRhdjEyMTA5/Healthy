@@ -1,5 +1,7 @@
 package com.amsu.healthy.activity;
 
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -87,6 +89,12 @@ public class MyDeviceActivity extends BaseActivity {
                     MyUtil.showToask(MyDeviceActivity.this,"设备正在连接，要连接其他设备，请先断开连接设备");
                     return;
                 }*/
+
+                if (MainActivity.mBluetoothAdapter!=null && !MainActivity.mBluetoothAdapter.isEnabled()) {
+                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivity(enableBtIntent);
+                    return;
+                }
                 Intent intent = new Intent(MyDeviceActivity.this,SearchDevicehActivity.class);
                 startActivityForResult(intent,130);
             }
@@ -124,6 +132,8 @@ public class MyDeviceActivity extends BaseActivity {
             }
         });
     }
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

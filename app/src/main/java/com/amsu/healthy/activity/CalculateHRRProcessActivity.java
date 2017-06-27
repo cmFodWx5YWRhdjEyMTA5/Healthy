@@ -48,6 +48,7 @@ public class CalculateHRRProcessActivity extends BaseActivity {
     }
 
     private void initView() {
+        initHeadView();
         tv_process_rate = (TextView) findViewById(R.id.tv_process_rate);
         ImageView iv_heartrate_rotateimage = (ImageView) findViewById(R.id.iv_heartrate_rotateimage);
         animation = new RotateAnimation(0f,360f, Animation.RELATIVE_TO_SELF, 0.5f,Animation.RELATIVE_TO_SELF,0.5f);

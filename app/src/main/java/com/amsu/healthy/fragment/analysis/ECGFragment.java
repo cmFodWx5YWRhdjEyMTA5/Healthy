@@ -233,7 +233,8 @@ public class ECGFragment extends BaseFragment {
                                             bytes[1] = bytes[i*2+1];
 
                                             //滤波处理
-                                            int temp = EcgFilterUtil_1.miniEcgFilterLp(EcgFilterUtil_1.miniEcgFilterHp (EcgFilterUtil_1.NotchPowerLine((int)MyUtil.getShortByTwoBytes(bytes[0],bytes[1]), 1)));
+                                            int shortByTwoBytes = MyUtil.getShortByTwoBytes(bytes[0], bytes[1]);
+                                            int temp = EcgFilterUtil_1.miniEcgFilterLp(EcgFilterUtil_1.miniEcgFilterHp (EcgFilterUtil_1.NotchPowerLine( shortByTwoBytes, 1)));
                                             /*int temp = EcgFilterUtil.miniEcgFilterLp((int)MyUtil.getShortByTwoBytes(bytes[0],bytes[1]), 0);
                                             temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);*/
                                             datas.add(temp);

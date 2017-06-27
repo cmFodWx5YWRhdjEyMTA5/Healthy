@@ -35,12 +35,14 @@ public class SearchDevicehActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_searc_deviceh);
 
+
         initView();
         initDate();
 
     }
 
     private void initView() {
+        initHeadView();
         deviceList = new DeviceList();
         //deviceListFromSP = MyUtil.getDeviceListFromSP();
         searchDeviceList = new ArrayList<>();
@@ -86,6 +88,20 @@ public class SearchDevicehActivity extends BaseActivity {
             }
         });
     }
+
+   /* boolean isonResumeEd ;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isonResumeEd){
+            if (MainActivity.mBluetoothAdapter!=null && !MainActivity.mBluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, MainActivity.REQUEST_ENABLE_BT);
+            }
+            isonResumeEd = true;
+        }
+    }*/
 
     //20s没有搜到设备，停止扫描
     private void scanTimeOver() {

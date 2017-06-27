@@ -47,6 +47,8 @@ public class Constant {
     //public static String checkAppUpdateURL = "https://bodylistener.amsu-new.com/intellingence/VersionController/getLastVersion";
     public static String checkAppUpdateURL = "http://www.amsu-new.com:8081/intellingence-web/getLastVersion.do";
     public static String disclaimerAssertsURL = "http://www.amsu-new.com:8081/intellingence-web/upload/disclaimerAsserts.html";
+    public static String Questionnaire1URL = "https://wj.qq.com/s/1203236/ee9b";
+    public static String Questionnaire2URL = "https://wj.qq.com/s/1338652/a851";
 
     public static long AnimatorDuration = 2000;  //动画时长，2s
 

@@ -8,8 +8,8 @@ android {
         applicationId "com.amsu.healthy"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 115
-        versionName "1.1.5"
+        versionCode 117
+        versionName "1.1.7"
     }
     buildTypes {
         release {
@@ -58,7 +58,6 @@ dependencies {
     compile files('libs/xUtils-2.6.14.jar')
     compile(name: 'SMSSDK-2.1.2', ext: 'aar')
     compile(name: 'SMSSDKGUI-2.1.2', ext: 'aar')
-    compile files('libs/AndroidBleApi_V1.1.0.jar')
     compile files('libs/gson-2.5.jar')
     compile files('libs/AMap_Location_V3.3.0_20170118.jar')
     compile files('libs/Bughd_android_sdk_v1.3.7.jar')
@@ -68,4 +67,5 @@ dependencies {
     compile 'com.amap.api:3dmap:latest.integration'
     compile 'com.umeng.analytics:analytics:latest.integration'
     testCompile 'junit:junit:4.12'
+    compile files('libs/AndroidBleApi_V1.1.1.jar')
 }

@@ -33,6 +33,8 @@ public class DisclaimerAssertsActivity extends BaseActivity {
         WebView wb_asset_web = (WebView) findViewById(R.id.wb_asset_web);
 
         wb_asset_web.loadUrl(Constant.disclaimerAssertsURL);
+
+
     }
 
 }

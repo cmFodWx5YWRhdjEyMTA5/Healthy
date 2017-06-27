@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.nfc.Tag;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.annotation.IntDef;
 import android.util.Log;
 
@@ -25,6 +26,7 @@ import java.util.Date;
 
 public class MyTestService extends Service {
     private static final String TAG = "MyTestService";
+    private PowerManager.WakeLock wakeLock;
 
     public MyTestService() {
     }
@@ -36,9 +38,18 @@ public class MyTestService extends Service {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, CommunicateToBleService.class.getName());
+        wakeLock.acquire();
+        Log.i(TAG,"锁屏激活");
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG,"onStartCommand");
-
+        testNewThread();
         return START_STICKY;
     }
 

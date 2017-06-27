@@ -54,6 +54,8 @@ public class MeActivity extends BaseActivity {
 
 
     private void initView() {
+        initHeadView();
+
         ImageView iv_me_back = (ImageView) findViewById(R.id.iv_me_back);
         iv_me_headicon = (CircleImageView) findViewById(R.id.iv_me_headicon);
 

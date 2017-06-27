@@ -1,15 +1,9 @@
 package com.amsu.healthy.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.utils.MyUtil;
@@ -27,7 +21,7 @@ public class ChooseWeekActivity extends BaseActivity {
     private List<String> weekStringList;
     private PickerView pv_choose_week;
     private String year ;
-    private String week ;
+    private String mChoosedweek;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,27 +47,29 @@ public class ChooseWeekActivity extends BaseActivity {
         getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String[] split = week.split(" — ")[0].split("\\.");
+                if (!MyUtil.isEmpty(mChoosedweek)){
+                    String[] split = mChoosedweek.split(" — ")[0].split("\\.");
 
-                System.out.println(split.length);
-                int mouth = Integer.parseInt(split[0])-1;
-                int day = Integer.parseInt(split[1]);
+                    System.out.println(split.length);
+                    int mouth = Integer.parseInt(split[0])-1;
+                    int day = Integer.parseInt(split[1]);
 
 
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.YEAR,Integer.parseInt(year));
-                calendar.set(Calendar.MONTH,mouth);
-                calendar.set(Calendar.DATE,day);
-                int currWeekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(Calendar.YEAR,Integer.parseInt(year));
+                    calendar.set(Calendar.MONTH,mouth);
+                    calendar.set(Calendar.DATE,day);
+                    int currWeekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
 
-                Log.i(TAG,"year:"+year+" ,currWeekOfYear:"+currWeekOfYear);
+                    Log.i(TAG,"year:"+year+" ,currWeekOfYear:"+currWeekOfYear);
 
-                Intent intent = getIntent();
-                intent.putExtra("year",Integer.parseInt(year));
-                intent.putExtra("currWeekOfYear",currWeekOfYear);
-                intent.putExtra("week",week);
-                setResult(RESULT_OK,intent);
+                    Intent intent = getIntent();
+                    intent.putExtra("year",Integer.parseInt(year));
+                    intent.putExtra("currWeekOfYear",currWeekOfYear);
+                    intent.putExtra("mChoosedweek", mChoosedweek);
+                    setResult(RESULT_OK,intent);
+                }
                 finish();
             }
         });
@@ -130,10 +126,16 @@ public class ChooseWeekActivity extends BaseActivity {
             @Override
             public void onSelect(int position) {
                 Log.i(TAG,"选择了周："+weekStringList.get(position));
-                //week = weekStringList.get(position));
-                week = weekStringList.get(position);
+                //mChoosedweek = weekStringList.get(position));
+                mChoosedweek = weekStringList.get(position);
             }
         });
+
+
+        if (weekStringList.size()>0){
+            mChoosedweek = weekStringList.get(weekStringList.size() / 2);
+            Log.i(TAG,"mChoosedweek:"+mChoosedweek);
+        }
 
     }
 
@@ -155,6 +157,5 @@ public class ChooseWeekActivity extends BaseActivity {
 
         pv_choose_week.setData(weekStringList);
     }
-
 
 }

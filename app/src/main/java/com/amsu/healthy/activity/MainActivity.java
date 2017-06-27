@@ -2,21 +2,14 @@ package com.amsu.healthy.activity;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.DeadObjectException;
-import android.os.IBinder;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -31,29 +24,14 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Apk;
 import com.amsu.healthy.bean.Device;
-import com.amsu.healthy.bean.UploadRecord;
-import com.amsu.healthy.service.CommunicateToBleService;
-import com.amsu.healthy.service.MyTestService;
 import com.amsu.healthy.utils.ApkUtil;
-import com.amsu.healthy.utils.AppAbortDataSaveUtil;
-import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.ECGUtil;
-import com.amsu.healthy.utils.HealthyIndexUtil;
-import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.OffLineDbAdapter;
 import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
 import com.amsu.healthy.view.CircleRingView;
 import com.amsu.healthy.view.DashboardView;
-import com.ble.api.DataUtil;
-import com.ble.ble.BleCallBack;
 import com.ble.ble.BleService;
-import com.google.gson.Gson;
-import com.test.utils.DiagnosisNDK;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends BaseActivity {
@@ -179,10 +157,10 @@ public class MainActivity extends BaseActivity {
         }*/
 
 
-        DisplayMetrics dm = new DisplayMetrics();
+        /*DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         Log.i(TAG,"heigth : " + dm.heightPixels);
-        Log.i(TAG,"width : " + dm.widthPixels);
+        Log.i(TAG,"width : " + dm.widthPixels);*/
 
 
 
@@ -239,9 +217,6 @@ public class MainActivity extends BaseActivity {
         int id = rl_main_healthyvalue.getId();
 
         Log.i(TAG,"id:"+id);
-        if (!MyApplication.mActivities.contains(this)){
-            MyApplication.mActivities.add(this);
-        }
 
         //showUploadOffLineData();
 
@@ -296,8 +271,9 @@ public class MainActivity extends BaseActivity {
         /*Intent service = new Intent(this, CommunicateToBleService.class);
         startService(service);*/
 
-
-
+        final BaseActivity activity = MyApplication.mCurrApplicationActivity;
+        Log.i(TAG,"MyApplication.mCurrApplicationActivity:"+MyApplication.mCurrApplicationActivity.getClass().getSimpleName());
+        Log.i(TAG,"activity:"+activity.getClass().getSimpleName());
 
 
     }
@@ -350,7 +326,6 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         Log.i(TAG,"onResume");
-        MyApplication.mApplicationActivity = this;
         if (!isonResumeEd){
             if (mBluetoothAdapter!=null && !mBluetoothAdapter.isEnabled()) {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -478,7 +453,6 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .show();*/
-       finish();
     }
 
     public void showdialogToSupplyData(){
@@ -512,7 +486,6 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
-        MyApplication.mApplicationActivity = null;
        // ShowLocationOnMap.mMapView = null;
         //android.os.Process.killProcess(android.os.Process.myPid());  //退出应用程序
 

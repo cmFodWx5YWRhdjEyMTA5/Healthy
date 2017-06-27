@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -74,7 +75,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private Button bt_run_start;
     private RelativeLayout bt_run_location;
     private Button bt_run_lock;
-    private boolean mIsRunning = false;
+    public static boolean mIsRunning = false;
 
     //声明mLocationOption对象
     public AMapLocationClientOption mLocationOption = null;
@@ -89,7 +90,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private RelativeLayout rl_run_bootom;
     private GlideRelativeView rl_run_glide;
     private RelativeLayout rl_run_lock;
-    private double mAllDistance;
+    public static double mAllDistance;
     private long mCurrentTimeMillis = 0;
     private TextView tv_run_test;
 
@@ -120,7 +121,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     public static int accDataLength = 1800;
     private ArrayList<String> mKcalData = new ArrayList<>();
     private ArrayList<Integer> mStridefreData = new ArrayList<>();
-    private int mCurrentHeartRate = 0;
+    public static int mCurrentHeartRate = 0;
     private String ecgLocalFileName;
     private DeviceOffLineFileUtil deviceOffLineFileUtil;
     private AppAbortDataSave mAbortData;
@@ -131,6 +132,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     List<Float> tempSpeedList = new ArrayList<>();
     List<AMapLocation> mGpsCal7ScendSpeedList = new ArrayList<>();
     List<Float> mIndoorCal7ScendSpeedList = new ArrayList<>();
+    public static String mFinalFormatSpeed;
+    private RelativeLayout tv_run_connectstate;
+    private static ImageView iv_pop_icon;
+    private static TextView tv_pop_text;
 
 
     @Override
@@ -174,10 +179,15 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         rl_run_bootom = (RelativeLayout) findViewById(R.id.rl_run_bootom);
         rl_run_lock = (RelativeLayout) findViewById(R.id.rl_run_lock);
+
         rl_run_glide = (GlideRelativeView) findViewById(R.id.rl_run_glide);
 
 
         tv_run_test = (TextView) findViewById(R.id.tv_run_test);
+
+        tv_run_connectstate = (RelativeLayout) findViewById(R.id.tv_run_connectstate);
+        iv_pop_icon = (ImageView) findViewById(R.id.iv_pop_icon);
+        tv_pop_text = (TextView) findViewById(R.id.tv_pop_text);
 
         MyOnClickListener myOnClickListener = new MyOnClickListener();
         bt_run_start.setOnClickListener(myOnClickListener);
@@ -209,6 +219,21 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         List<AppAbortDataSave> abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
         Log.i(TAG,"abortDataListFromSP:"+abortDataListFromSP);
+
+        setDeviceConnectedState(MyApplication.isHaveDeviceConnectted);
+
+    }
+
+    public static void setDeviceConnectedState(boolean deviceConnectedState) {
+        if (deviceConnectedState){
+            //连接上
+            iv_pop_icon.setImageResource(R.drawable.yilianjie);
+            tv_pop_text.setText("设备已连接");
+        }
+        else {
+            iv_pop_icon.setImageResource(R.drawable.duankai);
+            tv_pop_text.setText("设备连接断开");
+        }
 
     }
 
@@ -242,7 +267,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     @Override
     protected void onResume() {
         super.onResume();
-        MyApplication.mApplicationActivity = this;
+        MyApplication.mCurrApplicationActivity = this;
 
         if (!isonResumeEd){
             if (MainActivity.mBluetoothAdapter!=null && !MainActivity.mBluetoothAdapter.isEnabled()) {
@@ -847,70 +872,76 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         if (!mIsRunning){
             LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
             // 判断GPS模块是否开启，如果没有则开启
+            Log.i(TAG,"gps打开？:"+locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER));
             if (!locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
                 chooseOpenGps();
             }
             else {
-                bt_run_start.setText("长按结束");
-
-                bt_run_lock.setVisibility(View.VISIBLE);
-                mIsRunning  =true;
-                isThreeMit = true;  //测试
-
-
-
-                //开启三分钟计时，保存记录最短为3分钟
-               // MyTimeTask.startCountDownTimerTask(1000 * 60 * 1, new MyTimeTask.OnTimeOutListener() {
-                MyTimeTask.startCountDownTimerTask(1000 * 60 * 3, new MyTimeTask.OnTimeOutListener() {
-                    @Override
-                    public void onTomeOut() {
-                        isOneMit = true;
-                    }
-                });
-
-                //开始计时，更新时间
-                MyTimeTask.startTimeRiseTimerTask(this, 1000, new MyTimeTask.OnTimeChangeAtScendListener() {
-                    @Override
-                    public void onTimeChange(Date date) {
-                        String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", date);
-                        tv_run_time.setText(specialFormatTime);
-                    }
-                });
-
-                //开始计时，保存数据到本地，防止app异常，每隔
-                saveDeviceOffLineFileUtil = new DeviceOffLineFileUtil();
-                saveDeviceOffLineFileUtil.setTransferTimeOverTime(new DeviceOffLineFileUtil.OnTimeOutListener() {
-                    @Override
-                    public void onTomeOut() {
-                        Log.i(TAG,"1min 保存数据到本地");
-                        createrecord = Util.saveOrUdateRecord(record.getPathline(), record.getDate(), StartRunActivity.this,mStartTime,mAllDistance,createrecord);
-                        Log.i(TAG,"createrecord:"+createrecord);
-
-                        if (createrecord==-1)return;
-
-                        if (mAbortData==null){
-                            mAbortData = new AppAbortDataSave(System.currentTimeMillis(), "", "", createrecord, 1,mSpeedStringList);
-                            saveOrUpdateAbortDatareordToSP(mAbortData,true);
-                        }
-                        else {
-                            if (mAbortData.getMapTrackID()==-1){
-                                mAbortData.setMapTrackID(createrecord);
-                            }
-                            mAbortData.setSpeedStringList(mSpeedStringList);
-                            saveOrUpdateAbortDatareordToSP(mAbortData,false);
-                        }
-                        /*else if (MyUtil.isEmpty(mAbortData.getMapTrackID())){
-                            mAbortData.setMapTrackID(createrecord+"");
-                            saveOrUpdateAbortDatareordToSP(mAbortData,false);
-                        }*/
-                    }
-                },60*1);//1min 保存数据到本地
-
-                saveDeviceOffLineFileUtil.startTime();
-                initMapLoationTrace();
-                startCalSpeedTimerStask();
+                setRunningParameter();
             }
         }
+    }
+
+    public static Date mCurrTimeDate;
+
+    private void setRunningParameter() {
+        bt_run_start.setText("长按结束");
+        bt_run_lock.setVisibility(View.VISIBLE);
+        mIsRunning  =true;
+        isThreeMit = true;  //测试
+
+
+        //开启三分钟计时，保存记录最短为3分钟
+        // MyTimeTask.startCountDownTimerTask(1000 * 60 * 1, new MyTimeTask.OnTimeOutListener() {
+        MyTimeTask.startCountDownTimerTask(1000 * 60 * 3, new MyTimeTask.OnTimeOutListener() {
+            @Override
+            public void onTomeOut() {
+                isOneMit = true;
+            }
+        });
+
+        //开始计时，更新时间
+        MyTimeTask.startTimeRiseTimerTask(this, 1000, new MyTimeTask.OnTimeChangeAtScendListener() {
+            @Override
+            public void onTimeChange(Date date) {
+                mCurrTimeDate = date;
+                String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", date);
+                tv_run_time.setText(specialFormatTime);
+            }
+        });
+
+        //开始计时，保存数据到本地，防止app异常，每隔
+        saveDeviceOffLineFileUtil = new DeviceOffLineFileUtil();
+        saveDeviceOffLineFileUtil.setTransferTimeOverTime(new DeviceOffLineFileUtil.OnTimeOutListener() {
+            @Override
+            public void onTomeOut() {
+                Log.i(TAG,"1min 保存数据到本地");
+                createrecord = Util.saveOrUdateRecord(record.getPathline(), record.getDate(), StartRunActivity.this,mStartTime,mAllDistance,createrecord);
+                Log.i(TAG,"createrecord:"+createrecord);
+
+                if (createrecord==-1)return;
+
+                if (mAbortData==null){
+                    mAbortData = new AppAbortDataSave(System.currentTimeMillis(), "", "", createrecord, 1,mSpeedStringList);
+                    saveOrUpdateAbortDatareordToSP(mAbortData,true);
+                }
+                else {
+                    if (mAbortData.getMapTrackID()==-1){
+                        mAbortData.setMapTrackID(createrecord);
+                    }
+                    mAbortData.setSpeedStringList(mSpeedStringList);
+                    saveOrUpdateAbortDatareordToSP(mAbortData,false);
+                }
+                /*else if (MyUtil.isEmpty(mAbortData.getMapTrackID())){
+                    mAbortData.setMapTrackID(createrecord+"");
+                    saveOrUpdateAbortDatareordToSP(mAbortData,false);
+                }*/
+            }
+        },60*1);//1min 保存数据到本地
+
+        saveDeviceOffLineFileUtil.startTime();
+        initMapLoationTrace();
+        startCalSpeedTimerStask();
     }
 
     private void startCalSpeedTimerStask() {
@@ -977,11 +1008,11 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         mSpeedStringList.add((int) speed);
 
-        final String finalFormatSpeed = formatSpeed;
+        mFinalFormatSpeed = formatSpeed;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                tv_run_speed.setText(finalFormatSpeed);
+                tv_run_speed.setText(mFinalFormatSpeed);
             }
         });
 
@@ -1161,6 +1192,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             @Override
             public void onClick(View v) {
                 bottomSheetDialog.dismiss();
+                setRunningParameter();
             }
         });
 
@@ -1223,7 +1255,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
         }*/
 
-        MyApplication.mApplicationActivity = null;
+        MyApplication.mCurrApplicationActivity = null;
         MyApplication.runningActivity = MyApplication.MainActivity;
 
         if (isBindService){

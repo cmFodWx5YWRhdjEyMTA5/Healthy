@@ -1,6 +1,5 @@
 package com.amsu.healthy.activity;
 
-import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -10,6 +9,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.umeng.analytics.MobclickAgent;
 
 public class BaseActivity extends FragmentActivity {
@@ -114,7 +114,7 @@ public class BaseActivity extends FragmentActivity {
         super.onResume();
         //MobclickAgent.onPageStart(this.getClass().getSimpleName());
         MobclickAgent.onResume(this);
-
+        MyApplication.mCurrApplicationActivity = this;
     }
 
     @Override
@@ -122,6 +122,12 @@ public class BaseActivity extends FragmentActivity {
         super.onPause();
         //MobclickAgent.onPageEnd(this.getClass().getSimpleName());
         MobclickAgent.onPause(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MyApplication.mCurrApplicationActivity = null;
     }
 
 

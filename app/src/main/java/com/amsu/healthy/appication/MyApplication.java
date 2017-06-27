@@ -35,7 +35,7 @@ public class MyApplication extends Application{
     public static SharedPreferences sharedPreferences;
     public static List<Activity> mActivities;
     public static boolean isHaveDeviceConnectted = false;
-    public static BaseActivity mApplicationActivity;
+    public static BaseActivity mCurrApplicationActivity;
     public static boolean isBlueServiceWorked;
     public static final int MainActivity = 1;
     public static final int HealthyDataActivity = 2;

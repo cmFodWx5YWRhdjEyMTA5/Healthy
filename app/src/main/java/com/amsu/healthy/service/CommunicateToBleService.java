@@ -1,6 +1,7 @@
 package com.amsu.healthy.service;
 
 import android.app.Activity;
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,24 +9,24 @@ import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.le.BluetoothLeScanner;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
-import android.os.DeadObjectException;
 import android.os.IBinder;
-import android.support.annotation.IntDef;
+import android.os.PowerManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.ConnectToWifiModuleGudieActivity1;
 import com.amsu.healthy.activity.HealthyDataActivity;
+import com.amsu.healthy.activity.LockScreenActivity;
 import com.amsu.healthy.activity.MainActivity;
-import com.amsu.healthy.activity.SplashActivity;
+import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
@@ -49,6 +50,8 @@ public class CommunicateToBleService extends Service {
     public static boolean isConnectted  =false;
     private boolean isConnectting  =false;
     private DeviceOffLineFileUtil deviceOffLineFileUtil;
+    private PowerManager.WakeLock wakeLock;
+    private BluetoothAdapter mBluetoothAdapter;
 
     public CommunicateToBleService() {
     }
@@ -59,13 +62,68 @@ public class CommunicateToBleService extends Service {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, CommunicateToBleService.class.getName());
+        wakeLock.acquire();
+        Log.i(TAG,"锁屏激活");
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG,"onStartCommand");
         if (!isThisServiceStarted){
             isThisServiceStarted = true;
+
+            if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+                final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                mBluetoothAdapter = bluetoothManager.getAdapter();
+            }
+
+            stratListenScrrenBroadCast();
+
             setServiceForegrounByNotify();
             init();
         }
+
+       /* if (!isBluetoothEnable){
+            startLeScanBlue();
+            isBluetoothEnable = true;
+
+            if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+                final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                mBluetoothAdapter = bluetoothManager.getAdapter();
+            }
+
+
+
+            if (mBluetoothAdapter!=null){
+                mBluetoothAdapter.startLeScan(mLeScanCallback);
+                Log.i(TAG,"开始扫描");
+            }
+
+
+            new Thread(){
+                @Override
+                public void run() {
+                    super.run();
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (mBluetoothAdapter!=null){
+                        mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                        Log.i(TAG,"停止扫描");
+                    }
+
+                }
+            }.start();
+        }*/
+
+
 
         return START_STICKY;
     }
@@ -81,8 +139,10 @@ public class CommunicateToBleService extends Service {
             @Override
             public void run() {
                 super.run();
+
+
                 while (true){
-                    if (MainActivity.mBluetoothAdapter!=null && MainActivity.mBluetoothAdapter.isEnabled()) {
+                    if (mBluetoothAdapter!=null && mBluetoothAdapter.isEnabled()) {
                         if (!isBluetoothEnable){
                             startLeScanBlue();
                             isBluetoothEnable = true;
@@ -131,8 +191,8 @@ public class CommunicateToBleService extends Service {
 
     //开始扫描蓝牙
     public void startLeScanBlue(){
-        if (MainActivity.mBluetoothAdapter!=null){
-            MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
+        if (mBluetoothAdapter!=null){
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
             Log.i(TAG,"startLeScan");
             isBindService = true;
         }
@@ -211,8 +271,8 @@ public class CommunicateToBleService extends Service {
             //if ()
             Log.i(TAG, "onConnected() - " + mac);
             mLeService.startReadRssi(mac, 1000);
-            if (MainActivity.mBluetoothAdapter!=null){
-                MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+            if (mBluetoothAdapter!=null){
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
             }
             if (!MyApplication.isHaveDeviceConnectted){
                 MyApplication.isHaveDeviceConnectted = isConnectted = true;
@@ -255,8 +315,8 @@ public class CommunicateToBleService extends Service {
         public void onDisconnected(String mac) {
             Log.w(TAG, "onDisconnected() - " + mac);
             isConnectted = false;
-            if (MainActivity.mBluetoothAdapter!=null){
-                MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);//停止扫描
+            if (mBluetoothAdapter!=null){
+                mBluetoothAdapter.startLeScan(mLeScanCallback);//停止扫描
             }
             if (MyApplication.isHaveDeviceConnectted){
                 MyApplication.isHaveDeviceConnectted = false;
@@ -317,13 +377,13 @@ public class CommunicateToBleService extends Service {
                 Log.i(TAG,"SDhexData："+hexData);
                 if (hexData.split(" ")[3].equals("01")){
                     //有离线数据
-                    if (MyApplication.mApplicationActivity!=null){
-                        MyApplication.mApplicationActivity.runOnUiThread(new Runnable() {
+                    if (MyApplication.mCurrApplicationActivity !=null){
+                        MyApplication.mCurrApplicationActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                boolean isMainActivityInstance = MyApplication.mApplicationActivity.getClass().isInstance(new MainActivity()); //只有在MainActivity弹出提示
+                                boolean isMainActivityInstance = MyApplication.mCurrApplicationActivity.getClass().isInstance(new MainActivity()); //只有在MainActivity弹出提示
                                 if (isMainActivityInstance){
-                                    showUploadOffLineData(MyApplication.mApplicationActivity);
+                                    showUploadOffLineData(MyApplication.mCurrApplicationActivity);
                                 }
 
                             }
@@ -371,7 +431,8 @@ public class CommunicateToBleService extends Service {
             chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
                 @Override
                 public void onConfirmClick() {
-                    Intent intent = new Intent(MyApplication.mApplicationActivity, ConnectToWifiModuleGudieActivity1.class);
+                    Intent intent = new Intent(MyApplication.mCurrApplicationActivity, ConnectToWifiModuleGudieActivity1.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }
             });
@@ -391,13 +452,13 @@ public class CommunicateToBleService extends Service {
                 super.run();
                 while (isConnectted && !mIsDataStart){
                     try {
-                        Thread.sleep(40);
+                        /*Thread.sleep(40);
                         Log.i(TAG, "查询设备信息");
                         sendLookEleInfoOrder();
 
                         Thread.sleep(40);
                         Log.i(TAG, "查询SD卡是否有数据");
-                        mLeService.send(connecMac, Constant.checkIsHaveDataOrder,true);
+                        mLeService.send(connecMac, Constant.checkIsHaveDataOrder,true);*/
 
                         Thread.sleep(40);
                         Log.i(TAG,"写配置");
@@ -653,6 +714,56 @@ public class CommunicateToBleService extends Service {
 
     boolean mIsDataStart = false;
 
+
+    private KeyguardManager mKeyguardManager = null;
+    private KeyguardManager.KeyguardLock mKeyguardLock = null;
+
+    //监听屏幕锁屏，并启动自定义锁屏界面
+    private void stratListenScrrenBroadCast() {
+        final IntentFilter filter = new IntentFilter();
+        // 屏幕灭屏广播
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        // 屏幕亮屏广播
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+
+
+
+        BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(final Context context, final Intent intent) {
+                Log.i(TAG,"onReceive:"+intent.getAction());
+                if (!StartRunActivity.mIsRunning){
+                    return;
+                }
+                String action = intent.getAction();
+                if (Intent.ACTION_SCREEN_ON.equals(action)) {
+                    Log.i(TAG,"亮屏:");
+                    Intent i = new Intent(context,LockScreenActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+                    mKeyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+                    mKeyguardLock = mKeyguardManager.newKeyguardLock("");
+                    mKeyguardLock.disableKeyguard();
+
+                    context.startActivity(i);
+                }
+                if (Intent.ACTION_SCREEN_OFF.equals(action)) {
+                    Log.i(TAG,"锁屏:");
+                    Intent i = new Intent(context,LockScreenActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+
+                }
+            }
+        };
+        registerReceiver(mBatInfoReceiver, filter);
+
+    }
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -661,5 +772,10 @@ public class CommunicateToBleService extends Service {
 
         Intent intent = new Intent("com.amsu.healthy.servicedestroy");
         sendBroadcast(intent);
+
+        if (wakeLock != null) {
+            wakeLock.release();
+            wakeLock = null;
+        }
     }
 }

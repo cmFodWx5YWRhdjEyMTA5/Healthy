@@ -276,15 +276,15 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             if (data!=null){
                 int year = data.getIntExtra("year",-1);
                 int currWeekOfYear = data.getIntExtra("currWeekOfYear",-1);
-                String week = data.getStringExtra("week");
+                String mChoosedweek = data.getStringExtra("mChoosedweek");
 
-                Log.i(TAG,"year:"+year+", currWeekOfYear:"+currWeekOfYear+",week:"+week);
+                Log.i(TAG,"year:"+year+", currWeekOfYear:"+currWeekOfYear+",mChoosedweek:"+mChoosedweek);
 
                 if (year!=-1 && currWeekOfYear!=-1){
                     downlaodWeekRepore(year,currWeekOfYear);
                 }
-                if (!MyUtil.isEmpty(week)){
-                    tv_assess_compare.setText(week);
+                if (!MyUtil.isEmpty(mChoosedweek)){
+                    tv_assess_compare.setText(mChoosedweek);
                 }
             }
         }

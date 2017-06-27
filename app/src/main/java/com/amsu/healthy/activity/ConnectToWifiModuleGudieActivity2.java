@@ -158,7 +158,7 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
                     @Override
                     public void run() {
                         MyUtil.hideDialog();
-                        MyUtil.showToask(ConnectToWifiModuleGudieActivity2.this,"主机连接失败，请检查WiFi连接是否成功");
+                        //MyUtil.showToask(ConnectToWifiModuleGudieActivity2.this,"主机连接失败，请检查WiFi连接是否成功");
                     }
                 });
             }

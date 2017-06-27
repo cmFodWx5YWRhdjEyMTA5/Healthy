@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    tools:context="com.amsu.healthy.activity.RegisterSetp2Activity">
+    tools:context="com.amsu.healthy.activity.SupplyPersionDataActivity">
 
     <include layout="@layout/page_head"
         android:id="@+id/rl_base_head">

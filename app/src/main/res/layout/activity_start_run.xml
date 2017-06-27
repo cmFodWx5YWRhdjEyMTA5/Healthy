@@ -39,12 +39,38 @@
             android:layout_marginLeft="@dimen/x8"></View>
     </LinearLayout>-->
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y128"
+        android:id="@+id/tv_run_connectstate"
+        android:layout_below="@+id/rl_base_head">
+        <ImageView
+            android:id="@+id/iv_pop_icon"
+            android:layout_width="@dimen/x60"
+            android:layout_height="@dimen/x60"
+            android:src="@drawable/duankai"
+            android:layout_marginLeft="@dimen/x36"
+            android:layout_centerVertical="true"/>
+
+        <TextView
+            android:id="@+id/tv_pop_text"
+            android:layout_width="wrap_content"
+            android:layout_toRightOf="@+id/iv_pop_icon"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/x12"
+            android:text="设备未连接"
+            android:textSize="@dimen/x40"
+            android:textColor="#212121"
+            android:layout_centerInParent="true"
+            android:gravity="center"/>
+    </RelativeLayout>
+
     <TextView
         android:id="@+id/tv_run_test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="test"
-        android:layout_below="@+id/rl_base_head"
+        android:layout_below="@+id/tv_run_connectstate"
         android:layout_marginTop="@dimen/x80"
         android:textSize="@dimen/x36"
         android:textColor="@android:color/holo_red_dark"

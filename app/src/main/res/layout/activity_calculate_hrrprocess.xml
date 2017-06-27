@@ -6,6 +6,11 @@
     android:background="#212121"
     tools:context=".activity.CalculateHRRProcessActivity">
 
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head"
+        android:visibility="gone">
+    </include>
+
     <TextView
         android:id="@+id/tv_heartrate_txt"
         android:layout_width="wrap_content"

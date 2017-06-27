@@ -3,7 +3,6 @@ package com.amsu.healthy.activity;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -32,9 +31,7 @@ import com.amsu.healthy.utils.AppAbortDataSaveUtil;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
-import com.amsu.healthy.utils.EcgFilterUtil;
 import com.amsu.healthy.utils.EcgFilterUtil_1;
-import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.EcgView;
@@ -47,7 +44,6 @@ import com.test.utils.DiagnosisNDK;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
@@ -709,7 +705,6 @@ public class HealthyDataActivity extends BaseActivity {
         Log.i(TAG,"onResume");
         isNeedDrawEcgData = true;
 
-        MyApplication.mApplicationActivity = this;
 
         if (!isonResumeEd){
             if (MainActivity.mBluetoothAdapter!=null && !MainActivity.mBluetoothAdapter.isEnabled()) {
@@ -864,7 +859,6 @@ public class HealthyDataActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
-        MyApplication.mApplicationActivity = null;
 
         if (isBindService){
             unbindService(mConnection);

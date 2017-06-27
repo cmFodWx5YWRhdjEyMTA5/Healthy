@@ -192,12 +192,13 @@ public class WifiAutoConnectManager {
 				}
 
 				if (connectStateResultChanged!=null){
-					/*mActivity.runOnUiThread(new Runnable() {
+					if (mActivity!=null && !mActivity.isFinishing() && !mActivity.isDestroyed())
+					mActivity.runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
 							connectStateResultChanged.onConnectStateChanged(connected);
 						}
-					});*/
+					});
 				}
 
 			} catch (Exception e) {

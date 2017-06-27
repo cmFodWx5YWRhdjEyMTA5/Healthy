@@ -158,8 +158,13 @@ public class EcgFilterUtil_1 {
         {
             Pos_X[filtno] = 0;
         }
-        Buffer_X[filtno][Pos_X[filtno]] = data;
 
+        //报异常改动 java.lang.ArrayIndexOutOfBoundsException: length=61; index=61
+
+        if (Pos_X[filtno]>=M_NOTCH+1){
+            return 0;
+        }
+        Buffer_X[filtno][Pos_X[filtno]] = data;
 
         if(Pos_X[filtno]-M_NOTCH>=0)
         {

@@ -40,6 +40,7 @@ public class SplashActivity extends BaseActivity {
 
 
     private void initView() {
+        initHeadView();
         new Thread() {
             @Override
             public void run() {
@@ -60,7 +61,6 @@ public class SplashActivity extends BaseActivity {
                 finish();
             }
         }.start();
-
     }
 
     private void initData() {
@@ -211,6 +211,6 @@ public class SplashActivity extends BaseActivity {
 
         }
     }
-
-
 }
+
+
