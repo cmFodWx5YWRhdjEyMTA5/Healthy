@@ -415,12 +415,12 @@ public class CommunicateToBleService extends Service {
                     }*/
                 }
 
-
             }
-
 
         }
     };
+
+
 
     private boolean isShowAlertDialog;
 
