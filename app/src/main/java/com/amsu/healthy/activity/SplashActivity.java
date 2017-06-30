@@ -24,7 +24,7 @@ import com.lidroid.xutils.http.client.HttpRequest;
 
 import java.util.List;
 
-public class SplashActivity extends BaseActivity {
+public class SplashActivity extends Activity {
 
     private static final String TAG = "SplashActivity";
 
@@ -40,7 +40,6 @@ public class SplashActivity extends BaseActivity {
 
 
     private void initView() {
-        initHeadView();
         new Thread() {
             @Override
             public void run() {

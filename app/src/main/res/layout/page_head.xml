@@ -44,6 +44,20 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:visibility="gone"/>
+
+
+    <ImageView
+        android:id="@+id/iv_base_connectedstate"
+        android:layout_width="@dimen/y128"
+        android:layout_height="@dimen/y128"
+        android:paddingTop="@dimen/y48"
+        android:paddingBottom="@dimen/y48"
+        android:layout_marginRight="@dimen/x36"
+        android:src="@drawable/duankai"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone"/>
+
     <ImageView
         android:id="@+id/iv_base_rightimage"
         android:layout_width="@dimen/y128"
@@ -51,9 +65,19 @@
         android:paddingTop="@dimen/y38"
         android:paddingBottom="@dimen/y38"
         android:layout_marginRight="@dimen/x36"
-        android:src="@drawable/back_icon"
+        android:src="@drawable/yifu"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:visibility="gone"/>
-
+    <TextView
+        android:id="@+id/tv_base_charge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="--%"
+        android:textSize="@dimen/x48"
+        android:textColor="#FFFFFF"
+        android:layout_toLeftOf="@+id/iv_base_rightimage"
+        android:layout_marginRight="-10dp"
+        android:layout_centerVertical="true"
+        android:visibility="gone"/>
 </RelativeLayout>

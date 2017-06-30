@@ -733,7 +733,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     String errDesc = jsonObject.getString("errDesc");
                     MyUtil.showToask(PersionDataActivity.this,errDesc);
                     if (ret==0){
-                        MyUtil.saveDeviceToSP(user);
+                        MyUtil.saveUserToSP(user);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

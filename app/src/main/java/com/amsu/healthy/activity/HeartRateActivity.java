@@ -204,13 +204,8 @@ public class HeartRateActivity extends BaseActivity {
                                             Log.i(TAG,"stridefreData:"+i);
                                         }*/
 
-
-
-
                                     }
                                 }
-
-
 
                             }
 
@@ -442,10 +437,10 @@ public class HeartRateActivity extends BaseActivity {
 
 
             if (zaobo>0){
-                ECs += "本次测量早搏"+zaobo+"次。室早出现在两个正常的窦性心搏之前，房早由心房组织自律性增强引起，健康人及各种器质性心脏病人都有可能发生，有明显症状时请及时就医。";
+                ECs += "本次测量早搏"+zaobo+"次。早搏是指异位起搏点发出的过早冲动引起的心脏搏动。早搏除常见于各种器质性心脏病人外，健康人也会偶有发生，请您不必紧张，保持心情放松；当有明显症状或感觉身体不适时请及时就医检查。";
             }
             else if (loubo>0){
-                ECs += "本次测量漏搏"+loubo+"次。与迷走神经张力增高有关，可见于正常人或运动员，也可见于急性心肌梗死、冠状动脉痉挛、心肌炎等情况，当有明显状况时请及时就医";
+                ECs += "本次测量漏搏"+loubo+"次。漏搏与迷走神经张力增高有关，可见于正常人或运动员，也可见于急性心肌梗死、冠状动脉痉挛、心肌炎等情况。偶尔出现属正常现象，请不必过于紧张；当有明显症状或感觉身体不适时请及时就医检查。";
             }
             else {
                 ECs += "正常心电图";
@@ -458,10 +453,8 @@ public class HeartRateActivity extends BaseActivity {
                 ECr="4";
             }
 
-            IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(Integer.parseInt(FI));
-            IndicatorAssess FIIndicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex(Integer.parseInt(ES));
-
-            HRVs = ESIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
+            HRVs = HealthyIndexUtil.getHRVSuggetstion(heartRateResult.RR_SDNN, (int) (heartRateResult.LF / heartRateResult.HF));
+            Log.i(TAG,"HRVs:"+HRVs);
 
             String HR = gson.toJson(heartDataList);
             int MaxHR= heartDataList.get(0);

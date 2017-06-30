@@ -118,7 +118,6 @@ public class RateAnalysisActivity extends BaseActivity {
                // Log.i(TAG,"onPageScrollStateChanged===state:"+state);
             }
         });
-
     }
 
     private void initData() {
@@ -138,6 +137,8 @@ public class RateAnalysisActivity extends BaseActivity {
 
                     Log.i(TAG,"historyRecord:"+historyRecord.toString());
 
+                    adjustFeagmentCount(historyRecord.getState());
+
                     //根据历史记录id进行网络查询
                     String datatime = historyRecord.getDatatime();
                     setCenterText(datatime);  // 2016-10-28 10:56:04
@@ -148,12 +149,14 @@ public class RateAnalysisActivity extends BaseActivity {
                     offLineDbAdapter.open();
 
                     if (offLineDbAdapter!=null){
-                        UploadRecord uploadRecord = offLineDbAdapter.queryRecordByDatatime(datatime);
-                        Log.i(TAG,"本地uploadRecord:"+uploadRecord);
+                        UploadRecord uploadRecord = offLineDbAdapter.queryRecordByDatatime(datatime);  // 2017-06-28 11:01:33
+
                         if (uploadRecord!=null){
                             //本地有数据
+                            Log.i(TAG,"本地uploadRecord:"+uploadRecord);
                             mUploadRecord = uploadRecord;
-                            adjustFeagmentCount(Integer.parseInt(mUploadRecord.state));
+                            Log.i(TAG,"mUploadRecord.state:"+mUploadRecord.state);
+
                             return;
                         }
                     }

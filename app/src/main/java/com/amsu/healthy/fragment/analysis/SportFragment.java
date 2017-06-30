@@ -590,6 +590,7 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
         }
         mAMap = mv_finish_map.getMap();
         mAMap.setOnMapLoadedListener(this);
+        mAMap.getUiSettings().setScaleControlsEnabled(true);
     }
 
     @Override

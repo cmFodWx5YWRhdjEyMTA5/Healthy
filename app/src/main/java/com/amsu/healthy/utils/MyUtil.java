@@ -107,10 +107,12 @@ public class MyUtil {
     }
 
     public static void showToask(Context context ,String text){
-        Toast.makeText(context,text,Toast.LENGTH_SHORT).show();
+        if (context instanceof Activity) {
+            Toast.makeText(context,text,Toast.LENGTH_SHORT).show();
+        }
     }
 
-    public static void saveDeviceToSP(User user) {
+    public static void saveUserToSP(User user) {
         //将登陆用户信息保存在MyApplication类的sharedPreferences
         SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
         if (!MyUtil.isEmpty(user.getUsername())){
@@ -164,18 +166,27 @@ public class MyUtil {
 
     public static void saveDeviceToSP(Device device) {
         SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
-        if (!MyUtil.isEmpty(device.getName())){
-            edit.putString("name",device.getName());
+        if (device !=null){
+            if (!MyUtil.isEmpty(device.getName())){
+                edit.putString("name",device.getName());
+            }
+            if (!MyUtil.isEmpty(device.getLEName())){
+                edit.putString("LEName",device.getLEName());
+            }
+            if (!MyUtil.isEmpty(device.getState())){
+                edit.putString("state",device.getState());
+            }
+            if (!MyUtil.isEmpty(device.getMac())){
+                edit.putString("mac",device.getMac());
+            }
         }
-        if (!MyUtil.isEmpty(device.getLEName())){
-            edit.putString("LEName",device.getLEName());
+        else {
+            edit.putString("name","");
+            edit.putString("LEName","");
+            edit.putString("state","");
+            edit.putString("mac","");
         }
-        if (!MyUtil.isEmpty(device.getState())){
-            edit.putString("state",device.getState());
-        }
-        if (!MyUtil.isEmpty(device.getMac())){
-            edit.putString("mac",device.getMac());
-        }
+
         edit.apply();
     }
 
@@ -666,69 +677,76 @@ public class MyUtil {
         MyUtil.putStringValueFromSP(Constant.sosNumberList,sosNumberListString);
     }
 
-    public static void showPopWindow(int connectType) {
-        //Log.i(TAG,"showPopWindow:"+activity.getClass());
-        final BaseActivity activity = MyApplication.mCurrApplicationActivity;
-        //Log.i(TAG,"MyApplication.mCurrApplicationActivity:"+MyApplication.mCurrApplicationActivity);
-        //Log.i(TAG,"activity:"+activity.getClass());
-
-        final boolean isConnectedSuccess;
-
-        if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
-        View popupView = View.inflate(activity, R.layout.layout_popupwindow_onoffline, null);
-        ImageView iv_pop_icon = (ImageView) popupView.findViewById(R.id.iv_pop_icon);
-        TextView tv_pop_text = (TextView) popupView.findViewById(R.id.tv_pop_text);
-        if (connectType == 0) {
-            //断开
-            iv_pop_icon.setImageResource(R.drawable.duankai);
-            tv_pop_text.setText("设备连接已断开");
-            isConnectedSuccess = false;
-
-        } else {
-            //连接
-            iv_pop_icon.setImageResource(R.drawable.yilianjie);
-            tv_pop_text.setText("设备已连接");
-
-            isConnectedSuccess = true;
-        }
-
-        final PopupWindow mPopupWindow = new PopupWindow(popupView, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
-        mPopupWindow.setTouchable(true);
-        mPopupWindow.setOutsideTouchable(true);
-        mPopupWindow.setBackgroundDrawable(new BitmapDrawable(activity.getResources(), (Bitmap) null));
-
-        activity.runOnUiThread(new Runnable() {
+    public static void showPopWindow(final int connectType) {
+        new Thread(){
             @Override
             public void run() {
-                //showToask(finalActivity,"设备连接或断开");
-                //mPopupWindow.showAsDropDown(activity.getTv_base_rightText());
-                if (activity.isFinishing() || activity.isDestroyed()) return;
-                if (!mPopupWindow.isShowing()) {
-                    mPopupWindow.showAtLocation(activity.getTv_base_rightText(), Gravity.TOP, 0, 0);
-                    Log.i(TAG, "PopupWindow.showAtLocation:");
+                super.run();
+                //Log.i(TAG,"showPopWindow:"+activity.getClass());
+                final BaseActivity activity = MyApplication.mCurrApplicationActivity;
+                Log.i(TAG,"MyApplication.mCurrApplicationActivity:"+MyApplication.mCurrApplicationActivity);
+                //Log.i(TAG,"activity:"+activity.getClass());
+
+                final boolean isConnectedSuccess;
+
+                if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
+                View popupView = View.inflate(activity, R.layout.layout_popupwindow_onoffline, null);
+                ImageView iv_pop_icon = (ImageView) popupView.findViewById(R.id.iv_pop_icon);
+                TextView tv_pop_text = (TextView) popupView.findViewById(R.id.tv_pop_text);
+                if (connectType == 0) {
+                    //断开
+                    iv_pop_icon.setImageResource(R.drawable.duankai);
+                    tv_pop_text.setText("设备连接已断开");
+                    isConnectedSuccess = false;
+
+                } else {
+                    //连接
+                    iv_pop_icon.setImageResource(R.drawable.yilianjie);
+                    tv_pop_text.setText("设备已连接");
+
+                    isConnectedSuccess = true;
                 }
 
-                if (activity.getClass().getSimpleName().equals("StartRunActivity")) {
-                    StartRunActivity.setDeviceConnectedState(isConnectedSuccess);
+                final PopupWindow mPopupWindow = new PopupWindow(popupView, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
+                mPopupWindow.setTouchable(true);
+                mPopupWindow.setOutsideTouchable(true);
+                mPopupWindow.setBackgroundDrawable(new BitmapDrawable(activity.getResources(), (Bitmap) null));
+
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //showToask(finalActivity,"设备连接或断开");
+                        //mPopupWindow.showAsDropDown(activity.getTv_base_rightText());
+                        if (activity.isFinishing() || activity.isDestroyed()) return;
+                        if (!mPopupWindow.isShowing()) {
+                            mPopupWindow.showAtLocation(activity.getTv_base_rightText(), Gravity.TOP, 0, 0);
+                            Log.i(TAG, "PopupWindow.showAtLocation:");
+                        }
+
+                        if (activity.getClass().getSimpleName().equals("StartRunActivity")) {
+                            StartRunActivity.setDeviceConnectedState(isConnectedSuccess);
+                        }
+                    }
+                });
+
+
+                try {
+                    Thread.sleep(2000);
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (activity.isFinishing() || activity.isDestroyed()) return;
+                            if (mPopupWindow.isShowing()) {
+                                mPopupWindow.dismiss();
+                            }
+                        }
+                    });
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
-        });
+        }.start();
 
-
-        try {
-            Thread.sleep(2000);
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (activity.isFinishing() || activity.isDestroyed()) return;
-                    if (mPopupWindow.isShowing()) {
-                        mPopupWindow.dismiss();
-                    }
-                }
-            });
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
     }
 

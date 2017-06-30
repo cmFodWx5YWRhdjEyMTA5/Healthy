@@ -95,7 +95,7 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
 
         Log.i(TAG,"isLogin:"+MyUtil.getBooleanValueFromSP("isLogin"));
         Log.i(TAG,"isPrefectInfo:"+MyUtil.getBooleanValueFromSP("isPrefectInfo"));
-        MyUtil.saveDeviceToSP(new User());
+        MyUtil.saveUserToSP(new User());
         startActivity(new Intent(SystemSettingActivity.this,LoginActivity.class));
         MobclickAgent.onProfileSignOff();  ////友盟退出登陆账号统计
 

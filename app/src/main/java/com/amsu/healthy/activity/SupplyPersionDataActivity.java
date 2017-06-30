@@ -458,7 +458,7 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
 
                         birthday = year+"-"+month+"-"+day;
                         user.setBirthday(birthday);
-                        MyUtil.saveDeviceToSP(user);
+                        MyUtil.saveUserToSP(user);
                         startActivity(new Intent(SupplyPersionDataActivity.this,MainActivity.class));
                         finish();
                     }

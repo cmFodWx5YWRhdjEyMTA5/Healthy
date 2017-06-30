@@ -1,6 +1,7 @@
 package com.amsu.healthy.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -65,6 +66,10 @@ public class DeviceAdapter extends BaseAdapter{
         if (!MyUtil.isEmpty(MyApplication.connectedMacAddress) && MyApplication.connectedMacAddress.equals(device.getMac())){
             //已经连接上，则显示设备已激活
             tv_item_state.setText("已连接");
+            tv_item_state.setTextColor(Color.parseColor("#43CD80"));
+        }
+        else {
+            tv_item_state.setText(device.getState());
         }
         return inflate;
     }

@@ -2,6 +2,8 @@ package com.amsu.healthy.activity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,6 +31,7 @@ public class SearchDevicehActivity extends BaseActivity {
     DeviceList deviceList;
     private boolean timeTask10ScendOver;
     private Device mDeviceFromSP;
+    private BluetoothAdapter mBluetoothAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +111,8 @@ public class SearchDevicehActivity extends BaseActivity {
         Log.i(TAG,"没有扫描到设备");
         //MyUtil.showToask(SearchDevicehActivity.this,"没有扫描到设备");
         animation.cancel();
+        Intent intent = getIntent();
+        setResult(RESULT_OK, intent);
         finish();
     }
 
@@ -120,7 +125,7 @@ public class SearchDevicehActivity extends BaseActivity {
             if (searchDeviceList.size()==1){
                 //发现一个设备，有可能是当前设备，有可能是新的设备
                 //MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,deviceListFromSP.get(0).getMac());
-                MyUtil.saveDeviceToSP(searchDeviceList.get(0));
+                //MyUtil.saveUserToSP(searchDeviceList.get(0));
             }
             else {
                 //有新设备
@@ -139,15 +144,61 @@ public class SearchDevicehActivity extends BaseActivity {
             setResult(RESULT_OK, intent);
             finish();
             Log.i(TAG,"finish");
-
         }
-
     }
 
     private void initDate() {
-        if (MainActivity.mBluetoothAdapter!=null){
-            boolean b = MainActivity.mBluetoothAdapter.startLeScan(mLeScanCallback);
-            Log.i(TAG,"startLeScan:"+b);
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
+
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+
+
+                while (true){
+                    if (mBluetoothAdapter!=null && mBluetoothAdapter.isEnabled()) {
+                        if (!isBluetoothEnable){
+                            scanLeDevice(true);
+                            isBluetoothEnable = true;
+                        }
+                    }
+                    else {
+                        isBluetoothEnable = false;
+                    }
+
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+            }
+        }.start();
+
+    }
+
+    boolean mScanning;
+    private boolean isBluetoothEnable;
+
+    private void scanLeDevice(final boolean enable) {
+        if (enable) {
+            if (mBluetoothAdapter.isEnabled()) {
+                if (mScanning)
+                    return;
+                mScanning = true;
+                mBluetoothAdapter.startLeScan(mLeScanCallback);
+                Log.i(TAG,"startLeScan");
+            } else {
+                Log.i(TAG,"蓝牙未连接");
+            }
+        } else {
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            Log.i(TAG,"stopLeScan");
+            mScanning = false;
         }
     }
 
@@ -222,10 +273,7 @@ public class SearchDevicehActivity extends BaseActivity {
 
 
     public void stopsearch(View view) {
-        MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
-        animation.cancel();
-        finish();
-
+        scanTimeOver();
     }
 
     @Override
@@ -234,4 +282,5 @@ public class SearchDevicehActivity extends BaseActivity {
         animation.cancel();
         MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
     }
+
 }

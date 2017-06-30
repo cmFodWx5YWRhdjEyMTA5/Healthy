@@ -113,8 +113,8 @@ public class BaseActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         //MobclickAgent.onPageStart(this.getClass().getSimpleName());
-        MobclickAgent.onResume(this);
         MyApplication.mCurrApplicationActivity = this;
+        MobclickAgent.onResume(this);
     }
 
     @Override
@@ -122,6 +122,12 @@ public class BaseActivity extends FragmentActivity {
         super.onPause();
         //MobclickAgent.onPageEnd(this.getClass().getSimpleName());
         MobclickAgent.onPause(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
     }
 
     @Override

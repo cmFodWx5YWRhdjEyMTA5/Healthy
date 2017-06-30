@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.net.Socket;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -74,6 +75,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
     private HistoryRecordAdapter uploadHistoryRecordAdapter;
     private int analyCount;
     private DeviceOffLineFileUtil deviceOffLineFileUtil;
+    private InputStream inputStream;
 
 
     @Override
@@ -238,7 +240,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                     super.run();
                     try {
                         socketWriter = ConnectToWifiModuleGudieActivity2.mSock.getOutputStream();
-                        InputStream inputStream = ConnectToWifiModuleGudieActivity2.mSock.getInputStream();
+                        inputStream = ConnectToWifiModuleGudieActivity2.mSock.getInputStream();
 
                         getFileList();
 
@@ -246,7 +248,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                         final byte[] bytes = new byte[1024*10];
                         //byte[] bytes = new byte[512+14];
                         int length;
-                        while ((length =inputStream.read(bytes))!=-1) {
+                        while ((length = inputStream.read(bytes))!=-1) {
                             Log.i(TAG, "length:" + length);
                             Log.i(TAG,"isStartUploadData:"+isStartUploadData);
 
@@ -320,6 +322,18 @@ public class UploadOfflineFileActivity extends BaseActivity {
             } catch (IOException e) {
                 Log.e(TAG,"e:"+e);
                 e.printStackTrace();
+
+                Log.i(TAG,"异常重建socket");
+                try {
+                    Socket sock = new Socket(ConnectToWifiModuleGudieActivity2.serverAddress, 8080);
+                    socketWriter = sock.getOutputStream();
+                    Log.i(TAG,"异常重建socket成功");
+                    inputStream = sock.getInputStream();
+                } catch (IOException eeee) {
+                    e.printStackTrace();
+                    Log.e(TAG,"异常重建socket失败:"+eeee);
+                }
+
             }
         }
     }
@@ -371,6 +385,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
     boolean isFileListDataSplited ;
     String fileListHexData = "";
+    String currFileNameString="";
 
     //文件列表：
     private void dealWithDeviceFileList(String allHexString) {
@@ -416,6 +431,15 @@ public class UploadOfflineFileActivity extends BaseActivity {
             fileListHexData = "";
         }
 
+        boolean isFirstFile = true;
+        int pre_file_type = 0;
+        int file_type_ecg = 1;
+        int file_type_acc = 2;
+
+
+
+        List<String> rightOrderFileList = new ArrayList<>();
+
         for (int i = 0; i < fileLength; i++) {
             String fileNameString ="";
             for (int j = 0; j < 18; j++) {
@@ -424,13 +448,47 @@ public class UploadOfflineFileActivity extends BaseActivity {
             // fileNameString:20170412102300.ecg
             // fileNameString:2017 04 12 10 23 00.ecg
             Log.i(TAG,"fileNameString:"+fileNameString);
-            fileList[i] = fileNameString;
-            mOffLineFileNameList.add(i,fileNameString);
 
-            if (fileNameString.endsWith(".ecg")){
+            boolean isAddToRightOrderFileList = false;
+
+            if (isFirstFile){
+                if(fileNameString.endsWith("ecg")){
+                    /*fileList[i] = fileNameString;
+                    mOffLineFileNameList.add(i,fileNameString);*/
+                    isAddToRightOrderFileList = true;
+                    isFirstFile = false;
+                    pre_file_type = file_type_ecg;
+                }
+            }
+            else {
+                if (pre_file_type==file_type_ecg && fileNameString.endsWith("acc")){
+                    isAddToRightOrderFileList = true;
+                    pre_file_type = file_type_acc;
+                }
+                else if (pre_file_type==file_type_acc && fileNameString.endsWith("ecg")){
+                    isAddToRightOrderFileList = true;
+                    pre_file_type = file_type_ecg;
+                }
+            }
+
+            if (isAddToRightOrderFileList){
+                rightOrderFileList.add(fileNameString);
+            }
+
+
+        }
+
+        /*if (mOffLineFileNameList.get(0).endsWith("acc")){
+            mOffLineFileNameList.remove(0);
+        }*/
+
+        Log.i(TAG,"正确文件顺序");
+        for (String s:rightOrderFileList){
+            Log.i(TAG,"s:"+s);
+            if (s.endsWith(".ecg")){
                 //以ecg结尾的文件在离线文件中列出来
-                String datatime = fileNameString.substring(0,4)+"-"+fileNameString.substring(4,6)+"-"+fileNameString.substring(6,8)+" "+
-                        fileNameString.substring(8,10)+":"+fileNameString.substring(10,12)+":"+fileNameString.substring(12,14);
+                String datatime = s.substring(0,4)+"-"+s.substring(4,6)+"-"+s.substring(6,8)+" "+
+                        s.substring(8,10)+":"+s.substring(10,12)+":"+s.substring(12,14);
             /*if (uploadHistoryRecords.size()>0){
                 if (uploadHistoryRecords.get(uploadHistoryRecords.size()-1).equals(datatime)){
                     return;
@@ -440,12 +498,14 @@ public class UploadOfflineFileActivity extends BaseActivity {
             }
         }
 
-        if (mOffLineFileNameList.get(0).endsWith("acc")){
-            mOffLineFileNameList.remove(0);
-        }
 
 
-        Log.i(TAG,"fileList.length:"+fileList.length);
+        mOffLineFileNameList.addAll(rightOrderFileList);
+
+
+
+
+        Log.i(TAG,"mOffLineFileNameList.size():"+mOffLineFileNameList.size());
 
         /*String test ="";
         for (int i = 0; i < fileLength; i++) {
@@ -525,11 +585,11 @@ public class UploadOfflineFileActivity extends BaseActivity {
                     mUploadFileIndex++;
                     mListViewItemUolpadIndex++;
 
+                    sendReadNextFileOrder();
+                    isFileDataTooLittleDelete = true;
                 }
             });
             //deleteOneFile(currentUploadFileName);
-            sendReadNextFileOrder();
-            isFileDataTooLittleDelete = true;
             return;
         }else {
             isFileDataTooLittleDelete  = false;
@@ -566,6 +626,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
     //文件上传
     private void dealWithDeviceFileUpload(int length, final String toHexString) {
+        noRepronseCount=0;
         if (startTimeMillis==0){
             startTimeMillis = System.currentTimeMillis();
         }
@@ -693,23 +754,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
     //当前文件上传成功
     private void uploadCurrentFileSuccess() {
-        //上传完成
-        endTimeMillis = System.currentTimeMillis();
-        Log.i(TAG,"整个文件上传完成");
-        Log.i(TAG,"startTimeMillis"+new Date(startTimeMillis));
-        Log.i(TAG,"endTimeMillis"+new Date(endTimeMillis));
 
-        Log.i(TAG,"求情重传次数requireRetransmissionCount "+requireRetransmissionCount);
-
-        isStartUploadData = false;
-        deleteOneFile(currentUploadFileName);
-        isSendReadLengthOrder = false;
-
-        final String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+ currentUploadFileName;
-        final boolean isWriteSuccess = DeviceOffLineFileUtil.writeEcgDataToBinaryFile(mAllData, filePath);
-        Log.i(TAG,"写入文件isWriteSuccess:"+isWriteSuccess+ "  filePath:"+filePath);
-        Log.i(TAG,"mListViewItemUolpadIndex:"+mListViewItemUolpadIndex);
-        sendReadNextFileOrder();
 
         runOnUiThread(new Runnable() {
             @Override
@@ -724,6 +769,24 @@ public class UploadOfflineFileActivity extends BaseActivity {
                 //tv_uploadprogress.setText("传输完成  耗时(分钟):"+time+"  丢包次数："+requireRetransmissionCount);
                 startTimeMillis = 0;*/
 
+                //上传完成
+                endTimeMillis = System.currentTimeMillis();
+                Log.i(TAG,"整个文件上传完成");
+                Log.i(TAG,"startTimeMillis"+new Date(startTimeMillis));
+                Log.i(TAG,"endTimeMillis"+new Date(endTimeMillis));
+
+                Log.i(TAG,"求情重传次数requireRetransmissionCount "+requireRetransmissionCount);
+
+                isStartUploadData = false;
+                //deleteOneFile(currentUploadFileName);
+                isSendReadLengthOrder = false;
+
+                final String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+ currentUploadFileName;
+                final boolean isWriteSuccess = DeviceOffLineFileUtil.writeEcgDataToBinaryFile(mAllData, filePath);
+                Log.i(TAG,"写入文件isWriteSuccess:"+isWriteSuccess+ "  filePath:"+filePath);
+                Log.i(TAG,"mListViewItemUolpadIndex:"+mListViewItemUolpadIndex);
+
+
                 if (currentUploadFileName.endsWith("acc")){
                     TextView tv_history_alstate = (TextView) lv_history_upload.getChildAt(mUploadFileIndex/2).findViewById(R.id.tv_history_alstate);
                     //TextView tv_history_alstate = HistoryRecordAdapter.textViewList.get(mUploadFileIndex);
@@ -733,6 +796,10 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
 
                 }
+
+                sendReadNextFileOrder();
+
+
 
                 if (isWriteSuccess){
                     if (filePath.endsWith("ecg")){
@@ -780,7 +847,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
     //判断是否需要重传
     private void judgeRequireRetransmission() {
         Log.i(TAG,"isSendReadLengthOrder:"+isSendReadLengthOrder);
-        if (isSendReadLengthOrder){
+        if (isSendReadLengthOrder ){
             Log.i(TAG,"mUploadFileCountIndex:"+mUploadFileCountIndex+"   mAllFileCount:"+mAllFileCount);
             if (mUploadFileCountIndex==mAllFileCount ){
                 if (mFileLastRemainder>0 && !mIsCurrFileRemainderUploadOk){
@@ -799,14 +866,42 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
     }
 
+    int noRepronseCount;
+
     //请求重传
     private void requireRetransmission() {
         Log.i(TAG,"请求重传requireRetransmission:");
-        isStartUploadData = false;
-        requireRetransmissionCount++;
-        onePackageData.clear();
-        onePackageReadLength = 0;
-        uploadNextPackageData();
+        Log.i(TAG,"noRepronseCount:"+noRepronseCount);
+        if (noRepronseCount==3){
+            socketWriter = null;
+            Log.i(TAG,"重建socket");
+            try {
+                Socket sock = new Socket(ConnectToWifiModuleGudieActivity2.serverAddress, 8080);
+                socketWriter = sock.getOutputStream();
+                Log.i(TAG,"重建socket成功");
+                inputStream = sock.getInputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(TAG,"重建socket失败:"+e);
+            }
+            noRepronseCount=-1;
+
+            isStartUploadData = false;
+            requireRetransmissionCount++;
+            onePackageData.clear();
+            onePackageReadLength = 0;
+            uploadNextPackageData();
+            noRepronseCount++;
+        }
+        else {
+            isStartUploadData = false;
+            requireRetransmissionCount++;
+            onePackageData.clear();
+            onePackageReadLength = 0;
+            uploadNextPackageData();
+            noRepronseCount++;
+        }
+
     }
 
     //当前包传输成功，进行下一个包传输

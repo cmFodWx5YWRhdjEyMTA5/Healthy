@@ -5,11 +5,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -24,12 +27,15 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Apk;
 import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.ApkUtil;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
 import com.amsu.healthy.view.CircleRingView;
 import com.amsu.healthy.view.DashboardView;
+import com.ble.api.DataUtil;
 import com.ble.ble.BleService;
 
 import java.util.List;
@@ -57,6 +63,10 @@ public class MainActivity extends BaseActivity {
 
     private BaseActivity mActivity = this;
     private DeviceOffLineFileUtil deviceOffLineFileUtil;
+    private ImageView iv_base_connectedstate;
+    private TextView tv_base_charge;
+    public static final String ACTION_CHARGE_CHANGE = "ACTION_CHARGE_CHANGE";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,6 +192,9 @@ public class MainActivity extends BaseActivity {
                 startActivity(new Intent(MainActivity.this,MyDeviceActivity.class));
             }
         });
+
+        iv_base_connectedstate = (ImageView) findViewById(R.id.iv_base_connectedstate);
+
         dv_main_compass = (DashboardView) findViewById(R.id.dv_main_compass);
         cv_mian_index = (CircleRingView) findViewById(R.id.cv_mian_index);
         cv_mian_warring = (CircleRingView) findViewById(R.id.cv_mian_warring);
@@ -197,7 +210,7 @@ public class MainActivity extends BaseActivity {
 
         tv_main_age = (TextView) findViewById(R.id.tv_main_age);
         tv_main_indexvalue = (TextView) findViewById(R.id.tv_main_indexvalue);
-
+        tv_base_charge = (TextView) findViewById(R.id.tv_base_charge);
 
 
         MyOnClickListener myOnClickListener = new MyOnClickListener();
@@ -217,6 +230,21 @@ public class MainActivity extends BaseActivity {
         int id = rl_main_healthyvalue.getId();
 
         Log.i(TAG,"id:"+id);
+
+        iv_base_connectedstate.setVisibility(View.VISIBLE);
+        if (MyApplication.isHaveDeviceConnectted){
+            iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
+        }
+        else {
+            iv_base_connectedstate.setImageResource(R.drawable.duankai);
+        }
+
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_CHARGE_CHANGE);
+        registerReceiver(mchargeReceiver, filter);
 
         //showUploadOffLineData();
 
@@ -271,11 +299,6 @@ public class MainActivity extends BaseActivity {
         /*Intent service = new Intent(this, CommunicateToBleService.class);
         startService(service);*/
 
-        final BaseActivity activity = MyApplication.mCurrApplicationActivity;
-        Log.i(TAG,"MyApplication.mCurrApplicationActivity:"+MyApplication.mCurrApplicationActivity.getClass().getSimpleName());
-        Log.i(TAG,"activity:"+activity.getClass().getSimpleName());
-
-
     }
 
     //给文本年龄设置文字动画
@@ -307,6 +330,49 @@ public class MainActivity extends BaseActivity {
         Log.i(TAG,"healthyIindexvalue:"+healthyIindexvalue+"  physicalAge:"+physicalAge);
     }
 
+    private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()){
+                case LeProxy.ACTION_GATT_CONNECTED:
+                    Log.i(TAG,"已连接 " );
+                    iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
+                    break;
+                case LeProxy.ACTION_GATT_DISCONNECTED:
+                    Log.w(TAG,"已断开 ");
+                    iv_base_connectedstate.setImageResource(R.drawable.duankai);
+                    break;
+                case LeProxy.ACTION_CONNECT_ERROR:
+                    Log.w(TAG,"连接异常 ");
+                    iv_base_connectedstate.setImageResource(R.drawable.duankai);
+                    break;
+                case LeProxy.ACTION_CONNECT_TIMEOUT:
+                    Log.w(TAG,"连接超时 ");
+                    iv_base_connectedstate.setImageResource(R.drawable.duankai);
+                    break;
+            }
+        }
+    };
+
+    private final BroadcastReceiver mchargeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent!=null){
+                Log.i(TAG,"onReceive:"+intent.getAction());
+                int calCuelectricVPercent = intent.getIntExtra("calCuelectricVPercent", -1);
+                Log.i(TAG,"calCuelectricVPercent:"+calCuelectricVPercent);
+                if (calCuelectricVPercent==-1){
+                    //设备已断开
+                    tv_base_charge.setVisibility(View.GONE);
+                }
+                else {
+                    tv_base_charge.setVisibility(View.VISIBLE);
+                    tv_base_charge.setText(calCuelectricVPercent+"%");
+                }
+            }
+        }
+    };
+
     private void checkIsNeedUpadteApk() {
         Apk apkFromSP = ApkUtil.getApkFromSP();
         if (apkFromSP!=null && !MyUtil.isEmpty(apkFromSP.versioncode)){
@@ -326,6 +392,8 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         Log.i(TAG,"onResume");
+        MyApplication.mCurrApplicationActivity = this;
+
         if (!isonResumeEd){
             if (mBluetoothAdapter!=null && !mBluetoothAdapter.isEnabled()) {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -342,8 +410,9 @@ public class MainActivity extends BaseActivity {
                 dv_main_compass.setAgeData(physicalAge-10);
             }
         }
-    }
 
+
+    }
 
     //检查是否支持蓝牙
     private void checkAndOpenBLEFeature() {
@@ -489,6 +558,8 @@ public class MainActivity extends BaseActivity {
        // ShowLocationOnMap.mMapView = null;
         //android.os.Process.killProcess(android.os.Process.myPid());  //退出应用程序
 
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
+        unregisterReceiver(mchargeReceiver);
     }
 
     // 用来计算返回键的点击间隔时间

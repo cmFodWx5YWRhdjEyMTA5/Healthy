@@ -27,6 +27,7 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
     private static final String TAG = "ConnectToWifi2";
     public static Socket mSock;
     private WifiManager mWifiManage;
+    public static String serverAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +113,7 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
         Log.i(TAG,"wifiinfo:"+wifiinfo);
 
         String ip = intToIp(wifiinfo.getIpAddress());
-        String serverAddress = intToIp(info.serverAddress);
+        serverAddress = intToIp(info.serverAddress);
         new Sender(serverAddress).start();
         String msg = "ip:" + ip + "serverAddress:" + serverAddress + info;
         Log.i(TAG, msg);

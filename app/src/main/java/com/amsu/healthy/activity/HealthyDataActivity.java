@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Gravity;
@@ -27,11 +28,13 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.AppAbortDataSave;
+import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.AppAbortDataSaveUtil;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.EcgFilterUtil_1;
+import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.EcgView;
@@ -58,7 +61,6 @@ public class HealthyDataActivity extends BaseActivity {
     private static final String TAG = "HealthyDataActivity";
     private static final String TAG1 = "startSoS";
 
-    public static BleService mLeService;
     private EcgView pv_healthydata_path;
     private FileOutputStream fileOutputStream;
     public static int groupCalcuLength = 100; //
@@ -102,6 +104,7 @@ public class HealthyDataActivity extends BaseActivity {
     private static String SMS_DELIVERED_ACTION = "SMS_DELIVERED_ACTION";
     private int mCurrentHeartRate= 0;
     private String ecgLocalFileName;
+    private int D_valueMaxValue = 15;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,13 +153,16 @@ public class HealthyDataActivity extends BaseActivity {
 
         heartRateDates = new ArrayList<>();
         MyApplication.runningActivity = MyApplication.HealthyDataActivity;
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
+
     }
 
     //按返回键时的处理
     private void backJudge() {
         if (mIsHaveEcgDataReceived && !isLookupECGDataFromSport){
             ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(HealthyDataActivity.this);
-            chooseAlertDialogUtil.setAlertDialogText("正在测试心电，是否退出？","按错了","退出");
+            chooseAlertDialogUtil.setAlertDialogText("正在测试心电，是否退出？","按错了","退出测试");
             chooseAlertDialogUtil.setOnCancelClickListener(new ChooseAlertDialogUtil.OnCancelClickListener() {
                 @Override
                 public void onCancelClick() {
@@ -179,116 +185,42 @@ public class HealthyDataActivity extends BaseActivity {
 
     }
 
-    //绑定蓝牙，获取蓝牙服务
-    public void bindBluetoothService(){
-        if (MainActivity.mBluetoothAdapter!=null){
-            Log.i(TAG,"bindBluetoothService");
-            bindService(new Intent(this, BleService.class), mConnection, BIND_AUTO_CREATE);
-            isBindService = true;
+    private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()){
+                case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
+                    byte[] data = intent.getByteArrayExtra(LeProxy.EXTRA_DATA);
+                    dealwithLebDataChange(DataUtil.byteArrayToHex(data));
+                    break;
+            }
         }
-    }
-
-    boolean isBindService;
+    };
 
     //关闭心电数据传输
     public static void stopTransmitData(){
-        if (mLeService!=null){
-            //mLeService.send(connecMac, Constant.stopDataTransmitOrder,true);  //关闭数据传输
-        }
+
     }
 
-    private final ServiceConnection mConnection = new ServiceConnection() {
 
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.i(TAG,"onServiceDisconnected");
-            mLeService = null;
+    private void dealwithLebDataChange(String hexData) {
+        if (hexData.length()<40){
+            return;
         }
 
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.i(TAG,"onServiceConnected");
-            mLeService = ((BleService.LocalBinder) service).getService(mBleCallBack);
-            // mLeService.setMaxConnectedNumber(max);// 设置最大可连接从机数量，默认为4
-            mLeService.setDecode(true);
-            // 必须调用初始化函数
-            mLeService.initialize();
-        }
-    };
-
-    // ble数据交互的关键参数
-    private final BleCallBack mBleCallBack = new BleCallBack() {
-
-        @Override
-        public void onConnected(String mac) {
-            Log.i(TAG, "onConnected() - " + mac);
-        }
-
-        @Override
-        public void onConnectTimeout(String mac) {
-            Log.w(TAG, "onConnectTimeout() - " + mac);
-        }
-
-        @Override
-        public void onConnectionError(String mac, int status, int newState) {
-            Log.w(TAG, "onConnectionError() - " + mac + ", status = " + status + ", newState = " + newState);
-        }
-
-        @Override
-        public void onDisconnected(String mac) {
-            Log.w(TAG, "onDisconnected() - " + mac);
-        }
-
-        @Override
-        public void onServicesDiscovered(String mac) {
-            // !!!到这一步才可以与从机进行数据交互
-            Log.i(TAG, "onServicesDiscovered() - " + mac);
-        }
-
-        @Override
-        public void onServicesUndiscovered(String mac, int status) {
-            Log.e(TAG, "onServicesUndiscovered() - " + mac + ", status = " + status);
+        if(hexData.startsWith("FF 83 0F")){
+            //心电数据
+            //Log.i(TAG,"心电hexData:"+hexData);
+            dealWithEcgData(hexData);
+            mIsHaveEcgDataReceived = true;
 
         }
-
-        @Override
-        public void onReadRemoteRssi(String mac, int rssi, int status) {
-            //Log.i(TAG,"onReadRemoteRssi==="+"mac:"+mac+",rssi:"+rssi+",status:"+status);
+        else if(hexData.startsWith("FF 86 11")){
+            //加速度数据
+            //Log.i(TAG,"加速度hexData:"+hexData);
+            //dealWithAccelerationgData(hexData);
         }
-
-        @Override
-        public void onCharacteristicChanged(String mac, android.bluetooth.BluetoothGattCharacteristic c) {
-            // 接收到从机数据
-            String uuid = c.getUuid().toString();
-            String hexData = DataUtil.byteArrayToHex(c.getValue());
-            //Log.i(TAG, "onCharacteristicChanged() - " + mac + ", " + uuid + ", " + hexData);
-            //4.2写配置信息   onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 81 05 00 16
-            //4.5App读主机设备的版本号  onCharacteristicChanged() - 44:A6:E5:1F:C5:BF, 00001002-0000-1000-8000-00805f9b34fb, FF 84 07 88 88 00 16
-            /*数据：
-                FF 83 0F 00 00 00 00 00 00 00 00 00 00 00 16
-                FF 83 0F 00 00 00 00 00 00 00 00 00 00 01 16
-                FF 83 0F 00 00 00 00 00 00 00 00 00 00 02 16
-                只有倒数2位变化
-            */
-
-            if (hexData.length()<40){
-                return;
-            }
-
-            if(hexData.startsWith("FF 83 0F")){
-                //心电数据
-                //Log.i(TAG,"心电hexData:"+hexData);
-                dealWithEcgData(hexData);
-                mIsHaveEcgDataReceived = true;
-
-            }
-            else if(hexData.startsWith("FF 86 11")){
-                //加速度数据
-                //Log.i(TAG,"加速度hexData:"+hexData);
-                //dealWithAccelerationgData(hexData);
-            }
-        }
-    };
+    }
 
     private boolean mIsHaveEcgDataReceived;
     private int mPreHeartRate;
@@ -350,11 +282,11 @@ public class HealthyDataActivity extends BaseActivity {
                     else if (mPreHeartRate>0){
                         int count = 0;
                         int temp = mCurrentHeartRate-mPreHeartRate;
-                        if (temp>20) {
-                            count = (temp) / 20 + 1;
+                        if (temp>D_valueMaxValue) {
+                            count = (temp) / D_valueMaxValue + 1;
                         }
-                        else if (temp<-20){
-                            count = (temp) / 20 - 1;
+                        else if (temp<-D_valueMaxValue){
+                            count = (temp) / D_valueMaxValue - 1;
                         }
                         System.out.println(count);
                         if (count!=0){
@@ -714,10 +646,6 @@ public class HealthyDataActivity extends BaseActivity {
             isonResumeEd = true;
         }
 
-        if (MainActivity.mBluetoothAdapter!=null && MainActivity.mBluetoothAdapter.isEnabled() && !isBindService) {
-            bindBluetoothService();
-        }
-
     /* 自定义IntentFilter为SENT_SMS_ACTIOIN Receiver */
         IntentFilter mFilter01;
         mFilter01 = new IntentFilter(SMS_SEND_ACTIOIN);
@@ -860,10 +788,10 @@ public class HealthyDataActivity extends BaseActivity {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
 
-        if (isBindService){
-            unbindService(mConnection);
-        }
         MyApplication.runningActivity = MyApplication.MainActivity;
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
+
         /*if (MainActivity.mBluetoothAdapter!=null){
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
         }*/

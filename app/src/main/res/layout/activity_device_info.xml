@@ -57,6 +57,7 @@
 
 
     <LinearLayout
+        android:id="@+id/ll_text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_ele"
@@ -145,9 +146,30 @@
                 android:textSize="@dimen/x48"
                 android:textColor="#c8c8cd"/>
         </RelativeLayout>
+
+
     </LinearLayout>
 
 
-
+    <RelativeLayout
+        android:id="@+id/rl_device_unbind"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y140"
+        android:layout_below="@+id/ll_text1"
+        android:background="@drawable/list_item_background"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="@dimen/x80"
+        android:onClick="unBindDevice"
+        android:clickable="true"
+        android:paddingLeft="@dimen/x36"
+        android:paddingRight="@dimen/x40">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="解除绑定"
+            android:textColor="#030303"
+            android:textSize="@dimen/x48"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
 
 </RelativeLayout>

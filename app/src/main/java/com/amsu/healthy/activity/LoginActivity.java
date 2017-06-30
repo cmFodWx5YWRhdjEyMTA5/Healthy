@@ -65,8 +65,6 @@ public class LoginActivity extends BaseActivity {
         initData();
     }
 
-
-
     private void initView() {
         initHeadView();
         setCenterText("登陆");
@@ -357,7 +355,7 @@ public class LoginActivity extends BaseActivity {
                                             String icon = jsonObject1.getString("Icon");
                                             String stillRate = jsonObject1.getString("RestingHeartRate");
                                             User user = new User(phone,userName,birthday,sex,weight,height,address,email,icon,stillRate);
-                                            MyUtil.saveDeviceToSP(user);
+                                            MyUtil.saveUserToSP(user);
                                             MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
                                             SplashActivity.downlaodWeekReport(-1,-1,true,LoginActivity.this);
                                             //startActivity(new Intent(LoginActivity.this,MainActivity.class));
