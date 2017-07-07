@@ -68,8 +68,10 @@ public class HeartRateYearFragment extends BaseFragment {
 
 
     private void initData() {
-        if (MyReportActivity.mQuarterFullReport!=null){
-            List<FullReport.HRrepBean> hRrep = MyReportActivity.mQuarterFullReport.HRrep;
+        Log.i(TAG,"mYearFullReport:"+MyReportActivity.mYearFullReport);
+        if (MyReportActivity.mYearFullReport!=null){
+            List<FullReport.HRrepBean> hRrep = MyReportActivity.mYearFullReport.HRrep;
+            Log.i(TAG,"hRrep:"+hRrep);
             if (hRrep!=null && hRrep.size()>0){
                 List<Integer> dataIntegerList = new ArrayList<>();
                 List<String> datetimesList = new ArrayList<>();
@@ -82,17 +84,21 @@ public class HeartRateYearFragment extends BaseFragment {
                     }
                 }
 
+                Log.i(TAG,"dataIntegerList:"+dataIntegerList);
+
                 int[] datas = new int[dataIntegerList.size()];
                 for (int i=0;i<dataIntegerList.size();i++){
                     datas[i] = dataIntegerList.get(i);
                 }
 
-                String[] datetimes = new String[datetimesList.size()];
-                datetimesList.toArray(datetimes);
+                if (datetimesList.size()>0){
+                    String[] datetimes = new String[datetimesList.size()];
+                    datetimesList.toArray(datetimes);
 
-                mLineChart.setData(datas,datetimes);
-                tv_mouth_value.setText(datas[datas.length-1]+"");
-                tv_mouth_datetime.setText(datetimes[datetimes.length-1]);
+                    mLineChart.setData(datas,datetimes);
+                    tv_mouth_value.setText(datas[datas.length-1]+"");
+                    tv_mouth_datetime.setText(datetimes[datetimes.length-1]);
+                }
             }
         }
     }

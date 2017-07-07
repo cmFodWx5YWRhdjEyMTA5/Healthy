@@ -133,7 +133,7 @@ public class SearchDevicehActivity extends BaseActivity {
                 MyUtil.showToask(SearchDevicehActivity.this,"发现多个设备,点击设置需要运行的设备");
             }
 
-            MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
             //tv_search_state.setText("查找成功");
             //MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,leName);
             animation.cancel();
@@ -280,7 +280,7 @@ public class SearchDevicehActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         animation.cancel();
-        MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+        mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
     }
 
 }

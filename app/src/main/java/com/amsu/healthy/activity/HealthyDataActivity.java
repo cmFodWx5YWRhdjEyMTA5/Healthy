@@ -4,15 +4,12 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.IBinder;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
@@ -29,7 +26,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.service.CommunicateToBleService;
-import com.amsu.healthy.utils.AppAbortDataSaveUtil;
+import com.amsu.healthy.utils.AppAbortDbAdapter;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
@@ -39,8 +36,6 @@ import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.EcgView;
 import com.ble.api.DataUtil;
-import com.ble.ble.BleCallBack;
-import com.ble.ble.BleService;
 import com.google.gson.Gson;
 import com.test.utils.DiagnosisNDK;
 
@@ -167,11 +162,11 @@ public class HealthyDataActivity extends BaseActivity {
                 @Override
                 public void onCancelClick() {
                     //将离线数据记录删除
-                    List<AppAbortDataSave> abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
+                    /*List<AppAbortDataSave> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
                     if (abortDataListFromSP!=null && abortDataListFromSP.size()>0){
                         abortDataListFromSP.remove(abortDataListFromSP.size()-1); // 删除最后一个（刚年纪大饿一条记录）
                     }
-                    AppAbortDataSaveUtil.putAbortDataListToSP(abortDataListFromSP);
+                    AppAbortDbAdapter.putAbortDataListToSP(abortDataListFromSP);*/
                     finish();
                 }
             });
@@ -269,7 +264,7 @@ public class HealthyDataActivity extends BaseActivity {
             heartRateDates.add(mCurrentHeartRate);
 
             if (!isLookupECGDataFromSport && heartRateDates.size()==1){
-                saveAbortDatareordToSP(ecgFiletimeMillis,ecgLocalFileName,0);
+                //saveAbortDatareordToSP(ecgFiletimeMillis,ecgLocalFileName,0);
             }
 
             //更新心率
@@ -356,18 +351,18 @@ public class HealthyDataActivity extends BaseActivity {
 
     //异常中断时数据保存在本地
     private void saveAbortDatareordToSP(long ecgFiletimeMillis,String ecgLocalFileName, int state) {
-        List<AppAbortDataSave> abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
+        List<AppAbortDataSave> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
         AppAbortDataSave abortData = new AppAbortDataSave(ecgFiletimeMillis,ecgLocalFileName,state);
         abortDataListFromSP.add(abortData);
-        AppAbortDataSaveUtil.putAbortDataListToSP(abortDataListFromSP);
+        AppAbortDbAdapter.putAbortDataListToSP(abortDataListFromSP);
     }
 
     private void deleteAbortDataRecordFomeSP(long ecgFiletimeMillis){
         if (ecgFiletimeMillis!=-1){
-            List<AppAbortDataSave> abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
+            List<AppAbortDataSave> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
             if (abortDataListFromSP.size()>0){
                 abortDataListFromSP.remove(abortDataListFromSP.size()-1);
-                AppAbortDataSaveUtil.putAbortDataListToSP(abortDataListFromSP);
+                AppAbortDbAdapter.putAbortDataListToSP(abortDataListFromSP);
             }
         }
     }
@@ -604,7 +599,7 @@ public class HealthyDataActivity extends BaseActivity {
             return;
         }
 
-        deleteAbortDataRecordFomeSP(ecgFiletimeMillis);
+        //deleteAbortDataRecordFomeSP(ecgFiletimeMillis);
 
 
         startActivity(intent);

@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.utils.database.MySqliteOpenHelper;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
 
@@ -22,55 +23,10 @@ import java.util.List;
  * 
  */
 public class OffLineDbAdapter {
-	public static final String KEY_ROWID = "id";
-	public static final String KEY_DISTANCE = "distance";
-	public static final String KEY_DURATION = "duration";
-	public static final String KEY_SPEED = "averagespeed";
-	public static final String KEY_LINE = "pathline";
-	public static final String KEY_STRAT = "stratpoint";
-	public static final String KEY_END = "endpoint";
-	public static final String KEY_DATE = "date";
-	private final static String DATABASE_PATH = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/recordPath";
-	//static String DATABASE_NAME = DATABASE_PATH + "/" + "report.db";
-	static String DATABASE_NAME ;
-	private static final int DATABASE_VERSION = 1;
 	private static final String RECORD_TABLE = "uploadreport";
+	private static final String TAG = "AppAbortDbAdapter";
 
-	private static final String RECORD_CREATE = "create table if not exists uploadreport("
-			/*+ "id integer primary key autoincrement,"*/
-			+ "id STRING primary key,"
-			+ "serveId STRING,"
-			+ "FI STRING,"
-			+ "ES STRING,"
-			+ "PI STRING,"
-			+ "CC STRING,"
-			+ "HRVr STRING,"
-			+ "HRVs STRING,"
-			+ "AHR STRING,"
-			+ "MaxHR STRING,"
-			+ "MinHR STRING,"
-			+ "HRr STRING,"
-			+ "HRs STRING,"
-			+ "EC STRING,"
-			+ "ECr STRING,"
-			+ "ECs STRING,"
-			+ "RA STRING,"
-			+ "HR STRING,"
-			+ "AE STRING,"
-			+ "distance STRING,"
-			+ "time STRING,"
-			+ "cadence STRING,"
-			+ "calorie STRING,"
-			+ "state STRING,"
-			+ "zaobo STRING,"
-			+ "loubo STRING,"
-			+ "latitude_longitude STRING,"
-			+ "timestamp STRING,"
-			+ "datatime STRING,"
-			+ "uploadState STRING" + ");";
-	private static final String TAG = "OffLineDbAdapter";
-
-	public static class DatabaseHelper extends SQLiteOpenHelper {
+	/*public static class DatabaseHelper extends SQLiteOpenHelper {
 		public DatabaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		}
@@ -85,28 +41,25 @@ public class OffLineDbAdapter {
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			Log.i(TAG,"onUpgrade");
 		}
-	}
+	}*/
 
-	private Context mCtx = null;
-	private DatabaseHelper dbHelper;
 	private SQLiteDatabase db;
+	private final MySqliteOpenHelper mySqliteOpenHelper;
 
 	// constructor
 	public OffLineDbAdapter(Context ctx) {
-		Log.i(TAG,"OffLineDbAdapter");
-		this.mCtx = ctx;
-		dbHelper = new DatabaseHelper(mCtx);
-		DATABASE_NAME = ctx.getCacheDir()+"/recordPath/report.db";
+		Log.i(TAG,"AppAbortDbAdapter");
+		mySqliteOpenHelper = new MySqliteOpenHelper(ctx,1);
 	}
 
 	public OffLineDbAdapter open() throws SQLException {
 		Log.i(TAG,"open()");
-		db = dbHelper.getWritableDatabase();
+		db = mySqliteOpenHelper.getWritableDatabase();
 		return this;
 	}
 
 	public void close() {
-		dbHelper.close();
+		mySqliteOpenHelper.close();
 	}
 
 	public Cursor getall() {
@@ -276,7 +229,7 @@ public class OffLineDbAdapter {
 	public UploadRecord getUploadRecordByCursor(Cursor cursor){
 		UploadRecord uploadRecord = new UploadRecord();
 
-		uploadRecord.setId(cursor.getString(cursor.getColumnIndex(OffLineDbAdapter.KEY_ROWID)));
+		uploadRecord.setId(cursor.getString(cursor.getColumnIndex("id")));
 		uploadRecord.setServeId(cursor.getString(cursor.getColumnIndex("serveId")));
 		uploadRecord.setFI(cursor.getString(cursor.getColumnIndex("FI")));
 		uploadRecord.setES(cursor.getString(cursor.getColumnIndex("ES")));
@@ -308,8 +261,6 @@ public class OffLineDbAdapter {
 		uploadRecord.setUploadState(cursor.getString(cursor.getColumnIndex("uploadState")));
 		return uploadRecord;
 	}
-
-
 
 	private String[] getColumns() {
 		/*+ "id integer primary key autoincrement,"

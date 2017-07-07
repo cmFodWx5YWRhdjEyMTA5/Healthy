@@ -69,8 +69,8 @@ public class HRRYearFragment extends BaseFragment {
     }
 
     private void initData() {
-        if (MyReportActivity.mQuarterFullReport!=null){
-            List<FullReport.HRRrepBean> hRrep = MyReportActivity.mQuarterFullReport.HRRrep;
+        if (MyReportActivity.mYearFullReport!=null){
+            List<FullReport.HRRrepBean> hRrep = MyReportActivity.mYearFullReport.HRRrep;
             if (hRrep!=null && hRrep.size()>0){
                 List<Integer> dataList = new ArrayList<>();
                 List<String> labeList = new ArrayList<>();

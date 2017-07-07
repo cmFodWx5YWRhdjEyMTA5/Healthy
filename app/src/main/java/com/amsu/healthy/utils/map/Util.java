@@ -68,7 +68,7 @@ public class Util {
 	 * @return
 	 */
 	public static List<LatLng> parseLatLngList(List<AMapLocation> list) {
-		List<LatLng> traceList = new ArrayList<LatLng>();
+		List<LatLng> traceList = new ArrayList<>();
 		if (list == null) {
 			return traceList;
 		}

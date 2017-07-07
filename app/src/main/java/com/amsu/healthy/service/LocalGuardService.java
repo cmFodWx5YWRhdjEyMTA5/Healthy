@@ -7,17 +7,13 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
-import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.WakeLockUtil;
-import com.ble.ble.BleService;
 
-import java.util.Date;
+public class LocalGuardService extends Service {
+    private static final String TAG = "LocalGuardService";
 
-public class MyTestService2 extends Service {
-    private static final String TAG = "MyTestService2";
-
-    public MyTestService2() {
+    public LocalGuardService() {
     }
 
     @Override
@@ -29,15 +25,13 @@ public class MyTestService2 extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i(TAG,"锁屏激活");
     }
 
     boolean isStartCommand;
-    
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "onStartCommand");
-
+        Log.i(TAG,"onStartCommand");
         if (!isStartCommand){
             testNewThread();
             WakeLockUtil.acquireWakeLock(this);
@@ -46,16 +40,18 @@ public class MyTestService2 extends Service {
         return START_STICKY;
     }
 
+
+
     private void testNewThread() {
-        MyUtil.startAllService(MyTestService2.this);
+        MyUtil.startAllService(LocalGuardService.this);
     }
 
     @Override
     public void onDestroy() {
+        Log.i(TAG,"onDestroy");
         super.onDestroy();
         Intent intent = new Intent("com.amsu.healthy.servicedestroy");
         sendBroadcast(intent);
-
         WakeLockUtil.releaseWakeLock();
     }
 }

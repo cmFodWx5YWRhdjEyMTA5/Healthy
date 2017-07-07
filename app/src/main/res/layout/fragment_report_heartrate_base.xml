@@ -80,7 +80,7 @@
             android:layout_marginTop="@dimen/x10"
             android:layout_below="@+id/view"
             foldlineview:line_color="#FF0000"
-            foldlineview:line_width="@dimen/x6"
+            foldlineview:line_width="@dimen/x3"
             foldlineview:radius_point="@dimen/x8"
             foldlineview:radius_point_big="@dimen/x12"/>
     </LinearLayout>

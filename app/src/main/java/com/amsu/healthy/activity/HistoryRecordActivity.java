@@ -1,26 +1,20 @@
 package com.amsu.healthy.activity;
 
 import android.content.Intent;
-import android.os.Parcelable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ListView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.HistoryRecordAdapter;
-import com.amsu.healthy.bean.Apk;
 import com.amsu.healthy.bean.AppAbortDataSave;
-import com.amsu.healthy.bean.HealthyPlan;
 import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.bean.JsonBase;
-import com.amsu.healthy.utils.AppAbortDataSaveUtil;
+import com.amsu.healthy.utils.AppAbortDbAdapter;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.LoadMoreListView;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -87,11 +81,13 @@ public class HistoryRecordActivity extends BaseActivity {
         Intent intent = getIntent();
         indexwarringTO = intent.getBooleanExtra("indexwarringTO", false);
 
+
+        /*final List<AppAbortDataSave> abortDataListFromSPCopy = new ArrayList<>();
         if (!indexwarringTO){
-            abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
+            abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
             Log.i(TAG,"abortDataListFromSP:"+ abortDataListFromSP.toString());
 
-            List<AppAbortDataSave> abortDataListFromSPCopy = new ArrayList<>();
+
             abortDataListFromSPCopy.addAll(abortDataListFromSP);
             int i=0;
             for (AppAbortDataSave abortData: abortDataListFromSPCopy){
@@ -107,11 +103,11 @@ public class HistoryRecordActivity extends BaseActivity {
                     }
                 }
                 i++;
-           /* String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm:ss", new Date(abortData.getStartTimeMillis()));
-            historyRecords.add(new HistoryRecord("",datatime,abortData.getState(),HistoryRecord.analysisState_abort));*/
+           *//* String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm:ss", new Date(abortData.getStartTimeMillis()));
+            historyRecords.add(new HistoryRecord("",datatime,abortData.getState(),HistoryRecord.analysisState_abort));*//*
             }
-            AppAbortDataSaveUtil.putAbortDataListToSP(abortDataListFromSP);
-        }
+            AppAbortDbAdapter.putAbortDataListToSP(abortDataListFromSP);
+        }*/
 
         lv_history_all.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -134,15 +130,19 @@ public class HistoryRecordActivity extends BaseActivity {
                                 intent.putExtra(Constant.accLocalFileName,abortData.getAccFileName());
                             }
                             if (abortData.getSpeedStringList()!=null && abortData.getSpeedStringList().size()>0){
-                                intent.putIntegerArrayListExtra(Constant.mSpeedStringListData,abortData.getSpeedStringList());
+                                ArrayList<Integer> tempList = new ArrayList<Integer>();
+                                tempList.addAll(abortData.getSpeedStringList());
+                                intent.putIntegerArrayListExtra(Constant.mSpeedStringListData,tempList);
                             }
                         }
 
-                        abortDataListFromSP.remove(abortDataListFromSP.size()-1);
-                        AppAbortDataSaveUtil.putAbortDataListToSP(abortDataListFromSP);
+                        //abortDataListFromSPCopy.remove(abortDataListFromSP.size()-1);
+                        //AppAbortDbAdapter.putAbortDataListToSP(abortDataListFromSPCopy);
                         //historyRecords.remove(position);
                         historyRecords.get(position).setAnalysisState(HistoryRecord.analysisState_haveAnalysised);
                         historyRecordAdapter.notifyDataSetChanged();
+
+                        startActivity(intent);
                     }
                 }
                 else {
@@ -150,8 +150,9 @@ public class HistoryRecordActivity extends BaseActivity {
                     Bundle bundle = new Bundle();
                     bundle.putParcelable("historyRecord",historyRecord);
                     intent.putExtra("bundle",bundle);
+                    startActivity(intent);
                 }
-                startActivity(intent);
+
             }
         });
 

@@ -7,6 +7,7 @@ import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -76,6 +77,7 @@ public class RateAnalysisActivity extends BaseActivity {
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                startActivity(new Intent(RateAnalysisActivity.this,MainActivity.class));
                 finish();
             }
         });
@@ -219,8 +221,8 @@ public class RateAnalysisActivity extends BaseActivity {
                                     OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(RateAnalysisActivity.this);
                                     offLineDbAdapter.open();
                                     mUploadRecord.datatime = mUploadRecord.datatime.replace("/", "-");  //将本地数据库时间改成和服务器一致，下次查看数据时，先从根据时间从本地查询
-                                    long orUpdateUploadReportObject = offLineDbAdapter.createOrUpdateUploadReportObject(mUploadRecord);
-                                    Log.i(TAG,"orUpdateUploadReportObject:"+orUpdateUploadReportObject);
+                                    long createOrUpdateUploadReportObject = offLineDbAdapter.createOrUpdateUploadReportObject(mUploadRecord);
+                                    Log.i(TAG,"createOrUpdateUploadReportObject:"+createOrUpdateUploadReportObject);
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -466,6 +468,14 @@ public class RateAnalysisActivity extends BaseActivity {
                     ", latitude_longitude='" + latitude_longitude + '\'' +
                     '}';
         }
+    }
+
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            startActivity(new Intent(RateAnalysisActivity.this,MainActivity.class));
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
 }

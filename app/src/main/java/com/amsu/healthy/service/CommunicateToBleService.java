@@ -19,10 +19,8 @@ import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.ConnectToWifiModuleGudieActivity1;
@@ -30,9 +28,12 @@ import com.amsu.healthy.activity.HealthyDataActivity;
 import com.amsu.healthy.activity.LockScreenActivity;
 import com.amsu.healthy.activity.MainActivity;
 import com.amsu.healthy.activity.MyDeviceActivity;
+import com.amsu.healthy.activity.SplashActivity;
 import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.utils.AppAbortDbAdapter;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
@@ -40,12 +41,13 @@ import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.WakeLockUtil;
 import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
 import com.ble.api.DataUtil;
-import com.ble.ble.BleCallBack;
 import com.ble.ble.BleService;
 
 import java.util.Date;
+import java.util.List;
 
 public class CommunicateToBleService extends Service {
     private static final String TAG = "CommunicateToBleService";
@@ -54,13 +56,14 @@ public class CommunicateToBleService extends Service {
     public static boolean isConnectted  =false;
     private boolean isConnectting  =false;
     private DeviceOffLineFileUtil deviceOffLineFileUtil;
-    private PowerManager.WakeLock wakeLock;
     private BluetoothAdapter mBluetoothAdapter;
     public static LeProxy mLeProxy;
     private Handler mHandler = new Handler();
     private static final long SCAN_PERIOD = 5000;
     private Intent calCuelectricVPercentIntent;
+    private static Service mContext;
 
+    public static boolean isNeedStartRunningActivity;
 
     public CommunicateToBleService() {
     }
@@ -72,6 +75,7 @@ public class CommunicateToBleService extends Service {
 
     @Override
     public void onCreate() {
+        Log.i(TAG,"onCreate");
         super.onCreate();
 
     }
@@ -79,9 +83,11 @@ public class CommunicateToBleService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG,"onStartCommand");
+        Log.i(TAG,"isThisServiceStarted:"+isThisServiceStarted);
         if (!isThisServiceStarted){
-            isThisServiceStarted = true;
-
+            isThisServiceStarted = false;
+            mContext = this;
+            WakeLockUtil.acquireWakeLock(this);
             if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
                 final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
                 mBluetoothAdapter = bluetoothManager.getAdapter();
@@ -91,13 +97,23 @@ public class CommunicateToBleService extends Service {
 
             stratListenScrrenBroadCast();
 
-            setServiceForegrounByNotify();
+            //setServiceForegrounByNotify();
             init();
+
+
+            List<AppAbortDataSave> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
+            if (abortDataListFromSP!=null && abortDataListFromSP.size()>0){
+                isNeedStartRunningActivity = true;
+                Log.i(TAG,"SplashActivity.isSplashActivityStarted:"+SplashActivity.isSplashActivityStarted);
+                if (!SplashActivity.isSplashActivityStarted){
+                    Intent intent1 = new Intent(this,StartRunActivity.class);
+                    intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent1.putExtra(Constant.isNeedRecoverAbortData,true);
+                    startActivity(intent1);
+                }
+                Log.i(TAG,"isNeedStartRunningActivity:"+isNeedStartRunningActivity);
+            }
         }
-
-
-
-
         return START_STICKY;
     }
 
@@ -132,7 +148,13 @@ public class CommunicateToBleService extends Service {
 
 
                 while (true){
-                    if (mBluetoothAdapter!=null && mBluetoothAdapter.isEnabled()) {
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (mBluetoothAdapter!=null && mBluetoothAdapter.getState()==BluetoothAdapter.STATE_ON) {
                         if (!isBluetoothEnable){
                             scanLeDevice(true);
                             isBluetoothEnable = true;
@@ -141,13 +163,6 @@ public class CommunicateToBleService extends Service {
                     else {
                         isBluetoothEnable = false;
                     }
-
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
                 }
 
             }
@@ -185,7 +200,8 @@ public class CommunicateToBleService extends Service {
         if (enable) {
             final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             mBluetoothAdapter = bluetoothManager.getAdapter();
-            if (mBluetoothAdapter.isEnabled()) {
+            //if (mBluetoothAdapter.isEnabled()) {
+            if (mBluetoothAdapter.getState()==BluetoothAdapter.STATE_ON) {
                 if (mScanning)
                     return;
                 mScanning = true;
@@ -368,8 +384,7 @@ public class CommunicateToBleService extends Service {
                         Thread.sleep(40);
                         Log.i(TAG, "查询SD卡是否有数据");
                         mLeProxy.send(connecMac, DataUtil.hexToByteArray(Constant.checkIsHaveDataOrder),true);
-
-                        Thread.sleep(40);
+                        Thread.sleep(2000);
                         Log.i(TAG,"写配置");
                         String writeConfigureOrder = "FF010A"+ HealthyDataActivity.getDataHexString()+"0016";
                         Log.i(TAG,"writeConfigureOrder:"+writeConfigureOrder);
@@ -378,9 +393,10 @@ public class CommunicateToBleService extends Service {
 
                         mLeProxy.send(connecMac, DataUtil.hexToByteArray(writeConfigureOrder),true);
 
-                        Thread.sleep(40);
+                        Thread.sleep(2000);
                         Log.i(TAG,"开启数据指令");
                         mLeProxy.send(connecMac, DataUtil.hexToByteArray(Constant.openDataTransmitOrder),true);
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -643,19 +659,20 @@ public class CommunicateToBleService extends Service {
 
 
 
-    private void setServiceForegrounByNotify() {
-        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+    public static void setServiceForegrounByNotify(String distance) {
+        NotificationManager nm = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Notification notification = new Notification.Builder(this)
-                .setContentTitle("倾听体语")
-                .setContentText("倾听体语正在运行")
+        Notification notification = new Notification.Builder(mContext)
+                .setContentTitle("正在跑步")
+                .setContentText("里程："+distance+" km")
                 .setSmallIcon(R.drawable.logo_icon)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.logo_icon))
+                .setOngoing(true)
+                .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(),R.drawable.logo_icon))
                 .build();
         notification.flags |= Notification.FLAG_NO_CLEAR;
 
         //新建Intent，用在Activity传递数据，点击时跳到ShowArticleDetailActivity页面
-        Intent intent1 = new Intent(this, MainActivity.class);
+        Intent intent1 = new Intent(mContext, StartRunActivity.class);
         /*if (MyApplication.runningActivity==MyApplication.MainActivity){
             intent1 = new Intent(this, MainActivity.class);
         }
@@ -674,16 +691,18 @@ public class CommunicateToBleService extends Service {
         //这里用4个参数需要注意下，130表示requestCode（请求马，自定义）
         //第三个参数书Intent对象，intent1是上面定义的 Intent对象
         //第四个对象是PendingIntent的标签属性，表叔显示方式，这里FLAG_UPDATE_CURRENT表示显示当前的通知，如果用新的通知时，更新当期的通知，这个属性注意下，如果不设置的话每次点击都是同一个通知
-        PendingIntent activity = PendingIntent.getActivity(this, 130, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent activity = PendingIntent.getActivity(mContext, 130, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        //notification.contentIntent = activity;
+        notification.contentIntent = activity;
         //nm.notify(0, notification);
-        startForeground(1, notification); //将Service设置为前台服务
+        mContext.startForeground(1, notification); //将Service设置为前台服务
     }
 
+    public static void  detoryServiceForegrounByNotify(){
+        mContext.stopForeground(true);
+    }
 
     boolean mIsDataStart = false;
-
 
     private KeyguardManager mKeyguardManager = null;
     private KeyguardManager.KeyguardLock mKeyguardLock = null;
@@ -705,21 +724,39 @@ public class CommunicateToBleService extends Service {
                 if (!StartRunActivity.mIsRunning){
                     return;
                 }
+
                 String action = intent.getAction();
-                if (Intent.ACTION_SCREEN_ON.equals(action)) {
-                    Log.i(TAG,"亮屏:");
+                if (Intent.ACTION_SCREEN_ON.equals(action) || Intent.ACTION_SCREEN_OFF.equals(action)){
+                    Log.i(TAG,"屏幕变化:");
+
+                    mKeyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+                    mKeyguardLock = mKeyguardManager.newKeyguardLock("");
+                    mKeyguardLock.disableKeyguard();
+
+                    Intent i = new Intent(context,LockScreenActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    context.startActivity(i);
+                }
+
+                /*if (Intent.ACTION_SCREEN_ON.equals(action)) {
+                    mKeyguardLock.disableKeyguard();
+
                     Intent i = new Intent(context,LockScreenActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
                     mKeyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
                     mKeyguardLock = mKeyguardManager.newKeyguardLock("");
-                    mKeyguardLock.disableKeyguard();
+
 
                     context.startActivity(i);
                 }
                 if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                     Log.i(TAG,"锁屏:");
+
+                    mKeyguardLock.disableKeyguard();
+
                     Intent i = new Intent(context,LockScreenActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -729,7 +766,7 @@ public class CommunicateToBleService extends Service {
                     mKeyguardLock.disableKeyguard();
 
                     context.startActivity(i);
-                }
+                }*/
             }
         };
         registerReceiver(mBatInfoReceiver, filter);
@@ -780,6 +817,7 @@ public class CommunicateToBleService extends Service {
 
                     calCuelectricVPercentIntent.putExtra("calCuelectricVPercent",-1);
                     sendBroadcast(calCuelectricVPercentIntent);
+                    MyApplication.calCuelectricVPercent = -1;
                     break;
                 case LeProxy.ACTION_CONNECT_ERROR:
                     Log.w(TAG,"连接异常 "+address);
@@ -799,6 +837,7 @@ public class CommunicateToBleService extends Service {
 
                     calCuelectricVPercentIntent.putExtra("calCuelectricVPercent",-1);
                     sendBroadcast(calCuelectricVPercentIntent);
+                    MyApplication.calCuelectricVPercent = -1;
                     break;
                 case LeProxy.ACTION_CONNECT_TIMEOUT:
                     if (mBluetoothAdapter!=null){
@@ -817,13 +856,41 @@ public class CommunicateToBleService extends Service {
 
                     calCuelectricVPercentIntent.putExtra("calCuelectricVPercent",-1);
                     sendBroadcast(calCuelectricVPercentIntent);
+                    MyApplication.calCuelectricVPercent = -1;
                     break;
                 case LeProxy.ACTION_GATT_SERVICES_DISCOVERED:
                     Log.i(TAG,"Services discovered: " + address);
 
                     //数据交互指令放在线程中
                     deviceOffLineFileUtil.startTime();
+
                     sendStartDataTransmitOrderToBlueTooth();
+
+                    /*new Thread(){
+                        @Override
+                        public void run() {
+                            super.run();
+
+                            try {
+                                Thread.sleep(2000);
+                                Log.i(TAG,"写配置");
+                                String writeConfigureOrder = "FF010A"+ HealthyDataActivity.getDataHexString()+"0016";
+                                Log.i(TAG,"writeConfigureOrder:"+writeConfigureOrder);
+                                //mLeService.send(connecMac, Constant.writeConfigureOrder,true);
+                                //mLeService.send(connecMac, writeConfigureOrder,true);
+
+                                mLeProxy.send(connecMac, DataUtil.hexToByteArray(writeConfigureOrder),true);
+
+                                Thread.sleep(3000);
+                                Log.i(TAG,"开启数据指令");
+                                mLeProxy.send(connecMac, DataUtil.hexToByteArray(Constant.openDataTransmitOrder),true);
+
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }.start();*/
                     break;
 
                 case LeProxy.ACTION_RSSI_AVAILABLE:{// 更新rssi
@@ -843,15 +910,15 @@ public class CommunicateToBleService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.i(TAG,"onDestroy");
+
+        isThisServiceStarted = false;
 
         stopForeground(true);
 
         Intent intent = new Intent("com.amsu.healthy.servicedestroy");
         sendBroadcast(intent);
 
-        if (wakeLock != null) {
-            wakeLock.release();
-            wakeLock = null;
-        }
+        WakeLockUtil.releaseWakeLock();
     }
 }

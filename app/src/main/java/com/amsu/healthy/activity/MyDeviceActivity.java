@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyDeviceActivity extends BaseActivity {
-    private static final String TAG = "MyDeviceActivity";
+    private static final String TAG = "MainActivity";
     List<Device>  deviceList;
     private DeviceAdapter deviceAdapter;
     private ListView lv_device_devicelist;
@@ -325,8 +325,27 @@ public class MyDeviceActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG,"MyDeviceActivity onResume");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG,"MyDeviceActivity onStop");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(TAG,"MyDeviceActivity onPause");
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.i(TAG,"MyDeviceActivity onDestroy");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
     }
 

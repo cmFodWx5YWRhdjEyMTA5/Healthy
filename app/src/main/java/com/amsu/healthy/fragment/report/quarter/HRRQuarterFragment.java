@@ -66,7 +66,6 @@ public class HRRQuarterFragment extends BaseFragment {
                 tv_mouth_datetime.setText(dateTime);
             }
         });
-
     }
 
     private void initData() {

@@ -122,6 +122,8 @@ public class BaseActivity extends FragmentActivity {
         super.onPause();
         //MobclickAgent.onPageEnd(this.getClass().getSimpleName());
         MobclickAgent.onPause(this);
+
+        MyApplication.mCurrApplicationActivity = null;
     }
 
     @Override
@@ -133,7 +135,7 @@ public class BaseActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        MyApplication.mCurrApplicationActivity = null;
+
     }
 
 

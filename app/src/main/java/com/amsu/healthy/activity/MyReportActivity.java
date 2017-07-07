@@ -213,7 +213,7 @@ public class MyReportActivity extends BaseActivity {
                 Log.i(TAG,"jsonBase:"+jsonBase);
                 if (jsonBase!=null&&jsonBase.getRet()==0){
                     mMouthFullReport = jsonBase.errDesc;
-                    Log.i(TAG,"mFullReport:"+mMouthFullReport.toString());
+                    Log.i(TAG,"mMouthFullReport:"+mMouthFullReport.toString());
                 }
             }
 

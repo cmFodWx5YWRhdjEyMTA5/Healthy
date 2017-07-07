@@ -66,7 +66,6 @@ public class RunTrailMapActivity extends BaseActivity implements LocationSource,
         // 设置定位的类型为定位模式 ，可以由定位、跟随或地图根据面向方向旋转几种
         mAMap.setMyLocationType(AMap.LOCATION_TYPE_LOCATE);
         mAMap.getUiSettings().setScaleControlsEnabled(true);
-
     }
 
     /**
@@ -138,7 +137,7 @@ public class RunTrailMapActivity extends BaseActivity implements LocationSource,
                     isFirtst = false;
                 }
                 else {
-                    mAMap.moveCamera(CameraUpdateFactory.changeLatLng(mylocation));
+                    //mAMap.moveCamera(CameraUpdateFactory.changeLatLng(mylocation));
                 }
 
 

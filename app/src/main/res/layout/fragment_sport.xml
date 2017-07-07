@@ -150,7 +150,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="卡路里"
+                        android:text="卡路里（Kcal）"
                         android:textColor="#999999"
                         android:textSize="@dimen/x36"
                         android:gravity="center"/>

@@ -5,19 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.support.annotation.IntDef;
-import android.util.Log;
 
-import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.WakeLockUtil;
 
-import java.util.Date;
+public class RemoteGuardService extends Service {
 
-public class MyTestService3 extends Service {
-
-    private PowerManager.WakeLock wakeLock;
-
-    public MyTestService3() {
+    public RemoteGuardService() {
     }
 
     @Override
@@ -26,23 +20,27 @@ public class MyTestService3 extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    boolean isStartCommand;
+
     @Override
     public void onCreate() {
         super.onCreate();
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, CommunicateToBleService.class.getName());
-        wakeLock.acquire();
-        //Log.i(TAG,"锁屏激活");
+
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        testNewThread();
+        if (!isStartCommand){
+            testNewThread();
+            WakeLockUtil.acquireWakeLock(this);
+            isStartCommand = true;
+        }
+
         return START_STICKY;
     }
 
     private void testNewThread() {
-        MyUtil.startAllService(MyTestService3.this);
+        MyUtil.startAllService(RemoteGuardService.this);
     }
 
     @Override
@@ -52,9 +50,6 @@ public class MyTestService3 extends Service {
         sendBroadcast(intent);
 
 
-        if (wakeLock != null) {
-            wakeLock.release();
-            wakeLock = null;
-        }
+        WakeLockUtil.releaseWakeLock();
     }
 }

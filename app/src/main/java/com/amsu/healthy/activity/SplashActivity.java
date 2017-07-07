@@ -4,13 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.utils.ApkUtil;
+import com.amsu.healthy.utils.AppAbortDbAdapter;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
@@ -27,19 +28,61 @@ import java.util.List;
 public class SplashActivity extends Activity {
 
     private static final String TAG = "SplashActivity";
+    public static boolean isSplashActivityStarted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        Log.i(TAG,"onCreate");
 
+        isSplashActivityStarted = true;
         initView();
 
         initData();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG,"onResume");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG,"onStop");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(TAG,"onPause");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG,"onDestroy");
+    }
 
     private void initView() {
+
+        //MyUtil.putStringValueFromSP("abortDatas","");
+        List<AppAbortDataSave> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
+        if (abortDataListFromSP!=null && abortDataListFromSP.size()>0){
+            Intent intent1 = new Intent(this,StartRunActivity.class);
+            intent1.putExtra(Constant.isNeedRecoverAbortData,true);
+            startActivity(intent1);
+            finish();
+            return;
+        }
+
+        Log.i(TAG,"开启线程");
+        TextView tv_splish_mark = (TextView) findViewById(R.id.tv_splish_mark);
+
+        tv_splish_mark.setText(getResources().getString(R.string.app_name)+" "+ApkUtil.getVersionName(this));
+
         new Thread() {
             @Override
             public void run() {
@@ -60,6 +103,8 @@ public class SplashActivity extends Activity {
                 finish();
             }
         }.start();
+
+
     }
 
     private void initData() {

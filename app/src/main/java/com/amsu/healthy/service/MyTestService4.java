@@ -47,8 +47,8 @@ public class MyTestService4 extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Intent intent = new Intent("com.amsu.healthy.servicedestroy");
-        sendBroadcast(intent);
+       /* Intent intent = new Intent("com.amsu.healthy.servicedestroy");
+        sendBroadcast(intent);*/
 
         if (wakeLock != null) {
             wakeLock.release();

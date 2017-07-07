@@ -6,19 +6,10 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.nfc.Tag;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import com.amsu.healthy.activity.BaseActivity;
-import com.amsu.healthy.activity.MainActivity;
-import com.amsu.healthy.activity.RateAnalysisActivity;
-import com.amsu.healthy.service.MyTestService;
-import com.amsu.healthy.service.MyTestService2;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.OffLineDbAdapter;
-import com.ble.ble.BleService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +53,7 @@ public class MyApplication extends Application{
 
         if (currentProcessName.equals("com.amsu.healthy")){
             /*Intent intent = new Intent();
-            intent.setClass(this, MyTestService.class);
+            intent.setClass(this, LocalGuardService.class);
             startService(intent);
 
             Intent intent2 = new Intent();
@@ -74,9 +65,11 @@ public class MyApplication extends Application{
             startService(intent3);*/
 
             MyUtil.startAllService(this);
+
+            Intent service = new Intent(this, com.amsu.healthy.service.CommunicateToBleService.class);
+            startService(service);
+            Log.i(TAG, "Start CommunicateToBleService");
         }
-
-
     }
 
     private String getCurrentProcessName() {

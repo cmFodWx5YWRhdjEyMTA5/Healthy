@@ -1,6 +1,12 @@
 package com.amsu.healthy.activity;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -8,6 +14,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.service.CommunicateToBleService;
+import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.GlideRelativeView;
 
@@ -15,6 +23,7 @@ import java.util.Date;
 
 public class LockScreenActivity extends BaseActivity {
 
+    private static final String TAG = "LockScreenActivity";
     private TextView tv_run_speed;
     private TextView tv_run_distance;
     private TextView tv_run_time;
@@ -27,13 +36,27 @@ public class LockScreenActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lock_screen);
 
+        Log.i(TAG,"onCreate");
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 
         initView();
     }
 
+    private boolean isNeedStartActivity = true;
+    private boolean isBind = false;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG,"onResume");
+    }
+
     private void initView() {
+
+        /*bindService(new Intent(this, CommunicateToBleService.class),mConnection,BIND_AUTO_CREATE);
+        isBind = true;*/
         initHeadView();
 
         tv_run_speed = (TextView) findViewById(R.id.tv_run_speed);
@@ -63,17 +86,19 @@ public class LockScreenActivity extends BaseActivity {
             tv_run_heartrate.setText(StartRunActivity.mCurrentHeartRate+"");
         }
 
+
+
         if (StartRunActivity.mCurrTimeDate!=null){
             String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", StartRunActivity.mCurrTimeDate);
             tv_run_time.setText(specialFormatTime);
 
             new Thread(){
                 long time = StartRunActivity.mCurrTimeDate.getTime();
-
+                int count = 0;
                 @Override
                 public void run() {
                     super.run();
-                    while (true){
+                    while (isNeedStartActivity){
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
@@ -86,6 +111,24 @@ public class LockScreenActivity extends BaseActivity {
                                 time += 1000;
                                 String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", new Date(time));
                                 tv_run_time.setText(specialFormatTime);
+
+                                if (count==10){
+                                    if (!MyUtil.isEmpty(StartRunActivity.mFinalFormatSpeed)){
+                                        tv_run_speed.setText(StartRunActivity.mFinalFormatSpeed);
+                                    }
+
+                                    if (StartRunActivity.mAllDistance>0){
+                                        tv_run_distance.setText(StartRunActivity.getFormatDistance(StartRunActivity.mAllDistance));
+                                    }
+                                    if (StartRunActivity.mCurrentHeartRate>0){
+                                        tv_run_heartrate.setText(StartRunActivity.mCurrentHeartRate+"");
+                                    }
+                                    count = 0;
+                                    startActivity(new Intent(LockScreenActivity.this,LockScreenActivity.class));
+                                    Log.i(TAG,"10s设置数据  重启LockScreenActivity");
+                                }
+
+                                count++;
                             }
                         });
                     }
@@ -94,9 +137,41 @@ public class LockScreenActivity extends BaseActivity {
         }
     }
 
+    private final ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i(TAG,"onServiceDisconnected");
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i(TAG,"onServiceConnected");
+
+        }
+    };
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG,"onDestroy");
+        isNeedStartActivity = false;
+
+    }
+
+    @Override
+    protected void onStop() {
+        Log.i(TAG,"onStop");
+        super.onStop();
+        /*if (isBind){
+            unbindService(mConnection);
+            isBind = false;
+        }*/
     }
 }
 

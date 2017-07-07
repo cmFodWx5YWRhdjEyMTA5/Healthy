@@ -2,8 +2,10 @@ package com.amsu.healthy.fragment.report.mouth;
 
 
 import android.graphics.Color;
+import android.nfc.Tag;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +29,7 @@ import java.util.List;
  */
 public class HeartRatemouthFragment extends BaseFragment {
 
+    private static final String TAG = "HeartRatemouthFragment";
     private FoldLineViewWithPoint mLineChart;
     private View inflate;
     private TextView tv_heartRatemouth_date;
@@ -62,8 +65,10 @@ public class HeartRatemouthFragment extends BaseFragment {
     }
 
     private void initData() {
+        Log.i(TAG,"mMouthFullReport:"+MyReportActivity.mMouthFullReport);
         if (MyReportActivity.mMouthFullReport!=null){
             List<FullReport.HRrepBean> hRrep = MyReportActivity.mMouthFullReport.HRrep;
+            Log.i(TAG,"hRrep:"+hRrep);
             if (hRrep!=null && hRrep.size()>0){
                 List<Integer> dataIntegerList = new ArrayList<>();
                 List<String> datetimesList = new ArrayList<>();
@@ -81,12 +86,17 @@ public class HeartRatemouthFragment extends BaseFragment {
                     datas[i] = dataIntegerList.get(i);
                 }
 
-                String[] datetimes = new String[datetimesList.size()];
-                datetimesList.toArray(datetimes);
+                Log.i(TAG,"dataIntegerList:"+dataIntegerList);
 
-                mLineChart.setData(datas,datetimes);
-                tv_mouth_value.setText(datas[datas.length-1]+"");
-                tv_mouth_datetime.setText(datetimes[datetimes.length-1]);
+                if (dataIntegerList.size()>0){
+                    String[] datetimes = new String[datetimesList.size()];
+                    datetimesList.toArray(datetimes);
+
+                    mLineChart.setData(datas,datetimes);
+                    tv_mouth_value.setText(datas[datas.length-1]+"");
+                    tv_mouth_datetime.setText(datetimes[datetimes.length-1]);
+                }
+
             }
         }
     }

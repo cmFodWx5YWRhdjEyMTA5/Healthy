@@ -10,6 +10,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Debug;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -31,9 +32,9 @@ import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.DeviceList;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.User;
+import com.amsu.healthy.service.LocalGuardService;
 import com.amsu.healthy.service.MyTestService2;
-import com.amsu.healthy.service.MyTestService3;
-import com.ble.ble.BleService;
+import com.amsu.healthy.service.RemoteGuardService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.http.RequestParams;
@@ -52,8 +53,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+
+import static android.content.Context.ACTIVITY_SERVICE;
 
 /**
  * Created by root on 10/25/16.
@@ -731,7 +736,7 @@ public class MyUtil {
 
 
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(4000);
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -773,7 +778,7 @@ public class MyUtil {
 
     //判断一个服务是否正在运行
     public static boolean isServiceWorked(Context context, String serviceName) {
-        ActivityManager myManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager myManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         ArrayList<ActivityManager.RunningServiceInfo> runningService = (ArrayList<ActivityManager.RunningServiceInfo>) myManager.getRunningServices(Integer.MAX_VALUE);
 
         if (runningService!=null){
@@ -784,6 +789,50 @@ public class MyUtil {
             }
         }
         return false;
+    }
+
+    public static Set<String> getRunningAppProcessInfoList(Context context){
+        Set<String> runningAppsInfo = new HashSet<>();
+
+        ActivityManager am = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> runningServices = am.getRunningServices(Integer.MAX_VALUE);
+
+        for (ActivityManager.RunningServiceInfo service : runningServices) {
+            Log.i(TAG,"service:"+service.process);
+
+            String pkgName = service.process.split(":")[0];
+            runningAppsInfo.add(service.process);
+            /*try {
+                ActivityManager.RunningAppProcessInfo item = new ActivityManager.RunningAppProcessInfo();
+                item.pkgList = new String[] { pkgName };
+                item.pid = service.pid;
+                item.processName = service.process;
+                item.uid = service.uid;
+
+                runningAppsInfo.add(service.process);
+
+            } catch (Exception e) {
+
+            }*/
+        }
+        return runningAppsInfo;
+    }
+
+    // 正在运行的
+    public static void KillRunningProcess(Context context) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+        // 获取正在运行的应用
+        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
+
+        for (ActivityManager.RunningAppProcessInfo ra : runningAppProcesses) {
+            Log.i(TAG,"ra.processName: "+ra.processName);
+            // 这里主要是过滤系统的应用和电话应用，当然你也可以把它注释掉。
+            if (ra.processName.equals("system") || ra.processName.equals("com.android.phone") || ra.processName.equals("com.amsu.healthy")
+                    || ra.processName.equals("com.remote1") || ra.processName.equals("com.amsu.healthy:MyTestService2")) {
+                continue;
+            }
+            activityManager.killBackgroundProcesses(ra.processName);
+        }
     }
 
     // 将Json数组解析成相应的映射对象列表
@@ -812,7 +861,7 @@ public class MyUtil {
             public void run() {
                 startServices(context);
                 //每隔1s判断其他2个服务是否运行，没有运行则开始运行
-                MyTimeTask.startTimeRiseTimerTask(3000, new MyTimeTask.OnTimeChangeAtScendListener() {
+                MyTimeTask.startTimeRiseTimerTask(50, new MyTimeTask.OnTimeChangeAtScendListener() {
                     @Override
                     public void onTimeChange(Date date) {
                         startServices(context);
@@ -823,28 +872,28 @@ public class MyUtil {
     }
 
     private static void startServices(Context context) {
-        if(!MyUtil.isServiceWorked(context, "com.ble.ble.BleService")) {
+        /*if(!MyUtil.isServiceWorked(context, "com.ble.ble.BleService")) {
             Intent service = new Intent(context, BleService.class);
             context.startService(service);
             Log.i(TAG, "Start BleService");
-        }
+        }*/
 
-        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService")) {
-            Intent service = new Intent(context, com.amsu.healthy.service.MyTestService.class);
+        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.LocalGuardService")) {
+            Intent service = new Intent(context, LocalGuardService.class);
             context.startService(service);
-            Log.i(TAG, "Start MyTestService");
+            Log.i(TAG, "Start LocalGuardService");
         }
 
-       /* if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService2")) {
+        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService2")) {
             Intent service = new Intent(context, MyTestService2.class);
             context.startService(service);
             Log.i(TAG, "Start MyTestService2");
-        }*/
+        }
 
-        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService3")) {
-            Intent service = new Intent(context, MyTestService3.class);
+        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.RemoteGuardService")) {
+            Intent service = new Intent(context, RemoteGuardService.class);
             context.startService(service);
-            Log.i(TAG, "Start MyTestService3");
+            Log.i(TAG, "Start RemoteGuardService");
         }
 
         /*if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService4")) {
@@ -858,6 +907,59 @@ public class MyUtil {
             context.startService(service);
             Log.i(TAG, "Start CommunicateToBleService");
         }
+    }
+
+    public static void stopServices(Context context) {
+        /*if(!MyUtil.isServiceWorked(context, "com.ble.ble.BleService")) {
+            Intent service = new Intent(context, BleService.class);
+            context.startService(service);
+            Log.i(TAG, "Start BleService");
+        }*/
+
+        if(MyUtil.isServiceWorked(context, "com.amsu.healthy.service.LocalGuardService")) {
+            Intent service = new Intent(context, LocalGuardService.class);
+            context.stopService(service);
+            Log.i(TAG, "stop LocalGuardService");
+        }
+
+       /* if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService2")) {
+            Intent service = new Intent(context, MyTestService2.class);
+            context.startService(service);
+            Log.i(TAG, "Start MyTestService2");
+        }*/
+
+        if(MyUtil.isServiceWorked(context, "com.amsu.healthy.service.RemoteGuardService")) {
+            Intent service = new Intent(context, RemoteGuardService.class);
+            context.stopService(service);
+            Log.i(TAG, "stop RemoteGuardService");
+        }
+
+        /*if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService4")) {
+            Intent service = new Intent(context, com.amsu.healthy.service.MyTestService4.class);
+            context.startService(service);
+            Log.i(TAG, "Start MyTestService4");
+        }*/
+
+        if(MyUtil.isServiceWorked(context, "com.amsu.healthy.service.CommunicateToBleService")) {
+            Intent service = new Intent(context, com.amsu.healthy.service.CommunicateToBleService.class);
+            context.stopService(service);
+            Log.i(TAG, "stop CommunicateToBleService");
+        }
+    }
+
+    public static void stopAllServices(Context context) {
+        Intent service = new Intent(context, LocalGuardService.class);
+        boolean b = context.stopService(service);
+        Log.i(TAG, "stop LocalGuardService:"+b);
+
+
+        Intent service1 = new Intent(context, RemoteGuardService.class);
+        boolean b1 = context.stopService(service1);
+        Log.i(TAG, "stop RemoteGuardService："+b1);
+
+        Intent service2 = new Intent(context, com.amsu.healthy.service.CommunicateToBleService.class);
+        boolean b2 = context.stopService(service2);
+        Log.i(TAG, "stop CommunicateToBleService："+b2);
     }
 
 

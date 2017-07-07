@@ -1,6 +1,7 @@
 package com.amsu.healthy.bean;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @anthor haijun
@@ -10,12 +11,17 @@ import java.util.ArrayList;
  * @describe
  */
 public class AppAbortDataSave implements Cloneable {
-    private long startTimeMillis;
-    private String ecgFileName;
-    private String accFileName;
-    private long mapTrackID;
-    private int state;
-    private ArrayList<Integer> speedStringList;
+    public String id;
+    public long startTimeMillis;
+    public String ecgFileName;
+    public String accFileName;
+    public long mapTrackID;
+    public int state;
+    public List<Integer> speedStringList;
+    public ArrayList<String> kcalStringList;
+
+    public AppAbortDataSave() {
+    }
 
     public AppAbortDataSave(long startTimeMillis, String ecgFileName, int state) {
         this.startTimeMillis = startTimeMillis;
@@ -23,13 +29,24 @@ public class AppAbortDataSave implements Cloneable {
         this.state = state;
     }
 
-    public AppAbortDataSave(long startTimeMillis, String ecgFileName, String accFileName, long mapTrackID, int state, ArrayList<Integer> speedStringList) {
+    public AppAbortDataSave(long startTimeMillis, String ecgFileName, String accFileName, long mapTrackID, int state, List<Integer> speedStringList) {
         this.startTimeMillis = startTimeMillis;
         this.ecgFileName = ecgFileName;
         this.accFileName = accFileName;
         this.mapTrackID = mapTrackID;
         this.state = state;
         this.speedStringList = speedStringList;
+    }
+
+
+    public AppAbortDataSave( long startTimeMillis, String ecgFileName, String accFileName, long mapTrackID, int state, List<Integer> speedStringList, ArrayList<String> kcalStringList) {
+        this.startTimeMillis = startTimeMillis;
+        this.ecgFileName = ecgFileName;
+        this.accFileName = accFileName;
+        this.mapTrackID = mapTrackID;
+        this.state = state;
+        this.speedStringList = speedStringList;
+        this.kcalStringList = kcalStringList;
     }
 
     @Override
@@ -83,23 +100,42 @@ public class AppAbortDataSave implements Cloneable {
         this.mapTrackID = mapTrackID;
     }
 
-    public ArrayList<Integer> getSpeedStringList() {
+    public List<Integer> getSpeedStringList() {
         return speedStringList;
     }
 
-    public void setSpeedStringList(ArrayList<Integer> speedStringList) {
+    public void setSpeedStringList(List<Integer> speedStringList) {
         this.speedStringList = speedStringList;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public ArrayList<String> getKcalStringList() {
+        return kcalStringList;
+    }
+
+    public void setKcalStringList(ArrayList<String> kcalStringList) {
+        this.kcalStringList = kcalStringList;
+    }
+
+
     @Override
     public String toString() {
-        return "AbortData{" +
-                "startTimeMillis=" + startTimeMillis +
+        return "AppAbortDataSave{" +
+                "id='" + id + '\'' +
+                ", startTimeMillis=" + startTimeMillis +
                 ", ecgFileName='" + ecgFileName + '\'' +
                 ", accFileName='" + accFileName + '\'' +
                 ", mapTrackID=" + mapTrackID +
                 ", state=" + state +
                 ", speedStringList=" + speedStringList +
+                ", kcalStringList=" + kcalStringList +
                 '}';
     }
 }

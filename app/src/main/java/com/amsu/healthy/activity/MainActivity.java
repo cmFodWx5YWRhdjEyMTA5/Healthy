@@ -2,6 +2,7 @@ package com.amsu.healthy.activity;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -11,34 +12,49 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amap.api.maps.model.LatLng;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Apk;
+import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.service.CommunicateToBleService;
+import com.amsu.healthy.service.MyTestService2;
 import com.amsu.healthy.utils.ApkUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.LeProxy;
+import com.amsu.healthy.utils.LightUtil;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.map.DbAdapter;
+import com.amsu.healthy.utils.map.PathRecord;
+import com.amsu.healthy.utils.map.Util;
 import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
 import com.amsu.healthy.view.CircleRingView;
 import com.amsu.healthy.view.DashboardView;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleService;
+import com.google.gson.Gson;
+import com.test.objects.HeartRateResult;
+import com.test.utils.DiagnosisNDK;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends BaseActivity {
 
@@ -71,6 +87,9 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         setContentView(R.layout.activity_main);
 
         Log.i(TAG,"onCreate");
@@ -151,10 +170,10 @@ public class MainActivity extends BaseActivity {
 
         Log.i(TAG,"currentHeartRate:"+currentHeartRate);*/
 
-        //List<AppAbortDataSaveUtil.AbortData> abortDataListFromSP = AppAbortDataSaveUtil.getAbortDataListFromSP();
+        //List<AppAbortDbAdapter.AbortData> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
         //Log.i(TAG,"abortDataListFromSP:"+abortDataListFromSP.toString());
 
-        //AppAbortDataSaveUtil.putAbortDataListToSP(new ArrayList<AppAbortDataSaveUtil.AbortData>());
+        //AppAbortDbAdapter.putAbortDataListToSP(new ArrayList<AppAbortDbAdapter.AbortData>());
 
 
         /*ActivityManager myManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -173,7 +192,133 @@ public class MainActivity extends BaseActivity {
         Log.i(TAG,"width : " + dm.widthPixels);*/
 
 
+        /*List<Integer> ecgDataList =  new ArrayList<Integer>();
+        for (int i = 0; i < 15507937; i++) {
+            ecgDataList.add(i);
+        }
+        System.out.println(ecgDataList.size());
 
+        int[] calcuEcgRate = new int[1000];
+        System.out.println(calcuEcgRate.length);
+        int heartCount = ecgDataList.size() / calcuEcgRate.length;
+        System.out.println(heartCount);
+
+        for (int j=0;j<heartCount;j++){
+            for (int i=0;i<calcuEcgRate.length;i++){
+                calcuEcgRate[i] = ecgDataList.get(j*calcuEcgRate.length+i);
+            }
+        }*/
+
+
+        /*List<AppAbortDataSave> abortDatasCopy = new ArrayList<>();
+        AppAbortDataSave  appAbortDataSave = new AppAbortDataSave(System.currentTimeMillis(),"aa",1);
+
+        ArrayList<Integer> integerList = new ArrayList<>();
+
+        for (int i = 0; i < 8*60*30; i++) {
+            integerList.add(i);
+        }
+        appAbortDataSave.setSpeedStringList(integerList);
+
+        abortDatasCopy.add(appAbortDataSave);
+        abortDatasCopy.add(appAbortDataSave);
+
+        List<AppAbortDataSave> abortDatasCopy1 = new ArrayList<>();
+        abortDatasCopy1.addAll(abortDatasCopy);
+
+        *//*Gson gson = new Gson();
+        String  listString = gson.toJson(abortDatasCopy);
+        Log.i(TAG,"listString:"+listString);
+        MyUtil.putStringValueFromSP("ttt",listString);*//*
+
+        putAbortDataListToSP(abortDatasCopy);
+        putAbortDataListToSP(abortDatasCopy);*/
+
+
+        /*new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                try {
+                    Thread.sleep(7000);
+                    mWakelock.acquire(); // Wake up Screen and keep screen lighting
+                    Log.i(TAG,"liangping");
+
+                    Thread.sleep(5000);
+                    mWakelock.release(); // release control.stop to keep screen lighting
+                    Log.i(TAG,"heiping");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();*/
+
+
+           /* final int[] calcuData = new int[262655*20];  //10小时
+
+            Log.i(TAG,"DiagnosisNDK.AnalysisEcg: =====================");
+            HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, Constant.oneSecondFrame);
+
+            Log.i(TAG,"heartRateResult:"+heartRateResult.toString());*/
+
+        /*final Camera camera = Camera.open();
+        LightUtil.turnLightOff(camera);
+
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                try {
+                    Thread.sleep(5000);
+                    LightUtil.turnLightOn(camera);
+                    Log.i(TAG,"开灯");
+
+                    Thread.sleep(5000);
+                    LightUtil.turnLightOff(camera);
+                    Log.i(TAG,"关灯");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();*/
+
+        /*  此方法杀死应用后会马上重启，做不到杀死应用的效果
+        Set<String> runningAppProcessInfoList = MyUtil.getRunningAppProcessInfoList(this);
+        int i=0;
+
+        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        for (String s:runningAppProcessInfoList){
+            Log.i(TAG,"runningAppProcessInfo: "+i+"  " +s);
+            activityManager.killBackgroundProcesses(s);
+            i++;
+        }*/
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private PowerManager.WakeLock mWakelock;
+
+    public static synchronized void putAbortDataListToSP(List<AppAbortDataSave> abortDatas){
+
+        List<AppAbortDataSave> abortDatasCopy = new ArrayList<>();
+        abortDatasCopy.addAll(abortDatas);
+
+        Gson gson = new Gson();
+        String  listString = gson.toJson(abortDatasCopy);
+        Log.i(TAG,"listString:"+listString);
+        MyUtil.putStringValueFromSP("ttt",listString);
 
     }
 
@@ -261,7 +406,7 @@ public class MainActivity extends BaseActivity {
             }
         },5);*/
 
-        /*OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(this);
+        /*AppAbortDbAdapter offLineDbAdapter = new AppAbortDbAdapter(this);
         offLineDbAdapter.open();
 
         UploadRecord uploadRecord = new UploadRecord();
@@ -275,7 +420,7 @@ public class MainActivity extends BaseActivity {
         Log.i(TAG,"uploadRecordsState:"+uploadRecordsState);*/
 
 
-        /*OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(this);
+        /*AppAbortDbAdapter offLineDbAdapter = new AppAbortDbAdapter(this);
         offLineDbAdapter.open();
         offLineDbAdapter.addColumnToTable("serveId","STRING");
 
@@ -392,7 +537,6 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         Log.i(TAG,"onResume");
-        MyApplication.mCurrApplicationActivity = this;
 
         if (!isonResumeEd){
             if (mBluetoothAdapter!=null && !mBluetoothAdapter.isEnabled()) {
@@ -487,6 +631,7 @@ public class MainActivity extends BaseActivity {
                     break;
                 case R.id.rl_mian_start:
                     startActivity(new Intent(MainActivity.this,StartRunActivity.class));
+                    finish();
                     break;
                 case R.id.rl_main_age:
                     Intent intent = new Intent(MainActivity.this, PhysicalAgeActivity.class);
@@ -575,13 +720,21 @@ public class MainActivity extends BaseActivity {
             } else {
                /* NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 notificationManager.cancel(1);*/
-                finish();
+                //finish();
 
+                /*ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE); //获取应用程序管理器
+                manager.killBackgroundProcesses("com.remote1"); //强制结束当前应用程序
+                manager.killBackgroundProcesses("com.amsu.healthy:LocalGuardService"); //强制结束当前应用程序
+                manager.killBackgroundProcesses(getPackageName()); //强制结束当前应用程序
+
+              *//*  MyUtil.stopAllServices(this);
+                android.os.Process.killProcess(android.os.Process.myPid());*//*
+                android.os.Process.killProcess(android.os.Process.myPid());*/
+                finish();
+                android.os.Process.killProcess(android.os.Process.myPid());
             }
             return true;
         }
         return super.onKeyDown(keyCode, event);
     }
-
-
 }

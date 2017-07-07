@@ -216,7 +216,7 @@ public class HeightCurveView extends View {
             }
             double ceil = Math.ceil(mYTextsMaxValue / 4f);
             for (int i=0;i<4;i++){
-                yTexts[3-i] = (int)(ceil*(i))/60+"’"+(int)(ceil*(i))%60+"’’";
+                yTexts[3-i] = (int)(ceil*(i))/60+"'"+(int)(ceil*(i))%60+"''";
             }
             //yTexts = new String[]{"2’28’’", "4’57’’", "7’26’’", "9’56’’"};  //y轴lable
         }

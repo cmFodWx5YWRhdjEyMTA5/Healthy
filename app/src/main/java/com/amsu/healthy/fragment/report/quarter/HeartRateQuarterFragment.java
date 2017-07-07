@@ -63,8 +63,6 @@ public class HeartRateQuarterFragment extends BaseFragment {
         });
     }
 
-
-
     private void initData() {
         if (MyReportActivity.mQuarterFullReport!=null){
             List<FullReport.HRrepBean> hRrep = MyReportActivity.mQuarterFullReport.HRrep;
@@ -85,12 +83,14 @@ public class HeartRateQuarterFragment extends BaseFragment {
                     datas[i] = dataIntegerList.get(i);
                 }
 
-                String[] datetimes = new String[datetimesList.size()];
-                datetimesList.toArray(datetimes);
+                if (datetimesList.size()>0){
+                    String[] datetimes = new String[datetimesList.size()];
+                    datetimesList.toArray(datetimes);
 
-                mLineChart.setData(datas,datetimes);
-                tv_mouth_value.setText(datas[datas.length-1]+"");
-                tv_mouth_datetime.setText(datetimes[datetimes.length-1]);
+                    mLineChart.setData(datas,datetimes);
+                    tv_mouth_value.setText(datas[datas.length-1]+"");
+                    tv_mouth_datetime.setText(datetimes[datetimes.length-1]);
+                }
             }
         }
     }

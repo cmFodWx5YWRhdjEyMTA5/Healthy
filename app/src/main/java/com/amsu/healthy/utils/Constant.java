@@ -76,6 +76,7 @@ public class Constant {
     public static String hardWareVersion = "hardWareVersion";
     public static String softWareVersion = "softWareVersion";
     public static String myDeceiveName = "myDeceiveName";
+    public static String isNeedRecoverAbortData = "isNeedRecoverAbortData";
 
     public static String uploadRecordDefaultString = "0";
 

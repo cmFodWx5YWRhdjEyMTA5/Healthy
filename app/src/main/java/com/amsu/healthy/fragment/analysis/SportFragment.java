@@ -359,7 +359,7 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
                 }
             }
 
-            if (!MyUtil.isEmpty(mUploadRecord.AE) && !mUploadRecord.AE.equals(Constant.uploadRecordDefaultString) && !mUploadRecord.AE.equals("-1")){ //卡路里
+            if (!MyUtil.isEmpty(mUploadRecord.AE) && !mUploadRecord.AE.equals(Constant.uploadRecordDefaultString)){ //卡路里
                 List<Integer> fromJson = gson.fromJson(mUploadRecord.AE,new TypeToken<List<Integer>>() {
                 }.getType());
                 speedData = MyUtil.listToIntArray(fromJson);

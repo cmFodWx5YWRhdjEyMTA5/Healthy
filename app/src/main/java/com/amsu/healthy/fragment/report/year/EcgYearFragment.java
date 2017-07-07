@@ -49,10 +49,10 @@ public class EcgYearFragment extends BaseFragment {
     }
 
     private void initData() {
-        if (MyReportActivity.mQuarterFullReport!=null){
-            Log.i(TAG,"MyReportActivity.mQuarterFullReport:"+MyReportActivity.mQuarterFullReport.toString());
-            if (MyReportActivity.mQuarterFullReport!=null){
-                float[] eCrep = MyReportActivity.mQuarterFullReport.ECrep;
+        if (MyReportActivity.mYearFullReport!=null){
+            Log.i(TAG,"MyReportActivity.mQuarterFullReport:"+MyReportActivity.mYearFullReport.toString());
+            if (MyReportActivity.mYearFullReport!=null){
+                float[] eCrep = MyReportActivity.mYearFullReport.ECrep;
                 if (eCrep!=null && eCrep.length>0){
                     pc_ecg_chart.setDatas(eCrep);
                 }
