@@ -8,8 +8,8 @@ android {
         applicationId "com.amsu.healthy"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 121
-        versionName "v1.2.1"
+        versionCode 122
+        versionName "1.2.2"
     }
     buildTypes {
         release {
@@ -85,4 +85,5 @@ dependencies {
     compile 'com.umeng.analytics:analytics:latest.integration'
     testCompile 'junit:junit:4.12'
     compile files('libs/AndroidBleApi_V1.1.1.jar')
+    compile project(':PushSDK')
 }

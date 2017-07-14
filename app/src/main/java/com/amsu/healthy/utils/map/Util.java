@@ -1,6 +1,7 @@
 package com.amsu.healthy.utils.map;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.maps.AMapUtils;
@@ -13,6 +14,8 @@ import java.util.List;
 
 
 public class Util {
+	private static final String TAG = "Util";
+
 	/**
 	 * 将AMapLocation List 转为TraceLocation list
 	 * 
@@ -118,7 +121,7 @@ public class Util {
 	}
 
     //保存数据到数据库
-    public static long saveRecord(List<AMapLocation> list, String time, Context context, long startTime,double allDistance) {
+   /* public static long saveRecord(List<AMapLocation> list, String time, Context context, long startTime,double allDistance) {
         if (list != null ) {
             long mEndTime = System.currentTimeMillis();
             DbAdapter dbAdapter = new DbAdapter(context);
@@ -143,22 +146,26 @@ public class Util {
             dbAdapter.close();
             return createrecord;
         } else {
-            /*Toast.makeText(RunTrailMapActivity.this, "没有记录到路径", Toast.LENGTH_SHORT)
-                    .show();*/
+            *//*Toast.makeText(RunTrailMapActivity.this, "没有记录到路径", Toast.LENGTH_SHORT)
+                    .show();*//*
             return -1;
         }
-    }
+    }*/
 
 	//保存数据到数据库
-	public static long saveOrUdateRecord(List<AMapLocation> list, String time, Context context, long startTime,double allDistance,long id) {
+	public static long saveOrUdateRecord(List<AMapLocation> list, long addDuration, String time, Context context, long startTime,double allDistance,long id) {
 		if (list != null ) {
 			long mEndTime = System.currentTimeMillis();
 			DbAdapter dbAdapter = new DbAdapter(context);
 			dbAdapter.open();
-			String duration = getDuration(startTime,mEndTime);
+			String duration = getDuration(startTime,mEndTime,addDuration);
+
+			Log.i(TAG,"startTime:"+startTime);
+			Log.i(TAG,"mEndTime:"+mEndTime);
+			Log.i(TAG,"duration:"+duration);
 			float distance = getDistance(list);  //室外运动总距离
 			//String average = getAverage(distance,startTime,mEndTime);  //室外运动平均速度
-			String average = getAverage((float) allDistance,startTime,mEndTime);
+			String average = getAverage((float) allDistance,startTime,mEndTime,addDuration);
 			String pathlineSring = getPathLineString(list);
 			long createrecord;
 			if (list.size()>0){
@@ -181,21 +188,25 @@ public class Util {
 		}
 	}
 
-    public static String getDuration(long mStartTime,long mEndTime) {
-        return String.valueOf((mEndTime - mStartTime) / 1000f);
+    public static String getDuration(long mStartTime,long mEndTime,long addDuration) {
+        return String.valueOf((addDuration+mEndTime - mStartTime) );
     }
 
     public static float getDistance(List<AMapLocation> list) {
-        float distance = 0;
+		LatLng firstLatLng;
+		LatLng secondLatLng;
+		double betweenDis;
+
+		float distance = 0;
         if (list == null || list.size() == 0) {
             return distance;
         }
         for (int i = 0; i < list.size() - 1; i++) {
             AMapLocation firstpoint = list.get(i);
             AMapLocation secondpoint = list.get(i + 1);
-            LatLng firstLatLng = new LatLng(firstpoint.getLatitude(), firstpoint.getLongitude());
-            LatLng secondLatLng = new LatLng(secondpoint.getLatitude(), secondpoint.getLongitude());
-            double betweenDis = AMapUtils.calculateLineDistance(firstLatLng, secondLatLng);
+            firstLatLng = new LatLng(firstpoint.getLatitude(), firstpoint.getLongitude());
+            secondLatLng = new LatLng(secondpoint.getLatitude(), secondpoint.getLongitude());
+            betweenDis = AMapUtils.calculateLineDistance(firstLatLng, secondLatLng);
             distance = (float) (distance + betweenDis);
         }
         return distance;
@@ -215,11 +226,11 @@ public class Util {
 		return distance;
 	}
 
-    public static String getAverage(float distance,long mStartTime,long mEndTime) {
+    public static String getAverage(float distance,long mStartTime,long mEndTime,long addDuration) {
 		// pathRecord:recordSize:103, distance:4.15064m, duration:206.922s
 		//需要速度格式：km/h
 		float km = distance / 1000f;
-		float time = (mEndTime - mStartTime) / (1000*60 * 60f);
+		float time = (addDuration+mEndTime - mStartTime) / (1000*60 * 60f);
 		float speed = km / time;
 		DecimalFormat decimalFormat=new DecimalFormat("0.00");//构造方法的字符格式这里如果小数不足2位,会以0补足.
 		String formatSpeed=decimalFormat.format(speed);//format 返回的是字符串

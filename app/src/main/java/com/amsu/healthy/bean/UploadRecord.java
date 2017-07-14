@@ -40,7 +40,7 @@ public class UploadRecord implements Parcelable,Cloneable {
     public String uploadState;
 
     public String id;
-    public String serveId;
+    public String localEcgFileName;
 
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -460,7 +460,7 @@ public class UploadRecord implements Parcelable,Cloneable {
                 ", latitude_longitude='" + latitude_longitude + '\'' +
                 ", uploadState='" + uploadState + '\'' +
                 ", id=" + id +
-                ", serveId=" + serveId +
+                ", localEcgFileName=" + localEcgFileName +
                 '}';
     }
 
@@ -480,11 +480,11 @@ public class UploadRecord implements Parcelable,Cloneable {
         this.uploadState = uploadState;
     }
 
-    public String getServeId() {
-        return serveId;
+    public String getLocalEcgFileName() {
+        return localEcgFileName;
     }
 
-    public void setServeId(String serveId) {
-        this.serveId = serveId;
+    public void setLocalEcgFileName(String localEcgFileName) {
+        this.localEcgFileName = localEcgFileName;
     }
 }

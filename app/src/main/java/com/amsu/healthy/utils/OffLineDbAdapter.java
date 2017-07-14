@@ -79,10 +79,10 @@ public class OffLineDbAdapter {
 	//数据库存入一条记录
 	public long createUploadReport(String FI, String ES, String PI, String CC, String HRVr, String HRVs, String AHR, String maxHR, String minHR, String HRr, String HRs,
 								   String EC, String ECr, String ECs, String RA, String timestamp, String datatime, String HR, String AE, String distance, String time,
-								   String cadence, String calorie, String state, String zaobo, String loubo, String latitude_longitude, String uploadState,String serveId) {
+								   String cadence, String calorie, String state, String zaobo, String loubo, String latitude_longitude, String uploadState,String localEcgFileName) {
 		ContentValues args = new ContentValues();
         args.put("id", System.currentTimeMillis()+"");
-		args.put("serveId", serveId);
+		args.put("localEcgFileName", localEcgFileName);
 		args.put("FI", FI);
 		args.put("ES", ES);
 		args.put("PI", PI);
@@ -115,45 +115,52 @@ public class OffLineDbAdapter {
 	}
 
 	//数据库存入一条记录
-	public long createOrUpdateUploadReportObject(UploadRecord uploadRecord) {
-		ContentValues args = new ContentValues();
-        if (!MyUtil.isEmpty(uploadRecord.id)){
-            args.put("id", uploadRecord.id);
-        }else {
-            args.put("id", System.currentTimeMillis()+"");
-        }
-		args.put("serveId", uploadRecord.serveId);
-		args.put("FI", uploadRecord.FI);
-		args.put("ES", uploadRecord.ES);
-		args.put("PI", uploadRecord.PI);
-		args.put("CC", uploadRecord.CC);
-		args.put("HRVr", uploadRecord.HRVr);
-		args.put("HRVs", uploadRecord.HRVs);
-		args.put("AHR", uploadRecord.AHR);
-		args.put("MaxHR", uploadRecord.MaxHR);
-		args.put("MinHR", uploadRecord.MinHR);
-		args.put("HRr", uploadRecord.HRr);
-		args.put("HRs", uploadRecord.HRs);
-		args.put("EC", uploadRecord.EC);
-		args.put("ECr", uploadRecord.ECr);
-		args.put("ECs", uploadRecord.ECs);
-		args.put("RA", uploadRecord.RA);
-		args.put("HR", uploadRecord.HR);
-		args.put("AE", uploadRecord.AE);
-		args.put("distance", uploadRecord.distance);
-		args.put("time", uploadRecord.time);
-		args.put("cadence", uploadRecord.cadence);
-		args.put("calorie", uploadRecord.calorie);
-		args.put("state", uploadRecord.state);
-		args.put("zaobo", uploadRecord.zaobo);
-		args.put("loubo", uploadRecord.loubo);
-		args.put("latitude_longitude", uploadRecord.latitude_longitude);
-		args.put("timestamp", uploadRecord.timestamp);
-		args.put("datatime", uploadRecord.datatime);
-		args.put("uploadState", uploadRecord.uploadState);
+	public long createOrUpdateUploadReportObject(UploadRecord uploadRecordCopy) {
+        try {
+            UploadRecord uploadRecord = (UploadRecord) uploadRecordCopy.clone();
+            uploadRecord.EC="";
+            ContentValues args = new ContentValues();
+            if (!MyUtil.isEmpty(uploadRecord.id)){
+                args.put("id", uploadRecord.id);
+            }else {
+                args.put("id", System.currentTimeMillis()+"");
+            }
+            args.put("localEcgFileName", uploadRecord.localEcgFileName);
+            args.put("FI", uploadRecord.FI);
+            args.put("ES", uploadRecord.ES);
+            args.put("PI", uploadRecord.PI);
+            args.put("CC", uploadRecord.CC);
+            args.put("HRVr", uploadRecord.HRVr);
+            args.put("HRVs", uploadRecord.HRVs);
+            args.put("AHR", uploadRecord.AHR);
+            args.put("MaxHR", uploadRecord.MaxHR);
+            args.put("MinHR", uploadRecord.MinHR);
+            args.put("HRr", uploadRecord.HRr);
+            args.put("HRs", uploadRecord.HRs);
+            args.put("EC", uploadRecord.EC);
+            args.put("ECr", uploadRecord.ECr);
+            args.put("ECs", uploadRecord.ECs);
+            args.put("RA", uploadRecord.RA);
+            args.put("HR", uploadRecord.HR);
+            args.put("AE", uploadRecord.AE);
+            args.put("distance", uploadRecord.distance);
+            args.put("time", uploadRecord.time);
+            args.put("cadence", uploadRecord.cadence);
+            args.put("calorie", uploadRecord.calorie);
+            args.put("state", uploadRecord.state);
+            args.put("zaobo", uploadRecord.zaobo);
+            args.put("loubo", uploadRecord.loubo);
+            args.put("latitude_longitude", uploadRecord.latitude_longitude);
+            args.put("timestamp", uploadRecord.timestamp);
+            args.put("datatime", uploadRecord.datatime);
+            args.put("uploadState", uploadRecord.uploadState);
 
-		//return db.insert(RECORD_TABLE, null, args);
-		return db.replace(RECORD_TABLE, null, args);
+            //return db.insert(RECORD_TABLE, null, args);
+            return db.replace(RECORD_TABLE, null, args);
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return -1;
 	}
 
 	public boolean updateLocalRecordUploadState(String serveId,String localId){
@@ -227,38 +234,53 @@ public class OffLineDbAdapter {
     }
 
 	public UploadRecord getUploadRecordByCursor(Cursor cursor){
-		UploadRecord uploadRecord = new UploadRecord();
+		Log.i(TAG,"cursor: "+cursor.getCount());
+		Log.i(TAG,"cursor: "+cursor.getColumnNames().length);
+		for (String s:cursor.getColumnNames()){
+			Log.i(TAG,"s: "+s);
+		}
 
-		uploadRecord.setId(cursor.getString(cursor.getColumnIndex("id")));
-		uploadRecord.setServeId(cursor.getString(cursor.getColumnIndex("serveId")));
-		uploadRecord.setFI(cursor.getString(cursor.getColumnIndex("FI")));
-		uploadRecord.setES(cursor.getString(cursor.getColumnIndex("ES")));
-		uploadRecord.setPI(cursor.getString(cursor.getColumnIndex("PI")));
-		uploadRecord.setCC(cursor.getString(cursor.getColumnIndex("CC")));
-		uploadRecord.setHRVr(cursor.getString(cursor.getColumnIndex("HRVr")));
-		uploadRecord.setHRVs(cursor.getString(cursor.getColumnIndex("HRVs")));
-		uploadRecord.setAHR(cursor.getString(cursor.getColumnIndex("AHR")));
-		uploadRecord.setMaxHR(cursor.getString(cursor.getColumnIndex("MaxHR")));
-		uploadRecord.setMinHR(cursor.getString(cursor.getColumnIndex("MinHR")));
-		uploadRecord.setHRr(cursor.getString(cursor.getColumnIndex("HRr")));
-		uploadRecord.setHRs(cursor.getString(cursor.getColumnIndex("HRs")));
-		uploadRecord.setEC(cursor.getString(cursor.getColumnIndex("EC")));
-		uploadRecord.setECr(cursor.getString(cursor.getColumnIndex("ECr")));
-		uploadRecord.setECs(cursor.getString(cursor.getColumnIndex("ECs")));
-		uploadRecord.setRA(cursor.getString(cursor.getColumnIndex("RA")));
-		uploadRecord.setHR(cursor.getString(cursor.getColumnIndex("HR")));
-		uploadRecord.setAE(cursor.getString(cursor.getColumnIndex("AE")));
-		uploadRecord.setDistance(cursor.getString(cursor.getColumnIndex("distance")));
-		uploadRecord.setTime(cursor.getString(cursor.getColumnIndex("time")));
-		uploadRecord.setCadence(cursor.getString(cursor.getColumnIndex("cadence")));
-		uploadRecord.setCalorie(cursor.getString(cursor.getColumnIndex("calorie")));
-		uploadRecord.setState(cursor.getString(cursor.getColumnIndex("state")));
-		uploadRecord.setZaobo(cursor.getString(cursor.getColumnIndex("zaobo")));
-		uploadRecord.setLoubo(cursor.getString(cursor.getColumnIndex("loubo")));
-		uploadRecord.setLatitude_longitude(cursor.getString(cursor.getColumnIndex("latitude_longitude")));
-		uploadRecord.setTimestamp(cursor.getString(cursor.getColumnIndex("timestamp")));
-		uploadRecord.setDatatime(cursor.getString(cursor.getColumnIndex("datatime")));
-		uploadRecord.setUploadState(cursor.getString(cursor.getColumnIndex("uploadState")));
+		UploadRecord uploadRecord = null;
+
+		try {
+			uploadRecord = new UploadRecord();
+			uploadRecord.setId(cursor.getString(cursor.getColumnIndex("id")));
+			uploadRecord.setLocalEcgFileName(cursor.getString(cursor.getColumnIndex("localEcgFileName")));
+			uploadRecord.setFI(cursor.getString(cursor.getColumnIndex("FI")));
+			uploadRecord.setES(cursor.getString(cursor.getColumnIndex("ES")));
+			uploadRecord.setPI(cursor.getString(cursor.getColumnIndex("PI")));
+			uploadRecord.setCC(cursor.getString(cursor.getColumnIndex("CC")));
+			uploadRecord.setHRVr(cursor.getString(cursor.getColumnIndex("HRVr")));
+			uploadRecord.setHRVs(cursor.getString(cursor.getColumnIndex("HRVs")));
+			uploadRecord.setAHR(cursor.getString(cursor.getColumnIndex("AHR")));
+			uploadRecord.setMaxHR(cursor.getString(cursor.getColumnIndex("MaxHR")));
+			uploadRecord.setMinHR(cursor.getString(cursor.getColumnIndex("MinHR")));
+			uploadRecord.setHRr(cursor.getString(cursor.getColumnIndex("HRr")));
+			uploadRecord.setHRs(cursor.getString(cursor.getColumnIndex("HRs")));
+			uploadRecord.setEC(cursor.getString(cursor.getColumnIndex("EC")));
+			uploadRecord.setECr(cursor.getString(cursor.getColumnIndex("ECr")));
+			uploadRecord.setECs(cursor.getString(cursor.getColumnIndex("ECs")));
+			uploadRecord.setRA(cursor.getString(cursor.getColumnIndex("RA")));
+			uploadRecord.setHR(cursor.getString(cursor.getColumnIndex("HR")));
+			uploadRecord.setAE(cursor.getString(cursor.getColumnIndex("AE")));
+			uploadRecord.setDistance(cursor.getString(cursor.getColumnIndex("distance")));
+			uploadRecord.setTime(cursor.getString(cursor.getColumnIndex("time")));
+			uploadRecord.setCadence(cursor.getString(cursor.getColumnIndex("cadence")));
+			uploadRecord.setCalorie(cursor.getString(cursor.getColumnIndex("calorie")));
+			uploadRecord.setState(cursor.getString(cursor.getColumnIndex("state")));
+			uploadRecord.setZaobo(cursor.getString(cursor.getColumnIndex("zaobo")));
+			uploadRecord.setLoubo(cursor.getString(cursor.getColumnIndex("loubo")));
+			uploadRecord.setLatitude_longitude(cursor.getString(cursor.getColumnIndex("latitude_longitude")));
+			uploadRecord.setTimestamp(cursor.getString(cursor.getColumnIndex("timestamp")));
+			uploadRecord.setDatatime(cursor.getString(cursor.getColumnIndex("datatime")));
+			uploadRecord.setUploadState(cursor.getString(cursor.getColumnIndex("uploadState")));
+		}catch (IllegalStateException e){
+			uploadRecord = null;
+			e.printStackTrace();
+			Log.i(TAG,"抛出异常: "+e);
+		}
+		Log.i(TAG,"uploadRecord:"+uploadRecord);
+		
 		return uploadRecord;
 	}
 
@@ -292,7 +314,7 @@ public class OffLineDbAdapter {
 			+ "timestamp STRING,"
 			+ "datatime STRING,"
 			+ "uploadState STRING" + ");";*/
-		return new String[] { "id", "serveId","FI", "ES","PI","CC","HRVr","HRVs","AHR","MaxHR","MinHR","HRr","HRs","EC","ECr","ECs","RA",
+		return new String[] { "id", "localEcgFileName","FI", "ES","PI","CC","HRVr","HRVs","AHR","MaxHR","MinHR","HRr","HRs","EC","ECr","ECs","RA",
 				"HR","AE","distance","time","cadence","calorie","state","zaobo","loubo","latitude_longitude","timestamp","datatime","uploadState"};
 	}
 }

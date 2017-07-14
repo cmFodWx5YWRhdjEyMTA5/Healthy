@@ -1,8 +1,12 @@
 package com.amsu.healthy.utils;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +14,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Debug;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -32,6 +37,7 @@ import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.DeviceList;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.User;
+import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.service.LocalGuardService;
 import com.amsu.healthy.service.MyTestService2;
 import com.amsu.healthy.service.RemoteGuardService;
@@ -871,36 +877,53 @@ public class MyUtil {
         }.start();
     }
 
-    private static void startServices(Context context) {
+    public static void scheduleService(Context context,int jobID,String className) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Log.i(TAG,"scheduleService:"+className);
+            JobScheduler jobScheduler = (JobScheduler) context.getSystemService(context.JOB_SCHEDULER_SERVICE);
+            JobInfo jobInfo = new JobInfo.Builder(jobID, new ComponentName(context.getPackageName(),className))
+                    .setPeriodic(100)
+                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                    .build();
+            jobScheduler.schedule(jobInfo);
+        }
+        else {
+        }
+    }
+
+    public static void startServices(Context context) {
         /*if(!MyUtil.isServiceWorked(context, "com.ble.ble.BleService")) {
             Intent service = new Intent(context, BleService.class);
             context.startService(service);
             Log.i(TAG, "Start BleService");
         }*/
 
-        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.LocalGuardService")) {
-            Intent service = new Intent(context, LocalGuardService.class);
-            context.startService(service);
-            Log.i(TAG, "Start LocalGuardService");
-        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.LocalGuardService")) {
+                Intent service = new Intent(context, LocalGuardService.class);
+                context.startService(service);
+                Log.i(TAG, "Start LocalGuardService");
+            }
 
-        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService2")) {
-            Intent service = new Intent(context, MyTestService2.class);
-            context.startService(service);
-            Log.i(TAG, "Start MyTestService2");
-        }
+            if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService2")) {
+                Intent service = new Intent(context, MyTestService2.class);
+                context.startService(service);
+                Log.i(TAG, "Start MyTestService2");
+            }
 
-        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.RemoteGuardService")) {
-            Intent service = new Intent(context, RemoteGuardService.class);
-            context.startService(service);
-            Log.i(TAG, "Start RemoteGuardService");
+            if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.RemoteGuardService")) {
+                Intent service = new Intent(context, RemoteGuardService.class);
+                context.startService(service);
+                Log.i(TAG, "Start RemoteGuardService");
+            }
         }
-
-        /*if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService4")) {
-            Intent service = new Intent(context, com.amsu.healthy.service.MyTestService4.class);
-            context.startService(service);
-            Log.i(TAG, "Start MyTestService4");
-        }*/
+        else {
+            if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService4")) {
+                Intent service = new Intent(context, com.amsu.healthy.service.MyTestService4.class);
+                context.startService(service);
+                Log.i(TAG, "Start MyTestService4");
+            }
+        }
 
         if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.CommunicateToBleService")) {
             Intent service = new Intent(context, com.amsu.healthy.service.CommunicateToBleService.class);

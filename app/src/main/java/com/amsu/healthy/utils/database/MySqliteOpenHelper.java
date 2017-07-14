@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class MySqliteOpenHelper extends SQLiteOpenHelper {
     static final String DATABASE_PATH = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/recordPath";
-    static final String DATABASE_NAME = DATABASE_PATH + "/" + "mydb_1.db";
+    static final String DATABASE_NAME = DATABASE_PATH + "/" + "db.db";
 
     public MySqliteOpenHelper(Context context, int version) {
         super(context, DATABASE_NAME, null, version);
@@ -35,7 +35,7 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     //历史记录本地缓存
     private static final String OFFLINE_RECORD_CREATE = "create table if not exists uploadreport("
             + "id STRING primary key,"
-            + "serveId STRING,"
+            + "localEcgFileName STRING,"
             + "FI STRING,"
             + "ES STRING,"
             + "PI STRING,"

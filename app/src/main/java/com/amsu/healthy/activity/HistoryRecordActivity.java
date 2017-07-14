@@ -81,7 +81,6 @@ public class HistoryRecordActivity extends BaseActivity {
         Intent intent = getIntent();
         indexwarringTO = intent.getBooleanExtra("indexwarringTO", false);
 
-
         /*final List<AppAbortDataSave> abortDataListFromSPCopy = new ArrayList<>();
         if (!indexwarringTO){
             abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();

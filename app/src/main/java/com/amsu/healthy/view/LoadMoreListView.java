@@ -102,8 +102,6 @@ public class LoadMoreListView extends ListView {
         void loadMore();
     }
 
-
-
     public void loadMoreSuccessd(){
         if (circleAnimation!=null){
             circleAnimation.cancel();
@@ -115,4 +113,6 @@ public class LoadMoreListView extends ListView {
     public void setAllowLoadMore(boolean allowLoadMore) {
         isAllowLoadMore = allowLoadMore;
     }
+
+
 }

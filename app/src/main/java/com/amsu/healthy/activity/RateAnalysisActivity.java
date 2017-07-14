@@ -77,7 +77,6 @@ public class RateAnalysisActivity extends BaseActivity {
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(RateAnalysisActivity.this,MainActivity.class));
                 finish();
             }
         });
@@ -139,6 +138,7 @@ public class RateAnalysisActivity extends BaseActivity {
 
                     Log.i(TAG,"historyRecord:"+historyRecord.toString());
 
+
                     adjustFeagmentCount(historyRecord.getState());
 
                     //根据历史记录id进行网络查询
@@ -152,16 +152,22 @@ public class RateAnalysisActivity extends BaseActivity {
 
                     if (offLineDbAdapter!=null){
                         UploadRecord uploadRecord = offLineDbAdapter.queryRecordByDatatime(datatime);  // 2017-06-28 11:01:33
+                        offLineDbAdapter.close();
 
                         if (uploadRecord!=null){
                             //本地有数据
                             Log.i(TAG,"本地uploadRecord:"+uploadRecord);
                             mUploadRecord = uploadRecord;
                             Log.i(TAG,"mUploadRecord.state:"+mUploadRecord.state);
+                            Log.i(TAG,"mUploadRecord.time:"+mUploadRecord.time);
+                            ecgLocalFileName = uploadRecord.localEcgFileName;
 
                             return;
                         }
                     }
+
+
+
 
                     MyUtil.showDialog("加载数据",RateAnalysisActivity.this);
                     HttpUtils httpUtils = new HttpUtils();
@@ -172,6 +178,7 @@ public class RateAnalysisActivity extends BaseActivity {
                     httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHistoryReportDetailURL, params, new RequestCallBack<String>() {
                         @Override
                         public void onSuccess(ResponseInfo<String> responseInfo) {
+                            if (isActiivtyDestroy)return;
                             String result = responseInfo.result;
                             Log.i(TAG,"上传onSuccess==result:"+result);
                             Gson gson = new Gson();
@@ -217,12 +224,15 @@ public class RateAnalysisActivity extends BaseActivity {
                                     mUploadRecord = new UploadRecord(FI,ES,PI,CC,HRVr,HRVs,AHR,MaxHR,MinHR,HRr,HRs,EC,ECr,ECs,RA,timestamp,datatime,HR,
                                             AE,distance,time,cadence,calorie,state,zaobo,loubo,latitude_longitude);
                                     Log.i(TAG,"mUploadRecord:"+mUploadRecord);
+                                    ecgLocalFileName = MyUtil.generateECGFilePath(RateAnalysisActivity.this, System.currentTimeMillis());
 
                                     OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(RateAnalysisActivity.this);
                                     offLineDbAdapter.open();
                                     mUploadRecord.datatime = mUploadRecord.datatime.replace("/", "-");  //将本地数据库时间改成和服务器一致，下次查看数据时，先从根据时间从本地查询
+                                    mUploadRecord.localEcgFileName = ecgLocalFileName;
                                     long createOrUpdateUploadReportObject = offLineDbAdapter.createOrUpdateUploadReportObject(mUploadRecord);
                                     Log.i(TAG,"createOrUpdateUploadReportObject:"+createOrUpdateUploadReportObject);
+                                    offLineDbAdapter.close();
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -234,6 +244,7 @@ public class RateAnalysisActivity extends BaseActivity {
 
                         @Override
                         public void onFailure(HttpException e, String s) {
+                            if (isActiivtyDestroy)return;
                             addFragmentList(intent.getIntExtra(Constant.sportState,-1));
                             MyUtil.hideDialog();
                             MyUtil.showToask(RateAnalysisActivity.this,"数据加载失败");
@@ -302,10 +313,6 @@ public class RateAnalysisActivity extends BaseActivity {
 
         mAnalysisRateAdapter = new AnalysisRateAdapter(getSupportFragmentManager(), fragmentList);
         vp_analysis_content.setAdapter(mAnalysisRateAdapter);
-    }
-
-    private class UploadRecordObject{
-        DownUploadRecord errDesc;
     }
 
     private class MyClickListener implements View.OnClickListener{
@@ -402,80 +409,22 @@ public class RateAnalysisActivity extends BaseActivity {
         Log.i(TAG,"onStop");
     }
 
+    private boolean isActiivtyDestroy;
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
+        isActiivtyDestroy = true;
     }
 
-    private class DownUploadRecord  {
-        public String FI;
-        public String ES;
-        public String PI;
-        public String CC;
-        public String HRVr;
-        public String HRVs;
-        public String AHR;
-        public String MaxHR;
-        public String MinHR;
-        public String HRr;
-        public String HRs;
-        public String EC;
-        public String ECr;
-        public String ECs;
-        public String RA;
-        public String timestamp;  //
-        public String datatime;  //
-        public List<Integer> HR;  //
-        public List<Integer> AE;  //
-        public String distance;  //
-        public String time;  //
-        public List<Integer> cadence;  //
-        public List<Integer> calorie;  //
-        public String state;  //
-        public String zaobo;
-        public String loubo;
-        public List<List<Double>> latitude_longitude;
 
-        @Override
-        public String toString() {
-            return "UploadRecord{" +
-                    "FI='" + FI + '\'' +
-                    ", ES='" + ES + '\'' +
-                    ", PI='" + PI + '\'' +
-                    ", CC='" + CC + '\'' +
-                    ", HRVr='" + HRVr + '\'' +
-                    ", HRVs='" + HRVs + '\'' +
-                    ", AHR='" + AHR + '\'' +
-                    ", MaxHR='" + MaxHR + '\'' +
-                    ", MinHR='" + MinHR + '\'' +
-                    ", HRr='" + HRr + '\'' +
-                    ", HRs='" + HRs + '\'' +
-                    ", ECr='" + ECr + '\'' +
-                    ", ECs='" + ECs + '\'' +
-                    ", RA='" + RA + '\'' +
-                    ", timestamp='" + timestamp + '\'' +
-                    ", datatime='" + datatime + '\'' +
-                    ", HR='" + HR + '\'' +
-                    ", AE='" + AE + '\'' +
-                    ", distance='" + distance + '\'' +
-                    ", time='" + time + '\'' +
-                    ", cadence='" + cadence + '\'' +
-                    ", calorie='" + calorie + '\'' +
-                    ", state='" + state + '\'' +
-                    ", zaobo='" + zaobo + '\'' +
-                    ", loubo='" + loubo + '\'' +
-                    ", latitude_longitude='" + latitude_longitude + '\'' +
-                    '}';
-        }
-    }
-
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    /*public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
             startActivity(new Intent(RateAnalysisActivity.this,MainActivity.class));
             finish();
         }
         return super.onKeyDown(keyCode, event);
     }
-
+*/
 }

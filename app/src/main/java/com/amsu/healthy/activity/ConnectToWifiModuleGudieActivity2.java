@@ -55,7 +55,7 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
         final WifiInfo wifiinfo = mWifiManage.getConnectionInfo();
         Log.i(TAG,"wifiinfo:"+wifiinfo);
         Log.i(TAG,"wifiinfo.getSSID():"+wifiinfo.getSSID());  //  "ESP8266"
-        if (wifiinfo!=null && ("\""+DeviceOffLineFileUtil.HOST_SPOT_SSID+"\"").equals(wifiinfo.getSSID())){
+        if (wifiinfo!=null && (("\""+DeviceOffLineFileUtil.HOST_SPOT_SSID+"\"").equals(wifiinfo.getSSID()) || "\"Amsu\"".equals(wifiinfo.getSSID()))){
             Log.i(TAG,"WiFi已连接");
             MyUtil.showToask(this,"WiFi已连接");
             MyUtil.showDialog("WiFi已连接，正在创建socket连接",this);

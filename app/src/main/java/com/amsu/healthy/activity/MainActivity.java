@@ -7,14 +7,17 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -33,6 +36,7 @@ import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Apk;
 import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.service.MyTestService2;
 import com.amsu.healthy.utils.ApkUtil;
@@ -49,6 +53,12 @@ import com.amsu.healthy.view.DashboardView;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleService;
 import com.google.gson.Gson;
+import com.lidroid.xutils.HttpUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
 import com.test.objects.HeartRateResult;
 import com.test.utils.DiagnosisNDK;
 
@@ -293,20 +303,50 @@ public class MainActivity extends BaseActivity {
             i++;
         }*/
 
+
+        Log.i(TAG,"Build.MODEL: "+ Build.MODEL);
+
+
+
+        String url = "http://localhost:8080/AmsuClothMonitor/AddUserInfoAction";
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+
+        params.addBodyParameter("iconUrl ","images/1.jpg");
+        params.addBodyParameter("username ","haijun");
+        params.addBodyParameter("onlinestate ","1");
+        MyUtil.addCookieForHttp(params);
+
+        httpUtils.send(HttpRequest.HttpMethod.POST, url, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                Log.i(TAG,"上传onSuccess==result:"+result);
+
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                Log.i(TAG,"上传onFailure==s:"+s);
+            }
+        });
+
+
     }
 
+    private void selfStartManagerSettingIntent(Context context){
 
-
-
-
-
-
-
-
-
-
-
-
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        ComponentName componentName = new ComponentName("com.huawei.systemmanager","com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity");
+        intent.setComponent(componentName);
+        try{
+            context.startActivity(intent);
+        }catch (Exception e){//抛出异常就直接打开设置页面
+            intent=new Intent(Settings.ACTION_SETTINGS);
+            context.startActivity(intent);
+        }
+    }
 
     private PowerManager.WakeLock mWakelock;
 
@@ -319,7 +359,6 @@ public class MainActivity extends BaseActivity {
         String  listString = gson.toJson(abortDatasCopy);
         Log.i(TAG,"listString:"+listString);
         MyUtil.putStringValueFromSP("ttt",listString);
-
     }
 
 
@@ -377,13 +416,6 @@ public class MainActivity extends BaseActivity {
         Log.i(TAG,"id:"+id);
 
         iv_base_connectedstate.setVisibility(View.VISIBLE);
-        if (MyApplication.isHaveDeviceConnectted){
-            iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
-        }
-        else {
-            iv_base_connectedstate.setImageResource(R.drawable.duankai);
-        }
-
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
 
@@ -444,6 +476,7 @@ public class MainActivity extends BaseActivity {
         /*Intent service = new Intent(this, CommunicateToBleService.class);
         startService(service);*/
 
+        Log.i(TAG,"Build.MODEL"+Build.MODEL);
     }
 
     //给文本年龄设置文字动画
@@ -544,6 +577,15 @@ public class MainActivity extends BaseActivity {
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             }
             isonResumeEd = true;
+
+
+            if (MyApplication.isHaveDeviceConnectted){
+                iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
+            }
+            else {
+                iv_base_connectedstate.setImageResource(R.drawable.duankai);
+            }
+
         }
 
         if (mValueAnimator!=null){
@@ -600,6 +642,7 @@ public class MainActivity extends BaseActivity {
             boolean isPrefectInfo = MyUtil.getBooleanValueFromSP("isPrefectInfo");
             if (!isLogin){
                 showdialogToLogin();
+                //finish();
                 return;
             }
             else if (!isPrefectInfo){
@@ -630,8 +673,14 @@ public class MainActivity extends BaseActivity {
                     startActivity(new Intent(MainActivity.this,MeActivity.class));
                     break;
                 case R.id.rl_mian_start:
+                    //selfStartManagerSettingIntent(MainActivity.this);
+
                     startActivity(new Intent(MainActivity.this,StartRunActivity.class));
-                    finish();
+                    /*Intent intent2 = getIntent();
+                    boolean isNeedRecoverAbortData = intent2.getBooleanExtra(Constant.isNeedRecoverAbortData, false);
+                    if (isNeedRecoverAbortData){
+                        finish();
+                    }*/
                     break;
                 case R.id.rl_main_age:
                     Intent intent = new Intent(MainActivity.this, PhysicalAgeActivity.class);
@@ -722,16 +771,16 @@ public class MainActivity extends BaseActivity {
                 notificationManager.cancel(1);*/
                 //finish();
 
-                /*ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE); //获取应用程序管理器
+               /* ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE); //获取应用程序管理器
                 manager.killBackgroundProcesses("com.remote1"); //强制结束当前应用程序
-                manager.killBackgroundProcesses("com.amsu.healthy:LocalGuardService"); //强制结束当前应用程序
-                manager.killBackgroundProcesses(getPackageName()); //强制结束当前应用程序
+                manager.killBackgroundProcesses("com.amsu.healthy:MyTestService2"); //强制结束当前应用程序
+                manager.killBackgroundProcesses(getPackageName()); //强制结束当前应用程序*/
 
-              *//*  MyUtil.stopAllServices(this);
+              /*  MyUtil.stopAllServices(this);
                 android.os.Process.killProcess(android.os.Process.myPid());*//*
                 android.os.Process.killProcess(android.os.Process.myPid());*/
                 finish();
-                android.os.Process.killProcess(android.os.Process.myPid());
+                //android.os.Process.killProcess(android.os.Process.myPid());
             }
             return true;
         }

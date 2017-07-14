@@ -19,6 +19,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -100,6 +101,8 @@ public class HealthyDataActivity extends BaseActivity {
     private int mCurrentHeartRate= 0;
     private String ecgLocalFileName;
     private int D_valueMaxValue = 15;
+    private ImageView iv_base_connectedstate;
+    private TextView tv_base_charge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,10 +136,15 @@ public class HealthyDataActivity extends BaseActivity {
         tv_healthdaydata_adjust = (TextView) findViewById(R.id.tv_healthdaydata_adjust);
         TextView tv_healthydata_analysis = (TextView) findViewById(R.id.tv_healthydata_analysis);
 
+        iv_base_connectedstate = (ImageView) findViewById(R.id.iv_base_connectedstate);
+        tv_base_charge = (TextView) findViewById(R.id.tv_base_charge);
+
         mRateLineRItemCount.put(ECGSCALE_MODE_HALF,0);
         mRateLineRItemCount.put(ECGSCALE_MODE_ORIGINAL,0);
         mRateLineRItemCount.put(ECGSCALE_MODE_DOUBLE,0);
         mRateLineRItemCount.put(ECGSCALE_MODE_QUADRUPLE,0);
+
+
 
         Intent intent = getIntent();
         if (intent!=null){
@@ -151,7 +159,35 @@ public class HealthyDataActivity extends BaseActivity {
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(MainActivity.ACTION_CHARGE_CHANGE);
+        registerReceiver(mchargeReceiver, filter);
+
+        if (MyApplication.calCuelectricVPercent!=-1){
+            tv_base_charge.setVisibility(View.VISIBLE);
+            tv_base_charge.setText(MyApplication.calCuelectricVPercent+"%");
+        }
+
     }
+
+    private final BroadcastReceiver mchargeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent!=null){
+                Log.i(TAG,"onReceive:"+intent.getAction());
+                int calCuelectricVPercent = intent.getIntExtra("calCuelectricVPercent", -1);
+                Log.i(TAG,"calCuelectricVPercent:"+calCuelectricVPercent);
+                if (calCuelectricVPercent==-1){
+                    //设备已断开
+                    tv_base_charge.setVisibility(View.GONE);
+                }
+                else {
+                    tv_base_charge.setVisibility(View.VISIBLE);
+                    tv_base_charge.setText(calCuelectricVPercent+"%");
+                }
+            }
+        }
+    };
 
     //按返回键时的处理
     private void backJudge() {
@@ -184,6 +220,22 @@ public class HealthyDataActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()){
+                case LeProxy.ACTION_GATT_CONNECTED:
+                    Log.i(TAG,"已连接 " );
+                    iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
+                    break;
+                case LeProxy.ACTION_GATT_DISCONNECTED:
+                    Log.w(TAG,"已断开 ");
+                    iv_base_connectedstate.setImageResource(R.drawable.duankai);
+                    break;
+                case LeProxy.ACTION_CONNECT_ERROR:
+                    Log.w(TAG,"连接异常 ");
+                    iv_base_connectedstate.setImageResource(R.drawable.duankai);
+                    break;
+                case LeProxy.ACTION_CONNECT_TIMEOUT:
+                    Log.w(TAG,"连接超时 ");
+                    iv_base_connectedstate.setImageResource(R.drawable.duankai);
+                    break;
                 case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
                     byte[] data = intent.getByteArrayExtra(LeProxy.EXTRA_DATA);
                     dealwithLebDataChange(DataUtil.byteArrayToHex(data));
@@ -197,7 +249,6 @@ public class HealthyDataActivity extends BaseActivity {
 
     }
 
-
     private void dealwithLebDataChange(String hexData) {
         if (hexData.length()<40){
             return;
@@ -207,8 +258,12 @@ public class HealthyDataActivity extends BaseActivity {
             //心电数据
             //Log.i(TAG,"心电hexData:"+hexData);
             dealWithEcgData(hexData);
+            if (!mIsHaveEcgDataReceived){
+                Log.i(TAG,"before");
+                CommunicateToBleService.setServiceForegrounByNotify("正在测试静态心率","心率：--"+" BPM",0);
+                Log.i(TAG,"setServiceForegrounByNotify");
+            }
             mIsHaveEcgDataReceived = true;
-
         }
         else if(hexData.startsWith("FF 86 11")){
             //加速度数据
@@ -273,6 +328,7 @@ public class HealthyDataActivity extends BaseActivity {
                 public void run() {
                     if (mCurrentHeartRate ==0){
                         tv_healthydata_rate.setText("--");
+                        CommunicateToBleService.setServiceForegrounByNotify("正在测试静态心率","心率：--"+" BPM",0);
                     }
                     else if (mPreHeartRate>0){
                         int count = 0;
@@ -289,7 +345,9 @@ public class HealthyDataActivity extends BaseActivity {
                         }
 
                         tv_healthydata_rate.setText(mCurrentHeartRate +"");
+                        CommunicateToBleService.setServiceForegrounByNotify("正在测试静态心率","心率："+mCurrentHeartRate+" BPM",0);
                     }
+
                     MyApplication.currentHeartRate = mCurrentHeartRate;
                 }
             });
@@ -307,11 +365,21 @@ public class HealthyDataActivity extends BaseActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.i(TAG,"绘图");
+                    //Log.i(TAG,"绘图");
+                    String intString = "";
+                    for (int i:ints){
+                        intString+=i+",";
+                    }
+                    //Log.i(TAG,"intString:"+intString);
                     pv_healthydata_path.addEcgOnGroupData(ints);
                 }
             });
         }
+
+        String a = "{\n" +
+                "    \"firstName\": \"Brett\",\n" +
+                "    \"lastName\": \"McLaughlin\"\n" +
+                "}";
     }
 
     //写到文件里，二进制方式写入
@@ -632,13 +700,20 @@ public class HealthyDataActivity extends BaseActivity {
         Log.i(TAG,"onResume");
         isNeedDrawEcgData = true;
 
-
         if (!isonResumeEd){
             if (MainActivity.mBluetoothAdapter!=null && !MainActivity.mBluetoothAdapter.isEnabled()) {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBtIntent, MainActivity.REQUEST_ENABLE_BT);
             }
             isonResumeEd = true;
+
+            iv_base_connectedstate.setVisibility(View.VISIBLE);
+            if (MyApplication.isHaveDeviceConnectted){
+                iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
+            }
+            else {
+                iv_base_connectedstate.setImageResource(R.drawable.duankai);
+            }
         }
 
     /* 自定义IntentFilter为SENT_SMS_ACTIOIN Receiver */
@@ -786,6 +861,12 @@ public class HealthyDataActivity extends BaseActivity {
         MyApplication.runningActivity = MyApplication.MainActivity;
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
+
+        if (mIsHaveEcgDataReceived){
+            CommunicateToBleService.detoryServiceForegrounByNotify();
+        }
+
+        unregisterReceiver(mchargeReceiver);
 
         /*if (MainActivity.mBluetoothAdapter!=null){
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描

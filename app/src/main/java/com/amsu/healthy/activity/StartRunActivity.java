@@ -31,6 +31,8 @@ import com.amap.api.maps.model.LatLng;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.AppAbortDataSave;
+import com.amsu.healthy.bean.JsonBase;
+import com.amsu.healthy.bean.User;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.AppAbortDbAdapter;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
@@ -48,7 +50,16 @@ import com.amsu.healthy.utils.map.Util;
 import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
 import com.amsu.healthy.view.GlideRelativeView;
 import com.ble.api.DataUtil;
+import com.google.gson.Gson;
+import com.lidroid.xutils.HttpUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
 import com.test.utils.DiagnosisNDK;
+
+import org.json.JSONObject;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -82,7 +93,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     //声明mLocationOption对象
     public AMapLocationClientOption mLocationOption = null;
-    public static AMapLocationClient mlocationClient;
+    private AMapLocationClient mlocationClient;
     private PathRecord record;    //存放未纠偏轨迹记录信息
     //private List<TraceLocation> mTracelocationlist = new ArrayList<>();   //偏轨后轨迹
     public static long mStartTime;
@@ -94,6 +105,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private GlideRelativeView rl_run_glide;
     private RelativeLayout rl_run_lock;
     public static double mAllDistance;
+    private double mAddDistance;
     private long mCurrentTimeMillis = 0;
     private TextView tv_run_test;
 
@@ -127,8 +139,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     List<Integer> mSpeedStringList = new CopyOnWriteArrayList<>();
     List<Float> tempSpeedList = new ArrayList<>();
-    List<AMapLocation> mGpsCal7ScendSpeedList = new ArrayList<>();
-    List<Float> mIndoorCal7ScendSpeedList = new ArrayList<>();
+    List<AMapLocation> mGpsCal8ScendSpeedList = new ArrayList<>();
+    List<Float> mIndoorCal8ScendSpeedList = new ArrayList<>();
     public static String mFinalFormatSpeed;
     private static ImageView iv_pop_icon;
     private static TextView tv_pop_text;
@@ -137,6 +149,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private List<AppAbortDataSave> abortDataListFromSP;
     private boolean isNeedRecoverAbortData;
     private long recoverTimeMillis = 0;
+    private static final int saveDataTOLocalTimeSpanSecond = 60*1;  //数据持久化时间间隔 1分钟
+    private static final int minimumLimitTimeMillis = 1000 * 60 * 5;  //最短时间限制 5分钟
+    private long addDuration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -218,7 +233,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         });
         MyApplication.runningActivity = MyApplication.StartRunActivity;
 
-        setDeviceConnectedState(MyApplication.isHaveDeviceConnectted);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
 
@@ -237,7 +251,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
                 List<Integer> speedStringList = mAbortData.getSpeedStringList();
                 if (speedStringList!=null && speedStringList.size()>0){
-                    recoverTimeMillis = speedStringList.size()*8*1000;
                     mSpeedStringList.addAll(speedStringList);
                 }
             }
@@ -246,10 +259,14 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 DbAdapter dbAdapter = new DbAdapter(this);
                 dbAdapter.open();
                 record = dbAdapter.queryRecordById((int) createrecord);
+                Log.i(TAG,"record:"+record);
+                addDuration = Long.parseLong(record.getDuration());
+                recoverTimeMillis = Long.parseLong(record.getDuration());
+                mStartTime = System.currentTimeMillis();
                 dbAdapter.close();
 
-                mAllDistance = Double.parseDouble(record.getDistance());
-                tv_run_distance.setText(getFormatDistance(mAllDistance));
+                mAllDistance = mAddDistance = Double.parseDouble(record.getDistance());
+                mFormatDistance = getFormatDistance(mAllDistance);
             }
             ArrayList<String> kcalStringList = mAbortData.getKcalStringList();
             if (kcalStringList!=null && kcalStringList.size()>0){
@@ -265,8 +282,12 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             accByteBuffer = ByteBuffer.allocate(2);
 
             try {
-                ecgDataOutputStream = new DataOutputStream(new FileOutputStream(mAbortData.getEcgFileName(),true));
-                accDataOutputStream = new DataOutputStream(new FileOutputStream(mAbortData.getAccFileName(),true));
+                if (!MyUtil.isEmpty(mAbortData.getEcgFileName())){
+                    ecgDataOutputStream = new DataOutputStream(new FileOutputStream(mAbortData.getEcgFileName(),true));
+                }
+                if (!MyUtil.isEmpty(mAbortData.getAccFileName())){
+                    accDataOutputStream = new DataOutputStream(new FileOutputStream(mAbortData.getAccFileName(),true));
+                }
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -297,18 +318,19 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 @Override
                 public void onCancelClick() {
                     //将离线数据记录删除
-                    List<AppAbortDataSave> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
+                   /* List<AppAbortDataSave> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
                     if (abortDataListFromSP!=null && abortDataListFromSP.size()>0){
                         abortDataListFromSP.remove(abortDataListFromSP.size()-1); // 删除最后一个（刚年纪大饿一条记录）
                     }
-                    AppAbortDbAdapter.putAbortDataListToSP(abortDataListFromSP);
-                    startActivity(new Intent(StartRunActivity.this,MainActivity.class));
+                    AppAbortDbAdapter.putAbortDataListToSP(abortDataListFromSP);*/
+                    //startActivity(new Intent(StartRunActivity.this,MainActivity.class));
+                    deleteAbortDataRecordFomeSP();
                     finish();
                 }
             });
         }
         else {
-            startActivity(new Intent(StartRunActivity.this,MainActivity.class));
+            //startActivity(new Intent(StartRunActivity.this,MainActivity.class));
             finish();
         }
     }
@@ -325,6 +347,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 startActivityForResult(enableBtIntent, MainActivity.REQUEST_ENABLE_BT);
             }
             isonResumeEd = true;
+            setDeviceConnectedState(MyApplication.isHaveDeviceConnectted);
         }
     }
 
@@ -429,6 +452,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     //处理心电数据
     private void dealWithEcgData(String hexData) {
+        if (!mIsRunning)return;
         final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
 
         writeEcgDataToBinaryFile(ints);
@@ -626,22 +650,31 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     }
 
     private void deleteAbortDataRecordFomeSP(){
-        Log.i(TAG,"abortDataListFromSP.size():"+abortDataListFromSP.size());
+        /*Log.i(TAG,"abortDataListFromSP.size():"+abortDataListFromSP.size());
         if (abortDataListFromSP!=null && abortDataListFromSP.size()>0){
+            Log.i(TAG,abortDataListFromSP.get(abortDataListFromSP.size()-1)+"");
             abortDataListFromSP.remove(abortDataListFromSP.size()-1);
             AppAbortDbAdapter.putAbortDataListToSP(abortDataListFromSP);
         }
-        Log.i(TAG,"abortDataListFromSP.size():"+abortDataListFromSP.size());
+        Log.i(TAG,"abortDataListFromSP.size():"+abortDataListFromSP.size());*/
+
+        MyUtil.putStringValueFromSP("abortDatas","");
+
+
     }
 
     //处理加速度数据
     private void dealWithAccelerationgData(String hexData) {
+        if (!mIsRunning)return;
         final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 12); //一次的数据，12位
         writeAccDataToBinaryFile(ints);
-        for (int i:ints){
-            accData.add(i);
+
+        if (accData.size()<accDataLength){
+            for (int i:ints){
+                accData.add(i);
+            }
         }
-        if (accData.size()==accDataLength){
+        else {
             //计算
             byte[] bytes = new byte[accDataLength];
             for (int i=0;i<accData.size();i++){
@@ -722,11 +755,12 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private void calculateSpeed(AMapLocation aMapLocation) {
         //float speed = aMapLocation.getSpeed()*3.6f;
         if (aMapLocation.getLocationType()==AMapLocation.LOCATION_TYPE_GPS){
-            mGpsCal7ScendSpeedList.add(aMapLocation);
+            mGpsCal8ScendSpeedList.add(aMapLocation);
         }
         else {
-            mIndoorCal7ScendSpeedList.add(aMapLocation.getSpeed());
+            mIndoorCal8ScendSpeedList.add(aMapLocation.getSpeed());
         }
+
 
 
         /*if (tempSpeedList.size()>6){
@@ -799,7 +833,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             if (tempDistance<=locationInAccurateCount*trackEviation_MAX){   //2个点之间距离小于20m为正常定位情况，否则为噪声去除(正常)
                 record.addpoint(aMapLocation);
                 locationInAccurateCount =1;
-                mAllDistance += tempDistance;
+                //mAllDistance += tempDistance;
+                mAllDistance = Util.getDistance(record.getPathline())+mAddDistance;
             }
             else {
                 locationInAccurateCount++;
@@ -809,7 +844,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             //没有室外GPS定位，默认是在室内跑步
             if (mCurrentTimeMillis!=0.0){ //不是第一次
                 tempDistance = aMapLocation.getSpeed() * ((System.currentTimeMillis() - mCurrentTimeMillis) / 1000f); //s=vt,单位:m
-                mAllDistance += tempDistance;
+                mAddDistance += tempDistance;
+                mAllDistance = mAddDistance;
             }
             mCurrentTimeMillis = System.currentTimeMillis();
         }
@@ -951,6 +987,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     public static Date mCurrTimeDate;
 
+
     private void setRunningParameter() {
         bt_run_start.setText("长按结束");
         bt_run_lock.setVisibility(View.VISIBLE);
@@ -962,14 +999,14 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         else {
             //开启三分钟计时，保存记录最短为3分钟
             // MyTimeTask.startCountDownTimerTask(1000 * 60 * 1, new MyTimeTask.OnTimeOutListener() {
-            MyTimeTask.startCountDownTimerTask(1000 * 60 * 5, new MyTimeTask.OnTimeOutListener() {
+            MyTimeTask.startCountDownTimerTask(minimumLimitTimeMillis, new MyTimeTask.OnTimeOutListener() {
                 @Override
                 public void onTomeOut() {
                     isFiveMit = true;
                 }
             });
         }
-
+        tv_run_distance.setText(mFormatDistance);
 
         //开始计时，更新时间
         MyTimeTask.startTimeRiseTimerTask(this, 1000, new MyTimeTask.OnTimeChangeAtScendListener() {
@@ -986,36 +1023,119 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         saveDeviceOffLineFileUtil.setTransferTimeOverTime(new DeviceOffLineFileUtil.OnTimeOutListener() {
             @Override
             public void onTomeOut() {
-                Log.i(TAG,"1min 保存数据到本地");
-                createrecord = Util.saveOrUdateRecord(record.getPathline(), record.getDate(), StartRunActivity.this,mStartTime,mAllDistance,createrecord);
-                Log.i(TAG,"createrecord:"+createrecord);
+                if (mIsRunning){
+                    Log.i(TAG,"1min 保存数据到本地");
+                    createrecord = Util.saveOrUdateRecord(record.getPathline(),addDuration, record.getDate(), StartRunActivity.this,mStartTime,mAllDistance,createrecord);
+                    Log.i(TAG,"createrecord:"+createrecord);
 
-                if (createrecord==-1)return;
+                    if (createrecord==-1)return;
 
-                if (mAbortData==null){
-                    mAbortData = new AppAbortDataSave(System.currentTimeMillis(), "", "", createrecord, 1,mSpeedStringList);
-                    saveOrUpdateAbortDatareordToSP(mAbortData,true);
-                }
-                else {
-                    if (mAbortData.getMapTrackID()==-1){
-                        mAbortData.setMapTrackID(createrecord);
+                    if (mAbortData==null){
+                        mAbortData = new AppAbortDataSave(System.currentTimeMillis(), "", "", createrecord, 1,mSpeedStringList);
+                        saveOrUpdateAbortDatareordToSP(mAbortData,true);
                     }
-                    mAbortData.setSpeedStringList(mSpeedStringList);
-                    mAbortData.setKcalStringList(mKcalData);
-                    saveOrUpdateAbortDatareordToSP(mAbortData,false);
-                }
+                    else {
+                        if (mAbortData.getMapTrackID()==-1){
+                            mAbortData.setMapTrackID(createrecord);
+                        }
+                        if (mAbortData.getStartTimeMillis()==0){
+                            mAbortData.setStartTimeMillis(System.currentTimeMillis());
+                        }
+                        mAbortData.setSpeedStringList(mSpeedStringList);
+                        mAbortData.setKcalStringList(mKcalData);
+                        saveOrUpdateAbortDatareordToSP(mAbortData,false);
+                    }
                 /*else if (MyUtil.isEmpty(mAbortData.getMapTrackID())){
                     mAbortData.setMapTrackID(createrecord+"");
                     saveOrUpdateAbortDatareordToSP(mAbortData,false);
                 }*/
+                }
             }
-        },60*1);//1min 保存数据到本地
+        },saveDataTOLocalTimeSpanSecond);//1min 保存数据到本地
 
         saveDeviceOffLineFileUtil.startTime();
         initMapLoationTrace();
         startCalSpeedTimerStask();
 
-        CommunicateToBleService.setServiceForegrounByNotify(mFormatDistance);
+        CommunicateToBleService.setServiceForegrounByNotify("正在跑步","里程："+mFormatDistance+" KM",1);
+
+        sendOnLineMsgToServer();
+    }
+
+    //增长率
+    private void sendOnLineMsgToServer() {
+        User userFromSP = MyUtil.getUserFromSP();
+        if (userFromSP!=null){
+            HttpUtils httpUtils = new HttpUtils();
+            RequestParams params = new RequestParams();
+
+            params.addBodyParameter("iconUrl",userFromSP.getIcon());
+            params.addBodyParameter("username",userFromSP.getUsername());
+            params.addBodyParameter("onlinestate","1");
+
+            MyUtil.addCookieForHttp(params);
+
+            httpUtils.send(HttpRequest.HttpMethod.POST, Constant.sendONLineMsgToServer, params, new RequestCallBack<String>() {
+                @Override
+                public void onSuccess(ResponseInfo<String> responseInfo) {
+
+                    String result = responseInfo.result;
+                    Log.i(TAG,"上传onSuccess==result:"+result);
+                    Gson gson = new Gson();
+                    JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+                    Log.i(TAG,"jsonBase:"+jsonBase);
+                    if (jsonBase.getRet()==0){
+                        Log.i(TAG,"在线成功");
+                        MyUtil.putStringValueFromSP("onlineID",jsonBase.getErrDesc()+"");
+                    }
+                }
+
+                @Override
+                public void onFailure(HttpException e, String s) {
+                    MyUtil.hideDialog();
+
+                    Log.i(TAG,"上传onFailure==s:"+s);
+                }
+            });
+
+
+        }
+    }
+
+    //离线
+    private void deleteOnLineMsgToServer() {
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+
+        String onlineID = MyUtil.getStringValueFromSP("onlineID");
+        if (!MyUtil.isEmpty(onlineID)){
+            params.addBodyParameter("id",onlineID);
+        }
+
+        MyUtil.addCookieForHttp(params);
+
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.deleteONLineMsgToServer, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+
+                String result = responseInfo.result;
+                Log.i(TAG,"上传onSuccess==result:"+result);
+                Gson gson = new Gson();
+                JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+                Log.i(TAG,"jsonBase:"+jsonBase);
+                if (jsonBase.getRet()==0){
+                    Log.i(TAG,"在线成功");
+                    MyUtil.putStringValueFromSP("onlineID","");
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                MyUtil.hideDialog();
+                MyUtil.putStringValueFromSP("onlineID","");
+                Log.i(TAG,"上传onFailure==s:"+s);
+            }
+        });
     }
 
     private void startCalSpeedTimerStask() {
@@ -1024,8 +1144,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             deviceOffLineFileUtil.setTransferTimeOverTime(new DeviceOffLineFileUtil.OnTimeOutListener() {
                 @Override
                 public void onTomeOut() {
-                    Log.i(TAG,"8s 计算速度");
-                    startCal7ScendSpeed();
+                    if (mIsRunning){
+                        Log.i(TAG,"8s 计算速度");
+                        startCal7ScendSpeed();
+                    }
                 }
             },8);//8s 计算速度
         }
@@ -1035,55 +1157,55 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     private void startCal7ScendSpeed() {
         String formatSpeed = "--";
-        float speed = 0;
-        Log.i(TAG,"mGpsCal7ScendSpeedList.size():"+mGpsCal7ScendSpeedList.size());
-        Log.i(TAG,"mIndoorCal7ScendSpeedList.size():"+mIndoorCal7ScendSpeedList.size());
+        float forOneKMSecond = 0;
+        Log.i(TAG,"mGpsCal8ScendSpeedList.size():"+ mGpsCal8ScendSpeedList.size());
+        Log.i(TAG,"mIndoorCal8ScendSpeedList.size():"+ mIndoorCal8ScendSpeedList.size());
 
-        float mapRetrurnSpeed = 0;
-        if (mGpsCal7ScendSpeedList.size() <= mIndoorCal7ScendSpeedList.size()){
-            if (mIndoorCal7ScendSpeedList.size()>0){
+        float for8SecondAverageSpeed = 0;
+        if (mGpsCal8ScendSpeedList.size() <= mIndoorCal8ScendSpeedList.size()){
+            if (mIndoorCal8ScendSpeedList.size()>0){
                 float sum = 0;
-                for (float i:mIndoorCal7ScendSpeedList){
+                for (float i: mIndoorCal8ScendSpeedList){
                     sum += i;
                 }
-                mapRetrurnSpeed = sum/mIndoorCal7ScendSpeedList.size();
+                for8SecondAverageSpeed = sum/ mIndoorCal8ScendSpeedList.size();
             }
         }
         else {
-            float distance = Util.getDistance(mGpsCal7ScendSpeedList);
-            mapRetrurnSpeed = distance / 8f;
+            float distance = Util.getDistance(mGpsCal8ScendSpeedList);
+            for8SecondAverageSpeed = distance / 8f;
         }
 
-        if (mapRetrurnSpeed>0){
-            speed = (1/mapRetrurnSpeed)*1000f;
-            if (speed>30*60){
-                speed = 0;
+        if (for8SecondAverageSpeed>0){
+            forOneKMSecond = (1/for8SecondAverageSpeed)*1000f;
+            if (forOneKMSecond>30*60){
+                forOneKMSecond = 0;
             }
 
-            if (speed==0){
+            if (forOneKMSecond==0){
                 formatSpeed = "--";
             }
             else {
-                formatSpeed = (int)speed/60+"'"+(int)speed%60+"''";
+                formatSpeed = (int)forOneKMSecond/60+"'"+(int)forOneKMSecond%60+"''";
             }
 
-            Log.i(TAG,"startCal7ScendSpeed 室内:"+formatSpeed);
+            Log.i(TAG,"startCal7ScendSpeed 室内:  speed:"+forOneKMSecond+",   formatSpeed:"+formatSpeed);
         }
 
-        mIndoorCal7ScendSpeedList.clear();
-        mGpsCal7ScendSpeedList.clear();
+        mSpeedStringList.add((int) forOneKMSecond);  //speed为秒数，1公里所用的时间
+        
 
-        mSpeedStringList.add((int) speed);
+        mIndoorCal8ScendSpeedList.clear();
+        mGpsCal8ScendSpeedList.clear();
 
         mFinalFormatSpeed = formatSpeed;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 tv_run_speed.setText(mFinalFormatSpeed);
-                CommunicateToBleService.setServiceForegrounByNotify(mFormatDistance);
+                CommunicateToBleService.setServiceForegrounByNotify("正在跑步","里程："+mFormatDistance+" KM",1);
             }
         });
-
     }
 
     boolean isHaveDataTransfer;
@@ -1207,9 +1329,15 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     //记录运动休信息（和地图有关的）
     private void saveSportRecord(long createrecord) {
-        createrecord = Util.saveOrUdateRecord(record.getPathline(), record.getDate(), this,mStartTime,mAllDistance,createrecord);
+        mIsRunning = false;
+        createrecord = Util.saveOrUdateRecord(record.getPathline(),addDuration, record.getDate(), this,mStartTime,mAllDistance,createrecord);
         Log.i(TAG,"createrecord:"+createrecord);
-        mlocationClient.stopLocation();
+        if (mlocationClient!=null){
+            mlocationClient.stopLocation();
+            mlocationClient.onDestroy();
+            mlocationClient = null;
+        }
+
         ecgDataOutputStream = null;
         accDataOutputStream = null;
         if (deviceOffLineFileUtil!=null){
@@ -1222,9 +1350,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
 
         deleteAbortDataRecordFomeSP();
-
         CommunicateToBleService.detoryServiceForegrounByNotify();
 
+        deleteOnLineMsgToServer();
     }
 
     //初始化定位
@@ -1328,12 +1456,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
         }*/
 
-
         MyApplication.runningActivity = MyApplication.MainActivity;
-
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
-
-
         CommunicateToBleService.detoryServiceForegrounByNotify();
     }
 }

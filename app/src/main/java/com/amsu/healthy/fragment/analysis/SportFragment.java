@@ -353,7 +353,7 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
                     float allcalorie = 0 ;
                     for (float i: kaliluliData){
                         allcalorie+=i;
-                        Log.i(TAG,"i:"+(int)i);
+                        //Log.i(TAG,"i:"+(int)i);
                     }
                     tv_sport_kalilu.setText((int)allcalorie+"");
                 }

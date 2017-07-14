@@ -112,7 +112,7 @@ public class DbAdapter {
 
 	public long saveOrUdateRecord(String distance, String duration, String averagespeed, String pathline, String stratpoint, String endpoint, String date,long id) {
 		ContentValues args = new ContentValues();
-		if(id!=-1){
+		if(id>0){
 			args.put(KEY_ROWID, id);
 		}
 		args.put("distance", distance);

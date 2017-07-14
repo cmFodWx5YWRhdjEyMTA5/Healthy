@@ -1,11 +1,14 @@
 package com.amsu.healthy.service;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.job.JobParameters;
+import android.app.job.JobService;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -17,8 +20,10 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -68,16 +73,24 @@ public class CommunicateToBleService extends Service {
     public CommunicateToBleService() {
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    /*@Override
+    public boolean onStartJob(JobParameters params) {
+        Log.i(TAG,"onStartJob");
+        MyUtil.startServices(this);
+        return false;
     }
+
+    @Override
+    public boolean onStopJob(JobParameters params) {
+        Log.i(TAG,"onStopJob");
+        MyUtil.scheduleService(this,1,CommunicateToBleService.class.getName());
+        return false;
+    }*/
 
     @Override
     public void onCreate() {
         Log.i(TAG,"onCreate");
         super.onCreate();
-
     }
 
     @Override
@@ -96,12 +109,14 @@ public class CommunicateToBleService extends Service {
             }
 
             stratListenScrrenBroadCast();
+            //MyUtil.scheduleService(this,1,CommunicateToBleService.class.getName());
 
             //setServiceForegrounByNotify();
             init();
 
 
             List<AppAbortDataSave> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
+            Log.i(TAG,"abortDataListFromSP:"+abortDataListFromSP.size());
             if (abortDataListFromSP!=null && abortDataListFromSP.size()>0){
                 isNeedStartRunningActivity = true;
                 Log.i(TAG,"SplashActivity.isSplashActivityStarted:"+SplashActivity.isSplashActivityStarted);
@@ -659,12 +674,12 @@ public class CommunicateToBleService extends Service {
 
 
 
-    public static void setServiceForegrounByNotify(String distance) {
-        NotificationManager nm = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+    public static void setServiceForegrounByNotify(String title ,String content,int state) {
+        //NotificationManager nm = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Notification notification = new Notification.Builder(mContext)
-                .setContentTitle("正在跑步")
-                .setContentText("里程："+distance+" km")
+                .setContentTitle(title)
+                .setContentText(content)
                 .setSmallIcon(R.drawable.logo_icon)
                 .setOngoing(true)
                 .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(),R.drawable.logo_icon))
@@ -672,7 +687,7 @@ public class CommunicateToBleService extends Service {
         notification.flags |= Notification.FLAG_NO_CLEAR;
 
         //新建Intent，用在Activity传递数据，点击时跳到ShowArticleDetailActivity页面
-        Intent intent1 = new Intent(mContext, StartRunActivity.class);
+
         /*if (MyApplication.runningActivity==MyApplication.MainActivity){
             intent1 = new Intent(this, MainActivity.class);
         }
@@ -683,7 +698,7 @@ public class CommunicateToBleService extends Service {
             intent1 = new Intent(this, StartRunActivity.class);
         }*/
         //给另一个设置任务栈属性，FLAG_ACTIVITY_NEW_TASK表示新建一个任务栈来显示当前的Activity
-        intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
 
 
         //PendingIntent 主要用于任务栏提醒和桌面weigetde 显示，
@@ -691,9 +706,13 @@ public class CommunicateToBleService extends Service {
         //这里用4个参数需要注意下，130表示requestCode（请求马，自定义）
         //第三个参数书Intent对象，intent1是上面定义的 Intent对象
         //第四个对象是PendingIntent的标签属性，表叔显示方式，这里FLAG_UPDATE_CURRENT表示显示当前的通知，如果用新的通知时，更新当期的通知，这个属性注意下，如果不设置的话每次点击都是同一个通知
-        PendingIntent activity = PendingIntent.getActivity(mContext, 130, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        notification.contentIntent = activity;
+        if (state==1){
+            Intent intent1 = new Intent(mContext, StartRunActivity.class);
+            intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            PendingIntent activity = PendingIntent.getActivity(mContext, 130, intent1, PendingIntent.FLAG_UPDATE_CURRENT);
+            notification.contentIntent = activity;
+        }
         //nm.notify(0, notification);
         mContext.startForeground(1, notification); //将Service设置为前台服务
     }
@@ -920,5 +939,11 @@ public class CommunicateToBleService extends Service {
         sendBroadcast(intent);
 
         WakeLockUtil.releaseWakeLock();
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 }

@@ -1,8 +1,12 @@
 package com.amsu.healthy.service;
 
+import android.annotation.TargetApi;
 import android.app.Service;
+import android.app.job.JobParameters;
+import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
@@ -10,16 +14,25 @@ import android.util.Log;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.WakeLockUtil;
 
-public class LocalGuardService extends Service {
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+public class LocalGuardService extends JobService {
     private static final String TAG = "LocalGuardService";
 
     public LocalGuardService() {
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+    public boolean onStartJob(JobParameters params) {
+        Log.i(TAG,"onStartJob");
+        MyUtil.startServices(this);
+        return false;
+    }
+
+    @Override
+    public boolean onStopJob(JobParameters params) {
+        Log.i(TAG,"onStopJob");
+        MyUtil.scheduleService(this,2,LocalGuardService.class.getName());
+        return false;
     }
 
     @Override
@@ -33,14 +46,12 @@ public class LocalGuardService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG,"onStartCommand");
         if (!isStartCommand){
-            testNewThread();
             WakeLockUtil.acquireWakeLock(this);
             isStartCommand = true;
+            MyUtil.scheduleService(this,2,LocalGuardService.class.getName());
         }
         return START_STICKY;
     }
-
-
 
     private void testNewThread() {
         MyUtil.startAllService(LocalGuardService.this);

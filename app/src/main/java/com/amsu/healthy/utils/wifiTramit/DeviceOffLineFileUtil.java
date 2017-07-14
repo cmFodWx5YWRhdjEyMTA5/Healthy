@@ -23,7 +23,7 @@ import java.util.TimerTask;
  */
 
 public class DeviceOffLineFileUtil {
-    public final static String HOST_SPOT_SSID = "Amsu";
+    public final static String HOST_SPOT_SSID = "ESP8266";
     public final static String HOST_SPOT_PASS_WORD = "0123456789";
 
     public final static String readDeviceVersion = "FF0100060616";

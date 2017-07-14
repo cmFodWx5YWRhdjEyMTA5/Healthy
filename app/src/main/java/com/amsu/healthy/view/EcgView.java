@@ -231,9 +231,10 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
                  * 因为有数据一次画ecgPerCount个数，那么无数据时候就应该画ecgPercount倍数长度的中线
                  */
                 int newX = (int) (mStartX + ecgXOffset * ecgPerCount);
-                int newY = ecgConver((int) (ecgMax / 6));
+                int newY = ecgConver((int) (ecgMax / 2));
                 mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
                 startY0 = newY;
+                ecgOneGroupData.clear();
             }
         }catch (NoSuchElementException e){
             e.printStackTrace();

@@ -39,7 +39,7 @@ public class SplashActivity extends Activity {
         isSplashActivityStarted = true;
         initView();
 
-        initData();
+
     }
 
     @Override
@@ -70,10 +70,16 @@ public class SplashActivity extends Activity {
 
         //MyUtil.putStringValueFromSP("abortDatas","");
         List<AppAbortDataSave> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
+        Log.i(TAG,"abortDataListFromSP:"+abortDataListFromSP);
+
         if (abortDataListFromSP!=null && abortDataListFromSP.size()>0){
-            Intent intent1 = new Intent(this,StartRunActivity.class);
+            Intent intent1 = new Intent(this,MainActivity.class);
             intent1.putExtra(Constant.isNeedRecoverAbortData,true);
             startActivity(intent1);
+
+            Intent intent2 = new Intent(this,StartRunActivity.class);
+            intent2.putExtra(Constant.isNeedRecoverAbortData,true);
+            startActivity(intent2);
             finish();
             return;
         }
@@ -104,7 +110,7 @@ public class SplashActivity extends Activity {
             }
         }.start();
 
-
+        initData();
     }
 
     private void initData() {

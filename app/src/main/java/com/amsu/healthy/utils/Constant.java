@@ -80,4 +80,10 @@ public class Constant {
 
     public static String uploadRecordDefaultString = "0";
 
+    public static String sendONLineMsgToServer = "http://192.168.137.1:8080/AmsuClothMonitor/AddUserInfoAction";
+    public static String deleteONLineMsgToServer = "http://localhost:8080/AmsuClothMonitor/deleteOnlineUserAction";
+
 }
+
+
+

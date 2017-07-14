@@ -24,6 +24,7 @@ import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.EcgFilterUtil;
 import com.amsu.healthy.utils.EcgFilterUtil_1;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.OffLineDbAdapter;
 import com.amsu.healthy.view.EcgView;
 
 import java.io.DataInputStream;
@@ -248,6 +249,9 @@ public class ECGFragment extends BaseFragment {
                                     mEcgGroupSize = datas.size() / 10;
                                     Log.i(TAG,"ecgGroupSize:"+mEcgGroupSize);
                                     Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
+
+
+
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
