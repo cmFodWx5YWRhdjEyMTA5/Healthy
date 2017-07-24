@@ -248,7 +248,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                         final byte[] bytes = new byte[1024*10];
                         //byte[] bytes = new byte[512+14];
                         int length;
-                        while ((length = inputStream.read(bytes))!=-1) {
+                        while (inputStream!=null && (length = inputStream.read(bytes))!=-1) {
                             Log.i(TAG, "length:" + length);
                             Log.i(TAG,"isStartUploadData:"+isStartUploadData);
 
@@ -316,6 +316,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
         byte[] bytes = DeviceOffLineFileUtil.hexStringToBytes(deviceOrder);
         if (socketWriter!=null){
             try {
+                Thread.sleep(20);
                 socketWriter.write(bytes);
                 Log.i(TAG,"发送命令：" + deviceOrder);
                 socketWriter.flush();
@@ -323,7 +324,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                 Log.e(TAG,"e:"+e);
                 e.printStackTrace();
 
-                Log.i(TAG,"异常重建socket");
+                /*Log.i(TAG,"异常重建socket");
                 try {
                     Socket sock = new Socket(ConnectToWifiModuleGudieActivity2.serverAddress, 8080);
                     socketWriter = sock.getOutputStream();
@@ -332,8 +333,12 @@ public class UploadOfflineFileActivity extends BaseActivity {
                 } catch (IOException eeee) {
                     e.printStackTrace();
                     Log.e(TAG,"异常重建socket失败:"+eeee);
-                }
+                }*/
+                inputStream  = null;
+                socketWriter = null;
 
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -877,6 +882,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
             Log.i(TAG,"重建socket");
             try {
                 Socket sock = new Socket(ConnectToWifiModuleGudieActivity2.serverAddress, 8080);
+                ConnectToWifiModuleGudieActivity2.mSock = sock;
                 socketWriter = sock.getOutputStream();
                 Log.i(TAG,"重建socket成功");
                 inputStream = sock.getInputStream();
@@ -901,7 +907,6 @@ public class UploadOfflineFileActivity extends BaseActivity {
             uploadNextPackageData();
             noRepronseCount++;
         }
-
     }
 
     //当前包传输成功，进行下一个包传输
@@ -948,7 +953,6 @@ public class UploadOfflineFileActivity extends BaseActivity {
         }*/
 
         Log.i(TAG,"deleteState:"+deleteState);
-
     }
 
     private void dealWithDeviceDeleteAllFile(String allHexString) {
@@ -961,10 +965,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
             */
 
         Log.i(TAG,"deleteState:"+deleteState);
-
-
     }
-
 
     private  String parseHexStringToBigInt(String hexString){
         BigInteger bigInteger = new BigInteger(hexString, 16);

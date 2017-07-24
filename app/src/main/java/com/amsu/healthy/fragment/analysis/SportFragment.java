@@ -329,6 +329,7 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
             if (!MyUtil.isEmpty(mUploadRecord.cadence) && !mUploadRecord.cadence.equals(Constant.uploadRecordDefaultString) && !mUploadRecord.cadence.equals("-1")){ //步频
                 List<Integer> fromJson = gson.fromJson(mUploadRecord.cadence,new TypeToken<List<Integer>>() {
                 }.getType());
+                Log.i(TAG,"步频数据： "+fromJson);
                 stepData = MyUtil.listToIntArray(fromJson);
                 if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
                     int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
@@ -351,10 +352,15 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
                     int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
                     hv_sport_kaliluline.setData(kaliluliData,time,HeightCurveView.LINETYPE_CALORIE);
                     float allcalorie = 0 ;
+                    float max= 0;
                     for (float i: kaliluliData){
                         allcalorie+=i;
                         //Log.i(TAG,"i:"+(int)i);
+                        if (i<13 && i>max){
+                            max = i;
+                        }
                     }
+                    Log.i(TAG,"max:"+max);
                     tv_sport_kalilu.setText((int)allcalorie+"");
                 }
             }

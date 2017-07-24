@@ -268,15 +268,17 @@ public class ECGFragment extends BaseFragment {
                     mAllTimeAtSecond = (int) (datas.size()/(Constant.oneSecondFrame*1f));  //计算总的时间秒数，1s为150帧，即为150个数据点
                     mAllTimeString = calcuEcgDataTimeAtSecond(mAllTimeAtSecond);
 
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            tv_ecg_protime.setText("0'0/"+mAllTimeString);
-                            if (isonResume){
-                                //startDrawSimulator();
+                    if (getActivity()!=null){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tv_ecg_protime.setText("0'0/"+mAllTimeString);
+                                if (isonResume){
+                                    //startDrawSimulator();
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
 
                     Log.i(TAG,"mAllTimeAtSecond:"+mAllTimeAtSecond);
                     Log.i(TAG,"datas.size():"+datas.size());

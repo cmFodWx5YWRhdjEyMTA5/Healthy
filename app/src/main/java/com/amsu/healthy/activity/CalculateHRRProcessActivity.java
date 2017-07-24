@@ -29,8 +29,8 @@ public class CalculateHRRProcessActivity extends BaseActivity {
     private static final String TAG = "CalculateHRRProcess";
     private TextView tv_process_rate;
     private RotateAnimation animation;
-    private int firstRate = 0;
-    private int currentRate = 0;
+    private int minHeartRate = 0;
+    private int maxHeartRate = 0;
     private boolean isTimeOut;
 
     @Override
@@ -80,7 +80,7 @@ public class CalculateHRRProcessActivity extends BaseActivity {
 
             Intent intent = new Intent(this, HeartRateActivity.class);
             if (isTimeOut){    //到一分钟，传递恢复心率数据
-                int hrr = firstRate - currentRate;
+                int hrr = maxHeartRate - minHeartRate;
                 if (hrr<=0){
                     hrr = 0;
                 }
@@ -135,7 +135,7 @@ public class CalculateHRRProcessActivity extends BaseActivity {
         stopProcess();
     }
 
-    boolean isFirst = true;
+    private boolean isFirstValue = true;
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 
@@ -143,11 +143,21 @@ public class CalculateHRRProcessActivity extends BaseActivity {
         public void onReceive(Context context, Intent intent) {
             int data = intent.getExtras().getInt("data");
             Log.i(TAG,"data:"+ data);
+            if (data==0){
+                return;
+            }
             tv_process_rate.setText(data+"");
-            currentRate = data;
-            if (isFirst){
-                firstRate = currentRate;
-                isFirst = false;
+
+            if (isFirstValue){
+                minHeartRate = maxHeartRate = data;
+                isFirstValue = false;
+            }
+
+            if (data<minHeartRate){
+                minHeartRate = data;
+            }
+            else if (data>maxHeartRate){
+                maxHeartRate = data;
             }
         }
     };

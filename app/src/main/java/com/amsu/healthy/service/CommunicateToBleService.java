@@ -117,7 +117,7 @@ public class CommunicateToBleService extends Service {
 
             List<AppAbortDataSave> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
             Log.i(TAG,"abortDataListFromSP:"+abortDataListFromSP.size());
-            if (abortDataListFromSP!=null && abortDataListFromSP.size()>0){
+            if (abortDataListFromSP.size() == 1){
                 isNeedStartRunningActivity = true;
                 Log.i(TAG,"SplashActivity.isSplashActivityStarted:"+SplashActivity.isSplashActivityStarted);
                 if (!SplashActivity.isSplashActivityStarted){
@@ -127,6 +127,9 @@ public class CommunicateToBleService extends Service {
                     startActivity(intent1);
                 }
                 Log.i(TAG,"isNeedStartRunningActivity:"+isNeedStartRunningActivity);
+            }
+            else if (abortDataListFromSP.size() > 1){
+                MyUtil.putStringValueFromSP("abortDatas","");
             }
         }
         return START_STICKY;
@@ -399,7 +402,7 @@ public class CommunicateToBleService extends Service {
                         Thread.sleep(40);
                         Log.i(TAG, "查询SD卡是否有数据");
                         mLeProxy.send(connecMac, DataUtil.hexToByteArray(Constant.checkIsHaveDataOrder),true);
-                        Thread.sleep(2000);
+                        Thread.sleep(200);
                         Log.i(TAG,"写配置");
                         String writeConfigureOrder = "FF010A"+ HealthyDataActivity.getDataHexString()+"0016";
                         Log.i(TAG,"writeConfigureOrder:"+writeConfigureOrder);
@@ -408,7 +411,7 @@ public class CommunicateToBleService extends Service {
 
                         mLeProxy.send(connecMac, DataUtil.hexToByteArray(writeConfigureOrder),true);
 
-                        Thread.sleep(2000);
+                        Thread.sleep(100);
                         Log.i(TAG,"开启数据指令");
                         mLeProxy.send(connecMac, DataUtil.hexToByteArray(Constant.openDataTransmitOrder),true);
                         Thread.sleep(100);
@@ -675,6 +678,7 @@ public class CommunicateToBleService extends Service {
 
 
     public static void setServiceForegrounByNotify(String title ,String content,int state) {
+
         //NotificationManager nm = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Notification notification = new Notification.Builder(mContext)

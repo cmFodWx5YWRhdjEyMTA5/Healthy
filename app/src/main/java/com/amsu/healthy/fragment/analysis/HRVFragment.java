@@ -106,11 +106,10 @@ public class HRVFragment extends BaseFragment {
                 String HRVs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
                 Log.i(TAG,"HRVs:"+HRVs);
 
-                if (!MyUtil.isEmpty( mUploadRecord.HRVs)){
-                    tv_hrv_suggestion.setText(mUploadRecord.HRVs);
-                }
+            }
 
-
+            if (!MyUtil.isEmpty( mUploadRecord.HRVs)){
+                tv_hrv_suggestion.setText(mUploadRecord.HRVs);
             }
         }
     }

@@ -264,7 +264,7 @@ public class MainActivity extends BaseActivity {
         }.start();*/
 
 
-           /* final int[] calcuData = new int[262655*20];  //10小时
+            /*final int[] calcuData = new int[262655*20];  //10小时
 
             Log.i(TAG,"DiagnosisNDK.AnalysisEcg: =====================");
             HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, Constant.oneSecondFrame);
@@ -307,30 +307,14 @@ public class MainActivity extends BaseActivity {
         Log.i(TAG,"Build.MODEL: "+ Build.MODEL);
 
 
+        /*测试计算心率算法
+        int[] test = new int[1800];
+        for (int i=0;i<1800;i++){
+            test[i] = 60+i%20;
+        }
 
-        String url = "http://localhost:8080/AmsuClothMonitor/AddUserInfoAction";
-        HttpUtils httpUtils = new HttpUtils();
-        RequestParams params = new RequestParams();
-
-        params.addBodyParameter("iconUrl ","images/1.jpg");
-        params.addBodyParameter("username ","haijun");
-        params.addBodyParameter("onlinestate ","1");
-        MyUtil.addCookieForHttp(params);
-
-        httpUtils.send(HttpRequest.HttpMethod.POST, url, params, new RequestCallBack<String>() {
-            @Override
-            public void onSuccess(ResponseInfo<String> responseInfo) {
-                String result = responseInfo.result;
-                Log.i(TAG,"上传onSuccess==result:"+result);
-
-            }
-
-            @Override
-            public void onFailure(HttpException e, String s) {
-                Log.i(TAG,"上传onFailure==s:"+s);
-            }
-        });
-
+        int i = DiagnosisNDK.ecgHeart(test, test.length, Constant.oneSecondFrame);
+        Log.i(TAG,"心率:"+i);*/
 
     }
 
@@ -477,6 +461,7 @@ public class MainActivity extends BaseActivity {
         startService(service);*/
 
         Log.i(TAG,"Build.MODEL"+Build.MODEL);
+
     }
 
     //给文本年龄设置文字动画
@@ -495,17 +480,9 @@ public class MainActivity extends BaseActivity {
         checkAndOpenBLEFeature();
         checkIsNeedUpadteApk();
 
-        int healthyIindexvalue = MyUtil.getIntValueFromSP("healthyIindexvalue");
-        if (healthyIindexvalue!=-1){
-            tv_main_indexvalue.setText(healthyIindexvalue+"");
-        }
-        physicalAge = MyUtil.getIntValueFromSP("physicalAge");
-        if (healthyIindexvalue>0){
-            setAgeTextAnimator(tv_main_age,0, physicalAge);
-            dv_main_compass.setAgeData(physicalAge-10);
-        }
 
-        Log.i(TAG,"healthyIindexvalue:"+healthyIindexvalue+"  physicalAge:"+physicalAge);
+
+
     }
 
     private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
@@ -588,6 +565,25 @@ public class MainActivity extends BaseActivity {
 
         }
 
+        int healthyIindexvalue = MyUtil.getIntValueFromSP("healthyIindexvalue");
+        if (healthyIindexvalue>0){
+            tv_main_indexvalue.setText(healthyIindexvalue+"");
+        }
+        else {
+            tv_main_indexvalue.setText("--");
+        }
+        physicalAge = MyUtil.getIntValueFromSP("physicalAge");
+        if (physicalAge>0){
+            setAgeTextAnimator(tv_main_age,0, physicalAge);
+            dv_main_compass.setAgeData(physicalAge-10);
+        }
+        else {
+            tv_main_age.setText("--");
+            dv_main_compass.setAgeData(0);
+        }
+
+        Log.i(TAG,"healthyIindexvalue:"+healthyIindexvalue+"  physicalAge:"+physicalAge);
+
         if (mValueAnimator!=null){
             mValueAnimator.start();
             cv_mian_index.setValue(170);
@@ -596,8 +592,6 @@ public class MainActivity extends BaseActivity {
                 dv_main_compass.setAgeData(physicalAge-10);
             }
         }
-
-
     }
 
     //检查是否支持蓝牙
@@ -642,6 +636,7 @@ public class MainActivity extends BaseActivity {
             boolean isPrefectInfo = MyUtil.getBooleanValueFromSP("isPrefectInfo");
             if (!isLogin){
                 showdialogToLogin();
+                MyApplication.mActivities.add(MainActivity.this);
                 //finish();
                 return;
             }

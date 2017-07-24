@@ -250,7 +250,7 @@ public class DeviceOffLineFileUtil {
     private  long timeSpan = 1000;
     private  TimerTask mTimerTask;
     private  int TimeOutCountIndex;
-    private  int TimeOutAllCount = 3;
+    private  int TimeOutAllCount = 5;
 
     public void setTransferTimeOverTime(final OnTimeOutListener onTimeOutListener){
         mTimerTask=new TimerTask() {
@@ -314,6 +314,8 @@ public class DeviceOffLineFileUtil {
         if (mIsTimeerRunning && mTimer!=null){
             mIsTimeerRunning = false;
             TimeOutCountIndex = 0;
+            //mTimer.cancel();
+            //mTimer = null;
         }
     }
 

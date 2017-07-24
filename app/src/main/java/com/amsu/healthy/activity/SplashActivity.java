@@ -72,7 +72,7 @@ public class SplashActivity extends Activity {
         List<AppAbortDataSave> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
         Log.i(TAG,"abortDataListFromSP:"+abortDataListFromSP);
 
-        if (abortDataListFromSP!=null && abortDataListFromSP.size()>0){
+        if (abortDataListFromSP!=null && abortDataListFromSP.size()==1){
             Intent intent1 = new Intent(this,MainActivity.class);
             intent1.putExtra(Constant.isNeedRecoverAbortData,true);
             startActivity(intent1);
@@ -82,6 +82,9 @@ public class SplashActivity extends Activity {
             startActivity(intent2);
             finish();
             return;
+        }
+        else if (abortDataListFromSP!=null && abortDataListFromSP.size() > 1){
+            MyUtil.putStringValueFromSP("abortDatas","");
         }
 
         Log.i(TAG,"开启线程");
@@ -138,6 +141,7 @@ public class SplashActivity extends Activity {
                 MyUtil.hideDialog();
                 if (isFromLogin){
                     activity.startActivity(new Intent(activity,MainActivity.class));
+                    MyUtil.destoryAllAvtivity();
                 }
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
@@ -156,6 +160,7 @@ public class SplashActivity extends Activity {
                 MyUtil.hideDialog();
                 if (isFromLogin){
                     activity.startActivity(new Intent(activity,MainActivity.class));
+                    MyUtil.destoryAllAvtivity();
                 }
                 Log.i(TAG,"上传onFailure==s:"+s);
             }

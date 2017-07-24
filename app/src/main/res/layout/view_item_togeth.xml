@@ -6,7 +6,7 @@
     android:background="#FFFFFF">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/x194"
+        android:layout_height="@dimen/x174"
         android:gravity="center_horizontal">
 
         <ImageView

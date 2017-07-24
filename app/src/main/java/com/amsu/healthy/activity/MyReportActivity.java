@@ -227,7 +227,8 @@ public class MyReportActivity extends BaseActivity {
     }
 
     private void loadDataSucces() {
-        fragmentTransaction.add(R.id.fragment_content, mouthReprtFragment).commit();
+        //fragmentTransaction.add(R.id.fragment_content, mouthReprtFragment).commit();
+        fragmentTransaction.add(R.id.fragment_content, mouthReprtFragment).commitAllowingStateLoss();
         currentFragment = mouthReprtFragment;
     }
 

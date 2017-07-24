@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
+import com.amsu.healthy.activity.MainActivity;
 import com.amsu.healthy.activity.SosActivity;
 import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.appication.MyApplication;
@@ -239,6 +240,11 @@ public class MyUtil {
     public static void putIntValueFromSP(String key,int value){
         SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
         edit.putInt(key,value).apply();
+    }
+
+    //清楚SP里的所有数据
+    public static void clearAllSPData(){
+        MyApplication.sharedPreferences.edit().clear().apply();
     }
 
     public static boolean isEmpty(String text){
@@ -742,7 +748,7 @@ public class MyUtil {
 
 
                 try {
-                    Thread.sleep(4000);
+                    Thread.sleep(3000);
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -985,6 +991,24 @@ public class MyUtil {
         Log.i(TAG, "stop CommunicateToBleService："+b2);
     }
 
+    //判断一个字符是不是Long型
+    public static long parseValidLong(String str){
+        try{
+            return Long.parseLong(str);
+        }catch(NumberFormatException e){
+            try{
+                return (long) Float.parseFloat(str);
+            }catch(NumberFormatException e1){
+                return -1;
+            }
+        }
+    }
 
+    public static void destoryAllAvtivity(){
+        for (Activity activity:MyApplication.mActivities){
+            activity.finish();
+        }
+        MyApplication.mActivities.clear();
+    }
 }
 

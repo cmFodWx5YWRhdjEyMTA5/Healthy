@@ -29,6 +29,8 @@ public class WifiStateReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.i(TAG,"onReceive:"+intent.getAction());
 
+
+
         //设置60秒定时器，60秒之后默认数据传输完毕
         if (!mIsSetTimerTask){
             deviceOffLineFileUtil = new DeviceOffLineFileUtil();
@@ -41,6 +43,8 @@ public class WifiStateReceiver extends BroadcastReceiver {
             },30);
             mIsSetTimerTask = true;
         }
+
+
         if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)){
             //CONNECTIVITY_CHANGE 某个wifi or 基站信号 连接或断开
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -67,7 +71,7 @@ public class WifiStateReceiver extends BroadcastReceiver {
                                 if (deviceOffLineFileUtil!=null){
                                     deviceOffLineFileUtil.startTime();
                                 }
-                                startUploadOffLineData(context);
+                                //startUploadOffLineData(context);
                             }
                         }
                         return;
@@ -78,6 +82,7 @@ public class WifiStateReceiver extends BroadcastReceiver {
     }
 
     //开始上传数据
+    //此处有bug，上传时从数据库里查，但是数据库里的EC为空，上传失败
     private void startUploadOffLineData(Context context) {
         OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(context);
         offLineDbAdapter.open();

@@ -168,70 +168,78 @@ public class DeviceInfoActivity extends BaseActivity {
     public void unBindDevice(View view) {
         Device deviceFromSP = MyUtil.getDeviceFromSP();
 
-        HttpUtils httpUtils = new HttpUtils();
-        RequestParams params = new RequestParams();
+        if (deviceFromSP!=null){
+            HttpUtils httpUtils = new HttpUtils();
+            RequestParams params = new RequestParams();
 
-        params.addBodyParameter("deviceMAC",System.currentTimeMillis()+deviceFromSP.getLEName());
+            params.addBodyParameter("deviceMAC",System.currentTimeMillis()+deviceFromSP.getLEName());
 
-        if (MyUtil.getUserFromSP()!=null){
-            params.addBodyParameter("deviceMAC",MyUtil.getUserFromSP().getPhone());
-        }
+            if (MyUtil.getUserFromSP()!=null){
+                params.addBodyParameter("deviceMAC",MyUtil.getUserFromSP().getPhone());
+            }
 
-        //params.addBodyParameter("deviceMAC","");
-        MyUtil.addCookieForHttp(params);
-        MyUtil.showDialog("正在绑定",this);
+            //params.addBodyParameter("deviceMAC","");
+            MyUtil.addCookieForHttp(params);
+            MyUtil.showDialog("正在绑定",this);
 
-        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.bindingDeviceURL, params, new RequestCallBack<String>() {
-            @Override
-            public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
-                String result = responseInfo.result;
-                Log.i(TAG,"上传onSuccess==result:"+result);
-                JsonBase jsonBase = MyUtil.commonJsonParse(result, new TypeToken<JsonBase>() {}.getType());
+            httpUtils.send(HttpRequest.HttpMethod.POST, Constant.bindingDeviceURL, params, new RequestCallBack<String>() {
+                @Override
+                public void onSuccess(ResponseInfo<String> responseInfo) {
+                    MyUtil.hideDialog();
+                    String result = responseInfo.result;
+                    Log.i(TAG,"上传onSuccess==result:"+result);
+                    JsonBase jsonBase = MyUtil.commonJsonParse(result, new TypeToken<JsonBase>() {}.getType());
 
-                Log.i(TAG,"jsonBase:"+jsonBase);
+                    Log.i(TAG,"jsonBase:"+jsonBase);
 
-                String restult = (String) jsonBase.errDesc;
-                if (MyUtil.isEmpty(restult)){
-                    return;
-                }
-
-                if (jsonBase.getRet() == 0){
-                    restult = "解绑成功";
-                    //绑定成功
-                    MyUtil.saveDeviceToSP(null);
-                    Intent intent = getIntent();
-                    setResult(RESULT_OK, intent);
-                    if (MyApplication.isHaveDeviceConnectted){
-                        //断开蓝牙连接
-                        CommunicateToBleService.mLeProxy.disconnect(MyApplication.connectedMacAddress);
+                    String restult = (String) jsonBase.errDesc;
+                    if (MyUtil.isEmpty(restult)){
+                        return;
                     }
 
+                    if (jsonBase.getRet() == 0){
+                        restult = "解绑成功";
+                        //绑定成功
+                        MyUtil.saveDeviceToSP(null);
+                        Intent intent = getIntent();
+                        setResult(RESULT_OK, intent);
+                        if (MyApplication.isHaveDeviceConnectted){
+                            //断开蓝牙连接
+                            CommunicateToBleService.mLeProxy.disconnect(MyApplication.connectedMacAddress);
+                        }
+
+                    }
+                    else {
+                        //设备已被其他人绑定！
+                        restult = "解绑失败";
+                    }
+                    AlertDialog alertDialog = new AlertDialog.Builder(DeviceInfoActivity.this)
+
+                            .setTitle(restult)
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            })
+                            .create();
+                    alertDialog.setCanceledOnTouchOutside(false);
+                    alertDialog.show();
                 }
-                else {
-                    //设备已被其他人绑定！
-                    restult = "解绑失败";
+
+                @Override
+                public void onFailure(HttpException e, String s) {
+                    MyUtil.hideDialog();
+                    Log.i(TAG,"上传onFailure==s:"+s);
+                    MyUtil.showToask(DeviceInfoActivity.this,Constant.noIntentNotifyMsg);
                 }
-                AlertDialog alertDialog = new AlertDialog.Builder(DeviceInfoActivity.this)
+            });
+        }
+        else {
+            MyUtil.showToask(this,"你还没有绑定过设备！");
+        }
 
-                        .setTitle(restult)
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
 
-                            }
-                        })
-                        .create();
-                alertDialog.setCanceledOnTouchOutside(false);
-                alertDialog.show();
-            }
-
-            @Override
-            public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
-                Log.i(TAG,"上传onFailure==s:"+s);
-            }
-        });
     }
 
     @Override

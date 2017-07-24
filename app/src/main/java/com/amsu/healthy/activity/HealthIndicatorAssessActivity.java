@@ -195,7 +195,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         downlaodWeekRepore(mCurrYear,mCurrWeekOfYear-1);
     }
 
-    private void downlaodWeekRepore(final int year, int weekOfYear) {
+    private void downlaodWeekRepore(final int year, final int weekOfYear) {
         MyUtil.showDialog("加载数据",this);
         Log.i(TAG,"downlaodWeekRepore=======year:"+year+"  weekOfYear:"+weekOfYear);
 
@@ -234,7 +234,11 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                     setIndicatorData();
                 }
                 else if (jsonBase.getRet()==-10001){
-                    MyUtil.showToask(HealthIndicatorAssessActivity.this,tv_assess_compare.getText()+"无数据");
+                    String toaskText = tv_assess_compare.getText()+"无数据";
+                    if (weekOfYear==-1){
+                        toaskText = "本周无数据";
+                    }
+                    MyUtil.showToask(HealthIndicatorAssessActivity.this,toaskText);
                     float[] data1 = {0, 0, 0, 0, 0,0,0};
                     rc_assess_radar.setDatas(thisWeekdata,data1,null);
                 }

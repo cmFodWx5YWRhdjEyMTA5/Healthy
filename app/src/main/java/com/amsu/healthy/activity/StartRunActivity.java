@@ -32,6 +32,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.bean.JsonBase;
+import com.amsu.healthy.bean.OnlineUser;
 import com.amsu.healthy.bean.User;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.AppAbortDbAdapter;
@@ -59,6 +60,8 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 import com.test.utils.DiagnosisNDK;
 
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONObject;
 
 import java.io.DataOutputStream;
@@ -66,6 +69,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -150,7 +155,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private boolean isNeedRecoverAbortData;
     private long recoverTimeMillis = 0;
     private static final int saveDataTOLocalTimeSpanSecond = 60*1;  //数据持久化时间间隔 1分钟
-    private static final int minimumLimitTimeMillis = 1000 * 60 * 5;  //最短时间限制 5分钟
+    private static final int minimumLimitTimeMillis = 1000 * 60 * 3;  //最短时间限制 3分钟
     private long addDuration;
 
     @Override
@@ -260,8 +265,11 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 dbAdapter.open();
                 record = dbAdapter.queryRecordById((int) createrecord);
                 Log.i(TAG,"record:"+record);
-                addDuration = Long.parseLong(record.getDuration());
-                recoverTimeMillis = Long.parseLong(record.getDuration());
+                long l = MyUtil.parseValidLong(record.getDuration());
+                if (l>0){
+                    recoverTimeMillis = addDuration = l;
+                }
+
                 mStartTime = System.currentTimeMillis();
                 dbAdapter.close();
 
@@ -325,6 +333,17 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                     AppAbortDbAdapter.putAbortDataListToSP(abortDataListFromSP);*/
                     //startActivity(new Intent(StartRunActivity.this,MainActivity.class));
                     deleteAbortDataRecordFomeSP();
+                    closeConnectWebSocket();
+
+                    if (deviceOffLineFileUtil!=null){
+                        deviceOffLineFileUtil.stopTime();
+                        deviceOffLineFileUtil = null;
+                    }
+                    if (saveDeviceOffLineFileUtil!=null){
+                        saveDeviceOffLineFileUtil.stopTime();
+                        saveDeviceOffLineFileUtil = null;
+                    }
+
                     finish();
                 }
             });
@@ -347,8 +366,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 startActivityForResult(enableBtIntent, MainActivity.REQUEST_ENABLE_BT);
             }
             isonResumeEd = true;
-            setDeviceConnectedState(MyApplication.isHaveDeviceConnectted);
         }
+        setDeviceConnectedState(MyApplication.isHaveDeviceConnectted);
     }
 
     @Override
@@ -436,26 +455,30 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         if (hexData.length() > 40) {
             mIsDataStart = true;
         }
-        if (mIsRunning){
-            if (hexData.startsWith("FF 83 0F")) {
-                //心电数据
-                //Log.i(TAG,"心电hexData:"+hexData);
-                dealWithEcgData(hexData);
-                isHaveDataTransfer = true;
-            } else if (hexData.startsWith("FF 86 11")) {
-                //加速度数据
-                //Log.i(TAG,"加速度hexData:"+hexData);
-                dealWithAccelerationgData(hexData);
-            }
+
+        if (hexData.startsWith("FF 83 0F")) {
+            //心电数据
+            //Log.i(TAG,"心电hexData:"+hexData);
+            dealWithEcgData(hexData);
+            isHaveDataTransfer = true;
+        } else if (hexData.startsWith("FF 86 11")) {
+            //加速度数据
+            //Log.i(TAG,"加速度hexData:"+hexData);
+            dealWithAccelerationgData(hexData);
         }
+
     }
+    int [] ints;
 
     //处理心电数据
     private void dealWithEcgData(String hexData) {
-        if (!mIsRunning)return;
-        final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
 
-        writeEcgDataToBinaryFile(ints);
+        ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
+
+
+        if (mIsRunning){
+            writeEcgDataToBinaryFile(ints);
+        }
 
         //滤波处理
         for (int i=0;i<ints.length;i++){
@@ -463,6 +486,11 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
             ints[i] = temp;
         }
+
+        startRealTimeDataTrasmit(ints);
+
+
+
 
         //Log.i(TAG,"currentGroupIndex:"+currentGroupIndex);
 
@@ -477,7 +505,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
             Log.i(TAG,"heartRate0:"+ mCurrentHeartRate);
             MyApplication.currentHeartRate = mCurrentHeartRate;
-            //calcuEcgRate = new int[groupCalcuLength*10];
+            //calcuEcgRate = new int[calGroupCalcuLength*10];
 
             heartRateDates.add(mCurrentHeartRate);
 
@@ -487,8 +515,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             mSendHeartRateBroadcastIntent.putExtra("data", mCurrentHeartRate);
             sendBroadcast(mSendHeartRateBroadcastIntent);
 
-            final String OxygenState = calcuOxygenState(mCurrentHeartRate);
+            if (!mIsRunning)return;
 
+            final String OxygenState = calcuOxygenState(mCurrentHeartRate);
 
             //更新心率
             runOnUiThread(new Runnable() {
@@ -519,6 +548,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 Log.i(TAG,"getkcal:"+getkcal);
                 if (getkcal<0){
                     getkcal = 0;
+                }
+                //防止蓝牙断开又重新连上后时间太长导致卡路里很大
+                if (getkcal>6 && mKcalData.size()>0){
+                    getkcal = Integer.parseInt(mKcalData.get(mKcalData.size()-1));
                 }
 
                 mAllKcal += getkcal;
@@ -667,7 +700,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private void dealWithAccelerationgData(String hexData) {
         if (!mIsRunning)return;
         final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 12); //一次的数据，12位
+
         writeAccDataToBinaryFile(ints);
+
 
         if (accData.size()<accDataLength){
             for (int i:ints){
@@ -992,6 +1027,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         bt_run_start.setText("长按结束");
         bt_run_lock.setVisibility(View.VISIBLE);
         mIsRunning  =true;
+        mCurrTimeDate = new Date(0,0,0);
         
         if (isNeedRecoverAbortData){
             isFiveMit = true;
@@ -1052,105 +1088,162 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 }
             }
         },saveDataTOLocalTimeSpanSecond);//1min 保存数据到本地
-
         saveDeviceOffLineFileUtil.startTime();
+
         initMapLoationTrace();
         startCalSpeedTimerStask();
+        String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", mCurrTimeDate);
+        CommunicateToBleService.setServiceForegrounByNotify("正在跑步","里程："+mFormatDistance+"KM         时长："+specialFormatTime,1);
+        Log.i(TAG,"设置通知:"+specialFormatTime);
 
-        CommunicateToBleService.setServiceForegrounByNotify("正在跑步","里程："+mFormatDistance+" KM",1);
-
-        sendOnLineMsgToServer();
+        connectWebSocket();
     }
 
-    //增长率
-    private void sendOnLineMsgToServer() {
-        User userFromSP = MyUtil.getUserFromSP();
-        if (userFromSP!=null){
-            HttpUtils httpUtils = new HttpUtils();
-            RequestParams params = new RequestParams();
 
-            params.addBodyParameter("iconUrl",userFromSP.getIcon());
-            params.addBodyParameter("username",userFromSP.getUsername());
-            params.addBodyParameter("onlinestate","1");
+    private WebSocketClient mWebSocketClient;
+    private String address = "ws://192.168.0.105:8080/WebTest/websocket";
+    private boolean isStartDataTransfer;
 
-            MyUtil.addCookieForHttp(params);
 
-            httpUtils.send(HttpRequest.HttpMethod.POST, Constant.sendONLineMsgToServer, params, new RequestCallBack<String>() {
+    /** 初始化WebSocketClient
+     *
+     * @throws URISyntaxException
+     */
+    private void initSocketClient() throws URISyntaxException {
+        if(mWebSocketClient == null) {
+            mWebSocketClient = new WebSocketClient(new URI(address)) {
                 @Override
-                public void onSuccess(ResponseInfo<String> responseInfo) {
+                public void onOpen(ServerHandshake serverHandshake) {
+                    //连接成功
+                    Log.i(TAG,"opened connection");
 
-                    String result = responseInfo.result;
-                    Log.i(TAG,"上传onSuccess==result:"+result);
+                    User userFromSP = MyUtil.getUserFromSP();
+                    String testIconUrl = userFromSP.getIcon();
+                    String username = userFromSP.getUsername();
+
+                    /*OnlineUser onlineUser = new OnlineUser(testIconUrl,userFromSP.getUsername(),1);
                     Gson gson = new Gson();
-                    JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
-                    Log.i(TAG,"jsonBase:"+jsonBase);
-                    if (jsonBase.getRet()==0){
-                        Log.i(TAG,"在线成功");
-                        MyUtil.putStringValueFromSP("onlineID",jsonBase.getErrDesc()+"");
+                    JsonBase jsonBase = new JsonBase();
+                    jsonBase.setRet(0);
+                    jsonBase.setErrDesc(onlineUser);
+
+                    String msg = gson.toJson(jsonBase);*/
+                    //F1,http://119.29.201.120:83/usericons/f81241db11c869f3c8e57ff96538abbc.png,1,天空之城
+                    String msg = "F1,"+testIconUrl+",1,"+username;
+
+                    sendSocketMsg(msg);
+
+                }
+
+                @Override
+                public void onMessage(String s) {
+                    //服务端消息
+                    Log.i(TAG,"received:" + s);
+                    //F1,服务器正常
+
+                    /*Gson gson = new Gson();
+                    JsonBase jsonBase = gson.fromJson(s, JsonBase.class);
+                    Log.i(TAG,"jsonBase："+jsonBase.toString());
+                    if (jsonBase.getRet()==1){
+                        //开始实时数据传输
+                        isStartDataTransfer = true;
+
+                    }*/
+
+                    String[] split = s.split(",");
+                    if (split!=null && split.length>0 && split[0].equals("F1")){
+                        //开始实时数据传输
+                        isStartDataTransfer = true;
                     }
                 }
 
                 @Override
-                public void onFailure(HttpException e, String s) {
-                    MyUtil.hideDialog();
-
-                    Log.i(TAG,"上传onFailure==s:"+s);
+                public void onClose(int i, String s, boolean remote) {
+                    //连接断开，remote判定是客户端断开还是服务端断开
+                    Log.i(TAG,"Connection closed by " + ( remote ? "remote peer" : "us" ) + ", info=" + s);
+                    //
+                    //closeConnect();
                 }
-            });
 
 
+                @Override
+                public void onError(Exception e) {
+                    Log.i(TAG,"error:" + e);
+                }
+            };
         }
     }
 
-    //离线
-    private void deleteOnLineMsgToServer() {
-        HttpUtils httpUtils = new HttpUtils();
-        RequestParams params = new RequestParams();
-
-        String onlineID = MyUtil.getStringValueFromSP("onlineID");
-        if (!MyUtil.isEmpty(onlineID)){
-            params.addBodyParameter("id",onlineID);
+    JsonBase jsonBase = new JsonBase();
+    Gson gson = new Gson();
+    String intString;
+    private void startRealTimeDataTrasmit(int [] ints) {
+        if (isStartDataTransfer){
+            intString = "F0,";
+            for (int i:ints){
+                intString+=i+",";
+            }
+            /*jsonBase.setRet(1);
+            jsonBase.setErrDesc(intString.substring(0,intString.length()-1));
+            sendSocketMsg(gson.toJson(jsonBase));*/
+            //F0,28,18,6,-2,-3,0,3,5,1,-1
+            sendSocketMsg(intString);
         }
 
-        MyUtil.addCookieForHttp(params);
+    }
 
-        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.deleteONLineMsgToServer, params, new RequestCallBack<String>() {
+    private void sendSocketMsg(String msg) {
+        if (mWebSocketClient!=null && mWebSocketClient.isOpen()){
+            mWebSocketClient.send(msg);
+            Log.i(TAG,"msg:"+msg);
+        }
+    }
+
+    //连接
+    private void connectWebSocket() {
+        try {
+            initSocketClient();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        new Thread(){
             @Override
-            public void onSuccess(ResponseInfo<String> responseInfo) {
-
-                String result = responseInfo.result;
-                Log.i(TAG,"上传onSuccess==result:"+result);
-                Gson gson = new Gson();
-                JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
-                Log.i(TAG,"jsonBase:"+jsonBase);
-                if (jsonBase.getRet()==0){
-                    Log.i(TAG,"在线成功");
-                    MyUtil.putStringValueFromSP("onlineID","");
-                }
+            public void run() {
+                mWebSocketClient.connect();
             }
+        }.start();
+    }
 
-            @Override
-            public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
-                MyUtil.putStringValueFromSP("onlineID","");
-                Log.i(TAG,"上传onFailure==s:"+s);
+
+    //断开连接
+    private void closeConnectWebSocket() {
+        try {
+            if(mWebSocketClient!=null){
+                mWebSocketClient.close();
+                mWebSocketClient = null;
             }
-        });
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            mWebSocketClient = null;
+            isStartDataTransfer = false;
+        }
     }
 
     private void startCalSpeedTimerStask() {
-        if (deviceOffLineFileUtil==null){
-            deviceOffLineFileUtil = new DeviceOffLineFileUtil();
-            deviceOffLineFileUtil.setTransferTimeOverTime(new DeviceOffLineFileUtil.OnTimeOutListener() {
-                @Override
-                public void onTomeOut() {
-                    if (mIsRunning){
-                        Log.i(TAG,"8s 计算速度");
-                        startCal7ScendSpeed();
-                    }
+        deviceOffLineFileUtil = new DeviceOffLineFileUtil();
+        deviceOffLineFileUtil.setTransferTimeOverTime(new DeviceOffLineFileUtil.OnTimeOutListener() {
+            @Override
+            public void onTomeOut() {
+                if (mIsRunning){
+                    Log.i(TAG,"8s 计算速度");
+                    startCal7ScendSpeed();
                 }
-            },8);//8s 计算速度
-        }
+            }
+        },8);//8s 计算速度
 
         deviceOffLineFileUtil.startTime();
     }
@@ -1203,7 +1296,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             @Override
             public void run() {
                 tv_run_speed.setText(mFinalFormatSpeed);
-                CommunicateToBleService.setServiceForegrounByNotify("正在跑步","里程："+mFormatDistance+" KM",1);
+                String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", mCurrTimeDate);
+                CommunicateToBleService.setServiceForegrounByNotify("正在跑步","里程："+mFormatDistance+"KM         时长："+specialFormatTime,1);
+                Log.i(TAG,"设置通知:"+specialFormatTime);
             }
         });
     }
@@ -1306,6 +1401,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 if (mSpeedStringList.size()>0){
                     ArrayList<Integer> tempList = new ArrayList<Integer>();
                     tempList.addAll(mSpeedStringList);
+
                     intent.putIntegerArrayListExtra(Constant.mSpeedStringListData,tempList);
                 }
                 Log.i(TAG,"startActivity");
@@ -1349,10 +1445,13 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             saveDeviceOffLineFileUtil = null;
         }
 
+
+
         deleteAbortDataRecordFomeSP();
         CommunicateToBleService.detoryServiceForegrounByNotify();
 
-        deleteOnLineMsgToServer();
+        closeConnectWebSocket();
+
     }
 
     //初始化定位

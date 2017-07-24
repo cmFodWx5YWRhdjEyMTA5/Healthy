@@ -1116,7 +1116,7 @@ public class HealthyIndexUtil {
     }
 
     public static String  getHRVSuggetstion(int sdnn,int lf){
-        String defaultSuggetstion = "无法获取分析结果";
+        String defaultSuggetstion = "数据不足，无法得出分析结果";
         if (sdnn >=280 || lf<2) {
             return "您的体能充沛，但是精神非常疲惫，适合放下工作做一些体育锻炼，注意不要过度用脑，劳逸结合才能保持身心健康。建议您适当减轻脑力劳动，离开办公桌释放一下自己吧!";
         }else if ((sdnn >=200 && sdnn<280) ||(lf>=2 && lf<=5)){

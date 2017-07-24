@@ -85,7 +85,8 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
     private void exit() {
         Log.i(TAG,"isLogin:"+ MyUtil.getBooleanValueFromSP("isLogin"));
         Log.i(TAG,"isPrefectInfo:"+MyUtil.getBooleanValueFromSP("isPrefectInfo"));
-        MyUtil.putBooleanValueFromSP("isLogin",false);
+
+       /* MyUtil.putBooleanValueFromSP("isLogin",false);
         MyUtil.putBooleanValueFromSP("isPrefectInfo",false);
 
         MyUtil.putStringValueFromSP(Constant.sosinfo,"");
@@ -96,14 +97,19 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         Log.i(TAG,"isLogin:"+MyUtil.getBooleanValueFromSP("isLogin"));
         Log.i(TAG,"isPrefectInfo:"+MyUtil.getBooleanValueFromSP("isPrefectInfo"));
         MyUtil.saveUserToSP(new User());
+        */
+
+        MyUtil.clearAllSPData();
         startActivity(new Intent(SystemSettingActivity.this,LoginActivity.class));
         MobclickAgent.onProfileSignOff();  ////友盟退出登陆账号统计
 
         for (Activity activity: MyApplication.mActivities){
             activity.finish();
         }
+        int healthyIindexvalue = MyUtil.getIntValueFromSP("healthyIindexvalue");
+        int physicalAge = MyUtil.getIntValueFromSP("physicalAge");
 
-
+        Log.i(TAG,"healthyIindexvalue:"+healthyIindexvalue+"  physicalAge:"+physicalAge);
     }
 
     private void dumpToPersionData() {
@@ -115,4 +121,6 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
             startActivity(new Intent(SystemSettingActivity.this,LoginActivity.class));
         }
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.amsu.healthy.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MD5Util;
@@ -364,6 +366,8 @@ public class LoginActivity extends BaseActivity {
                                     else {
                                         //操作失败
                                         startActivity(new Intent(LoginActivity.this,MainActivity.class));
+
+                                        MyUtil.destoryAllAvtivity();
                                     }
                                     finish();
                                 } catch (JSONException e) {

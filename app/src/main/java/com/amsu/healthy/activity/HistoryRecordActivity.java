@@ -111,6 +111,7 @@ public class HistoryRecordActivity extends BaseActivity {
         lv_history_all.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
                 HistoryRecord historyRecord = historyRecords.get(position);
                 Log.i(TAG,"historyRecord:"+historyRecord.toString());
                 Intent intent;
@@ -196,13 +197,17 @@ public class HistoryRecordActivity extends BaseActivity {
                         historyRecordAdapter.notifyDataSetChanged();
                         pageCount++;
                     }
+                    else if (jsonBase.errDesc!=null && jsonBase.errDesc.size()==0){
+                        MyUtil.showToask(HistoryRecordActivity.this,"没有查询到运动记录");
+                    }
                 }
             }
 
             @Override
             public void onFailure(HttpException e, String s) {
-                lv_history_all.loadMoreSuccessd();
+                //lv_history_all.loadMoreSuccessd();
                 MyUtil.hideDialog();
+                MyUtil.showToask(HistoryRecordActivity.this,Constant.noIntentNotifyMsg);
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });

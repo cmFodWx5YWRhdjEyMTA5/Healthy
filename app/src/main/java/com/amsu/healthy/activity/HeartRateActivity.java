@@ -12,11 +12,9 @@ import android.widget.ImageView;
 
 import com.amap.api.maps.model.LatLng;
 import com.amsu.healthy.R;
-import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.EcgFilterUtil;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
@@ -45,7 +43,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -155,7 +152,7 @@ public class HeartRateActivity extends BaseActivity {
                                 Log.i(TAG,"离线分析:");
 
                                 //计算心率数组
-                                int[] calcuEcgRate = HealthyDataActivity.calcuEcgRate;
+                                int[] calcuEcgRate = new int[HealthyDataActivity.calGroupCalcuLength *HealthyDataActivity.oneGroupLength];
                                 int heartCount = ecgDataList.size() / calcuEcgRate.length;
 
 
@@ -387,6 +384,47 @@ public class HeartRateActivity extends BaseActivity {
         final Gson gson = new Gson();
         //设置心电数据
         if (ecgDataList!=null && ecgDataList.size()>0){
+            int MaxHR = 0;
+            int MinHR  =0;
+            int averHeart  =0;
+            String AHR = Constant.uploadRecordDefaultString;
+
+            if(heartDataList.size()>0){
+                MaxHR= heartDataList.get(0);
+                MinHR= heartDataList.get(0);
+
+                int sum = 0;
+                for (int heart: heartDataList){
+                    if (heart>MaxHR){
+                        MaxHR =heart;
+                    }
+                    if (heart<MinHR){
+                        MinHR = heart;
+                    }
+                    sum += heart;
+                }
+
+                averHeart = sum / heartDataList.size();
+
+                AHR = String.valueOf(averHeart);
+                if (averHeart>30  && averHeart<150){
+                    MyUtil.putIntValueFromSP(Constant.restingHR,averHeart);
+                }
+            }
+
+            String  EC = Constant.uploadRecordDefaultString;
+            if (!MyUtil.isEmpty(fileBase64)){
+                EC = fileBase64;
+            }
+
+            String HRs = "数据不足，无法得出分析结果";  //心率健康建议
+            if (averHeart>0){
+                String heartRateSuggetstion = HealthyIndexUtil.getHeartRateSuggetstion(sportState, averHeart);
+                if (!MyUtil.isEmpty(heartRateSuggetstion)){
+                    HRs = heartRateSuggetstion;
+                }
+            }
+
             Log.i(TAG,"ecgDataList.size(): ====================="+ecgDataList.size());
             final int[] calcuData = new int[ecgDataList.size()];
             for (int i=0;i<ecgDataList.size();i++ ){
@@ -400,7 +438,7 @@ public class HeartRateActivity extends BaseActivity {
 
             String ECr = "1";
             String HRVs = "数据不足，无法得出分析结果";
-            String ECs = Constant.uploadRecordDefaultString;
+            String ECs = "数据不足，无法得出分析结果";
 
             Log.i(TAG,"DiagnosisNDK.AnalysisEcg: =====================");
             HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, Constant.oneSecondFrame);
@@ -439,7 +477,9 @@ public class HeartRateActivity extends BaseActivity {
                 ECs = "本次测量漏搏"+loubo+"次。漏搏与迷走神经张力增高有关，可见于正常人或运动员，也可见于急性心肌梗死、冠状动脉痉挛、心肌炎等情况。偶尔出现属正常现象，请不必过于紧张；当有明显症状或感觉身体不适时请及时就医检查。";
             }
             else {
-                ECs = "正常心电图";
+                if (averHeart>0){
+                    ECs = "正常心电图";
+                }
             }
 
             if (heartRateResult.RR_Kuanbo>0){  //漏博
@@ -449,53 +489,17 @@ public class HeartRateActivity extends BaseActivity {
                 ECr="4";
             }
 
+            if (heartRateResult.RR_Kuanbo>0 && (heartRateResult.RR_Apb+heartRateResult.RR_Pvc>0)){
+                //异常：早搏+漏博
+                ECr="2";
+            }
+
             if (heartRateResult.HF>0){
                 HRVs = HealthyIndexUtil.getHRVSuggetstion(heartRateResult.RR_SDNN, (int) (heartRateResult.LF / heartRateResult.HF));
                 Log.i(TAG,"HRVs:"+HRVs);
             }
 
             String HR = gson.toJson(heartDataList);
-
-            int MaxHR = 0;
-            int MinHR  =0;
-            int averHeart  =0;
-            String AHR = Constant.uploadRecordDefaultString;
-
-            if(heartDataList.size()>0){
-                MaxHR= heartDataList.get(0);
-                MinHR= heartDataList.get(0);
-
-                int sum = 0;
-                for (int heart: heartDataList){
-                    if (heart>MaxHR){
-                        MaxHR =heart;
-                    }
-                    if (heart<MinHR){
-                        MinHR = heart;
-                    }
-                    sum += heart;
-                }
-
-                averHeart = sum / heartDataList.size();
-
-                AHR = String.valueOf(averHeart);
-                if (averHeart>30  && averHeart<150){
-                    MyUtil.putIntValueFromSP(Constant.restingHR,averHeart);
-                }
-            }
-
-            String  EC = Constant.uploadRecordDefaultString;
-            if (!MyUtil.isEmpty(fileBase64)){
-                EC = fileBase64;
-            }
-
-            String HRs = "数据不足，无法获得结果";  //心率健康建议
-            if (averHeart>0){
-                String heartRateSuggetstion = HealthyIndexUtil.getHeartRateSuggetstion(sportState, averHeart);
-                if (!MyUtil.isEmpty(heartRateSuggetstion)){
-                    HRs = heartRateSuggetstion;
-                }
-            }
 
             String RA = hrr+"";  //心率恢复能力
 
@@ -723,6 +727,8 @@ public class HeartRateActivity extends BaseActivity {
 
                 List<UploadRecord> uploadRecordsState = offLineDbAdapter.queryRecordByUploadState("0");
                 Log.i(TAG,"uploadRecordsState:"+uploadRecordsState);
+
+                offLineDbAdapter.close();
             }
         });
     }

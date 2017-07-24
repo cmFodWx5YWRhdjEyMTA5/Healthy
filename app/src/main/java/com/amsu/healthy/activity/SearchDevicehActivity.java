@@ -279,8 +279,11 @@ public class SearchDevicehActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        animation.cancel();
-        mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+        if (animation!=null){
+            animation.cancel();
+        }
+       if (mBluetoothAdapter!=null){
+           mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+       }
     }
-
 }

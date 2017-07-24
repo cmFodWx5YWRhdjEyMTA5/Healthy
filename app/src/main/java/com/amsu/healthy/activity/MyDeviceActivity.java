@@ -271,6 +271,7 @@ public class MyDeviceActivity extends BaseActivity {
             public void onFailure(HttpException e, String s) {
                 MyUtil.hideDialog();
                 Log.i(TAG,"上传onFailure==s:"+s);
+                MyUtil.showToask(MyDeviceActivity.this,Constant.noIntentNotifyMsg);
             }
         });
     }

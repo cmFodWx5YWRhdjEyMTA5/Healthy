@@ -160,6 +160,8 @@ public class RateAnalysisActivity extends BaseActivity {
                             mUploadRecord = uploadRecord;
                             Log.i(TAG,"mUploadRecord.state:"+mUploadRecord.state);
                             Log.i(TAG,"mUploadRecord.time:"+mUploadRecord.time);
+                            Log.i(TAG,"mUploadRecord.calorie:"+mUploadRecord.calorie);
+                            Log.i(TAG,"mUploadRecord.AE:"+mUploadRecord.AE);
                             ecgLocalFileName = uploadRecord.localEcgFileName;
 
                             return;
