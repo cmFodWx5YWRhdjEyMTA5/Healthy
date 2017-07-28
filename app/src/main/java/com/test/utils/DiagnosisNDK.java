@@ -96,6 +96,10 @@ public class DiagnosisNDK {
 	 * 返回值：                     void
 	 */
 	public native static void getPedo(byte[] source, int len, int[] arrayout);
+
+	public native static void getPedo(byte[] source, int len, int state, int pedoCount );
+
+
 	
 	/*
 	 * 涵数名：                    getkcal
@@ -117,6 +121,11 @@ public class DiagnosisNDK {
     	getPedo(source, len, aout);
     	Log.d("before ndk's c++", "aout[0]=" + aout[0] + " aout[1]=" + aout[1]);
     }
+
+	public static void AnalysisPedo(byte[] source,int len, int state, int pedoCount) {
+		getPedo(source, len, state,pedoCount);
+		//Log.d("before ndk's c++", "aout[0]=" + aout[0] + " aout[1]=" + aout[1]);
+	}
 
     public static HeartRateResult AnalysisEcg(int[] source, int len, int s_rate) {
 		double[] ecg = new double[len];

@@ -103,8 +103,8 @@ public class HRVFragment extends BaseFragment {
                 moodLayoutParams.setMargins((int) ((ESNeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
                 iv_hrv_mood.setLayoutParams(moodLayoutParams);
 
-                String HRVs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
-                Log.i(TAG,"HRVs:"+HRVs);
+                /*String HRVs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
+                Log.i(TAG,"HRVs:"+HRVs);*/
 
             }
 

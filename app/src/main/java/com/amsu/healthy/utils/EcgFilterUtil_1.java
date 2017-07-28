@@ -7,82 +7,22 @@ package com.amsu.healthy.utils;
 
 
 public class EcgFilterUtil_1 {
-/*    private static final int CHAN_NUM=15;
-    // 低通滤波器
-    static double ecglpa[] = {-0.0151121400697321,0.0262591860800819,
-            0.0203140144169644, -0.0329292295451105 ,-0.028617248332993,
-            0.0441317711289158, 0.0441151980073518, -0.0676575476453283,
-            -0.0840037350344892, 0.152862737773564, 0.440636993220775,
-            0.440636993220775 ,0.152862737773564 -0.0840037350344892,
-            -0.0676575476453283 ,0.0441151980073518, 0.0441317711289158,
-            -0.028617248332993, -0.0329292295451105, 0.0203140144169644,
-            0.0262591860800819, -0.0151121400697321
-    };
-
-    private static final int PPG_LPA_LEN=22;
-    private static double[][] hx0 = new double[CHAN_NUM][PPG_LPA_LEN];
-
-    //高通滤波器
-        static double ecghpa[] = {-0.0568174147470748, -0.0710419364580054,
-            -0.0930035878919868, -0.131968518583968, -0.221920016339399,
-            -0.668730563936487, 0.668730563936487, 0.221920016339399, 0.131968518583968,
-            0.0930035878919868, 0.0710419364580054 ,0.0568174147470748
-    };
-
-    private static final int ECG_HPASS_LEN =12;
-    private static double[][] lx0 = new double[CHAN_NUM][ECG_HPASS_LEN];
-
-    public static int miniEcgFilterLp(int d,int leadno) {
-        double ly0;
-
-        int i;
-        //try {
-        for (i = 0; i < PPG_LPA_LEN-1; i++)
-            lx0[leadno][PPG_LPA_LEN-1 - i] = lx0[leadno][PPG_LPA_LEN-2 - i];
-        lx0[leadno][0] = d;
-        ly0 = 0;
-        for (i = 0; i < PPG_LPA_LEN; i++)
-            ly0 += ecglpa[i] * lx0[leadno][i];
-        //} catch (_com_error Error) {
-        //	mfly0 = 0;
-        //}
-
-        return (int) ly0;
-    }
-
-
-    public static int miniEcgFilterHp(int d,int leadno) {
-        double hy0;
-
-        int i;
-        for (i = 0; i < ECG_HPASS_LEN-1; i++)
-            hx0[leadno][ECG_HPASS_LEN-1 - i] = hx0[leadno][ECG_HPASS_LEN-2 - i];
-        hx0[leadno][0] = d;
-        hy0 = 0;
-        for (i = 0; i < ECG_HPASS_LEN; i++)
-            hy0 += ecghpa[i] * hx0[leadno][i];
-
-        return (int) hy0;
-    }
-
-*/
-
-    private static final int SAMPRATE = 150;
-    private static final float PI = 3.1415926f;
+    private  final int SAMPRATE = 150;
+    private  final float PI = 3.1415926f;
 
 
     ////陷波
-    private static final int FILT_TIME= 2;
-    private static final int  M_NOTCH = 60;
+    private  final int FILT_TIME= 2;
+    private  final int  M_NOTCH = 60;
 
-    static float Buffer_X_org[] = new float[M_NOTCH-1];
-    static double Buffer_X[][] = new double[FILT_TIME][M_NOTCH+1];
-    static double Buffer_Y[][] = new double[FILT_TIME][2];
-    static int Pos_X[] = new int[FILT_TIME];
-    static int Pos_X_org;
-    static double Coef_Y;
-    static double Gain;
-    static  char Filt_Mark_notch = 0xF;
+    float Buffer_X_org[] = new float[M_NOTCH-1];
+    double Buffer_X[][] = new double[FILT_TIME][M_NOTCH+1];
+    double Buffer_Y[][] = new double[FILT_TIME][2];
+    int Pos_X[] = new int[FILT_TIME];
+    int Pos_X_org;
+    double Coef_Y;
+    double Gain;
+    char Filt_Mark_notch = 0xF;
     /*
         typedef struct FILTINFO
         {
@@ -103,7 +43,7 @@ public class EcgFilterUtil_1 {
     }
 
 
-    public static int Filter_Init_notch(int mark)
+    public int Filter_Init_notch(int mark)
     {
 
 /////陷波
@@ -147,7 +87,7 @@ public class EcgFilterUtil_1 {
     }
 
 
-    public static double Notch_filter(float data,  int filtno)
+    public double Notch_filter(float data,  int filtno)
     {
         double y;
 
@@ -184,7 +124,7 @@ public class EcgFilterUtil_1 {
         return y;
 
     }
-    public static int NotchPowerLine(int data,int Filter_Mark)
+    public int NotchPowerLine(int data,int Filter_Mark)
     {
         int i,posx;
         double y;
@@ -239,21 +179,18 @@ public class EcgFilterUtil_1 {
 
     }
 
-
-
-
     //高通滤波器
-    private static double ecghpa[] = {-0.0568174147470748, -0.0710419364580054,
+    private double ecghpa[] = {-0.0568174147470748, -0.0710419364580054,
             -0.0930035878919868, -0.131968518583968, -0.221920016339399,
             -0.668730563936487, 0.668730563936487, 0.221920016339399, 0.131968518583968,
             0.0930035878919868, 0.0710419364580054 ,0.0568174147470748
     };
 
 
-    private static final int ECG_HPASS_LEN=12;
+    private final int ECG_HPASS_LEN=12;
 
-    private static double hx0[] = new double[ECG_HPASS_LEN];
-    public static int miniEcgFilterHp(int d)
+    private double hx0[] = new double[ECG_HPASS_LEN];
+    public int miniEcgFilterHp(int d)
     {
         //输入 int d  待滤波的点
         //输出 int    滤波后的点
@@ -270,9 +207,8 @@ public class EcgFilterUtil_1 {
         return (int) hy0;
     }
 
-
     // 低通滤波器
-    private static double ecglpa[] = {-0.0151121400697321,0.0262591860800819,
+    private double ecglpa[] = {-0.0151121400697321,0.0262591860800819,
             0.0203140144169644, -0.0329292295451105 ,-0.028617248332993,
             0.0441317711289158, 0.0441151980073518, -0.0676575476453283,
             -0.0840037350344892, 0.152862737773564, 0.440636993220775,
@@ -284,10 +220,10 @@ public class EcgFilterUtil_1 {
 
 
 
-    private static final int ECG_LPASS_LEN=22;
+    private final int ECG_LPASS_LEN=22;
 
-    private static double lx0[] = new double[ECG_LPASS_LEN];
-    public static int miniEcgFilterLp(int d)
+    private double lx0[] = new double[ECG_LPASS_LEN];
+    public int miniEcgFilterLp(int d)
     {
         //输入 int d  待滤波的点
         //输出 int    滤波后的点
@@ -303,4 +239,6 @@ public class EcgFilterUtil_1 {
             ly0 += ecglpa[i] * lx0[i];
         return (int) ly0;
     }
+
+
 }

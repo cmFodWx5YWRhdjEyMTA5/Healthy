@@ -402,7 +402,14 @@ public class CommunicateToBleService extends Service {
                         Thread.sleep(40);
                         Log.i(TAG, "查询SD卡是否有数据");
                         mLeProxy.send(connecMac, DataUtil.hexToByteArray(Constant.checkIsHaveDataOrder),true);
-                        Thread.sleep(200);
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            Thread.sleep(200);
+                        }
+                        else {
+                            Thread.sleep(2000);
+                        }
+
                         Log.i(TAG,"写配置");
                         String writeConfigureOrder = "FF010A"+ HealthyDataActivity.getDataHexString()+"0016";
                         Log.i(TAG,"writeConfigureOrder:"+writeConfigureOrder);
@@ -411,7 +418,12 @@ public class CommunicateToBleService extends Service {
 
                         mLeProxy.send(connecMac, DataUtil.hexToByteArray(writeConfigureOrder),true);
 
-                        Thread.sleep(100);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            Thread.sleep(200);
+                        }
+                        else {
+                            Thread.sleep(2000);
+                        }
                         Log.i(TAG,"开启数据指令");
                         mLeProxy.send(connecMac, DataUtil.hexToByteArray(Constant.openDataTransmitOrder),true);
                         Thread.sleep(100);

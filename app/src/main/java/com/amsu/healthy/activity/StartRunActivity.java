@@ -40,6 +40,7 @@ import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.EcgFilterUtil;
+import com.amsu.healthy.utils.EcgFilterUtil_1;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyTimeTask;
@@ -118,10 +119,16 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     
     private boolean isFiveMit = false;   //是否到5分钟
     private boolean isStartThreeMitTimer;  //是否开始三分钟倒计时计时器
+
     private int currentGroupIndex = 0;   //组的索引
-    private int groupCalcuLength = 100; //
-    private int oneGroupLength = 10; //
-    private int[] calcuEcgRate = new int[groupCalcuLength*oneGroupLength]; //1000条数据:（100组，一组有10个数据点）
+    public static int calGroupCalcuLength = 180; //
+    public static int timeSpanGgroupCalcuLength = 60; //
+    public static int oneGroupLength = 10; //
+    public  int[] calcuEcgRate = new int[calGroupCalcuLength *oneGroupLength]; //1000条数据:（100组，一组有10个数据点）
+    private int[] preCalcuEcgRate = new int[calGroupCalcuLength*oneGroupLength]; //前一次数的数据，12s
+    private int[] fourCalcuEcgRate = new int[timeSpanGgroupCalcuLength*oneGroupLength]; //4s的数据*/
+    private boolean isFirstCalcu = true;  //是否是第一次计算心率，第一次要连续12秒的数据
+
     private DataOutputStream ecgDataOutputStream;  //二进制文件输出流，写入文件
     private DataOutputStream accDataOutputStream;  //二进制文件输出流，写入文件
     private ByteBuffer ecgByteBuffer;
@@ -155,8 +162,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private boolean isNeedRecoverAbortData;
     private long recoverTimeMillis = 0;
     private static final int saveDataTOLocalTimeSpanSecond = 60*1;  //数据持久化时间间隔 1分钟
-    private static final int minimumLimitTimeMillis = 1000 * 60 * 3;  //最短时间限制 3分钟
+    private static final int minimumLimitTimeMillis = 1000 * 10 * 1;  //最短时间限制 3分钟
     private long addDuration;
+    private EcgFilterUtil_1 ecgFilterUtil_1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -214,6 +222,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         bt_run_start.setOnClickListener(myOnClickListener);
         bt_run_location.setOnClickListener(myOnClickListener);
         bt_run_lock.setOnClickListener(myOnClickListener);
+
+        ecgFilterUtil_1 = new EcgFilterUtil_1();
 
 
         bt_run_start.setOnLongClickListener(new View.OnLongClickListener() {
@@ -383,7 +393,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         *
         * */
 
-        Log.i(TAG,"aMapLocation.getLocationType():"+aMapLocation.getLocationType());   //
+        /*Log.i(TAG,"aMapLocation.getLocationType():"+aMapLocation.getLocationType());   //
         Log.i(TAG,"aMapLocation.getErrorCode():"+aMapLocation.getErrorCode());   // meters/second
 
         Log.i(TAG,"calculateSpeed:"+aMapLocation.getSpeed());
@@ -403,7 +413,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         else if (aMapLocation.getLocationType()==6){
             tyep += "CELL  "+aMapLocation.getSpeed();
         }
-        tv_run_test.setText(tyep);
+        tv_run_test.setText(tyep);*/
 
 
         calculateSpeed(aMapLocation);
@@ -439,8 +449,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()){
                 case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
-                    byte[] data = intent.getByteArrayExtra(LeProxy.EXTRA_DATA);
-                    dealwithLebDataChange(DataUtil.byteArrayToHex(data));
+                    if (!mIsRunning)return;
+                    //byte[] data = intent.getByteArrayExtra(LeProxy.EXTRA_DATA);
+                    dealwithLebDataChange(DataUtil.byteArrayToHex(intent.getByteArrayExtra(LeProxy.EXTRA_DATA)));
                     break;
             }
         }
@@ -456,47 +467,156 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             mIsDataStart = true;
         }
 
-        if (hexData.startsWith("FF 83 0F")) {
+        if (hexData.startsWith("FF 83")) {
             //心电数据
             //Log.i(TAG,"心电hexData:"+hexData);
             dealWithEcgData(hexData);
             isHaveDataTransfer = true;
-        } else if (hexData.startsWith("FF 86 11")) {
+        } else if (hexData.startsWith("FF 86")) {
             //加速度数据
             //Log.i(TAG,"加速度hexData:"+hexData);
             dealWithAccelerationgData(hexData);
         }
-
     }
-    int [] ints;
+
+    int [] ecgInts;
+    private boolean mIsHaveEcgDataReceived;
+    private int mPreHeartRate;
+    private boolean isNeedUpdateHeartRate = false;
 
     //处理心电数据
     private void dealWithEcgData(String hexData) {
-
-        ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
-
+        isNeedUpdateHeartRate = false;
+        ecgInts = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
 
         if (mIsRunning){
-            writeEcgDataToBinaryFile(ints);
+            writeEcgDataToBinaryFile(ecgInts);
         }
 
         //滤波处理
-        for (int i=0;i<ints.length;i++){
-            int temp = EcgFilterUtil.miniEcgFilterLp(ints[i], 0);
-            temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
-            ints[i] = temp;
+        for (int i=0;i<ecgInts.length;i++){
+            ecgInts[i] = ecgFilterUtil_1.miniEcgFilterLp(ecgFilterUtil_1.miniEcgFilterHp(ecgFilterUtil_1.NotchPowerLine(ecgInts[i], 1)));
         }
 
-        startRealTimeDataTrasmit(ints);
-
-
-
+        startRealTimeDataTrasmit(ecgInts);
 
         //Log.i(TAG,"currentGroupIndex:"+currentGroupIndex);
 
-        if (currentGroupIndex<groupCalcuLength){
+        if (isFirstCalcu){
+            if (currentGroupIndex< calGroupCalcuLength){
+                //未到时间（1800个数据点计算一次心率）
+                System.arraycopy(ecgInts, 0, calcuEcgRate, currentGroupIndex * oneGroupLength, ecgInts.length);
+            }
+            else{
+                isNeedUpdateHeartRate = true;
+                isFirstCalcu = false;
+            }
+        }
+        else {
+            if (currentGroupIndex < timeSpanGgroupCalcuLength) { //未到4s
+                System.arraycopy(ecgInts, 0, fourCalcuEcgRate, currentGroupIndex * oneGroupLength, ecgInts.length);
+            } else { //到4s,需要前8s+当前4s
+                int i = 0;
+                for (int j = timeSpanGgroupCalcuLength * oneGroupLength; j < preCalcuEcgRate.length; j++) {
+                    calcuEcgRate[i++] = preCalcuEcgRate[j];
+                }
+                System.arraycopy(fourCalcuEcgRate, 0, calcuEcgRate, i, fourCalcuEcgRate.length);
+                isNeedUpdateHeartRate = true;
+            }
+        }
+
+        if (isNeedUpdateHeartRate) {
+            currentGroupIndex = 0;
+            //计算、更新心率，到4s
+            mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+            Log.i(TAG, "mCurrentHeartRate:" + mCurrentHeartRate);
+            //calcuEcgRate = new int[calGroupCalcuLength*10];
+
+            System.arraycopy(calcuEcgRate, 0, preCalcuEcgRate, 0, calcuEcgRate.length);
+            System.arraycopy(ecgInts, 0, fourCalcuEcgRate, currentGroupIndex * 10, ecgInts.length);
+
+            //更新心率
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mCurrentHeartRate ==0){
+                        tv_run_rate.setText("--");
+                        tv_run_isoxygen.setText("--");
+                    }
+                    else {
+                        if (mPreHeartRate>0){
+                            int count = 0;
+                            int temp = mCurrentHeartRate-mPreHeartRate;
+                            if (temp>HealthyDataActivity.D_valueMaxValue) {
+                                count = (temp) / HealthyDataActivity.D_valueMaxValue + 1;
+                            }
+                            else if (temp<-HealthyDataActivity.D_valueMaxValue){
+                                count = (temp) / HealthyDataActivity.D_valueMaxValue - 1;
+                            }
+                            System.out.println(count);
+                            if (count>0) {
+                                mCurrentHeartRate = mPreHeartRate + Math.abs(temp) / count;
+                            }
+                        }
+
+                        final String OxygenState = calcuOxygenState(mCurrentHeartRate);
+                        tv_run_rate.setText(mCurrentHeartRate+"");
+                        tv_run_isoxygen.setText(OxygenState);
+                    }
+                    heartRateDates.add(mCurrentHeartRate);
+
+                    mPreHeartRate = mCurrentHeartRate;
+
+                    if (mSendHeartRateBroadcastIntent==null){
+                        mSendHeartRateBroadcastIntent = new Intent(action);
+                    }
+                    mSendHeartRateBroadcastIntent.putExtra("data", mCurrentHeartRate);
+                    sendBroadcast(mSendHeartRateBroadcastIntent);
+                }
+            });
+
+
+
+            if (mCalKcalCurrentTimeMillis==0){
+                mCalKcalCurrentTimeMillis = System.currentTimeMillis();
+            }else {
+                long l = System.currentTimeMillis() - mCalKcalCurrentTimeMillis;
+                mCalKcalCurrentTimeMillis = System.currentTimeMillis();
+                float time = (float) (l / (1000 * 60.0));
+                int userSex = MyUtil.getUserSex();
+                int userAge = HealthyIndexUtil.getUserAge();
+                int userWeight = MyUtil.getUserWeight();
+                Log.i(TAG,"time:"+time+",userSex:"+userSex+",userAge:"+userAge+",userWeight"+userWeight);
+                float getkcal = DiagnosisNDK.getkcal(userSex, mCurrentHeartRate, userAge, userWeight, time);
+                Log.i(TAG,"getkcal:"+getkcal);
+                if (getkcal<0){
+                    getkcal = 0;
+                }
+                //防止蓝牙断开又重新连上后时间太长导致卡路里很大
+                if (getkcal>6 && mKcalData.size()>0){
+                    getkcal = Integer.parseInt(mKcalData.get(mKcalData.size()-1));
+                }
+
+                mAllKcal += getkcal;
+                mKcalData.add(getkcal+"");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tv_run_kcal.setText((int)mAllKcal+"");
+                    }
+                });
+            }
+
+        }
+
+        currentGroupIndex++;
+
+
+
+
+        /*if (currentGroupIndex<calGroupCalcuLength){
             //未到时间（1000个数据点计算一次心率）
-            System.arraycopy(ints, 0, calcuEcgRate, currentGroupIndex * oneGroupLength, ints.length);
+            System.arraycopy(ecgInts, 0, calcuEcgRate, currentGroupIndex * oneGroupLength, ecgInts.length);
         }
         else{
             currentGroupIndex = 0;
@@ -528,12 +648,15 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                         tv_run_isoxygen.setText("--");
                     }
                     else {
+
                         tv_run_rate.setText(mCurrentHeartRate+"");
                         tv_run_isoxygen.setText(OxygenState);
                     }
+
+
                 }
             });
-            System.arraycopy(ints, 0, calcuEcgRate, currentGroupIndex * 10 + 0, ints.length);
+            System.arraycopy(ecgInts, 0, calcuEcgRate, currentGroupIndex * 10 + 0, ecgInts.length);
             if (mCalKcalCurrentTimeMillis==0){
                 mCalKcalCurrentTimeMillis = System.currentTimeMillis();
             }else {
@@ -564,7 +687,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 });
             }
         }
-        currentGroupIndex++;
+        currentGroupIndex++;*/
     }
 
     private String calcuOxygenState(int heartRate) {
@@ -657,7 +780,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 accByteBuffer.putShort((short) anInt);
                 accDataOutputStream.writeByte(accByteBuffer.get(1));
                 accDataOutputStream.writeByte(accByteBuffer.get(0));
-                accDataOutputStream.flush();
+                //accDataOutputStream.flush();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -696,10 +819,12 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     }
 
+    int [] ints;
+
     //处理加速度数据
     private void dealWithAccelerationgData(String hexData) {
         if (!mIsRunning)return;
-        final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 12); //一次的数据，12位
+        ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 12); //一次的数据，12位
 
         writeAccDataToBinaryFile(ints);
 
@@ -717,7 +842,15 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             }
             int[] results = new int[2];
             accData.clear();
+
             DiagnosisNDK.AnalysisPedo(bytes,accDataLength,results);
+            /*int state = -1;
+            int pedoCount = -1;
+
+            DiagnosisNDK.AnalysisPedo(bytes,accDataLength,state,pedoCount);
+
+            Log.i(TAG,"state:"+state+",pedoCount:"+pedoCount);*/
+
             Log.i(TAG,"results: "+results[0]+"  "+results[1]);
             final int stridefre = (int) (results[1] * 5.21); //每分钟的步数
             mStridefreData.add(stridefre);
@@ -795,8 +928,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         else {
             mIndoorCal8ScendSpeedList.add(aMapLocation.getSpeed());
         }
-
-
 
         /*if (tempSpeedList.size()>6){
             tempSpeedList.remove(0);
@@ -1120,6 +1251,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                     User userFromSP = MyUtil.getUserFromSP();
                     String testIconUrl = userFromSP.getIcon();
                     String username = userFromSP.getUsername();
+                    String area = userFromSP.getArea();
+                    String sex = userFromSP.getSex();
+                    int userAge = HealthyIndexUtil.getUserAge();
 
                     /*OnlineUser onlineUser = new OnlineUser(testIconUrl,userFromSP.getUsername(),1);
                     Gson gson = new Gson();
@@ -1129,10 +1263,16 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
                     String msg = gson.toJson(jsonBase);*/
                     //F1,http://119.29.201.120:83/usericons/f81241db11c869f3c8e57ff96538abbc.png,1,天空之城
-                    String msg = "F1,"+testIconUrl+",1,"+username;
+                    String sexString;
+                    if (sex.equals("1")){
+                        sexString = "男";
+                    }
+                    else {
+                        sexString = "女";
+                    }
+                    String msg = "F1,"+testIconUrl+",1,"+username+","+area+","+sexString+","+userAge+"岁";
 
                     sendSocketMsg(msg);
-
                 }
 
                 @Override
@@ -1151,9 +1291,14 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                     }*/
 
                     String[] split = s.split(",");
-                    if (split!=null && split.length>0 && split[0].equals("F1")){
+
+                    if (split.length > 0 && split[0].equals("F1")){
                         //开始实时数据传输
                         isStartDataTransfer = true;
+                    }
+                    else if (split.length > 0 &&split[0].equals("F5")){
+                        //关闭实时数据传输
+                        isStartDataTransfer = false;
                     }
                 }
 
@@ -1281,9 +1426,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             else {
                 formatSpeed = (int)forOneKMSecond/60+"'"+(int)forOneKMSecond%60+"''";
             }
-
-            Log.i(TAG,"startCal7ScendSpeed 室内:  speed:"+forOneKMSecond+",   formatSpeed:"+formatSpeed);
         }
+
+        Log.i(TAG,"startCal7ScendSpeed:  speed:"+forOneKMSecond+",   formatSpeed:"+formatSpeed);
 
         mSpeedStringList.add((int) forOneKMSecond);  //speed为秒数，1公里所用的时间
         

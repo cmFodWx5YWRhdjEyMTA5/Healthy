@@ -939,7 +939,7 @@ public class HealthyIndexUtil {
     public static IndicatorAssess calculateLFHFMoodIndex(int LF_HF){
         int state = 0;
         String suggestion = "";
-        if (LF_HF>150){
+        /*if (LF_HF>150){
             state = 90;
             suggestion="您当前处于情绪高度紧张状态，也可能是一直专注于做一件事情，请适当放松一下。";
         }
@@ -962,7 +962,13 @@ public class HealthyIndexUtil {
         else if (0<=LF_HF && LF_HF<=2){
             state = 10;
             suggestion="您当前情绪很放松，看起来无所事事的样子了。";
+        }*/
+
+        if (LF_HF>60){
+            LF_HF = 60;
         }
+        state = (int) (100*(1-LF_HF/60.0));
+
         IndicatorAssess indicatorAssess = new IndicatorAssess(LF_HF,state,"情绪指数",suggestion,"");
         return indicatorAssess;
     }
@@ -994,7 +1000,7 @@ public class HealthyIndexUtil {
     public static IndicatorAssess calculateSDNNPressureIndex(int sdnn){
         int stateScore = 0;
         String suggestion = "";
-        if (sdnn>170){
+       /* if (sdnn>170){
             stateScore = 90;
         }
         else if (sdnn<140){
@@ -1002,7 +1008,12 @@ public class HealthyIndexUtil {
         }
         else if (140<=sdnn && sdnn<=170){
             stateScore = 10+(int) (80*(float)((sdnn-140.0)/(170.0-140.0)));
-        }
+        }*/
+
+       if (sdnn>300){
+           sdnn = 300;
+       }
+        stateScore = (int) (100*(1-sdnn/300.0));
         IndicatorAssess indicatorAssess = new IndicatorAssess(sdnn,stateScore,"抗压指数",suggestion,"");
         return indicatorAssess;
     }
@@ -1049,7 +1060,9 @@ public class HealthyIndexUtil {
     public static IndicatorAssess calculateSDNNSportIndex(int sdnn){
         int state = 0;
         String suggestion = "";
-        if (sdnn>200){
+
+
+        /*if (sdnn>200){
             state = 5;
             suggestion="您的身体充满活力。";
         }
@@ -1077,9 +1090,16 @@ public class HealthyIndexUtil {
             state = 90;
             suggestion=" 您看起来身体很疲惫，你需要休息了，但是你有一个充满活力的大脑，想一想自己还有那些没有解决的问题吧，可能灵感就在眼前！";
         }
+*/
+        if (sdnn>300){
+            sdnn = 300;
+        }
+        state = (int) (100*(sdnn/300.0));
+
         IndicatorAssess indicatorAssess = new IndicatorAssess(sdnn,state,"运动疲劳",suggestion);
         return indicatorAssess;
     }
+
 
     public static String getHeartRateSuggetstion(int state,int heartRate){
         String suggestion ="心率健康建议";
@@ -1120,7 +1140,7 @@ public class HealthyIndexUtil {
         if (sdnn >=280 || lf<2) {
             return "您的体能充沛，但是精神非常疲惫，适合放下工作做一些体育锻炼，注意不要过度用脑，劳逸结合才能保持身心健康。建议您适当减轻脑力劳动，离开办公桌释放一下自己吧!";
         }else if ((sdnn >=200 && sdnn<280) ||(lf>=2 && lf<=5)){
-            return "您的身体现在充满活力，但大脑略有疲劳。试着放空一下自己的大脑，运动起来，释放自己活力吧！";
+            return "您的身体现在充满活力，但大脑略有疲劳。试着放松一下自己的大脑，运动起来，释放自己活力吧！";
         }else if ((sdnn>=120 && sdnn<200 )||(lf>=6 && lf<=30)){
             return "规律有序的生活让您的身体充满活力，精神满满，您可以继续保持当前状态，适当运动，建议您进行一些轻负荷的健身锻炼！";
         }else if((sdnn >=60 &&sdnn<120) ||(lf<60 && lf>30)){
@@ -1132,4 +1152,9 @@ public class HealthyIndexUtil {
             return  defaultSuggetstion;
         }
     }
+
+
+
 }
+
+

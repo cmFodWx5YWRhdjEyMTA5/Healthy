@@ -159,7 +159,10 @@ public class HeightCurveView extends View {
                     if (data[i]==0){
                         data[i] = mYTextsMaxValue;
                     }
-                    y = mHeight-mMarginBotom-mYCoordinateHight*(1-data[i]/mYTextsMaxValue);
+                    else {
+                        y = mHeight-mMarginBotom-mYCoordinateHight*(1-data[i]/mYTextsMaxValue);
+                    }
+
                 }else {
                     y = mHeight-mMarginBotom-mYCoordinateHight*(data[i]/mYTextsMaxValue);
                 }

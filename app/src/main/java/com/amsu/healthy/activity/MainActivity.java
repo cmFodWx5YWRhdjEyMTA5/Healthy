@@ -462,27 +462,47 @@ public class MainActivity extends BaseActivity {
 
         Log.i(TAG,"Build.MODEL"+Build.MODEL);
 
+
+        /*int []calcuEcgRate  = new int[1800];
+
+        for (int i=0;i<1800;i++){
+            calcuEcgRate[i] = i%20;
+        }
+        //计算
+        byte[] bytes = new byte[1800];
+        for (int i=0;i<1800;i++){
+            bytes[i] = (byte)(int)calcuEcgRate[i];
+        }
+        int[] results = new int[2];
+
+        DiagnosisNDK.AnalysisPedo(bytes,calcuEcgRate.length,results);
+
+        Log.i(TAG,"results: "+results[0]+"  "+results[1]);   //results: 2  30*/
+
     }
 
     //给文本年龄设置文字动画
-    private void setAgeTextAnimator(final TextView textView,int startAge,int endAge) {
-        mValueAnimator = ValueAnimator.ofInt(startAge, endAge);
-        mValueAnimator.setDuration(Constant.AnimatorDuration);
-        mValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                textView.setText(animation.getAnimatedValue().toString());
-            }
-        });
+    private void setAgeTextAnimator(final TextView textView, int startAge, final int endAge) {
+        Log.i(TAG,"setAgeTextAnimator");
+        if (endAge>0){
+            mValueAnimator = ValueAnimator.ofInt(startAge, endAge);
+            mValueAnimator.setDuration(Constant.AnimatorDuration);
+            mValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    textView.setText(animation.getAnimatedValue().toString());
+                    if ((Integer)animation.getAnimatedValue()==endAge){
+                        mValueAnimator.cancel();
+                        mValueAnimator = null;
+                    }
+                }
+            });
+        }
     }
 
     private void initData() {
         checkAndOpenBLEFeature();
         checkIsNeedUpadteApk();
-
-
-
-
     }
 
     private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
@@ -574,12 +594,14 @@ public class MainActivity extends BaseActivity {
         }
         physicalAge = MyUtil.getIntValueFromSP("physicalAge");
         if (physicalAge>0){
+            Log.i(TAG,"设置动画");
             setAgeTextAnimator(tv_main_age,0, physicalAge);
             dv_main_compass.setAgeData(physicalAge-10);
         }
         else {
-            tv_main_age.setText("--");
+            Log.i(TAG,"tv_main_age.setText");
             dv_main_compass.setAgeData(0);
+            tv_main_age.setText("--");
         }
 
         Log.i(TAG,"healthyIindexvalue:"+healthyIindexvalue+"  physicalAge:"+physicalAge);
@@ -623,6 +645,8 @@ public class MainActivity extends BaseActivity {
     protected void onStop() {
         super.onStop();
         Log.i(TAG,"onStop");
+
+        physicalAge = -1;
 
         //mLeService.disconnect(connecMac);
     }

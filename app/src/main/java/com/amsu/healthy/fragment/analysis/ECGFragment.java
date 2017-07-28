@@ -226,6 +226,8 @@ public class ECGFragment extends BaseFragment {
                                     Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
                                     datas = new ArrayList<>();
 
+                                    EcgFilterUtil_1 ecgFilterUtil_1 = new EcgFilterUtil_1();
+
 
                                     while(dataInputStream.available() >0){
                                         int read = dataInputStream.read(bytes);
@@ -235,7 +237,7 @@ public class ECGFragment extends BaseFragment {
 
                                             //滤波处理
                                             int shortByTwoBytes = MyUtil.getShortByTwoBytes(bytes[0], bytes[1]);
-                                            int temp = EcgFilterUtil_1.miniEcgFilterLp(EcgFilterUtil_1.miniEcgFilterHp (EcgFilterUtil_1.NotchPowerLine( shortByTwoBytes, 1)));
+                                            int temp = ecgFilterUtil_1.miniEcgFilterLp(ecgFilterUtil_1.miniEcgFilterHp (ecgFilterUtil_1.NotchPowerLine( shortByTwoBytes, 1)));
                                             /*int temp = EcgFilterUtil.miniEcgFilterLp((int)MyUtil.getShortByTwoBytes(bytes[0],bytes[1]), 0);
                                             temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);*/
                                             datas.add(temp);
@@ -395,7 +397,6 @@ public class ECGFragment extends BaseFragment {
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         Log.i(TAG,"onHiddenChanged");
-
     }
 
     //Fragment的是否可见。Fragment的在失去焦点和销毁时不会调用onPause、onStop、onDestroy，而是根据其宿主Activity的生命周期而回调，因此通过setUserVisibleHint（当前是否可见）来主动调用onResume、onPause方法

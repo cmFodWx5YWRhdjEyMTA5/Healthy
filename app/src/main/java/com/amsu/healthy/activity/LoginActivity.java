@@ -57,6 +57,7 @@ public class LoginActivity extends BaseActivity {
     private int MSG_TOAST_VERIFY= 0;
     private int MSG_TOAST_SUCCESS= 4;
     private int timeUpdate= 60;
+    private boolean isAgree;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class LoginActivity extends BaseActivity {
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                MyApplication.mActivities.clear();
                 finish();
             }
         });
@@ -89,9 +91,11 @@ public class LoginActivity extends BaseActivity {
             public void onClick(View v) {
                 if (cb_login_isagree.isChecked()){
                     bt_login_nextstep.setBackgroundResource(R.drawable.bg_bt_rec);
+                    isAgree = true;
                 }
                 else {
                     bt_login_nextstep.setBackgroundColor(Color.parseColor("#c8c8c8"));
+                    isAgree = false;
                 }
             }
         });
@@ -152,6 +156,10 @@ public class LoginActivity extends BaseActivity {
 
 
     public void login(View view) {
+        if (!isAgree){
+            MyUtil.showToask(this,"未同意登录协议");
+            return;
+        }
         String phone = et_login_phone.getText().toString();
         String inputVerifycode = et_login_code.getText().toString();
 
@@ -165,8 +173,6 @@ public class LoginActivity extends BaseActivity {
         }
 
         validateLogin(phone,inputVerifycode);
-
-        
     }
 
     public void getVerifyCode(View view) {

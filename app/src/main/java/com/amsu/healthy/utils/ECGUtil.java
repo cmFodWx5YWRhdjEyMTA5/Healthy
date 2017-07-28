@@ -15,9 +15,7 @@ public class ECGUtil {
         int [] intEcgaArr = new int[parseLength];
         String[] split = hexString.split(splitSring);
         for (int i = startIndex; i < startIndex+parseLength; i++) {
-            //System.out.println("i="+i+"="+split[i]);
-            int parseInt = Integer.parseInt(split[i],16);
-            intEcgaArr[i-startIndex] = parseInt;
+            intEcgaArr[i-startIndex] = Integer.parseInt(split[i],16);
         }
         return intEcgaArr;
     }

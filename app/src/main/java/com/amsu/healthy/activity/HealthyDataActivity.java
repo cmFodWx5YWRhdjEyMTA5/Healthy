@@ -103,9 +103,10 @@ public class HealthyDataActivity extends BaseActivity {
     private static String SMS_DELIVERED_ACTION = "SMS_DELIVERED_ACTION";
     private int mCurrentHeartRate= 0;
     private String ecgLocalFileName;
-    private int D_valueMaxValue = 15;
+    public static int D_valueMaxValue = 20;
     private ImageView iv_base_connectedstate;
     private TextView tv_base_charge;
+    private EcgFilterUtil_1 ecgFilterUtil_1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,15 +149,34 @@ public class HealthyDataActivity extends BaseActivity {
         mRateLineRItemCount.put(ECGSCALE_MODE_DOUBLE,0);
         mRateLineRItemCount.put(ECGSCALE_MODE_QUADRUPLE,0);
 
-
+        ecgFilterUtil_1 = new EcgFilterUtil_1();
 
         Intent intent = getIntent();
-        if (intent!=null){
-            isLookupECGDataFromSport = intent.getBooleanExtra(Constant.isLookupECGDataFromSport, false);
-            if (isLookupECGDataFromSport){
-                tv_healthydata_analysis.setVisibility(View.GONE);
-            }
+
+        isLookupECGDataFromSport = intent.getBooleanExtra(Constant.isLookupECGDataFromSport, false);
+        if (isLookupECGDataFromSport){
+            tv_healthydata_analysis.setVisibility(View.GONE);
+
+            IntentFilter filter = new IntentFilter(StartRunActivity.action);
+            registerReceiver(broadcastReceiver, filter);
         }
+        else {
+
+            /*new Thread(){
+                @Override
+                public void run() {
+                    super.run();
+                    LocalBroadcastManager.getInstance(HealthyDataActivity.this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
+                *//*try {
+                    Thread.sleep(1000);
+                    LocalBroadcastManager.getInstance(HealthyDataActivity.this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }*//*
+                }
+            }.start();*/
+        }
+        LocalBroadcastManager.getInstance(HealthyDataActivity.this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
 
         heartRateDates = new ArrayList<>();
         MyApplication.runningActivity = MyApplication.HealthyDataActivity;
@@ -172,21 +192,6 @@ public class HealthyDataActivity extends BaseActivity {
             tv_base_charge.setText(MyApplication.calCuelectricVPercent+"%");
         }
 
-
-        //LocalBroadcastManager.getInstance(HealthyDataActivity.this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
-        new Thread(){
-            @Override
-            public void run() {
-                super.run();
-                LocalBroadcastManager.getInstance(HealthyDataActivity.this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
-                /*try {
-                    Thread.sleep(1000);
-                    LocalBroadcastManager.getInstance(HealthyDataActivity.this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }*/
-            }
-        }.start();
     }
 
     private final BroadcastReceiver mchargeReceiver = new BroadcastReceiver() {
@@ -204,6 +209,21 @@ public class HealthyDataActivity extends BaseActivity {
                     tv_base_charge.setVisibility(View.VISIBLE);
                     tv_base_charge.setText(calCuelectricVPercent+"%");
                 }
+            }
+        }
+    };
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int data = intent.getExtras().getInt("data");
+            Log.i(TAG,"data:"+ data);
+            if (data ==0){
+                tv_healthydata_rate.setText("--");
+            }
+            else{
+                tv_healthydata_rate.setText(data+"");
             }
         }
     };
@@ -275,7 +295,7 @@ public class HealthyDataActivity extends BaseActivity {
             return;
         }
 
-        if(hexData.startsWith("FF 83 0F")){
+        if(hexData.startsWith("FF 83")){
             //心电数据
             //Log.i(TAG,"心电hexData:"+hexData);
             dealWithEcgData(hexData);
@@ -292,22 +312,47 @@ public class HealthyDataActivity extends BaseActivity {
     private int mPreHeartRate;
     private boolean isNeedUpdateHeartRate = false;
 
+    private void cc(){
+
+    }
+
     //处理心电数据
     private void dealWithEcgData(String hexData) {
         if (isActivityFinsh) return;
         isNeedUpdateHeartRate = false;
         final int [] ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 10); //一次的数据，10位
+
         if (!isLookupECGDataFromSport){
             writeEcgDataToBinaryFile(ints);
         }
 
         //滤波处理
         for (int i=0;i<ints.length;i++){
-            ints[i] = EcgFilterUtil_1.miniEcgFilterLp(EcgFilterUtil_1.miniEcgFilterHp (EcgFilterUtil_1.NotchPowerLine(ints[i], 1)));
+            ints[i] = ecgFilterUtil_1.miniEcgFilterLp(ecgFilterUtil_1.miniEcgFilterHp (ecgFilterUtil_1.NotchPowerLine(ints[i], 1)));
             /*int temp = EcgFilterUtil_1.miniEcgFilterLp(ints[i], 0);
             temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
             ints[i] = temp;*/
             //Log.i(TAG,"temp:"+ints[i]);
+        }
+
+        if (isNeedDrawEcgData){
+            //绘图
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //Log.i(TAG,"绘图");
+                    String intString = "";
+                    for (int i:ints){
+                        intString+=i+",";
+                    }
+                    //Log.i(TAG,"intString:"+intString);
+                    pv_healthydata_path.addEcgOnGroupData(ints);
+                }
+            });
+        }
+
+        if (isLookupECGDataFromSport){
+            return;
         }
 
         //Log.i(TAG,"currentGroupIndex:"+currentGroupIndex);
@@ -323,53 +368,18 @@ public class HealthyDataActivity extends BaseActivity {
             }
         }
         else {
-            if (currentGroupIndex<timeSpanGgroupCalcuLength){
-                //未到4s
+            if (currentGroupIndex<timeSpanGgroupCalcuLength){ //未到4s
                 System.arraycopy(ints, 0, fourCalcuEcgRate, currentGroupIndex * oneGroupLength, ints.length);
             }
-            else {
-                //到4s,需要前8s+当前4s
-
+            else {//到4s,需要前8s+当前4s
                 int i=0;
                 for (int j=timeSpanGgroupCalcuLength*oneGroupLength;j<preCalcuEcgRate.length;j++){
                     calcuEcgRate[i++] = preCalcuEcgRate[j];
                 }
                 System.arraycopy(fourCalcuEcgRate, 0, calcuEcgRate, i, fourCalcuEcgRate.length);
                 isNeedUpdateHeartRate = true;
-
-
-               /* String data1 = "";
-                for (int j=0;j<calcuEcgRate.length;j++){
-                    data1 += calcuEcgRate[j]+",";
-                }
-                Log.i(TAG,"data1:"+data1);
-                Log.i(TAG,"currCalcuEcgRate.length:"+calcuEcgRate.length);*/
-
-                //带入公式，计算心率
-                /*mCurrentHeartRate = ECGUtil.countEcgRate(calcuEcgRate, calcuEcgRate.length, 150);
-                Log.i(TAG,"mCurrentHeartRate:"+mCurrentHeartRate);
-                //更新心率
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        tv_healthydata_rate.setText(mCurrentHeartRate+"");
-                    }
-                });
-
-
-
-                for (int n=0;n<calcuEcgRate.length;n++){
-                    preCalcuEcgRate[n] = calcuEcgRate[n];
-                }
-
-                for (int j=0;j<ints.length;j++){
-                    fourCalcuEcgRate[currentGroupIndex*10+j] = ints[j];
-                }*/
             }
         }
-
-
-        currentGroupIndex++;
         if (isNeedUpdateHeartRate){
             currentGroupIndex = 0;
             //计算、更新心率，到4s
@@ -377,12 +387,6 @@ public class HealthyDataActivity extends BaseActivity {
             Log.i(TAG,"mCurrentHeartRate:"+ mCurrentHeartRate);
             //calcuEcgRate = new int[calGroupCalcuLength*10];
             heartRateDates.add(mCurrentHeartRate);
-
-
-
-            if (!isLookupECGDataFromSport && heartRateDates.size()==1){
-                //saveAbortDatareordToSP(ecgFiletimeMillis,ecgLocalFileName,0);
-            }
 
             //更新心率
             runOnUiThread(new Runnable() {
@@ -404,8 +408,8 @@ public class HealthyDataActivity extends BaseActivity {
                             count = (temp) / D_valueMaxValue - 1;
                         }
                         System.out.println(count);
-                        if (count!=0){
-                            mCurrentHeartRate = mPreHeartRate + Math.abs(temp)/count;
+                        if (count>0) {
+                            mCurrentHeartRate = mPreHeartRate + Math.abs(temp) / count;
                         }
 
                         tv_healthydata_rate.setText(mCurrentHeartRate +"");
@@ -425,23 +429,14 @@ public class HealthyDataActivity extends BaseActivity {
             mPreHeartRate = mCurrentHeartRate;
 
             System.arraycopy(calcuEcgRate, 0, preCalcuEcgRate, 0, calcuEcgRate.length);
+
+            System.arraycopy(ints, 0, fourCalcuEcgRate, currentGroupIndex * 10, ints.length);
+
         }
 
-        if (isNeedDrawEcgData){
-            //绘图
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //Log.i(TAG,"绘图");
-                    String intString = "";
-                    for (int i:ints){
-                        intString+=i+",";
-                    }
-                    //Log.i(TAG,"intString:"+intString);
-                    pv_healthydata_path.addEcgOnGroupData(ints);
-                }
-            });
-        }
+        currentGroupIndex++;
+
+
 
 
         /*if (currentGroupIndex< calGroupCalcuLength){
@@ -1008,8 +1003,10 @@ public class HealthyDataActivity extends BaseActivity {
 
         MyApplication.runningActivity = MyApplication.MainActivity;
 
+        if (isLookupECGDataFromSport){
+            unregisterReceiver(broadcastReceiver);
+        }
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
-
         if (mIsHaveEcgDataReceived){
             CommunicateToBleService.detoryServiceForegrounByNotify();
         }
