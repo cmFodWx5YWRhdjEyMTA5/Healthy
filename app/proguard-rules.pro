@@ -180,4 +180,5 @@ public static final int *;
 -keep class com.amsu.healthy.bean.** {*;}  #这句非常重要，主要是滤掉XXXX.entity包下的所有.class文件不进行混淆编译
 -keep class com.amsu.healthy.utils.** {*;}  #这句非常重要，主要是滤掉XXXX.entity包下的所有.class文件不进行混淆编译
 -keep class com.amsu.healthy.activity.** {*;}  #这句非常重要，主要是滤掉XXXX.entity包下的所有.class文件不进行混淆编译
+-keep class com.amsu.healthy.service.** {*;}  #这句非常重要，主要是滤掉XXXX.entity包下的所有.class文件不进行混淆编译
 -keep class com.test.** {*;}  #这句非常重要，主要是滤掉XXXX.entity包下的所有.class文件不进行混淆编译

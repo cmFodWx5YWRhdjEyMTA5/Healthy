@@ -173,9 +173,6 @@ public class RunTrailMapActivity extends BaseActivity implements LocationSource,
         }
     }
 
-
-
-
     protected void initData() {
 
     }

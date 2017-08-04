@@ -152,7 +152,7 @@ public class IndexWarringActivity extends BaseActivity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadWeekReportURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(IndexWarringActivity.this);
 
                 String result = responseInfo.result;
                 Log.i(TAG, "上传onSuccess==result:" + result);
@@ -171,7 +171,7 @@ public class IndexWarringActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(IndexWarringActivity.this);
 
                 Log.i(TAG,"上传onFailure==s:"+s);
             }

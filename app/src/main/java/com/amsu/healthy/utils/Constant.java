@@ -50,6 +50,8 @@ public class Constant {
     public static String disclaimerAssertsURL = "http://www.amsu-new.com:8081/intellingence-web/upload/disclaimerAsserts.html";
     public static String Questionnaire1URL = "https://wj.qq.com/s/1203236/ee9b";
     public static String Questionnaire2URL = "https://wj.qq.com/s/1338652/a851";
+    public static String getInsoleTokenURL = "http://192.168.0.117:8080/intellingence-web/getToken.do";
+    public static String get30ScendInsoleAlanyDataURL = "http://192.168.0.117:8080/intellingence-web/getShoepadDatas30seconds.do";
 
     public static long AnimatorDuration = 2000;  //动画时长，2s
 
@@ -77,6 +79,9 @@ public class Constant {
     public static String softWareVersion = "softWareVersion";
     public static String myDeceiveName = "myDeceiveName";
     public static String isNeedRecoverAbortData = "isNeedRecoverAbortData";
+    public static String sportType = "sportType";
+    public static final int sportType_Cloth = 1;
+    public static final int sportType_Insole = 2;
 
     public static String uploadRecordDefaultString = "0";
 
@@ -84,6 +89,10 @@ public class Constant {
 
     public static String sendONLineMsgToServer = "http://192.168.137.1:8080/AmsuClothMonitor/AddUserInfoAction";
     public static String deleteONLineMsgToServer = "http://localhost:8080/AmsuClothMonitor/deleteOnlineUserAction";
+
+
+
+
 
 
 

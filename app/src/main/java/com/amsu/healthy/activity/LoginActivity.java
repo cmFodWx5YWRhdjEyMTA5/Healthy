@@ -70,7 +70,7 @@ public class LoginActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("登陆");
+        setCenterText("登录");
         setLeftImage(R.drawable.guanbi_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -229,14 +229,14 @@ public class LoginActivity extends BaseActivity {
             else if (msg.what==MSG_TOAST_FAIL){
                 String detail = (String) msg.obj;
                 Toast.makeText(LoginActivity.this,detail, Toast.LENGTH_SHORT).show();
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(LoginActivity.this);
             }
             else if (msg.what==MSG_TOAST_SUCCESS){
                 bt_login_getcode.setClickable(false);
                 bt_login_getcode.setBackgroundResource(R.drawable.bg_button_code_disable);
                 bt_login_getcode.setTextSize(15);
                 bt_login_getcode.setText(60+"");
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(LoginActivity.this);
                 Toast.makeText(LoginActivity.this,"验证码发送成功", Toast.LENGTH_SHORT).show();
                 timeUpdate = 60;
 
@@ -271,14 +271,12 @@ public class LoginActivity extends BaseActivity {
             e.printStackTrace();
         }
 
-
-
         String url = "https://bodylistener.amsu-new.com/intellingence/LoginController/phoneVerify"; //登陆
         httpUtils.send(HttpRequest.HttpMethod.POST, url,params, new RequestCallBack<String>() {
 
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(LoginActivity.this);
                 String result = responseInfo.result;
                 Log.i(TAG,"登陆onSuccess==result:"+result);
                 //{"ret":"0","errDesc":"注册成功!"}
@@ -396,7 +394,7 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(LoginActivity.this);
                 Log.i(TAG,"登陆onFailure==s:"+s);
             }
         });

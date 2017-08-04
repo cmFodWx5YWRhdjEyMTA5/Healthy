@@ -108,4 +108,16 @@ public class Device implements Parcelable {
     public void setIndex(int index) {
         this.index = index;
     }
+
+
+    @Override
+    public String toString() {
+        return "Device{" +
+                "name='" + name + '\'' +
+                ", state='" + state + '\'' +
+                ", mac='" + mac + '\'' +
+                ", LEName='" + LEName + '\'' +
+                ", index=" + index +
+                '}';
+    }
 }

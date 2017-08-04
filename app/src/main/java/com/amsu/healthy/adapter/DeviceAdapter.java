@@ -10,7 +10,6 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
-import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 
 import java.util.List;
@@ -55,7 +54,7 @@ public class DeviceAdapter extends BaseAdapter{
             tv_item_name.setText(stringValueFromSP);
         }
         else {
-            tv_item_name.setText(device.getLEName());
+            tv_item_name.setText(device.getName()+device.getLEName());
         }
 
         /*if (deviceFromSP!=null && deviceFromSP.getMac().equals(device.getMac())){
@@ -63,7 +62,7 @@ public class DeviceAdapter extends BaseAdapter{
             tv_item_state.setText("已激活");
         }*/
 
-        if (!MyUtil.isEmpty(MyApplication.connectedMacAddress) && MyApplication.connectedMacAddress.equals(device.getMac())){
+        if (!MyUtil.isEmpty(MyApplication.clothConnectedMacAddress) && MyApplication.clothConnectedMacAddress.equals(device.getMac())){
             //已经连接上，则显示设备已激活
             tv_item_state.setText("已连接");
             tv_item_state.setTextColor(Color.parseColor("#43CD80"));

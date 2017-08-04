@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyDeviceActivity extends BaseActivity {
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "MyDeviceActivity";
     List<Device>  deviceList;
     private DeviceAdapter deviceAdapter;
     private ListView lv_device_devicelist;
@@ -81,8 +81,12 @@ public class MyDeviceActivity extends BaseActivity {
         MyUtil.putDeviceListToSP(tempDeviceList);*/
 
         Device deviceFromSP = MyUtil.getDeviceFromSP();
+        Device deviceClothFromSP = MyUtil.getDeviceFromSP(2);
         if (deviceFromSP!=null){
             deviceList.add(deviceFromSP);
+        }
+        if (deviceClothFromSP!=null){
+            deviceList.add(deviceClothFromSP);
         }
 
         /*List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
@@ -119,58 +123,68 @@ public class MyDeviceActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 final Device device = deviceList.get(position);
-                Device deviceFromSP = MyUtil.getDeviceFromSP();
-                if (deviceFromSP == null ){
-                    //切换当前设备
-                    //MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,device.getMac());
-                    if(device.getState().equals("点击绑定")){
-                        bingDeviceToServer(device,position,false);
-                    }
+                if (device.getLEName().startsWith("BLE")){
+                    Device deviceFromSP = MyUtil.getDeviceFromSP();
+                    if (deviceFromSP == null ){
+                        //切换当前设备
+                        //MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,device.getMac());
+                        if(device.getState().equals("点击绑定")){
+                            bingDeviceToServer(device,position,false);
+                        }
                     /*MyUtil.saveUserToSP(device);
                     MyUtil.showToask(MyDeviceActivity.this,"已激活设备");
                     deviceAdapter.notifyDataSetChanged();*/
-                }
-                else if (!device.getMac().equals(deviceFromSP.getMac())){
-                    if(device.getState().equals("点击绑定")){
-
-                        AlertDialog alertDialog = new AlertDialog.Builder(MyDeviceActivity.this)
-
-                                .setTitle("您已经绑定过其他设备，确定要切换其他设备吗？")
-                                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        bingDeviceToServer(device,position,true);
-                                    }
-                                })
-                                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                    }
-                                })
-                                .create();
-                        alertDialog.setCanceledOnTouchOutside(false);
-                        alertDialog.show();
-
                     }
-                }
-                else {
-                    new Thread(){
-                        @Override
-                        public void run() {
-                            super.run();
-                            while (MyApplication.calCuelectricVPercent==-1){
-                                CommunicateToBleService.sendLookEleInfoOrder();
-                                try {
-                                    Thread.sleep(500);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
+                    else if (!device.getMac().equals(deviceFromSP.getMac())){
+                        if(device.getState().equals("点击绑定")){
+
+                            AlertDialog alertDialog = new AlertDialog.Builder(MyDeviceActivity.this)
+
+                                    .setTitle("您已经绑定过其他设备，确定要切换其他设备吗？")
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            bingDeviceToServer(device,position,true);
+                                        }
+                                    })
+                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                        }
+                                    })
+                                    .create();
+                            alertDialog.setCanceledOnTouchOutside(false);
+                            alertDialog.show();
+
+                        }
+                    }
+                    else {
+                        new Thread(){
+                            @Override
+                            public void run() {
+                                super.run();
+                                while (MyApplication.clothCurrBatteryPowerPercent ==-1){
+                                    CommunicateToBleService.sendLookEleInfoOrder();
+                                    try {
+                                        Thread.sleep(500);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
-                        }
-                    }.start();
-                    startActivityForResult(new Intent(MyDeviceActivity.this,DeviceInfoActivity.class),201);
+                        }.start();
+                        startActivityForResult(new Intent(MyDeviceActivity.this,DeviceInfoActivity.class),201);
+                    }
                 }
+                else if (device.getName().equals("鞋垫")){
+                    //需要绑定到服务器
+                    //这里现在本地缓存
+
+                    MyUtil.saveDeviceToSP(device,2);
+
+                }
+
             }
         });
 
@@ -217,7 +231,7 @@ public class MyDeviceActivity extends BaseActivity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.bindingDeviceURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(MyDeviceActivity.this);
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 JsonBase jsonBase = MyUtil.commonJsonParse(result, new TypeToken<JsonBase>() {}.getType());
@@ -252,7 +266,7 @@ public class MyDeviceActivity extends BaseActivity {
                     if (iSNeedUnbind){
                         if (MyApplication.isHaveDeviceConnectted){
                             //断开蓝牙连接
-                            CommunicateToBleService.mLeProxy.disconnect(MyApplication.connectedMacAddress);
+                            CommunicateToBleService.mLeProxy.disconnect(MyApplication.clothConnectedMacAddress);
 
                             deviceList.get(mBndDevicePostion).setState("点击绑定");
                             TextView tv_item_state1 = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);
@@ -269,7 +283,7 @@ public class MyDeviceActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(MyDeviceActivity.this);
                 Log.i(TAG,"上传onFailure==s:"+s);
                 MyUtil.showToask(MyDeviceActivity.this,Constant.noIntentNotifyMsg);
             }
@@ -282,11 +296,36 @@ public class MyDeviceActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode==130 &  resultCode==RESULT_OK && data!=null){
             ArrayList<Device> searchDeviceLists = data.getParcelableArrayListExtra("searchDeviceList");
+            Log.i(TAG,"searchDeviceLists:"+searchDeviceLists);
             deviceList.clear();
             if (searchDeviceLists!=null && searchDeviceLists.size()>0){
+                int count = 0;
+                Device tempDevice = null;
                 for (Device device:searchDeviceLists){
-                    device.setState("点击绑定");
-                    deviceList.add(device);
+                    Log.i(TAG,"device:"+device.toString());
+                    if (device.getLEName().startsWith("BLE")){
+                        device.setState("点击绑定");
+                        deviceList.add(device);
+                    }
+                    else if (device.getLEName().startsWith("AMSU_P")){
+                        count++;
+                        if (count==1){
+                            tempDevice = device;
+                        }
+                        else if (count==2){
+                            //2个算一双鞋垫
+                            if (tempDevice!=null){
+                                device.setLEName(":左脚("+tempDevice.getMac().substring(tempDevice.getMac().length()-2)+
+                                        ")+右脚("+device.getMac().substring(device.getMac().length()-2)+")");
+                                device.setMac(tempDevice.getMac()+","+device.getMac());
+                                device.setState("点击绑定");
+                                Log.i(TAG,"添加一双鞋垫："+device.toString());
+                                deviceList.add(device);
+                                tempDevice = null;
+                                count = 0;
+                            }
+                        }
+                    }
                 }
             }
             else {
@@ -297,7 +336,6 @@ public class MyDeviceActivity extends BaseActivity {
                 Device deviceFromSP = MyUtil.getDeviceFromSP();
                 if (deviceFromSP!=null){
                     deviceList.add(deviceFromSP);
-
                     for (int i=0;i<deviceList.size();i++){
                         if (deviceList.get(i).getLEName().equals(deviceFromSP.getLEName())){
                             mBndDevicePostion = i;

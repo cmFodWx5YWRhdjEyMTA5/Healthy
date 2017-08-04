@@ -10,7 +10,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.adapter.AnalysisRateAdapter;
+import com.amsu.healthy.adapter.FragmentListRateAdapter;
 import com.amsu.healthy.fragment.community.ClubsFragment;
 import com.amsu.healthy.fragment.community.MyCommunityFragment;
 import com.amsu.healthy.fragment.community.NewsFragment;
@@ -94,7 +94,7 @@ public class SportCommunityActivity extends BaseActivity {
         fragmentList.add(new ClubsFragment());
         fragmentList.add(new MyCommunityFragment());
 
-        vp_sport_content.setAdapter(new AnalysisRateAdapter(getSupportFragmentManager(),fragmentList));
+        vp_sport_content.setAdapter(new FragmentListRateAdapter(getSupportFragmentManager(),fragmentList));
 
     }
 

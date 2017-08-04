@@ -182,7 +182,7 @@ public class HistoryRecordActivity extends BaseActivity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHistoryReportListURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(HistoryRecordActivity.this);
                 if (pageCount>1){
                     lv_history_all.loadMoreSuccessd();
                 }
@@ -206,7 +206,7 @@ public class HistoryRecordActivity extends BaseActivity {
             @Override
             public void onFailure(HttpException e, String s) {
                 //lv_history_all.loadMoreSuccessd();
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(HistoryRecordActivity.this);
                 MyUtil.showToask(HistoryRecordActivity.this,Constant.noIntentNotifyMsg);
                 Log.i(TAG,"上传onFailure==s:"+s);
             }

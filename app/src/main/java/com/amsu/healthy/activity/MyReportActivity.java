@@ -117,7 +117,7 @@ public class MyReportActivity extends BaseActivity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadMonthReportURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(MyReportActivity.this);
                 String result = responseInfo.result;
                 /*result = "{\n" +
                         "    \"ret\": \"0\",\n" +
@@ -219,7 +219,7 @@ public class MyReportActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(MyReportActivity.this);
                 loadDataSucces();
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
@@ -512,4 +512,8 @@ public class MyReportActivity extends BaseActivity {
             v_analysis_select.setLayoutParams(layoutParams);
         }
     }
+
+
+
+
 }

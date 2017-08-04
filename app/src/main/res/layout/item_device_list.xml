@@ -20,13 +20,13 @@
         android:textColor="#383838"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/iv_item_icon"
-        android:layout_marginLeft="@dimen/x40"/>
+        android:layout_marginLeft="@dimen/x32"/>
     <TextView
         android:id="@+id/tv_item_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""
-        android:textSize="@dimen/x48"
+        android:textSize="@dimen/x40"
         android:textColor="#c7c7cc"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"/>

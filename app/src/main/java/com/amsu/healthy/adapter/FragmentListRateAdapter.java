@@ -12,15 +12,15 @@ import java.util.List;
 /**
  * Created by HP on 2016/11/25.
  */
-public class AnalysisRateAdapter extends FragmentStatePagerAdapter {
+public class FragmentListRateAdapter extends FragmentStatePagerAdapter {
     private List<Fragment> fragmentList;
     //private String titleStrings[];
 
-    public AnalysisRateAdapter(FragmentManager fm) {
+    public FragmentListRateAdapter(FragmentManager fm) {
         super(fm);
     }
 
-    public AnalysisRateAdapter(FragmentManager fm, List<Fragment> fragmentList) {
+    public FragmentListRateAdapter(FragmentManager fm, List<Fragment> fragmentList) {
         super(fm);
         this.fragmentList = fragmentList;
     }
@@ -39,7 +39,7 @@ public class AnalysisRateAdapter extends FragmentStatePagerAdapter {
 
 
 
-    /*public AnalysisRateAdapter(List<BasePage> fragmentList, String titleStrings[]) {
+    /*public FragmentListRateAdapter(List<BasePage> fragmentList, String titleStrings[]) {
         this.basePageLista = fragmentList;
         this.titleStrings = titleStrings;
     }

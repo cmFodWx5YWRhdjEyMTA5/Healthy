@@ -3,18 +3,15 @@ package com.amsu.healthy.activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.adapter.AnalysisRateAdapter;
-import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.adapter.FragmentListRateAdapter;
 import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.UploadRecord;
@@ -27,7 +24,7 @@ import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.OffLineDbAdapter;
 import com.google.gson.Gson;
-import org.json.JSONArray;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.lidroid.xutils.HttpUtils;
@@ -52,7 +49,7 @@ public class RateAnalysisActivity extends BaseActivity {
     private View v_analysis_select;
     public static UploadRecord mUploadRecord;
     private TextView tv_analysis_sport;
-    private AnalysisRateAdapter mAnalysisRateAdapter;
+    private FragmentListRateAdapter mAnalysisRateAdapter;
     private float mOneTableWidth;
     private int subFormAlCount = 0 ;  //当有四个fragment是为0，有5个fragment时为1
     public static String ecgLocalFileName;
@@ -241,14 +238,14 @@ public class RateAnalysisActivity extends BaseActivity {
                                 }
                             }
                             adjustFeagmentCount(Integer.parseInt(mUploadRecord.state));
-                            MyUtil.hideDialog();
+                            MyUtil.hideDialog(RateAnalysisActivity.this);
                         }
 
                         @Override
                         public void onFailure(HttpException e, String s) {
                             if (isActiivtyDestroy)return;
                             addFragmentList(intent.getIntExtra(Constant.sportState,-1));
-                            MyUtil.hideDialog();
+                            MyUtil.hideDialog(RateAnalysisActivity.this);
                             MyUtil.showToask(RateAnalysisActivity.this,"数据加载失败");
                             Log.i(TAG,"上传onFailure==s:"+s);
                         }
@@ -283,7 +280,7 @@ public class RateAnalysisActivity extends BaseActivity {
         }
 
 
-        mAnalysisRateAdapter = new AnalysisRateAdapter(getSupportFragmentManager(), fragmentList);
+        mAnalysisRateAdapter = new FragmentListRateAdapter(getSupportFragmentManager(), fragmentList);
 
         vp_analysis_content.setAdapter(mAnalysisRateAdapter);
 
@@ -313,7 +310,7 @@ public class RateAnalysisActivity extends BaseActivity {
         fragmentList.add(new ECGFragment());
         fragmentList.add(new HRRFragment());
 
-        mAnalysisRateAdapter = new AnalysisRateAdapter(getSupportFragmentManager(), fragmentList);
+        mAnalysisRateAdapter = new FragmentListRateAdapter(getSupportFragmentManager(), fragmentList);
         vp_analysis_content.setAdapter(mAnalysisRateAdapter);
     }
 

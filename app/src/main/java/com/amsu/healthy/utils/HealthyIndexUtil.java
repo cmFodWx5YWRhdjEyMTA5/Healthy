@@ -939,7 +939,7 @@ public class HealthyIndexUtil {
     public static IndicatorAssess calculateLFHFMoodIndex(int LF_HF){
         int state = 0;
         String suggestion = "";
-        /*if (LF_HF>150){
+        if (LF_HF>150){
             state = 90;
             suggestion="您当前处于情绪高度紧张状态，也可能是一直专注于做一件事情，请适当放松一下。";
         }
@@ -962,12 +962,12 @@ public class HealthyIndexUtil {
         else if (0<=LF_HF && LF_HF<=2){
             state = 10;
             suggestion="您当前情绪很放松，看起来无所事事的样子了。";
-        }*/
+        }
 
-        if (LF_HF>60){
+        /*if (LF_HF>=60){
             LF_HF = 60;
         }
-        state = (int) (100*(1-LF_HF/60.0));
+        state = (int) (100*(1-LF_HF/60.0));*/
 
         IndicatorAssess indicatorAssess = new IndicatorAssess(LF_HF,state,"情绪指数",suggestion,"");
         return indicatorAssess;
@@ -1010,10 +1010,10 @@ public class HealthyIndexUtil {
             stateScore = 10+(int) (80*(float)((sdnn-140.0)/(170.0-140.0)));
         }*/
 
-       if (sdnn>300){
-           sdnn = 300;
+       if (sdnn>290){
+           sdnn = 290;
        }
-        stateScore = (int) (100*(1-sdnn/300.0));
+        stateScore = (int) (95*(1-sdnn/300.0));
         IndicatorAssess indicatorAssess = new IndicatorAssess(sdnn,stateScore,"抗压指数",suggestion,"");
         return indicatorAssess;
     }
@@ -1091,10 +1091,10 @@ public class HealthyIndexUtil {
             suggestion=" 您看起来身体很疲惫，你需要休息了，但是你有一个充满活力的大脑，想一想自己还有那些没有解决的问题吧，可能灵感就在眼前！";
         }
 */
-        if (sdnn>300){
-            sdnn = 300;
+        if (sdnn>=290){
+            sdnn = 290;
         }
-        state = (int) (100*(sdnn/300.0));
+        state = (int) (95*(sdnn/300.0));
 
         IndicatorAssess indicatorAssess = new IndicatorAssess(sdnn,state,"运动疲劳",suggestion);
         return indicatorAssess;

@@ -86,7 +86,7 @@ public class ApkUtil {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.checkAppUpdateURL, requestParams, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(context);
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 JsonBase<Apk> jsonBase =  MyUtil.commonJsonParse(result,new TypeToken<JsonBase<Apk>>() {}.getType());
@@ -113,7 +113,7 @@ public class ApkUtil {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(context);
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });

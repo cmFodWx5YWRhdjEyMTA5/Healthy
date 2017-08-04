@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -17,11 +16,9 @@ import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.service.CommunicateToBleService;
-import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.InputTextAlertDialogUtil;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -62,8 +59,8 @@ public class DeviceInfoActivity extends BaseActivity {
         final TextView tv_device_software = (TextView) findViewById(R.id.tv_device_software);
         tv_device_devicename = (TextView) findViewById(R.id.tv_device_devicename);
 
-        /*if (MainActivity.mLeService!=null && !MyUtil.isEmpty(MainActivity.connecMac)){
-            MainActivity.mLeService.send(MainActivity.connecMac, Constant.readDeviceIDOrder,true);
+        /*if (MainActivity.mLeService!=null && !MyUtil.isEmpty(MainActivity.clothDeviceConnecedMac)){
+            MainActivity.mLeService.send(MainActivity.clothDeviceConnecedMac, Constant.readDeviceIDOrder,true);
             Log.i(TAG,"MainActivity.mLeService.send");
         }*/
 
@@ -92,8 +89,8 @@ public class DeviceInfoActivity extends BaseActivity {
             tv_device_software.setText(softWareVersion);
         }
 
-        if (MyApplication.calCuelectricVPercent!=-1 && MyApplication.isHaveDeviceConnectted){
-            tv_device_electric.setText(MyApplication.calCuelectricVPercent+"");
+        if (MyApplication.clothCurrBatteryPowerPercent !=-1 && MyApplication.isHaveDeviceConnectted){
+            tv_device_electric.setText(MyApplication.clothCurrBatteryPowerPercent +"");
         }
         else {
             Log.i(TAG,"电量未计算出");
@@ -102,12 +99,12 @@ public class DeviceInfoActivity extends BaseActivity {
                 public void run() {
                     super.run();
                     while (true){
-                        if (MyApplication.calCuelectricVPercent!=-1){
+                        if (MyApplication.clothCurrBatteryPowerPercent !=-1){
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     Log.i(TAG,"有电量值");
-                                    tv_device_electric.setText(MyApplication.calCuelectricVPercent+"");
+                                    tv_device_electric.setText(MyApplication.clothCurrBatteryPowerPercent +"");
                                     if (!MyUtil.isEmpty(hardWareVersion)){
                                         tv_device_hardware.setText(hardWareVersion);
                                     }
@@ -134,13 +131,13 @@ public class DeviceInfoActivity extends BaseActivity {
         public void onReceive(Context context, Intent intent) {
             if (intent!=null){
                 Log.i(TAG,"onReceive:"+intent.getAction());
-                int calCuelectricVPercent = intent.getIntExtra("calCuelectricVPercent", -1);
-                Log.i(TAG,"calCuelectricVPercent:"+calCuelectricVPercent);
+                int calCuelectricVPercent = intent.getIntExtra("clothCurrBatteryPowerPercent", -1);
+                Log.i(TAG,"clothCurrBatteryPowerPercent:"+calCuelectricVPercent);
 
                 if (calCuelectricVPercent==-1){
                     //设备已断开
                     tv_device_electric.setText("--");
-                    MyApplication.calCuelectricVPercent = -1;
+                    MyApplication.clothCurrBatteryPowerPercent = -1;
                 }
                 else {
                     tv_device_electric.setText(calCuelectricVPercent+"");
@@ -185,7 +182,7 @@ public class DeviceInfoActivity extends BaseActivity {
             httpUtils.send(HttpRequest.HttpMethod.POST, Constant.bindingDeviceURL, params, new RequestCallBack<String>() {
                 @Override
                 public void onSuccess(ResponseInfo<String> responseInfo) {
-                    MyUtil.hideDialog();
+                    MyUtil.hideDialog(DeviceInfoActivity.this);
                     String result = responseInfo.result;
                     Log.i(TAG,"上传onSuccess==result:"+result);
                     JsonBase jsonBase = MyUtil.commonJsonParse(result, new TypeToken<JsonBase>() {}.getType());
@@ -205,7 +202,7 @@ public class DeviceInfoActivity extends BaseActivity {
                         setResult(RESULT_OK, intent);
                         if (MyApplication.isHaveDeviceConnectted){
                             //断开蓝牙连接
-                            CommunicateToBleService.mLeProxy.disconnect(MyApplication.connectedMacAddress);
+                            CommunicateToBleService.mLeProxy.disconnect(MyApplication.clothConnectedMacAddress);
                         }
 
                     }
@@ -229,7 +226,7 @@ public class DeviceInfoActivity extends BaseActivity {
 
                 @Override
                 public void onFailure(HttpException e, String s) {
-                    MyUtil.hideDialog();
+                    MyUtil.hideDialog(DeviceInfoActivity.this);
                     Log.i(TAG,"上传onFailure==s:"+s);
                     MyUtil.showToask(DeviceInfoActivity.this,Constant.noIntentNotifyMsg);
                 }

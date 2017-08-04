@@ -159,8 +159,8 @@ public class OffLineDbAdapter {
             return db.replace(RECORD_TABLE, null, args);
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
+            return -1;
         }
-        return -1;
 	}
 
 	public boolean updateLocalRecordUploadState(String serveId,String localId){
@@ -205,9 +205,12 @@ public class OffLineDbAdapter {
 
 		while (cursor.moveToNext()) {
 			UploadRecord uploadRecordByCursor = getUploadRecordByCursor(cursor);
+			Log.i(TAG,"uploadRecordByCursor:"+uploadRecordByCursor);
 			allRecord.add(uploadRecordByCursor);
 		}
-		Collections.reverse(allRecord);
+		if (allRecord.size()>1){
+			Collections.reverse(allRecord);
+		}
 		return allRecord;
 	}
 

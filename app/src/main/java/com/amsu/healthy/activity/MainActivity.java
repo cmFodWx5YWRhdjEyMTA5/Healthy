@@ -16,6 +16,7 @@ import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
@@ -32,6 +33,7 @@ import android.widget.Toast;
 
 import com.amap.api.maps.model.LatLng;
 import com.amsu.healthy.R;
+import com.amsu.healthy.activity.insole.PrepareRunningActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Apk;
 import com.amsu.healthy.bean.AppAbortDataSave;
@@ -316,6 +318,10 @@ public class MainActivity extends BaseActivity {
         int i = DiagnosisNDK.ecgHeart(test, test.length, Constant.oneSecondFrame);
         Log.i(TAG,"心率:"+i);*/
 
+        String absolutePath = Environment.getExternalStorageDirectory().getAbsolutePath();
+
+        Log.i(TAG,"absolutePath:"+absolutePath);
+
     }
 
     private void selfStartManagerSettingIntent(Context context){
@@ -407,6 +413,8 @@ public class MainActivity extends BaseActivity {
         filter.addAction(ACTION_CHARGE_CHANGE);
         registerReceiver(mchargeReceiver, filter);
 
+        MyApplication.isNeedSynMsgToDevice = true;
+
         //showUploadOffLineData();
 
 
@@ -418,7 +426,7 @@ public class MainActivity extends BaseActivity {
             public void onTomeOut() {
                 Log.i(TAG,"5s没有收到数据");
                 //mIsDataStart = false;
-                isConnectted = mIsDataStart = MyApplication.isHaveDeviceConnectted  = false;
+                mIsConnectted = mIsDataStart = MyApplication.isHaveDeviceConnectted  = false;
             }
         },5);*/
 
@@ -534,8 +542,8 @@ public class MainActivity extends BaseActivity {
         public void onReceive(Context context, Intent intent) {
             if (intent!=null){
                 Log.i(TAG,"onReceive:"+intent.getAction());
-                int calCuelectricVPercent = intent.getIntExtra("calCuelectricVPercent", -1);
-                Log.i(TAG,"calCuelectricVPercent:"+calCuelectricVPercent);
+                int calCuelectricVPercent = intent.getIntExtra("clothCurrBatteryPowerPercent", -1);
+                Log.i(TAG,"clothCurrBatteryPowerPercent:"+calCuelectricVPercent);
                 if (calCuelectricVPercent==-1){
                     //设备已断开
                     tv_base_charge.setVisibility(View.GONE);
@@ -574,16 +582,15 @@ public class MainActivity extends BaseActivity {
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             }
             isonResumeEd = true;
-
-
-            if (MyApplication.isHaveDeviceConnectted){
-                iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
-            }
-            else {
-                iv_base_connectedstate.setImageResource(R.drawable.duankai);
-            }
-
         }
+
+        if (MyApplication.isHaveDeviceConnectted){
+            iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
+        }
+        else {
+            iv_base_connectedstate.setImageResource(R.drawable.duankai);
+        }
+
 
         int healthyIindexvalue = MyUtil.getIntValueFromSP("healthyIindexvalue");
         if (healthyIindexvalue>0){
@@ -648,7 +655,7 @@ public class MainActivity extends BaseActivity {
 
         physicalAge = -1;
 
-        //mLeService.disconnect(connecMac);
+        //mLeService.disconnect(clothDeviceConnecedMac);
     }
 
     private class MyOnClickListener implements View.OnClickListener{
@@ -686,15 +693,26 @@ public class MainActivity extends BaseActivity {
                     break;
                 case R.id.rl_main_sportarea:
                     startActivity(new Intent(MainActivity.this,SportCommunityActivity.class));
-                    //startActivity(new Intent(MainActivity.this,MotionDetectionActivity.class));
+                    //startActivity(new Intent(MainActivity.this,PrepareRunningActivity.class));
                     break;
                 case R.id.rl_main_me:
                     startActivity(new Intent(MainActivity.this,MeActivity.class));
                     break;
                 case R.id.rl_mian_start:
+                    int type = MyUtil.getIntValueFromSP(Constant.sportType);
+                    if (type==Constant.sportType_Cloth){
+                        startActivity(new Intent(MainActivity.this,StartRunActivity.class));
+                    }
+                    else if (type==Constant.sportType_Insole){
+                        startActivity(new Intent(MainActivity.this,PrepareRunningActivity.class));
+                    }
+                    else {
+                        startActivity(new Intent(MainActivity.this,StartRunActivity.class));
+                    }
+
                     //selfStartManagerSettingIntent(MainActivity.this);
 
-                    startActivity(new Intent(MainActivity.this,StartRunActivity.class));
+
                     /*Intent intent2 = getIntent();
                     boolean isNeedRecoverAbortData = intent2.getBooleanExtra(Constant.isNeedRecoverAbortData, false);
                     if (isNeedRecoverAbortData){
@@ -798,7 +816,9 @@ public class MainActivity extends BaseActivity {
               /*  MyUtil.stopAllServices(this);
                 android.os.Process.killProcess(android.os.Process.myPid());*//*
                 android.os.Process.killProcess(android.os.Process.myPid());*/
+                MyApplication.isNeedSynMsgToDevice = false;
                 finish();
+
                 //android.os.Process.killProcess(android.os.Process.myPid());
             }
             return true;

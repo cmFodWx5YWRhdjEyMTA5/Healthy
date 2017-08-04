@@ -337,6 +337,23 @@ public class LeProxy {
                     //打开模组默认的数据接收通道【0x1002】，这一步成功才能保证APP收到数据
                     boolean success = enableNotification(address, BleUUIDS.PRIMARY_SERVICE, BleUUIDS.CHARACTERS[1]);
                     Log.i(TAG, "Enable 0x1002 notification: " + success);
+
+                    UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+                    UUID charUuid_order = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
+                    UUID charUuid_data = UUID.fromString("6e400004-b5a3-f393-e0a9-e50e24dcca9e");
+
+                    try {
+                        Thread.sleep(1000);
+                        boolean success_order = enableNotification(address, serUuid, charUuid_order);
+                        Log.i(TAG, "success_order: " + success_order);
+
+                        Thread.sleep(1000);
+                        boolean success_data = enableNotification(address, serUuid, charUuid_data);
+                        Log.i(TAG, "success_data: " + success_data);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                     break;
 
 //                case 1:

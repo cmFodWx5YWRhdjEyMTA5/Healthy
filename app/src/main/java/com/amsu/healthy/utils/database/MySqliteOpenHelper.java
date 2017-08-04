@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class MySqliteOpenHelper extends SQLiteOpenHelper {
     static final String DATABASE_PATH = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/recordPath";
-    static final String DATABASE_NAME = DATABASE_PATH + "/" + "db.db";
+    static final String DATABASE_NAME = DATABASE_PATH + "/" + "amsudb.db";
 
     public MySqliteOpenHelper(Context context, int version) {
         super(context, DATABASE_NAME, null, version);

@@ -144,6 +144,7 @@ public class CalculateHRRProcessActivity extends BaseActivity {
             int data = intent.getExtras().getInt("data");
             Log.i(TAG,"data:"+ data);
             if (data==0){
+                tv_process_rate.setText("--");
                 return;
             }
             tv_process_rate.setText(data+"");

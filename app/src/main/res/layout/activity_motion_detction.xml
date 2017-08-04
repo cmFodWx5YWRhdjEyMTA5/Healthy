@@ -13,55 +13,63 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <RelativeLayout
+            android:id="@+id/rl_dection_cloth"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="@dimen/x296"
-            android:clickable="true"
-            android:onClick="defaultOnclick">
+            android:clickable="true">
             <ImageView
+                android:id="@+id/iv_detction_cloth"
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/ydm_paobu"
+                android:src="@drawable/yifu"
+                android:background="@drawable/bg_sport_type"
+                android:padding="@dimen/x50"
                 android:layout_centerHorizontal="true"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="跑步"
+                android:text="衣服"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true" />
         </RelativeLayout>
+
         <RelativeLayout
+            android:id="@+id/rl_dection_insole"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="@dimen/x296"
-            android:clickable="true"
-            android:onClick="defaultOnclick"
-            >
+            android:clickable="true">
             <ImageView
+                android:id="@+id/iv_detction_insole"
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/ydm_youyong"
+                android:src="@drawable/yq_wxz"
+                android:background="@drawable/bg_sport_type"
+                android:padding="@dimen/x50"
                 android:layout_centerHorizontal="true"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="游泳"
+                android:text="鞋垫"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true" />
         </RelativeLayout>
+
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="@dimen/x296"
-            android:clickable="true"
-            android:onClick="defaultOnclick">
+            android:clickable="true">
             <ImageView
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/ydm_qixing"
+                android:src="@drawable/yifu"
+                android:background="@drawable/bg_sport_type"
+                android:padding="@dimen/x50"
                 android:layout_centerHorizontal="true"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -74,8 +82,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:onClick="defaultOnclick">
+        android:clickable="true">
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -84,7 +91,9 @@
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/ydm_jianshen"
+                android:src="@drawable/yifu"
+                android:background="@drawable/bg_sport_type"
+                android:padding="@dimen/x50"
                 android:layout_centerHorizontal="true"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -93,25 +102,29 @@
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true" />
         </RelativeLayout>
+
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="@dimen/x296"
             android:clickable="true"
-            android:onClick="defaultOnclick">
+            >
             <ImageView
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/ydm_butai"
+                android:src="@drawable/yifu"
+                android:background="@drawable/bg_sport_type"
+                android:padding="@dimen/x50"
                 android:layout_centerHorizontal="true"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="步态"
+                android:text="游泳"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true" />
         </RelativeLayout>
+
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -121,7 +134,9 @@
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/ydm_paobu"
+                android:src="@drawable/yifu"
+                android:background="@drawable/bg_sport_type"
+                android:padding="@dimen/x50"
                 android:layout_centerHorizontal="true"/>
             <TextView
                 android:layout_width="wrap_content"

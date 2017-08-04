@@ -102,7 +102,7 @@ public class SosActivity extends BaseActivity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.deleteSosContact, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(SosActivity.this);
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 Gson gson = new Gson();
@@ -118,7 +118,7 @@ public class SosActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(SosActivity.this);
                 Log.i(TAG,"上传onFailure==s:"+s);
                 MyUtil.showToask(SosActivity.this,"删除失败");
             }
@@ -164,7 +164,7 @@ public class SosActivity extends BaseActivity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.setSosMessage, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(SosActivity.this);
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 Gson gson = new Gson();
@@ -177,7 +177,7 @@ public class SosActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(SosActivity.this);
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });
@@ -205,7 +205,7 @@ public class SosActivity extends BaseActivity {
             httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getAllContacts, params, new RequestCallBack<String>() {
                 @Override
                 public void onSuccess(ResponseInfo<String> responseInfo) {
-                    MyUtil.hideDialog();
+                    MyUtil.hideDialog(SosActivity.this);
                     String result = responseInfo.result;
                     Log.i(TAG,"上传onSuccess==result:"+result);
                     Gson gson = new Gson();
@@ -226,7 +226,7 @@ public class SosActivity extends BaseActivity {
 
                 @Override
                 public void onFailure(HttpException e, String s) {
-                    MyUtil.hideDialog();
+                    MyUtil.hideDialog(SosActivity.this);
                     Log.i(TAG,"上传onFailure==s:"+s);
                 }
             });
@@ -349,7 +349,7 @@ public class SosActivity extends BaseActivity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.addSosContact, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(SosActivity.this);
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 Gson gson = new Gson();
@@ -372,7 +372,7 @@ public class SosActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(SosActivity.this);
                 Log.i(TAG,"上传onFailure==s:"+s);
                 MyUtil.showToask(SosActivity.this,"添加失败,"+s);
             }

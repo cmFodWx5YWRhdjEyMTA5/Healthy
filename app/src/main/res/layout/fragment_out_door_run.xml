@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.amap.api.maps.MapView
+            android:id="@+id/mv_item_map"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x672"
+            android:layout_below="@+id/rl_base_head"
+            android:background="#4444">
+        </com.amap.api.maps.MapView>
+
+        <RelativeLayout
+            android:layout_width="@dimen/x496"
+            android:layout_height="@dimen/y88"
+            android:layout_below="@+id/rl_base_head"
+            android:background="@drawable/bg_rl_roundcent1"
+            android:layout_marginLeft="@dimen/x36"
+            android:layout_marginTop="@dimen/x36">
+            <RelativeLayout
+                android:id="@+id/rl_startrun_r1"
+                android:layout_width="@dimen/x156"
+                android:layout_height="@dimen/x64"
+                android:background="@drawable/bg_rl_roundcent2"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/x10"
+                android:gravity="center">
+                <TextView
+                    android:id="@+id/tv_startrun_gps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="GPS"
+                    android:textSize="@dimen/x36"
+                    android:textColor="#4c4c4c"
+                    android:layout_centerVertical="true"/>
+                <ImageView
+                    android:id="@+id/iv_startrun_gpsstate"
+                    android:layout_width="@dimen/x32"
+                    android:layout_height="@dimen/y32"
+                    android:layout_toRightOf="@+id/tv_startrun_gps"
+                    android:layout_marginLeft="@dimen/x12"
+                    android:src="@drawable/signal_1"
+                    android:layout_centerVertical="true"/>
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/rl_startrun_r1"
+                android:layout_marginLeft="@dimen/x20"
+                android:text="建议绕开高楼大厦"
+                android:layout_centerVertical="true"
+                android:textSize="@dimen/x36"
+                android:textColor="#FFFFFF"/>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="户外跑步"
+        android:layout_marginTop="@dimen/x92"
+        android:textColor="#000000"
+        android:textSize="@dimen/x70"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/x48"
+        android:gravity="center">
+        <View
+            android:layout_width="@dimen/x16"
+            android:layout_height="@dimen/x16"
+            android:background="@drawable/bg_view_circle_black"></View>
+
+        <View
+            android:layout_width="@dimen/x16"
+            android:layout_height="@dimen/x16"
+            android:layout_marginLeft="@dimen/x24"
+            android:background="@drawable/bg_view_circle_grid"></View>
+    </LinearLayout>
+
+
+
+
+
+</LinearLayout>

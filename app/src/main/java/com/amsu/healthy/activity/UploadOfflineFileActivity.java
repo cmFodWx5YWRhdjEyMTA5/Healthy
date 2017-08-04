@@ -415,7 +415,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    MyUtil.hideDialog();
+                    MyUtil.hideDialog(UploadOfflineFileActivity.this);
                     if (split[4].equals("FF")){
                         MyUtil.showToask(UploadOfflineFileActivity.this,"文件解析出错，请重启主机试试");
                     }
@@ -519,25 +519,27 @@ public class UploadOfflineFileActivity extends BaseActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(UploadOfflineFileActivity.this);
                 lv_history_upload.setVisibility(View.GONE);
                 uploadHistoryRecordAdapter.notifyDataSetChanged();
                 lv_history_upload.setVisibility(View.VISIBLE);
-                if (mOffLineFileNameList.size()>0){
-                    String fileName = mOffLineFileNameList.get(0);
-                    currentUploadFileName = fileName;
 
-                    //String fileName = "20170413172800.ecg";
-                    String startOrder = "FF040018";
-                    String deviceOrder = startOrder + DeviceOffLineFileUtil.stringToHexString(fileName) + DeviceOffLineFileUtil.readDeviceSpecialFileBeforeAddSum("FF 04 00 18",fileName)+"16";
-                    Log.i(TAG,"deviceOrder:"+deviceOrder);
-                    isSendReadLengthOrder = true;
-                    isStartUploadData = false;
-                    sendReadDeviceOrder(deviceOrder);
-
-                }
             }
         });
+
+        if (mOffLineFileNameList.size()>0){
+            String fileName = mOffLineFileNameList.get(0);
+            currentUploadFileName = fileName;
+
+            //String fileName = "20170413172800.ecg";
+            String startOrder = "FF040018";
+            String deviceOrder = startOrder + DeviceOffLineFileUtil.stringToHexString(fileName) + DeviceOffLineFileUtil.readDeviceSpecialFileBeforeAddSum("FF 04 00 18",fileName)+"16";
+            Log.i(TAG,"deviceOrder:"+deviceOrder);
+            isSendReadLengthOrder = true;
+            isStartUploadData = false;
+            sendReadDeviceOrder(deviceOrder);
+
+        }
 
         for (String s:mOffLineFileNameList){
             if (s.endsWith("ecg")){
@@ -760,64 +762,53 @@ public class UploadOfflineFileActivity extends BaseActivity {
     //当前文件上传成功
     private void uploadCurrentFileSuccess() {
 
+    //上传完成
+        endTimeMillis = System.currentTimeMillis();
+        Log.i(TAG,"整个文件上传完成");
+        Log.i(TAG,"startTimeMillis"+new Date(startTimeMillis));
+        Log.i(TAG,"endTimeMillis"+new Date(endTimeMillis));
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                /*Log.i(TAG,"endTimeMillis - startTimeMillis："+(endTimeMillis - startTimeMillis));
-                double timeMin =  (endTimeMillis - startTimeMillis) / (1000 * 60.0);
-                Log.i(TAG,"timeMin："+timeMin);
+        Log.i(TAG,"求情重传次数requireRetransmissionCount "+requireRetransmissionCount);
 
-                DecimalFormat decimalFormat=new DecimalFormat("0.0");//构造方法的字符格式这里如果小数不足2位,会以0补足.
-                String time=decimalFormat.format(timeMin);//format 返回的是字符串
-                Log.i(TAG,"time："+time);
-                //tv_uploadprogress.setText("传输完成  耗时(分钟):"+time+"  丢包次数："+requireRetransmissionCount);
-                startTimeMillis = 0;*/
+        isStartUploadData = false;
+        //deleteOneFile(currentUploadFileName);
+        isSendReadLengthOrder = false;
 
-                //上传完成
-                endTimeMillis = System.currentTimeMillis();
-                Log.i(TAG,"整个文件上传完成");
-                Log.i(TAG,"startTimeMillis"+new Date(startTimeMillis));
-                Log.i(TAG,"endTimeMillis"+new Date(endTimeMillis));
-
-                Log.i(TAG,"求情重传次数requireRetransmissionCount "+requireRetransmissionCount);
-
-                isStartUploadData = false;
-                //deleteOneFile(currentUploadFileName);
-                isSendReadLengthOrder = false;
-
-                final String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+ currentUploadFileName;
-                final boolean isWriteSuccess = DeviceOffLineFileUtil.writeEcgDataToBinaryFile(mAllData, filePath);
-                Log.i(TAG,"写入文件isWriteSuccess:"+isWriteSuccess+ "  filePath:"+filePath);
-                Log.i(TAG,"mListViewItemUolpadIndex:"+mListViewItemUolpadIndex);
+        final String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+ currentUploadFileName;
+        final boolean isWriteSuccess = DeviceOffLineFileUtil.writeEcgDataToBinaryFile(mAllData, filePath);
+        Log.i(TAG,"写入文件isWriteSuccess:"+isWriteSuccess+ "  filePath:"+filePath);
+        Log.i(TAG,"mListViewItemUolpadIndex:"+mListViewItemUolpadIndex);
 
 
-                if (currentUploadFileName.endsWith("acc")){
-                    TextView tv_history_alstate = (TextView) lv_history_upload.getChildAt(mUploadFileIndex/2).findViewById(R.id.tv_history_alstate);
-                    //TextView tv_history_alstate = HistoryRecordAdapter.textViewList.get(mUploadFileIndex);
-                    tv_history_alstate.setText("未分析（点击分析）");
-                    tv_history_alstate.setTextColor(Color.parseColor("#333333"));
-                    Log.i(TAG,"设置状态:未分析（点击分析）");
-
-
-                }
-
-                sendReadNextFileOrder();
-
-
-
-                if (isWriteSuccess){
-                    if (filePath.endsWith("ecg")){
-                        mEcgLocalOffLineFileNameList.put(mListViewItemUolpadIndex+"",filePath);
-                    }
-                    else {
-                        mAccLocalOffLineFileNameList.put(mListViewItemUolpadIndex+"",filePath);
-                    }
-                    mLocalFileNameList.add(filePath);
-                }
-
+        if (isWriteSuccess){
+            if (filePath.endsWith("ecg")){
+                mEcgLocalOffLineFileNameList.put(mListViewItemUolpadIndex+"",filePath);
             }
-        });
+            else {
+                mAccLocalOffLineFileNameList.put(mListViewItemUolpadIndex+"",filePath);
+            }
+            mLocalFileNameList.add(filePath);
+        }
+
+
+        final TextView tv_history_alstate;
+
+        if (currentUploadFileName.endsWith("acc")){
+            tv_history_alstate = (TextView) lv_history_upload.getChildAt(mUploadFileIndex/2).findViewById(R.id.tv_history_alstate);
+            //TextView tv_history_alstate = HistoryRecordAdapter.textViewList.get(mUploadFileIndex);
+
+            if (tv_history_alstate!=null){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tv_history_alstate.setText("未分析（点击分析）");
+                        tv_history_alstate.setTextColor(Color.parseColor("#333333"));
+                        Log.i(TAG,"设置状态:未分析（点击分析）");
+                    }
+                });
+            }
+        }
+        sendReadNextFileOrder();
     }
 
     boolean isSendReadLengthOrder;  //是否已经发送了读取文件指令

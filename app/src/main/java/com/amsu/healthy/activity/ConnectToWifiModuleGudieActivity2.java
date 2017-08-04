@@ -67,7 +67,7 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
             wifiAutoConnectManager.setConnectStateResultChanged(new WifiAutoConnectManager.ConnectStateResultChanged() {
                 @Override
                 public void onConnectStateChanged(boolean isConnected) {
-                    MyUtil.hideDialog();
+                    MyUtil.hideDialog(ConnectToWifiModuleGudieActivity2.this);
                     Log.i(TAG,"isConnected:"+isConnected);
                     if (isConnected){
                         Log.i(TAG,"WiFi连接成功:");
@@ -147,7 +147,7 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
                     @Override
                     public void run() {
                         MyUtil.showToask(ConnectToWifiModuleGudieActivity2.this,"主机连接成功");
-                        MyUtil.hideDialog();
+                        MyUtil.hideDialog(ConnectToWifiModuleGudieActivity2.this);
                         startActivity(new Intent(ConnectToWifiModuleGudieActivity2.this,UploadOfflineFileActivity.class));
                         finish();
                     }
@@ -158,7 +158,7 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        MyUtil.hideDialog();
+                        MyUtil.hideDialog(ConnectToWifiModuleGudieActivity2.this);
                         //MyUtil.showToask(ConnectToWifiModuleGudieActivity2.this,"主机连接失败，请检查WiFi连接是否成功");
                     }
                 });

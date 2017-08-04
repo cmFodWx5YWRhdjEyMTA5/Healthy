@@ -72,7 +72,7 @@ public class AppUpdateActivity extends BaseActivity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.checkAppUpdateURL, requestParams, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(AppUpdateActivity.this);
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 Gson gson = new Gson();
@@ -90,7 +90,7 @@ public class AppUpdateActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(AppUpdateActivity.this);
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });

@@ -43,14 +43,18 @@ public class MyApplication extends Application{
     public static final int HealthyDataActivity = 2;
     public static final int StartRunActivity = 3;
     public static int runningActivity = 1;
-    public static int calCuelectricVPercent = -1;
+    public static int clothCurrBatteryPowerPercent = -1;
     public static int currentHeartRate;
-    public static String connectedMacAddress;
+    public static String clothConnectedMacAddress;
     private Handler handler;
+    public static boolean isNeedSynMsgToDevice;
+    public static String insoleAccessToken;
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+
 
 
         //sharesdk短信
@@ -65,7 +69,7 @@ public class MyApplication extends Application{
 
         if (currentProcessName.equals("com.amsu.healthy")){
             MyUtil.startServices(this);
-
+            isNeedSynMsgToDevice = true;
         }
 
     }

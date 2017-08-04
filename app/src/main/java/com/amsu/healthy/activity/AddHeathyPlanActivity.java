@@ -105,7 +105,7 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
                     httpUtils.send(HttpRequest.HttpMethod.POST, url, params, new RequestCallBack<String>() {
                         @Override
                         public void onSuccess(ResponseInfo<String> responseInfo) {
-                            MyUtil.hideDialog();
+                            MyUtil.hideDialog(AddHeathyPlanActivity.this);
                             String result = responseInfo.result;
                             Log.i(TAG,"上传onSuccess==result:"+result);
                             JSONObject jsonObject = null;
@@ -132,7 +132,7 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
 
                         @Override
                         public void onFailure(HttpException e, String s) {
-                            MyUtil.hideDialog();
+                            MyUtil.hideDialog(AddHeathyPlanActivity.this);
                             Log.i(TAG,"上传onFailure==s:"+s);
                         }
                     });

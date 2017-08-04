@@ -1,6 +1,7 @@
 package com.amsu.healthy.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,11 +11,13 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.JsonBase;
+import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.utils.ApkUtil;
 import com.amsu.healthy.utils.AppAbortDbAdapter;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.OffLineDbAdapter;
 import com.google.gson.Gson;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -119,6 +122,31 @@ public class SplashActivity extends Activity {
     private void initData() {
         downlaodWeekReport(-1,-1,false,null);
         ApkUtil.checkUpdate(this);
+
+        boolean networkConnected = MyUtil.isNetworkConnected(this);
+        if (networkConnected){
+            //有网络连接
+            new Thread(){
+                @Override
+                public void run() {
+                    startUploadOffLineData(SplashActivity.this);
+                }
+            }.start();
+
+        }
+    }
+
+    private void startUploadOffLineData(Context context) {
+        OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(context);
+        offLineDbAdapter.open();
+
+        List<UploadRecord> uploadRecordsState = offLineDbAdapter.queryRecordByUploadState("0");
+        Log.i(TAG,"uploadRecordsState:"+uploadRecordsState);
+        Log.i(TAG,"uploadRecordsState.size():"+uploadRecordsState.size());
+
+        for (UploadRecord uploadRecord:uploadRecordsState){
+            HeartRateActivity.uploadRecordDataToServer(uploadRecord,context,true);
+        }
     }
 
     //下载最新周报告
@@ -138,7 +166,7 @@ public class SplashActivity extends Activity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadWeekReportURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+
                 if (isFromLogin){
                     activity.startActivity(new Intent(activity,MainActivity.class));
                     MyUtil.destoryAllAvtivity();
@@ -157,7 +185,7 @@ public class SplashActivity extends Activity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+
                 if (isFromLogin){
                     activity.startActivity(new Intent(activity,MainActivity.class));
                     MyUtil.destoryAllAvtivity();

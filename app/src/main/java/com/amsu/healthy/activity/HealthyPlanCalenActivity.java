@@ -176,7 +176,7 @@ public class HealthyPlanCalenActivity extends BaseActivity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHealthyPlanningMonthListURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(HealthyPlanCalenActivity.this);
                 String result = responseInfo.result;
                 /*String result = "{\n" +
                         "\"ret\": \"0\",\n" +
@@ -227,7 +227,7 @@ public class HealthyPlanCalenActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(HealthyPlanCalenActivity.this);
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });

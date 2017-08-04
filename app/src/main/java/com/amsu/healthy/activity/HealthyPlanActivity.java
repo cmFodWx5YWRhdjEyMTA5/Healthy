@@ -108,7 +108,7 @@ public class HealthyPlanActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(HealthyPlanActivity.this);
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });

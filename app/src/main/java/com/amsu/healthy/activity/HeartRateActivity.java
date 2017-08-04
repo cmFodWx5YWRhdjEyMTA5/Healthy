@@ -113,8 +113,8 @@ public class HeartRateActivity extends BaseActivity {
 
 
             //String cacheFileName = MyUtil.getStringValueFromSP("cacheFileName");
-        final String ecgLocalFileName = intent.getStringExtra(Constant.ecgLocalFileName);
-        //final String ecgLocalFileName = "/storage/emulated/0/abluedata/20170710195415.ecg";
+        final String ecgLocalFileName = intent.getStringExtra(Constant.ecgLocalFileName); ///storage/emulated/0
+        //final String ecgLocalFileName = "/storage/emulated/0/abluedata/20170711214450.ecg";
 
 
         //final ArrayList<Integer> heartDataList_static = intent.getIntegerArrayListExtra(Constant.heartDataList_static);//静态心电心率，不为空则表示有静态心电数据
@@ -142,6 +142,10 @@ public class HeartRateActivity extends BaseActivity {
                             final String fileBase64 = MyUtil.fileToBase64(file);
                             Log.i(TAG,"fileBase64:"+fileBase64);
                             final List<Integer> ecgDataList = readIntArrayDataFromFile(file);
+
+                            /*for (int i=0;i<1000000;i++){
+                                ecgDataList.add(50+i%20);
+                            }*/
                             Log.i(TAG,"ecgDataList.size()"+ecgDataList.size());
 
                             List<Integer> stridefreData = null;
@@ -273,7 +277,7 @@ public class HeartRateActivity extends BaseActivity {
             try {
                 uploadRecordCopy = (UploadRecord) uploadRecord.clone();   //后面会有对对象的重新改变值，所以获取该对象的克隆，以后对此对象的改变将不会影响克隆对象
                 uploadRecordCopy.localEcgFileName = ecgLocalFileName;
-                uploadRecordDataToServer(uploadRecordCopy,HeartRateActivity.this);
+                uploadRecordDataToServer(uploadRecordCopy,HeartRateActivity.this,false);
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
@@ -632,10 +636,24 @@ public class HeartRateActivity extends BaseActivity {
     }
 
     //上传分析结果
-    public static void uploadRecordDataToServer(final UploadRecord uploadRecord, final Context context) {
-        Log.i(TAG,"uploadRecord:"+uploadRecord);
+    public static void uploadRecordDataToServer(final UploadRecord uploadRecord, final Context context,boolean isSynLocalData) {
+        Log.i(TAG,"uploadRecordDataToServer uploadRecord:"+uploadRecord);
+
+        Log.i(TAG,"uploadRecord.localEcgFileName:"+uploadRecord.localEcgFileName);
+
+
+        if (isSynLocalData){
+            //同步本地文件
+            if (!MyUtil.isEmpty(uploadRecord.localEcgFileName) && uploadRecord.localEcgFileName.endsWith("ecg")){
+                uploadRecord.EC = MyUtil.fileToBase64(new File(uploadRecord.localEcgFileName));
+            }else {
+                return;
+            }
+        }
         String ahr = uploadRecord.AHR;
         Log.i(TAG,"AHR:"+ahr);
+
+
         String eccString = uploadRecord.EC;
 
         HttpUtils httpUtils = new HttpUtils();

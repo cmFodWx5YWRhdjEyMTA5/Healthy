@@ -449,7 +449,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()){
                 case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
-                    if (!mIsRunning)return;
+                    //if (!mIsRunning)return;
                     //byte[] data = intent.getByteArrayExtra(LeProxy.EXTRA_DATA);
                     dealwithLebDataChange(DataUtil.byteArrayToHex(intent.getByteArrayExtra(LeProxy.EXTRA_DATA)));
                     break;
@@ -535,6 +535,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             System.arraycopy(calcuEcgRate, 0, preCalcuEcgRate, 0, calcuEcgRate.length);
             System.arraycopy(ecgInts, 0, fourCalcuEcgRate, currentGroupIndex * 10, ecgInts.length);
 
+
             //更新心率
             runOnUiThread(new Runnable() {
                 @Override
@@ -575,43 +576,41 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 }
             });
 
-
-
-            if (mCalKcalCurrentTimeMillis==0){
-                mCalKcalCurrentTimeMillis = System.currentTimeMillis();
-            }else {
-                long l = System.currentTimeMillis() - mCalKcalCurrentTimeMillis;
-                mCalKcalCurrentTimeMillis = System.currentTimeMillis();
-                float time = (float) (l / (1000 * 60.0));
-                int userSex = MyUtil.getUserSex();
-                int userAge = HealthyIndexUtil.getUserAge();
-                int userWeight = MyUtil.getUserWeight();
-                Log.i(TAG,"time:"+time+",userSex:"+userSex+",userAge:"+userAge+",userWeight"+userWeight);
-                float getkcal = DiagnosisNDK.getkcal(userSex, mCurrentHeartRate, userAge, userWeight, time);
-                Log.i(TAG,"getkcal:"+getkcal);
-                if (getkcal<0){
-                    getkcal = 0;
-                }
-                //防止蓝牙断开又重新连上后时间太长导致卡路里很大
-                if (getkcal>6 && mKcalData.size()>0){
-                    getkcal = Integer.parseInt(mKcalData.get(mKcalData.size()-1));
-                }
-
-                mAllKcal += getkcal;
-                mKcalData.add(getkcal+"");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        tv_run_kcal.setText((int)mAllKcal+"");
+            if (mIsRunning){
+                if (mCalKcalCurrentTimeMillis==0){
+                    mCalKcalCurrentTimeMillis = System.currentTimeMillis();
+                }else {
+                    long l = System.currentTimeMillis() - mCalKcalCurrentTimeMillis;
+                    mCalKcalCurrentTimeMillis = System.currentTimeMillis();
+                    float time = (float) (l / (1000 * 60.0));
+                    int userSex = MyUtil.getUserSex();
+                    int userAge = HealthyIndexUtil.getUserAge();
+                    int userWeight = MyUtil.getUserWeight();
+                    Log.i(TAG,"time:"+time+",userSex:"+userSex+",userAge:"+userAge+",userWeight"+userWeight);
+                    float getkcal = DiagnosisNDK.getkcal(userSex, mCurrentHeartRate, userAge, userWeight, time);
+                    Log.i(TAG,"getkcal:"+getkcal);
+                    if (getkcal<0){
+                        getkcal = 0;
                     }
-                });
+                    //防止蓝牙断开又重新连上后时间太长导致卡路里很大
+                    if (getkcal>6 && mKcalData.size()>0){
+                        getkcal = Integer.parseInt(mKcalData.get(mKcalData.size()-1));
+                    }
+
+                    mAllKcal += getkcal;
+                    mKcalData.add(getkcal+"");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tv_run_kcal.setText((int)mAllKcal+"");
+                        }
+                    });
+                }
             }
 
         }
 
         currentGroupIndex++;
-
-
 
 
         /*if (currentGroupIndex<calGroupCalcuLength){
@@ -827,7 +826,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         ints = ECGUtil.geIntEcgaArr(hexData, " ", 3, 12); //一次的数据，12位
 
         writeAccDataToBinaryFile(ints);
-
 
         if (accData.size()<accDataLength){
             for (int i:ints){
@@ -1143,7 +1141,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             // 判断GPS模块是否开启，如果没有则开启
             Log.i(TAG,"gps打开？:"+locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER));
             if (!locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
-                chooseOpenGps();
+                MyUtil.chooseOpenGps(this);
             }
             else {
                 setRunningParameter();
@@ -1617,40 +1615,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             mStartTime = System.currentTimeMillis();
             record.setDate(MyUtil.getCueMapDate(mStartTime));
         }
-    }
-
-    //打开gps
-    private void chooseOpenGps() {
-        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(StartRunActivity.this);
-        View inflate = LayoutInflater.from(this).inflate(R.layout.choose_opengps_dailog, null);
-
-        bottomSheetDialog.setContentView(inflate);
-        Window window = bottomSheetDialog.getWindow();
-        window.setGravity(Gravity.BOTTOM);  //此处可以设置dialog显示的位置
-        window.setWindowAnimations(R.style.opengpsdialogstyle);  //添加动画
-        bottomSheetDialog.show();
-
-        TextView bt_opengps_cancel = (TextView) inflate.findViewById(R.id.bt_opengps_cancel);
-        TextView bt_opengps_ok = (TextView) inflate.findViewById(R.id.bt_opengps_ok);
-
-        bt_opengps_cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bottomSheetDialog.dismiss();
-                //setRunningParameter();
-            }
-        });
-
-        bt_opengps_ok.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                bottomSheetDialog.dismiss();
-                //跳到设置页面
-                // 转到手机设置界面，用户设置GPS
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivityForResult(intent, 0); // 设置完成后返回到原来的界面
-            }
-        });
     }
 
     private class MyOnClickListener implements View.OnClickListener{

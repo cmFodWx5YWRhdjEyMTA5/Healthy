@@ -87,7 +87,8 @@
         android:layout_below="@id/rl_physical_top"
         android:background="#FFFFFF"
         android:paddingLeft="@dimen/x36"
-        android:paddingRight="@dimen/x36">
+        android:paddingRight="@dimen/x36"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tv_hrv_ala3"
@@ -106,7 +107,6 @@
             android:textColor="#333333"
             android:textSize="@dimen/x40"
             android:text=""/>
-
 
     </RelativeLayout>
 </RelativeLayout>

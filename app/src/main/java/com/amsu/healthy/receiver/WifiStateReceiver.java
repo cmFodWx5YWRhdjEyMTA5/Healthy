@@ -29,8 +29,6 @@ public class WifiStateReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.i(TAG,"onReceive:"+intent.getAction());
 
-
-
         //设置60秒定时器，60秒之后默认数据传输完毕
         if (!mIsSetTimerTask){
             deviceOffLineFileUtil = new DeviceOffLineFileUtil();
@@ -43,7 +41,6 @@ public class WifiStateReceiver extends BroadcastReceiver {
             },30);
             mIsSetTimerTask = true;
         }
-
 
         if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)){
             //CONNECTIVITY_CHANGE 某个wifi or 基站信号 连接或断开
@@ -65,13 +62,12 @@ public class WifiStateReceiver extends BroadcastReceiver {
                         if (!MyUtil.isEmpty(wifiName) && !wifiName.equals("ESP8266")){//不是底座WiFi模块，则可以进行数据上传
                             //启动开始数据
                             Log.i(TAG, "wifi已连上，开始传输数据");
-
                             if (!mIsStartUpload){
                                 mIsStartUpload = true;
                                 if (deviceOffLineFileUtil!=null){
                                     deviceOffLineFileUtil.startTime();
                                 }
-                                //startUploadOffLineData(context);
+                                startUploadOffLineData(context);
                             }
                         }
                         return;
@@ -89,10 +85,13 @@ public class WifiStateReceiver extends BroadcastReceiver {
 
         List<UploadRecord> uploadRecordsState = offLineDbAdapter.queryRecordByUploadState("0");
         Log.i(TAG,"uploadRecordsState:"+uploadRecordsState);
+        Log.i(TAG,"uploadRecordsState.size():"+uploadRecordsState.size());
 
         for (UploadRecord uploadRecord:uploadRecordsState){
-            HeartRateActivity.uploadRecordDataToServer(uploadRecord,context);
+            HeartRateActivity.uploadRecordDataToServer(uploadRecord,context,true);
         }
-
     }
+
+
+
 }

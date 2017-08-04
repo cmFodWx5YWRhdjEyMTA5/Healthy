@@ -32,6 +32,7 @@ import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.EcgFilterUtil_1;
+import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
@@ -187,9 +188,9 @@ public class HealthyDataActivity extends BaseActivity {
         filter.addAction(MainActivity.ACTION_CHARGE_CHANGE);
         registerReceiver(mchargeReceiver, filter);
 
-        if (MyApplication.calCuelectricVPercent!=-1){
+        if (MyApplication.clothCurrBatteryPowerPercent !=-1){
             tv_base_charge.setVisibility(View.VISIBLE);
-            tv_base_charge.setText(MyApplication.calCuelectricVPercent+"%");
+            tv_base_charge.setText(MyApplication.clothCurrBatteryPowerPercent +"%");
         }
 
     }
@@ -199,8 +200,8 @@ public class HealthyDataActivity extends BaseActivity {
         public void onReceive(Context context, Intent intent) {
             if (intent!=null){
                 Log.i(TAG,"onReceive:"+intent.getAction());
-                int calCuelectricVPercent = intent.getIntExtra("calCuelectricVPercent", -1);
-                Log.i(TAG,"calCuelectricVPercent:"+calCuelectricVPercent);
+                int calCuelectricVPercent = intent.getIntExtra("clothCurrBatteryPowerPercent", -1);
+                Log.i(TAG,"clothCurrBatteryPowerPercent:"+calCuelectricVPercent);
                 if (calCuelectricVPercent==-1){
                     //设备已断开
                     tv_base_charge.setVisibility(View.GONE);
@@ -885,7 +886,7 @@ public class HealthyDataActivity extends BaseActivity {
 
     public void stopEcgData(View view) {
         //stopTransmitData();
-        //mLeService.disconnect(connecMac);
+        //mLeService.disconnect(clothDeviceConnecedMac);
     }
 
     /* 自定义mServiceReceiver重写BroadcastReceiver监听短信状态信息 */
@@ -905,14 +906,14 @@ public class HealthyDataActivity extends BaseActivity {
                             //mTextView01.setText(R.string.str_sms_sent_success);
                             MyUtil.showToask(HealthyDataActivity.this,"发送短信成功");
                             MyUtil.showDialog("发送短信成功",HealthyDataActivity.this);
-                            MyUtil.hideDialog();
+                            MyUtil.hideDialog(HealthyDataActivity.this);
                             break;
                         case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
                             /* 发送短信失败 */
                             //mTextView01.setText(R.string.str_sms_sent_failed);
                             MyUtil.showToask(HealthyDataActivity.this,"发送短信失败 ");
                             MyUtil.showDialog("发送短信失败",HealthyDataActivity.this);
-                            MyUtil.hideDialog();
+                            MyUtil.hideDialog(HealthyDataActivity.this);
                             break;
                         case SmsManager.RESULT_ERROR_RADIO_OFF:
                             break;
@@ -968,6 +969,20 @@ public class HealthyDataActivity extends BaseActivity {
             }
             dateHexString += hex;
         }
+
+        int maxHeart  = (int) (0.95*(220-HealthyIndexUtil.getUserAge()));
+        int minHeart  = (int) (0.75*(220-HealthyIndexUtil.getUserAge()));
+
+        String maxHeartHex = Integer.toHexString(maxHeart);
+        String minHeartHex = Integer.toHexString(minHeart);
+        if (maxHeartHex!=null && maxHeartHex.length()==1){
+            maxHeartHex = "0"+maxHeartHex;;
+        }
+        if (minHeartHex!=null && minHeartHex.length()==1){
+            minHeartHex = "0"+minHeartHex;;
+        }
+
+        dateHexString += maxHeartHex+minHeartHex;
         //Log.i(TAG,"dateHexString:"+dateHexString);
         return dateHexString;
     }

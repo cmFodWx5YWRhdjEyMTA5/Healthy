@@ -212,7 +212,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadWeekReportURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(HealthIndicatorAssessActivity.this);
                 //rc_assess_radar.setDatas(data1,null,null);
 
                 String result = responseInfo.result;
@@ -246,7 +246,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(HealthIndicatorAssessActivity.this);
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });

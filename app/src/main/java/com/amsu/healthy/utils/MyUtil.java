@@ -13,15 +13,23 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Path;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Debug;
+import android.provider.MediaStore;
+import android.provider.Settings;
+import android.support.design.widget.BottomSheetDialog;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -55,6 +63,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,7 +85,7 @@ public class MyUtil {
     private static final String TAG = "MyUtil";
     private static ProgressDialog dialog;
 
-    public static void showDialog(String message,Context context){
+    public static void showDialog(String message,Activity context){
         try {
             if (dialog == null) {
                 dialog = new ProgressDialog(context);
@@ -91,7 +101,8 @@ public class MyUtil {
         Log.i(TAG,"showDialog:"+dialog.isShowing());
     }
 
-    public static void hideDialog() {
+    public static void hideDialog(Activity context) {
+        if (context == null || context.isFinishing() || context.isDestroyed()) return;
         if (dialog != null && dialog.isShowing()){
             dialog.dismiss();
             Log.i(TAG,"hideDialog:"+dialog.isShowing());
@@ -202,7 +213,93 @@ public class MyUtil {
         edit.apply();
     }
 
+    public static void saveDeviceToSP(Device device,int type) {
+        SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
+        if (type==2){
+            if (device !=null){
+                if (!MyUtil.isEmpty(device.getName())){
+                    edit.putString("name_cloth",device.getName());
+                }
+                if (!MyUtil.isEmpty(device.getLEName())){
+                    edit.putString("LEName_cloth",device.getLEName());
+                }
+                if (!MyUtil.isEmpty(device.getState())){
+                    edit.putString("state_cloth",device.getState());
+                }
+                if (!MyUtil.isEmpty(device.getMac())){
+                    edit.putString("mac_cloth",device.getMac());
+                }
+            }
+            else {
+                edit.putString("name_cloth","");
+                edit.putString("LEName_cloth","");
+                edit.putString("state_cloth","");
+                edit.putString("mac_cloth","");
+            }
+        }
+        else {
+            if (device !=null){
+                if (!MyUtil.isEmpty(device.getName())){
+                    edit.putString("name",device.getName());
+                }
+                if (!MyUtil.isEmpty(device.getLEName())){
+                    edit.putString("LEName",device.getLEName());
+                }
+                if (!MyUtil.isEmpty(device.getState())){
+                    edit.putString("state",device.getState());
+                }
+                if (!MyUtil.isEmpty(device.getMac())){
+                    edit.putString("mac",device.getMac());
+                }
+            }
+            else {
+                edit.putString("name","");
+                edit.putString("LEName","");
+                edit.putString("state","");
+                edit.putString("mac","");
+            }
+        }
+        edit.apply();
+    }
+
     public static Device getDeviceFromSP(){
+        String name = getStringValueFromSP("name");
+        String LEName = getStringValueFromSP("LEName");
+        String state = getStringValueFromSP("state");
+        String mac = getStringValueFromSP("mac");
+        Device device = null;
+        if (!LEName.equals("") && !mac.equals("")){
+            device = new Device(name,state,mac,LEName,0);
+        }
+        return device;
+    }
+
+    public static Device getDeviceFromSP(int deviceType){
+        String name ;
+        String LEName ;
+        String state ;
+        String mac ;
+
+        if (deviceType==2){ // 1:衣服   2:鞋垫
+            name = getStringValueFromSP("name_cloth");
+            LEName = getStringValueFromSP("LEName_cloth");
+            state = getStringValueFromSP("state_cloth");
+            mac = getStringValueFromSP("mac_cloth");
+        }
+        else {
+            name = getStringValueFromSP("name");
+            LEName = getStringValueFromSP("LEName");
+            state = getStringValueFromSP("state");
+            mac = getStringValueFromSP("mac");
+        }
+        Device device = null;
+        if (!LEName.equals("") && !mac.equals("")){
+            device = new Device(name,state,mac,LEName,0);
+        }
+        return device;
+    }
+
+    public static Device getClothDeviceFromSP(){
         String name = getStringValueFromSP("name");
         String LEName = getStringValueFromSP("LEName");
         String state = getStringValueFromSP("state");
@@ -1010,5 +1107,60 @@ public class MyUtil {
         }
         MyApplication.mActivities.clear();
     }
+
+
+    //打开gps
+    public static void chooseOpenGps(final Activity context) {
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
+        View inflate = LayoutInflater.from(context).inflate(R.layout.choose_opengps_dailog, null);
+
+        bottomSheetDialog.setContentView(inflate);
+        Window window = bottomSheetDialog.getWindow();
+        window.setGravity(Gravity.BOTTOM);  //此处可以设置dialog显示的位置
+        window.setWindowAnimations(R.style.opengpsdialogstyle);  //添加动画
+        bottomSheetDialog.show();
+
+        TextView bt_opengps_cancel = (TextView) inflate.findViewById(R.id.bt_opengps_cancel);
+        TextView bt_opengps_ok = (TextView) inflate.findViewById(R.id.bt_opengps_ok);
+
+        bt_opengps_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomSheetDialog.dismiss();
+                //setRunningParameter();
+            }
+        });
+
+        bt_opengps_ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomSheetDialog.dismiss();
+                //跳到设置页面
+                // 转到手机设置界面，用户设置GPS
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                context.startActivityForResult(intent, 0); // 设置完成后返回到原来的界面
+            }
+        });
+    }
+
+
+    //判断是否有网络连接
+    public static boolean isNetworkConnected(Context context) {
+        if (context != null) {
+            ConnectivityManager mConnectivityManager = (ConnectivityManager) context
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo mNetworkInfo = mConnectivityManager.getActiveNetworkInfo();
+            if (mNetworkInfo != null) {
+                return mNetworkInfo.isAvailable();
+            }
+        }
+        return false;
+    }
+
+    public static int getUnsignedByte (short data){      //将data字节型数据转换为0~65535 (0xFFFF 即 WORD)。
+        return data&0x0FFFF;
+    }
+
+
 }
 

@@ -23,7 +23,7 @@ android {
                     if (outputFile != null && outputFile.name.endsWith('.apk')) {
 
                         // apk_渠道名-版本号-版本名称-编译时间.apk
-                        def fileName = "app_${variant.productFlavors[0].name}_${defaultConfig.versionCode}_${defaultConfig.versionName}_${releaseTime() }_release.apk"
+                        def fileName = "app_${variant.productFlavors[0].name}_${defaultConfig.versionCode}_${defaultConfig.versionName}_${releaseTime()}_release.apk"
                         output.outputFile = new File(outputFile.parent, fileName)
                     }
                 }
@@ -79,12 +79,13 @@ dependencies {
     compile files('libs/gson-2.5.jar')
     compile files('libs/AMap_Location_V3.3.0_20170118.jar')
     compile files('libs/Bughd_android_sdk_v1.3.7.jar')
+    compile files('libs/AndroidBleApi_V1.1.1.jar')
+    compile files('libs/JavaWebSocket_fat.jar')
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:design:23.4.0'
     compile 'com.android.support:support-v4:23.4.0'
     compile 'com.amap.api:3dmap:latest.integration'
     compile 'com.umeng.analytics:analytics:latest.integration'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
-    compile files('libs/AndroidBleApi_V1.1.1.jar')
-    compile files('libs/JavaWebSocket_fat.jar')
 }

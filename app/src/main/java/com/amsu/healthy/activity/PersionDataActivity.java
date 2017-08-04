@@ -724,7 +724,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(PersionDataActivity.this);
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 try {
@@ -742,7 +742,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(PersionDataActivity.this);
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });

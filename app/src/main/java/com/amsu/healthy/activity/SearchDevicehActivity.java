@@ -214,7 +214,7 @@ public class SearchDevicehActivity extends BaseActivity {
             Log.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
 
             String leName = device.getName();
-            if (leName!=null && (leName.startsWith("BLE") || leName.startsWith("AMSU"))){
+            if (leName!=null && (leName.startsWith("BLE") || leName.startsWith("AMSU") || leName.startsWith("AMSU_P"))){
                 /*if (deviceListFromSP.size()==0){
                     deviceListFromSP.add(new Device("智能运动衣1","",device.getAddress(), leName,1));
                     DeviceList deviceList = new DeviceList();
@@ -262,7 +262,13 @@ public class SearchDevicehActivity extends BaseActivity {
                     }
                 }
                 if (isAddToList){
-                    searchDeviceList.add(new Device("智能运动衣","",device.getAddress(), leName,1));
+                    if (leName.startsWith("AMSU_P")){
+                        //鞋垫
+                        searchDeviceList.add(new Device("鞋垫","",device.getAddress(), leName,1));
+                    }
+                    else {
+                        searchDeviceList.add(new Device("运动衣","",device.getAddress(), leName,1));
+                    }
                 }
                 if (timeTask10ScendOver){
                     stopScan();

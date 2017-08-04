@@ -442,7 +442,7 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
 
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(SupplyPersionDataActivity.this);
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 try {
@@ -470,7 +470,7 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog();
+                MyUtil.hideDialog(SupplyPersionDataActivity.this);
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });
