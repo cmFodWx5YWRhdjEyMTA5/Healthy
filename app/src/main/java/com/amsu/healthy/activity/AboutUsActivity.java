@@ -22,7 +22,7 @@ public class AboutUsActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("关于我们");
+        setCenterText(getResources().getString(R.string.about_us));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override

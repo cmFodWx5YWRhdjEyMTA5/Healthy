@@ -47,7 +47,7 @@ public class HealthyPlanCalenActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("健康计划");
+        setCenterText(getResources().getString(R.string.health_plan));
         setLeftImage(R.drawable.back_icon);
         setHeadBackgroudColor("#0c64b5");
         setRightImage(R.drawable.plan_list);
@@ -172,7 +172,7 @@ public class HealthyPlanCalenActivity extends BaseActivity {
         params.addBodyParameter("month",month);
         Log.i(TAG,"year:"+year+",month:"+month);
         MyUtil.addCookieForHttp(params);
-        MyUtil.showDialog("加载数据",this);
+        MyUtil.showDialog(getResources().getString(R.string.loading),this);
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHealthyPlanningMonthListURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {

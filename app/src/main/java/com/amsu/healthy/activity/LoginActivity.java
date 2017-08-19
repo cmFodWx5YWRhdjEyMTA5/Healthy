@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -70,12 +71,13 @@ public class LoginActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("登录");
+        setCenterText(getResources().getString(R.string.login));
         setLeftImage(R.drawable.guanbi_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyApplication.mActivities.clear();
+                MyUtil.destoryAllAvtivity();
+                startActivity(new Intent(LoginActivity.this,MainActivity.class));
                 finish();
             }
         });
@@ -99,7 +101,54 @@ public class LoginActivity extends BaseActivity {
                 }
             }
         });
+
+        MyApplication.mActivities.add(this);
+
+        /*//监听软键盘的删除键
+        et_login_phone.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_DEL) {
+                    num++;
+                    //在这里加判断的原因是点击一次软键盘的删除键,会触发两次回调事件
+                    if (num % 2 != 0) {
+                        String s = et_login_phone.getText().toString();
+                        if (!TextUtils.isEmpty(s)) {
+                            et_login_phone.setText("" + s.substring(0, s.length() - 1));
+                            //将光标移到最后
+                            et_login_phone.setSelection(et_login_phone.getText().length());
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        //监听软键盘的删除键
+        et_login_code.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_DEL) {
+                    num_code++;
+                    //在这里加判断的原因是点击一次软键盘的删除键,会触发两次回调事件
+                    if (num_code % 2 != 0) {
+                        String s = et_login_phone.getText().toString();
+                        if (!TextUtils.isEmpty(s)) {
+                            et_login_phone.setText("" + s.substring(0, s.length() - 1));
+                            //将光标移到最后
+                            et_login_phone.setSelection(et_login_phone.getText().length());
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });*/
     }
+
+    private int num = 0;
+    private int num_code = 0;
 
     private void initData() {
         mTimer = new Timer();
@@ -127,18 +176,26 @@ public class LoginActivity extends BaseActivity {
                 }
                 else {
                     //event:2,result:0,data:java.lang.Throwable: {"status":603,"detail":"请填写正确的手机号码"}
-                    String resultData = data.toString();
-                    String josnData = resultData.split(":")[1]+":"+resultData.split(":")[2]+":"+resultData.split(":")[3];
-                    Log.i(TAG,"josnData:"+josnData);
+                    MyUtil.hideDialog(LoginActivity.this);
+                    String[] split = data.toString().split(":");
                     String detail ="";
                     int status = 0;
-                    try {
-                        JSONObject jsonObject = new JSONObject(josnData);
-                        status = jsonObject.getInt("status");
-                        detail = jsonObject.getString("detail");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                    if (split!=null &&split.length==4){
+                        String josnData = split[1]+":"+split[2]+":"+split[3];
+                        Log.i(TAG,"josnData:"+josnData);
+
+                        try {
+                            JSONObject jsonObject = new JSONObject(josnData);
+                            status = jsonObject.getInt("status");
+                            detail = jsonObject.getString("detail");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
+                    else {
+                        detail ="网络异常，请重试";
+                    }
+
                     Log.i(TAG,"status:"+status+",detail:"+detail);
 
                     Message message = myHandler.obtainMessage(MSG_TOAST_FAIL);
@@ -157,18 +214,18 @@ public class LoginActivity extends BaseActivity {
 
     public void login(View view) {
         if (!isAgree){
-            MyUtil.showToask(this,"未同意登录协议");
+            MyUtil.showToask(this,getResources().getString(R.string.non_consent_logon_protocol));
             return;
         }
         String phone = et_login_phone.getText().toString();
         String inputVerifycode = et_login_code.getText().toString();
 
         if (phone.isEmpty()){
-            Toast.makeText(this,"请输入手机号", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,getResources().getString(R.string.enter_cell_phone_number), Toast.LENGTH_SHORT).show();
             return;
         }
         else if(inputVerifycode.isEmpty()){
-            Toast.makeText(this,"请输入验证码", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,getResources().getString(R.string.input_validation_code), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -179,9 +236,9 @@ public class LoginActivity extends BaseActivity {
         String phone = et_login_phone.getText().toString();
         if(!TextUtils.isEmpty(phone)){
             getMESCode("86",phone);  //86为国家代码
-            MyUtil.showDialog("正在获取",this);
+            MyUtil.showDialog(getResources().getString(R.string.enter_cell_phone_number),this);
         }else{
-            Toast.makeText(this,"输入手机号", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,getResources().getString(R.string.getting_validation_code), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -217,7 +274,7 @@ public class LoginActivity extends BaseActivity {
             else if (msg.what==MSG_UPDATE){
                 int time = (int) msg.obj;
                 if (time==0){
-                    bt_login_getcode.setText("获取验证码");
+                    bt_login_getcode.setText(getResources().getString(R.string.code));
                     bt_login_getcode.setClickable(true);
                     bt_login_getcode.setTextSize(10);
                     bt_login_getcode.setBackgroundResource(R.drawable.bg_button_verifycode);
@@ -237,7 +294,7 @@ public class LoginActivity extends BaseActivity {
                 bt_login_getcode.setTextSize(15);
                 bt_login_getcode.setText(60+"");
                 MyUtil.hideDialog(LoginActivity.this);
-                Toast.makeText(LoginActivity.this,"验证码发送成功", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this,getResources().getString(R.string.verify_code_sent_successfully), Toast.LENGTH_SHORT).show();
                 timeUpdate = 60;
 
                 if (mTimerTask != null){
@@ -250,7 +307,7 @@ public class LoginActivity extends BaseActivity {
     };
 
     private void validateLogin(final String phone, String inputVerifycode) {
-        MyUtil.showDialog("正在登陆",this);
+        MyUtil.showDialog(getResources().getString(R.string.login),this);
         final HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
 
@@ -276,7 +333,7 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog(LoginActivity.this);
+
                 String result = responseInfo.result;
                 Log.i(TAG,"登陆onSuccess==result:"+result);
                 //{"ret":"0","errDesc":"注册成功!"}
@@ -287,7 +344,7 @@ public class LoginActivity extends BaseActivity {
                     String errDesc = jsonObject.getString("errDesc");
                     //ret = 0;
                     //errDesc = "注册成功";
-                    MyUtil.showToask(LoginActivity.this,errDesc);
+                    //MyUtil.showToask(LoginActivity.this,errDesc);
                     if (ret==0){
                         //注册成功
                         MyUtil.putBooleanValueFromSP("isLogin",true);
@@ -348,7 +405,9 @@ public class LoginActivity extends BaseActivity {
                                         String userName = jsonObject1.getString("UserName");
                                         if (birthday.equals("null") && weight.equals("null")){
                                             //没有完善个人信息
-                                            showdialog();
+                                            //showdialog();
+                                            MyUtil.hideDialog(LoginActivity.this);
+                                            MyUtil.destoryAllAvtivity();
                                             startActivity(new Intent(LoginActivity.this,SupplyPersionDataActivity.class));
                                         }
                                         else {
@@ -364,30 +423,37 @@ public class LoginActivity extends BaseActivity {
                                             MyUtil.saveUserToSP(user);
                                             MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
                                             SplashActivity.downlaodWeekReport(-1,-1,true,LoginActivity.this);
+                                            MyUtil.showDialog(getResources().getString(R.string.login_successful_synchronizing_data),LoginActivity.this);
                                             //startActivity(new Intent(LoginActivity.this,MainActivity.class));
                                         }
                                     }
                                     else {
                                         //操作失败
+                                        MyUtil.hideDialog(LoginActivity.this);
                                         startActivity(new Intent(LoginActivity.this,MainActivity.class));
-
                                         MyUtil.destoryAllAvtivity();
                                     }
-                                    finish();
+
                                 } catch (JSONException e) {
                                     e.printStackTrace();
+                                    MyUtil.hideDialog(LoginActivity.this);
                                 }
                             }
 
                             @Override
                             public void onFailure(HttpException e, String s) {
-
+                                MyUtil.hideDialog(LoginActivity.this);
                             }
                         });
+                    }
+                    else {
+                        MyUtil.hideDialog(LoginActivity.this);
+                        MyUtil.showToask(LoginActivity.this,errDesc);
 
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    MyUtil.hideDialog(LoginActivity.this);
                 }
 
             }
@@ -396,6 +462,7 @@ public class LoginActivity extends BaseActivity {
             public void onFailure(HttpException e, String s) {
                 MyUtil.hideDialog(LoginActivity.this);
                 Log.i(TAG,"登陆onFailure==s:"+s);
+                MyUtil.showToask(LoginActivity.this,getResources().getString(R.string.network_exception));
             }
         });
         
@@ -427,16 +494,16 @@ public class LoginActivity extends BaseActivity {
     }
 
     public void showdialog(){
-        new AlertDialog.Builder(LoginActivity.this).setTitle("注册成功")
-                .setMessage("现在去完善资料")
-                .setPositiveButton("等会再去", new DialogInterface.OnClickListener() {
+        new AlertDialog.Builder(LoginActivity.this).setTitle(getResources().getString(R.string.login_was_successful))
+                .setMessage(getResources().getString(R.string.now_improve_data))
+                .setPositiveButton(getResources().getString(R.string.exit_cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         startActivity(new Intent(LoginActivity.this,MainActivity.class));
                         finish();
                     }
                 })
-                .setNegativeButton("现在就去", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getResources().getString(R.string.exit_confirm), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         startActivity(new Intent(LoginActivity.this,SupplyPersionDataActivity.class));
@@ -447,4 +514,20 @@ public class LoginActivity extends BaseActivity {
 
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK){
+            MyUtil.destoryAllAvtivity();
+            startActivity(new Intent(LoginActivity.this,MainActivity.class));
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MyUtil.setDialogNull();
+
+    }
 }

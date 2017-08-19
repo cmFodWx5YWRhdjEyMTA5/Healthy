@@ -32,11 +32,11 @@ public class HeightCurveView extends View {
     private Paint mAnotherLablePaint;
     float[] data ;
     float[] anotherData;
-    private float mCoordinateWidth = getResources().getDimension(R.dimen.y1000);  //x轴长度
+    //private float mCoordinateWidth = getResources().getDimension(R.dimen.y1008);  //x轴长度
     private float mYCoordinateHight = getResources().getDimension(R.dimen.y400)-getResources().getDimension(R.dimen.y28);  //y轴长度
     private float mYOneSpanHeight = mYCoordinateHight/4;  //y轴方向刻度长度
     float mMarginBotom = getResources().getDimension(R.dimen.y48); //坐标线与底部距离
-    float mMarginleft ; //坐标线与左侧距离
+    //float mMarginleft ; //坐标线与左侧距离
     private float mOneGridWidth ;  //相邻两个数值之间x方向上的偏移量
     private String[] yTexts = {"60","120","180","240"};  //y轴lable
     private String[] yAnotherTexts = {"60","120","180","240"};  //y轴lable
@@ -107,6 +107,8 @@ public class HeightCurveView extends View {
         mAnotherLablePaint.setTextSize(getResources().getDimension(R.dimen.x28));
         mAnotherLablePaint.setAntiAlias(true);
 
+
+
     }
 
     @Override
@@ -114,8 +116,8 @@ public class HeightCurveView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         mWidth = w;
         mHeight = h;
+        Log.i(TAG,"mWidth:"+mWidth);
         //mMarginleft = mWidth-mCoordinateWidth ;
-        mMarginleft = 0 ;
 
     }
 
@@ -142,14 +144,18 @@ public class HeightCurveView extends View {
     private void drawCureveLine(Canvas canvas) {
         Path shadePath = new Path();
         Path curvePath = new Path();
-        mOneGridWidth = mCoordinateWidth/data.length;
+        mOneGridWidth = (float) mWidth/(data.length-1);
+        Log.i(TAG,"mWidth:"+mWidth);
+        Log.i(TAG,"mOneGridWidth:"+mOneGridWidth);
 
         float yMax = 0; //y轴数值的最大值
 
         float x =0 ;
         float y =0 ;
         for (int i=0;i<data.length;i++){
-            x = mMarginleft+(i)*mOneGridWidth+mOneGridWidth/2;
+            //x = mMarginleft+(i)*mOneGridWidth+mOneGridWidth/2;
+            x = (i)*mOneGridWidth;
+            Log.i(TAG,"i:"+i+", x:"+x);
 
             y = 0;
             //if (data[i]>40  && data[i]<220){
@@ -171,10 +177,10 @@ public class HeightCurveView extends View {
                 }
             }
             if (i==0){
-                curvePath.moveTo(mMarginleft+mCoordinateAnixWidth,mHeight-mMarginBotom);  //坐标原点
+                curvePath.moveTo(0,mHeight);  //坐标原点
                 curvePath.lineTo(x,y);   //第一个点
 
-                shadePath.moveTo(mMarginleft+mCoordinateAnixWidth,mHeight-mMarginBotom);
+                shadePath.moveTo(0,mHeight);
                 shadePath.lineTo(x,y);
             }
             else {
@@ -182,11 +188,11 @@ public class HeightCurveView extends View {
                 curvePath.lineTo(x,y);
             }
         }
-        curvePath.lineTo(mWidth,y);
+       // curvePath.lineTo(mWidth,y);
 
         //shadePath.lineTo(mWidth,y);
-        shadePath.lineTo(mWidth,mHeight-mMarginBotom-3*mCoordinateAnixWidth);
-        shadePath.lineTo(mMarginleft,mHeight-mMarginBotom-3*mCoordinateAnixWidth);
+        shadePath.lineTo(x,mHeight-mMarginBotom-3*mCoordinateAnixWidth);
+        shadePath.lineTo(x,mHeight-mMarginBotom-3*mCoordinateAnixWidth);
 
 
 
@@ -208,7 +214,7 @@ public class HeightCurveView extends View {
         float marginBotom1 = getResources().getDimension(R.dimen.y46); //坐标线与底部距离   使得坐标线交点重合
         float divideWidth = getResources().getDimension(R.dimen.y6);
 
-        canvas.drawLine(mMarginleft,mHeight-mMarginBotom,mWidth,mHeight-mMarginBotom,mCoordinatePaint);  //横线
+        canvas.drawLine(0,mHeight-mMarginBotom,mWidth,mHeight-mMarginBotom,mCoordinatePaint);  //横线
         //canvas.drawLine(mMarginleft,0,mMarginleft,mHeight-marginBotom1,mCoordinatePaint);  //竖线
         String yText;
 
@@ -246,7 +252,7 @@ public class HeightCurveView extends View {
         for (int i=0;i<yTexts.length;i++){
             yText = yTexts[i];
 
-            float x = mMarginleft;
+            float x = 0;
             float y = mHeight-mMarginBotom- mYOneSpanHeight *(i+1);
             //canvas.drawLine(x,y,x+divideWidth,y,mCoordinatePaint);
 
@@ -278,7 +284,7 @@ public class HeightCurveView extends View {
             y = mHeight-mMarginBotom;
             canvas.drawLine(x,y,x,y-divideWidth,mCoordinatePaint);*/
 
-            float x = mMarginleft +i*(mWidth)/4;
+            float x = i*(mWidth)/4;
             float y = mHeight-mMarginBotom;
             //canvas.drawLine(x,y,x,y-divideWidth,mCoordinatePaint);
 
@@ -349,7 +355,7 @@ public class HeightCurveView extends View {
             Path path = new Path();
             double dataMax = 240;
             float mLine_width = getResources().getDimension(R.dimen.x12);
-            float xOneGridWidth = mCoordinateWidth / anotherData.length;
+            float xOneGridWidth = (float) mWidth / (anotherData.length-1);
             float xIndex = 0;
             for (int i=0;i<anotherData.length-1;i++){
                 float averageX = (xIndex+xIndex+xOneGridWidth)/2;
@@ -371,7 +377,7 @@ public class HeightCurveView extends View {
         }
         else {
             Path curvePath = new Path();
-            mOneGridWidth = mCoordinateWidth/anotherData.length;
+            mOneGridWidth = (float) mWidth/(anotherData.length-1);
             float yMax = 0; //y轴数值的最大值
 
             float x =0 ;
@@ -379,7 +385,7 @@ public class HeightCurveView extends View {
 
             for (int i=0;i<anotherData.length;i++){
 
-                x = mMarginleft+(i)*mOneGridWidth+mOneGridWidth/2;
+                x = (i)*mOneGridWidth+mOneGridWidth/2;
                 y = 0;
                 //if (data[i]>40  && data[i]<220){
                 if (anotherData[i]>=0){
@@ -398,7 +404,7 @@ public class HeightCurveView extends View {
                     }
                 }
                 if (i==0){
-                    curvePath.moveTo(mMarginleft+mCoordinateAnixWidth,mHeight-mMarginBotom);  //坐标原点
+                    curvePath.moveTo(mCoordinateAnixWidth,mHeight-mMarginBotom);  //坐标原点
                     curvePath.lineTo(x,y);   //第一个点
                 }
                 else {

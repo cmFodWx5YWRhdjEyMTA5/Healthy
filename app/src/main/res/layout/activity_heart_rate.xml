@@ -10,7 +10,7 @@
         android:id="@+id/tv_heartrate_txt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="正在分析"
+        android:text="@string/process_of_analyzin"
         android:layout_centerHorizontal="true"
         android:textColor="#0c64b5"
         android:textSize="@dimen/x72"
@@ -19,7 +19,7 @@
         android:id="@+id/tv_heartrate_txt1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="请稍后..."
+        android:text="@string/please_wait_a_moment"
         android:layout_below="@id/tv_heartrate_txt"
         android:layout_centerHorizontal="true"
         android:textColor="#0c64b5"
@@ -30,8 +30,8 @@
         android:id="@+id/rl_heartrate_top"
         android:layout_width="match_parent"
         android:layout_height="@dimen/y600"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="60dp">
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true">
 <!--
         <TextView
             android:id="@+id/tv_healthydata_txt"
@@ -71,7 +71,7 @@
             android:id="@+id/tv_search_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="计算中"
+            android:text="@string/process_of_analyzin"
             android:textColor="#FFFFFF"
             android:textSize="@dimen/x48"
             android:layout_centerInParent="true"

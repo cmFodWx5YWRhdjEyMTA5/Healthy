@@ -28,7 +28,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="头像"
+                android:text="@string/portrait"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -63,7 +63,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="姓名"
+                android:text="@string/nick_name"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -94,7 +94,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="生日"
+                android:text="@string/birthday"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -125,7 +125,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="性别"
+                android:text="@string/gende"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -156,7 +156,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="体重"
+                android:text="@string/weight"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -187,7 +187,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="身高"
+                android:text="@string/height"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -218,7 +218,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="地址"
+                android:text="@string/address"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -249,7 +249,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="邮箱"
+                android:text="@string/email"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -280,7 +280,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="静息心率"
+                android:text="@string/rest_heart_rate"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -311,7 +311,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="手机"
+                android:text="@string/phone"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -347,5 +347,5 @@
         android:textSize="@dimen/x48"
         android:background="@drawable/bg_bt_rec_roundangle"
         android:layout_marginBottom="10dp"
-        android:text="保存"/>
+        android:text="@string/save"/>
 </RelativeLayout>

@@ -22,7 +22,7 @@
             android:gravity="center"
             android:textColor="#aa00aeef"
             android:textSize="20sp"
-            android:text="选择地区"/>
+            android:text="@string/choose_address"/>
 
         <LinearLayout
             android:id="@+id/content"
@@ -75,14 +75,14 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:background="#FFF"
-                android:text="取消"/>
+                android:text="@string/exit_confirm"/>
             <Button
                 android:id="@+id/bt_pick_ok"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:background="#FFF"
-                android:text="确定"/>
+                android:text="@string/exit_cancel"/>
 
         </LinearLayout>
 

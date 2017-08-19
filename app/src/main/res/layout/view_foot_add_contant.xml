@@ -15,7 +15,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="添加紧急联系人"
+            android:text="@string/add_emergency_contact"
             android:textColor="#030303"
             android:textSize="@dimen/x48"
             android:layout_centerVertical="true"/>
@@ -44,7 +44,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="求助信息"
+            android:text="@string/help_information"
             android:textColor="#1a1a1a"
             android:textSize="@dimen/x48"
             android:layout_centerVertical="true"
@@ -53,7 +53,7 @@
             android:id="@+id/ed_sos_sosinfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="输入求助信息..."
+            android:hint="@string/enter_help_information"
             android:layout_marginTop="@dimen/x24"
             android:textColor="#c7c7c7"
             android:textSize="@dimen/x48"

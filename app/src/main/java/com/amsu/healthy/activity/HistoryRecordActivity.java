@@ -48,7 +48,7 @@ public class HistoryRecordActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("历史记录");
+        setCenterText(getResources().getString(R.string.my_history));
         setLeftImage(R.drawable.back_icon);
         setRightImage(R.drawable.download_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
@@ -156,8 +156,8 @@ public class HistoryRecordActivity extends BaseActivity {
             }
         });
 
-
         if (indexwarringTO){
+            setCenterText(getResources().getString(R.string.data_source));
             ArrayList<HistoryRecord> staticStateHistoryRecords = intent.getParcelableArrayListExtra("staticStateHistoryRecords");
             if (staticStateHistoryRecords!=null && staticStateHistoryRecords.size()>0){
                 historyRecords.addAll(staticStateHistoryRecords);
@@ -177,7 +177,7 @@ public class HistoryRecordActivity extends BaseActivity {
         params.addBodyParameter("page",page+"");
         MyUtil.addCookieForHttp(params);
 
-        MyUtil.showDialog("正在查询",this);
+        MyUtil.showDialog(getResources().getString(R.string.querying),this);
 
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHistoryReportListURL, params, new RequestCallBack<String>() {
             @Override
@@ -212,6 +212,4 @@ public class HistoryRecordActivity extends BaseActivity {
             }
         });
     }
-
-
 }

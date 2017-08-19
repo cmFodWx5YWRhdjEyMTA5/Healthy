@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 
 import java.util.List;
@@ -48,8 +49,8 @@ public class DeviceAdapter extends BaseAdapter{
         TextView tv_item_name = (TextView) inflate.findViewById(R.id.tv_item_name);
         TextView tv_item_state = (TextView) inflate.findViewById(R.id.tv_item_state);
 
-        Device deviceFromSP = MyUtil.getDeviceFromSP();
-        String stringValueFromSP = MyUtil.getStringValueFromSP(device.getMac());
+        Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
+        String stringValueFromSP = MyUtil.getStringValueFromSP(device.getMac()); // 获取对应Mac地址对应的昵称，用户修改后，没有修改则使用 "运动衣+蓝牙名称"
         if (!MyUtil.isEmpty(stringValueFromSP)){
             tv_item_name.setText(stringValueFromSP);
         }
@@ -63,9 +64,14 @@ public class DeviceAdapter extends BaseAdapter{
         }*/
 
         if (!MyUtil.isEmpty(MyApplication.clothConnectedMacAddress) && MyApplication.clothConnectedMacAddress.equals(device.getMac())){
-            //已经连接上，则显示设备已激活
-            tv_item_state.setText("已连接");
+            //已经连接上，则显示设备已连接（连上的默认已绑定过）
+            tv_item_state.setText(R.string.connected);
             tv_item_state.setTextColor(Color.parseColor("#43CD80"));
+        }
+        else if (deviceFromSP!=null && deviceFromSP.getMac().equals(device.getMac())){
+            //绑定过，没有连接成功
+            tv_item_state.setText(R.string.unconnected);
+            tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
         }
         else {
             tv_item_state.setText(device.getState());

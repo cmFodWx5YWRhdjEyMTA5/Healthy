@@ -83,7 +83,6 @@ public class AnalyticFinshResultActivity extends BaseActivity implements View.On
 
         fragmentList = new ArrayList<>();
 
-
         //每一个小格的宽度
         mOneTableWidth = MyUtil.getScreeenWidth(this)/4;
 

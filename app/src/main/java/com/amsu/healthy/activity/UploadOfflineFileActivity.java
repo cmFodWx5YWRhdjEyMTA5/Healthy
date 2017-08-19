@@ -90,7 +90,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("同步离线文件");
+        setCenterText(getResources().getString(R.string.connected_synced_offline_files));
         setLeftImage(R.drawable.back_icon);
         setRightImage(R.drawable.tongbu_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
@@ -102,7 +102,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
         getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyUtil.showDialog("检查离线数据",UploadOfflineFileActivity.this);
+                MyUtil.showDialog(getResources().getString(R.string.connected_synced_offline_files),UploadOfflineFileActivity.this);
                 getFileList();
             }
         });
@@ -119,15 +119,15 @@ public class UploadOfflineFileActivity extends BaseActivity {
                 else {
                     AlertDialog alertDialog = new AlertDialog.Builder(UploadOfflineFileActivity.this)
 
-                            .setTitle("还有未分析的离线数据，确定要退出吗？")
-                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            .setTitle(getResources().getString(R.string.exit_sure_offline_files))
+                            .setPositiveButton(getResources().getString(R.string.exit_confirm), new DialogInterface.OnClickListener() {
 
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     finish();
                                 }
                             })
-                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            .setNegativeButton(getResources().getString(R.string.exit_cancel), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
@@ -137,7 +137,6 @@ public class UploadOfflineFileActivity extends BaseActivity {
                     alertDialog.setCanceledOnTouchOutside(false);
                     alertDialog.show();
                 }
-
             }
         });
 
@@ -170,7 +169,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                 //文件长度是空的，点击不需要弹出分析选择
                 for (int i:mEmptyIndexItemArray){
                     if (i==position){
-                        MyUtil.showToask(UploadOfflineFileActivity.this,"数据不足，无法分析");
+                        MyUtil.showToask(UploadOfflineFileActivity.this,getResources().getString(R.string.insufficient_to_analyze));
                         return;
                     }
                 }
@@ -202,7 +201,8 @@ public class UploadOfflineFileActivity extends BaseActivity {
         isAnalyed = false;
 
         ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(this);
-        chooseAlertDialogUtil.setAlertDialogTextHaveTitle("选择状态","跑步","静态");
+        chooseAlertDialogUtil.setAlertDialogTextHaveTitle(getResources().getString(R.string.choose_sport_state),getResources().getString(R.string.active),
+                getResources().getString(R.string.rest));
 
         chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
             @Override
@@ -232,7 +232,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
     }
 
     private void initData() {
-        MyUtil.showDialog("检查离线数据",this);
+        MyUtil.showDialog(getResources().getString(R.string.connected_check_offline_files),this);
         if (ConnectToWifiModuleGudieActivity2.mSock!=null){
             new Thread(){
                 @Override

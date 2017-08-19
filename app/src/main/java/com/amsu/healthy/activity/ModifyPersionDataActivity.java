@@ -71,11 +71,11 @@ public class ModifyPersionDataActivity extends BaseActivity {
 
     private void initData() {
         if (modifyType == Constant.MODIFY_USERNSME){
-            setCenterText("修改姓名");
+            setCenterText(getResources().getString(R.string.modify_nick_name));
             et_modify_value.setText(modifyValue);
         }
         else if (modifyType ==Constant.MODIFY_SEX){
-            setCenterText("修改性别");
+            setCenterText(getResources().getString(R.string.modify_gender));
             if (!MyUtil.isEmpty(modifyValue)){
                 if (modifyValue.equals("1")){
                     cb_modify_man.setChecked(true);
@@ -87,15 +87,15 @@ public class ModifyPersionDataActivity extends BaseActivity {
 
         }
         else if (modifyType ==Constant.MODIFY_EMAIL){
-            setCenterText("修改邮箱");
+            setCenterText(getResources().getString(R.string.modify_email));
             et_modify_value.setText(modifyValue);
         }
         else if (modifyType ==Constant.MODIFY_PHONE){
-            setCenterText("修改手机");
+            setCenterText(getResources().getString(R.string.modify_email));
             et_modify_value.setText(modifyValue);
         }
         else if (modifyType ==Constant.MODIFY_STILLRATE){
-            setCenterText("修改静态心率");
+            setCenterText(getResources().getString(R.string.modify_rest_heart));
             et_modify_value.setText(modifyValue);
         }
 
@@ -108,7 +108,7 @@ public class ModifyPersionDataActivity extends BaseActivity {
             }
         });
 
-        setRightText("确定");
+        setRightText(getResources().getString(R.string.exit_confirm));
         getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

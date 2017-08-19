@@ -2,8 +2,6 @@ package com.amsu.healthy.activity;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
@@ -13,60 +11,49 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.hardware.Camera;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.amap.api.maps.model.LatLng;
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.insole.PrepareRunningActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Apk;
 import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.bean.Device;
-import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.service.CommunicateToBleService;
-import com.amsu.healthy.service.MyTestService2;
 import com.amsu.healthy.utils.ApkUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.LeProxy;
-import com.amsu.healthy.utils.LightUtil;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.map.DbAdapter;
-import com.amsu.healthy.utils.map.PathRecord;
-import com.amsu.healthy.utils.map.Util;
 import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
 import com.amsu.healthy.view.CircleRingView;
 import com.amsu.healthy.view.DashboardView;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleService;
 import com.google.gson.Gson;
-import com.lidroid.xutils.HttpUtils;
-import com.lidroid.xutils.exception.HttpException;
-import com.lidroid.xutils.http.RequestParams;
-import com.lidroid.xutils.http.ResponseInfo;
-import com.lidroid.xutils.http.callback.RequestCallBack;
-import com.lidroid.xutils.http.client.HttpRequest;
-import com.test.objects.HeartRateResult;
-import com.test.utils.DiagnosisNDK;
+import com.tencent.bugly.crashreport.CrashReport;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Locale;
 
 public class MainActivity extends BaseActivity {
 
@@ -94,6 +81,7 @@ public class MainActivity extends BaseActivity {
     private ImageView iv_base_connectedstate;
     private TextView tv_base_charge;
     public static final String ACTION_CHARGE_CHANGE = "ACTION_CHARGE_CHANGE";
+    private MyOnClickListener myOnClickListener;
 
 
     @Override
@@ -322,10 +310,23 @@ public class MainActivity extends BaseActivity {
 
         Log.i(TAG,"absolutePath:"+absolutePath);
 
+
+
+        //MyUtil.saveDeviceToSP(new Device("1","1","1","1",2),Constant.sportType_Insole);
+
+        String locale = Locale.getDefault().toString();
+        Log.i(TAG,"locale:"+locale);
+        if(locale.equals(Locale.CHINA)){
+            //中国
+
+        }
+        else {
+            //国外
+
+        }
     }
 
     private void selfStartManagerSettingIntent(Context context){
-
         Intent intent = new Intent();
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         ComponentName componentName = new ComponentName("com.huawei.systemmanager","com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity");
@@ -359,13 +360,6 @@ public class MainActivity extends BaseActivity {
         setLeftText(getResources().getString(R.string.app_name));
         setCenterText("");
         setHeadBackgroudColor("#0c64b5");
-        setRightImage(R.drawable.yifu);
-        getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,MyDeviceActivity.class));
-            }
-        });
 
         iv_base_connectedstate = (ImageView) findViewById(R.id.iv_base_connectedstate);
 
@@ -387,7 +381,7 @@ public class MainActivity extends BaseActivity {
         tv_base_charge = (TextView) findViewById(R.id.tv_base_charge);
 
 
-        MyOnClickListener myOnClickListener = new MyOnClickListener();
+        myOnClickListener = new MyOnClickListener();
 
         rl_mian_start.setOnClickListener(myOnClickListener);
 
@@ -399,6 +393,8 @@ public class MainActivity extends BaseActivity {
 
         rl_main_healthyvalue.setOnClickListener(myOnClickListener);
         rl_main_warringindex.setOnClickListener(myOnClickListener);
+
+        getIv_base_rightimage().setOnClickListener(myOnClickListener);
 
 
         int id = rl_main_healthyvalue.getId();
@@ -499,7 +495,7 @@ public class MainActivity extends BaseActivity {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
                     textView.setText(animation.getAnimatedValue().toString());
-                    if ((Integer)animation.getAnimatedValue()==endAge){
+                    if ((Integer)animation.getAnimatedValue()==endAge && mValueAnimator!=null){
                         mValueAnimator.cancel();
                         mValueAnimator = null;
                     }
@@ -519,7 +515,14 @@ public class MainActivity extends BaseActivity {
             switch (intent.getAction()){
                 case LeProxy.ACTION_GATT_CONNECTED:
                     Log.i(TAG,"已连接 " );
-                    iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
+                    if (MyApplication.deivceType==Constant.sportType_Cloth){
+                        iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
+                    }
+                    else if (MyApplication.deivceType==Constant.sportType_Insole){
+                        if (CommunicateToBleService.mInsoleConnectedCount==2){
+                            iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
+                        }
+                    }
                     break;
                 case LeProxy.ACTION_GATT_DISCONNECTED:
                     Log.w(TAG,"已断开 ");
@@ -576,6 +579,13 @@ public class MainActivity extends BaseActivity {
         super.onResume();
         Log.i(TAG,"onResume");
 
+        if (MyApplication.deivceType==Constant.sportType_Cloth){
+            setRightImage(R.drawable.yifu);
+        }
+        else if (MyApplication.deivceType==Constant.sportType_Insole){
+            setRightImage(R.drawable.ydms_bt);
+        }
+
         if (!isonResumeEd){
             if (mBluetoothAdapter!=null && !mBluetoothAdapter.isEnabled()) {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -590,7 +600,6 @@ public class MainActivity extends BaseActivity {
         else {
             iv_base_connectedstate.setImageResource(R.drawable.duankai);
         }
-
 
         int healthyIindexvalue = MyUtil.getIntValueFromSP("healthyIindexvalue");
         if (healthyIindexvalue>0){
@@ -665,9 +674,11 @@ public class MainActivity extends BaseActivity {
             Log.i(TAG,"onClick:"+v.getId());
             boolean isLogin = MyUtil.getBooleanValueFromSP("isLogin");
             boolean isPrefectInfo = MyUtil.getBooleanValueFromSP("isPrefectInfo");
+            if (!MyApplication.mActivities.contains(MainActivity.this)){
+                MyApplication.mActivities.add(MainActivity.this);
+            }
             if (!isLogin){
                 showdialogToLogin();
-                MyApplication.mActivities.add(MainActivity.this);
                 //finish();
                 return;
             }
@@ -697,18 +708,33 @@ public class MainActivity extends BaseActivity {
                     break;
                 case R.id.rl_main_me:
                     startActivity(new Intent(MainActivity.this,MeActivity.class));
+
                     break;
                 case R.id.rl_mian_start:
-                    int type = MyUtil.getIntValueFromSP(Constant.sportType);
+
+                   /* DisplayMetrics dm = new DisplayMetrics();
+                    getWindowManager().getDefaultDisplay().getMetrics(dm);
+                    Log.i(TAG,"heigth : " + dm.heightPixels);
+                    Log.i(TAG,"width : " + dm.widthPixels);
+
+                    HashMap<String,String> map = new HashMap<>();
+                    map.put("screen","设备："+Build.MODEL+",heigth:"+dm.heightPixels+",width:"+dm.widthPixels);
+                    MobclickAgent.onEvent(MainActivity.this,"event_phonemodel",map);*/
+
+                    startActivity(new Intent(MainActivity.this, PrepareRunningActivity.class));
+
+
+
+                    /*int type = MyUtil.getIntValueFromSP(Constant.sportType);
                     if (type==Constant.sportType_Cloth){
-                        startActivity(new Intent(MainActivity.this,StartRunActivity.class));
+                        chooseOnOffLineRun();
                     }
                     else if (type==Constant.sportType_Insole){
                         startActivity(new Intent(MainActivity.this,PrepareRunningActivity.class));
                     }
                     else {
                         startActivity(new Intent(MainActivity.this,StartRunActivity.class));
-                    }
+                    }*/
 
                     //selfStartManagerSettingIntent(MainActivity.this);
 
@@ -732,8 +758,83 @@ public class MainActivity extends BaseActivity {
                 case R.id.rl_main_warringindex:
                     startActivity(new Intent(MainActivity.this,IndexWarringActivity.class));
                     break;
+                case R.id.iv_base_rightimage:
+                    startActivity(new Intent(MainActivity.this,MyDeviceActivity.class));
+                    break;
             }
         }
+    }
+
+    private void chooseOnOffLineRun() {
+        View inflate = View.inflate(this, R.layout.view_choose_onoff, null);
+        ImageView iv_choose_online = (ImageView) inflate.findViewById(R.id.iv_choose_online);
+        Button bt_choose_offline = (Button) inflate.findViewById(R.id.bt_choose_offline);
+
+
+        final AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.myCorDialog).setView(inflate).create();
+        //alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
+        float width = getResources().getDimension(R.dimen.x900);
+        float height = getResources().getDimension(R.dimen.x500);
+
+
+        alertDialog.getWindow().setLayout(new Float(width).intValue(),new Float(height).intValue());
+
+        iv_choose_online.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startOnlineRun(alertDialog);
+            }
+        });
+
+        bt_choose_offline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //关闭数据传输
+                stopEcgData(alertDialog);
+            }
+        });
+    }
+
+    private void startOnlineRun(AlertDialog alertDialog) {
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        // 判断GPS模块是否开启，如果没有则开启
+        Log.i(TAG,"gps打开？:"+locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER));
+        if (!locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
+            MyUtil.chooseOpenGps(this);
+        }
+        else {
+            alertDialog.dismiss();
+            Intent intent = new Intent(MainActivity.this, PrepareRunningActivity.class);
+            intent.putExtra(Constant.sportState,Constant.sportType_Cloth);
+            startActivity(intent);
+        }
+    }
+
+    private void stopEcgData(AlertDialog alertDialog) {
+        Log.i(TAG,"关闭数据指令");
+        if (!MyUtil.isEmpty(CommunicateToBleService.clothDeviceConnecedMac)){
+            boolean send = LeProxy.getInstance().send(CommunicateToBleService.clothDeviceConnecedMac, DataUtil.hexToByteArray(Constant.stopDataTransmitOrder), true);
+            if (send){
+                alertDialog.dismiss();
+                android.support.v7.app.AlertDialog alertDialog_1 = new android.support.v7.app.AlertDialog.Builder(MainActivity.this)
+                        .setTitle("主机已进入离线，快去跑步吧，记得回来同步跑步数据哦！")
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .create();
+                alertDialog_1.setCanceledOnTouchOutside(false);
+                alertDialog_1.show();
+            }
+        }
+        else {
+            MyUtil.showToask(this,"衣服未连接，无法进入离线跑步");
+            alertDialog.dismiss();
+        }
+
     }
 
     public void showdialogToLogin(){
@@ -757,13 +858,7 @@ public class MainActivity extends BaseActivity {
 
     public void showdialogToSupplyData(){
         new AlertDialog.Builder(this).setTitle("数据提醒")
-                .setMessage("现在去完善资料")
-                .setPositiveButton("等会再去", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
+                .setMessage("您的资料没有完善，无法准确分析运动结果，请先完善资料")
                 .setNegativeButton("现在就去", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -771,10 +866,14 @@ public class MainActivity extends BaseActivity {
                         //finish();
                     }
                 })
+                .setPositiveButton("等会再去", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
                 .show();
     }
-
-
 
     @Override
     protected void onPause() {
@@ -791,6 +890,7 @@ public class MainActivity extends BaseActivity {
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
         unregisterReceiver(mchargeReceiver);
+        MyUtil.setDialogNull();
     }
 
     // 用来计算返回键的点击间隔时间

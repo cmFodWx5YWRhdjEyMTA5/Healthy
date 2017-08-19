@@ -15,4 +15,6 @@
 
     <color name="app_background_color">#EBEBEB</color>
 
+    <color name="app_main_color">#0c64b5</color>
+
 </resources>

@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.maps.AMap;
+import com.amap.api.maps.CameraUpdate;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.LatLng;
@@ -33,6 +34,8 @@ import com.amsu.healthy.activity.RateAnalysisActivity;
 import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.fragment.BaseFragment;
+import com.amsu.healthy.fragment.inoutdoortype.OutDoorRunFragment;
+import com.amsu.healthy.fragment.inoutdoortype.OutDoorRunGoogleFragment;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
@@ -43,15 +46,23 @@ import com.amsu.healthy.view.AerobicAnaerobicView;
 import com.amsu.healthy.view.HeightCurveView;
 import com.amsu.healthy.view.MyMapView;
 import com.amsu.healthy.view.PieChart;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 
-public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListener {
+public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListener, OnMapReadyCallback {
     private static final String TAG = "SportFragment";
     private View inflate;
     private MyMapView mv_finish_map;
@@ -78,6 +89,10 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
     private int[] stepData;
     private float[] kaliluliData;
     private int[] speedData;
+    private MapView mv_finish_googlemap;
+    private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
+    GoogleMap mGoogleMap;
+    private boolean isGoogleMap;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -105,6 +120,7 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
         tv_sport_speed = (TextView) inflate.findViewById(R.id.tv_sport_speed);
         tv_sport_kalilu = (TextView) inflate.findViewById(R.id.tv_sport_kalilu);
         tv_sport_freqstride = (TextView) inflate.findViewById(R.id.tv_sport_freqstride);
+        mv_finish_googlemap = (MapView) inflate.findViewById(R.id.mv_finish_googlemap);
 
         hv_sport_stepline = (HeightCurveView) inflate.findViewById(R.id.hv_sport_stepline);
         hv_sport_kaliluline = (HeightCurveView) inflate.findViewById(R.id.hv_sport_kaliluline);
@@ -113,7 +129,28 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
         hv_sport_aerobicanaerobic = (AerobicAnaerobicView) inflate.findViewById(R.id.hv_sport_aerobicanaerobic);
         pc_sport_piechart = (PieChart) inflate.findViewById(R.id.pc_sport_piechart);
 
-        initMap();
+        String country = Locale.getDefault().getCountry();
+        Log.i(TAG,"country:"+country);Locale.CHINA.getCountry();
+        if(country.equals(Locale.CHINA.getCountry())){
+            //中国
+            initMap();
+        }
+        else {
+            //国外
+            isGoogleMap = true;
+            mv_finish_map.setVisibility(View.GONE);
+            mv_finish_googlemap.setVisibility(View.VISIBLE);
+
+            Bundle mapViewBundle = null;
+            if (savedInstanceState != null) {
+                mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
+            }
+            mv_finish_googlemap.onCreate(mapViewBundle);
+            mv_finish_googlemap.getMapAsync(this);
+        }
+
+
+
 
         TogatherOnClickListener togatherOnClickListener = new TogatherOnClickListener();
 
@@ -272,6 +309,48 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
 
         if (mUploadRecord !=null) {
             Log.i(TAG, "mUploadRecord:" + mUploadRecord.toString());
+
+            int duration = (int) Float.parseFloat(mUploadRecord.time);
+            String myDuration;
+            if (duration>60*60) {
+                myDuration = duration/(60*60)+"h"+(duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
+            }
+            else {
+                myDuration = (duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
+            }
+            tv_sport_time.setText(myDuration);
+
+            //距离
+            double distance = Double.parseDouble(mUploadRecord.distance);
+            String myDistance = StartRunActivity.getFormatDistance(distance);
+            tv_sport_mileage.setText(myDistance);
+
+
+            //速度
+            //String average = Util.getAverage((float) distance, duration);
+
+            float mapRetrurnSpeed = (float) (distance / duration);
+
+            Log.i(TAG,"distance:"+distance);
+            Log.i(TAG,"duration:"+duration);
+            Log.i(TAG,"mapRetrurnSpeed:"+mapRetrurnSpeed);
+
+            String formatSpeed;
+            if (mapRetrurnSpeed==0){
+                formatSpeed = "--";
+            }
+            else {
+                float speed = (1/mapRetrurnSpeed)*1000f;
+                Log.i(TAG,"speed:"+speed);
+                if (speed>=60*60*2){
+                    formatSpeed = "--";
+                }
+                else {
+                    formatSpeed = (int)speed/60+"'"+(int)speed%60+"''";
+                }
+            }
+            tv_sport_speed.setText(formatSpeed);
+
             Gson gson = new Gson();
             if (!MyUtil.isEmpty(mUploadRecord.HR) && !mUploadRecord.HR.equals("-1")){//心率
                 List<Integer> fromJson = gson.fromJson(mUploadRecord.HR,new TypeToken<List<Integer>>() {
@@ -282,16 +361,6 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
                     Log.i(TAG,"time:"+time);
                     hv_sport_rateline.setData(heartData,time,HeightCurveView.LINETYPE_HEART);
                 }
-
-                int duration = (int) Float.parseFloat(mUploadRecord.time);
-                String myDuration;
-                if (duration>60*60) {
-                    myDuration = duration/(60*60)+"h"+(duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
-                }
-                else {
-                    myDuration = (duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
-                }
-                tv_sport_time.setText(myDuration);
 
                 hv_sport_aerobicanaerobic.setData(heartData, time);
 
@@ -375,169 +444,6 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
                 }
             }
         }
-
-       /* int[] data1 = new int[10];
-
-        for (int i=0;i<data1.length;i++){
-            data1[i] = (int) (Math.random()*(85-30) + 30);
-        }
-        hv_sport_stepline.setData(data1,50);
-
-        int[] data2 = new int[10];
-
-        for (int i=0;i<data2.length;i++){
-            data2[i] = (int) (Math.random()*(85-60) + 60);
-        }
-        hv_sport_kaliluline.setData(data2,40);
-
-
-        int[] data3 = new int[10];
-
-        for (int i=0;i<data3.length;i++){
-            data3[i] = (int) (Math.random()*(85-50) + 50);
-        }
-        hv_sport_rateline.setData(data3,20);
-
-
-
-        double[] timeData = {3,4,0.1,1.6,5,2,4,5.5,7,3.6,3.6,2.1,2.6,4,5.5,5.7,3.6,3.6,2.9,4,5.5,6.7,0.3,3.6,3.6};
-        hv_sport_speedline.setData(timeData,60);
-
-        hv_sport_aerobicanaerobic.setData(timeData);
-
-        int[] datas = {35,10,7,3};
-        pc_sport_piechart.setDatas(datas);*/
-
-
-
-
-    }
-
-    /**
-     * 轨迹数据初始化
-     *
-     */
-    private void setupRecord() {
-        // 轨迹纠偏初始化
-        LBSTraceClient mTraceClient = new LBSTraceClient(getContext());
-        if (mIntent==null){
-            mIntent = getActivity().getIntent();
-        }
-
-        if (mIntent !=null){
-            long createrecord = mIntent.getLongExtra("createrecord", -1);
-            if (createrecord!=-1){
-                Log.i(TAG,"createrecord:"+createrecord);
-                DbAdapter dbAdapter = new DbAdapter(getActivity());
-                dbAdapter.open();
-                PathRecord pathRecord = dbAdapter.queryRecordById((int) createrecord);
-                dbAdapter.close();
-                Log.i(TAG,"pathRecord:"+pathRecord.toString());
-                // pathRecord:recordSize:103, distance:4.15064m, duration:206.922s
-                int distance = (int) Float.parseFloat(pathRecord.getDistance());
-                int duration = (int) Float.parseFloat(pathRecord.getDuration());
-
-                int secend = (distance%1000)/10;
-                String myDistance = distance/1000+"."+secend;
-                if (secend==0) {
-                    myDistance = distance/1000+".00";
-                }
-                tv_sport_mileage.setText(myDistance);
-
-                int durationSecend = (duration%(60*60))/60;
-                int durationThrid = (duration%(60*60))%60;
-                String durationSecendString =(duration%(60*60))/60+"";
-                String durationThridString =(duration%(60*60))%60+"";
-
-                if (durationSecend<10) {
-                    durationSecendString = "0"+durationSecendString;
-                }
-                if (durationThrid<10) {
-                    durationThridString = "0"+durationThridString;
-                }
-                //String myDuration = duration/(60*60)+":"+durationSecendString+":"+durationThridString;
-                String myDuration = duration/(60*60)+"h"+durationSecendString+"’";
-
-                tv_sport_time.setText(myDuration);
-                String speed = pathRecord.getAveragespeed().equals("")?"0":pathRecord.getAveragespeed();
-                Log.i(TAG,"pathRecord.getAveragespeed():"+pathRecord.getAveragespeed());
-                Log.i(TAG,"speed:"+speed);
-                tv_sport_speed.setText(speed);
-
-
-                List<AMapLocation> recordList = pathRecord.getPathline();
-                AMapLocation startLoc = pathRecord.getStartpoint();
-                AMapLocation endLoc = pathRecord.getEndpoint();
-                if (recordList == null || startLoc == null || endLoc == null) {
-                    return;
-                }
-                LatLng startLatLng = new LatLng(startLoc.getLatitude(), startLoc.getLongitude());
-                LatLng endLatLng = new LatLng(endLoc.getLatitude(), endLoc.getLongitude());
-                mOriginLatLngList = Util.parseLatLngList(recordList);
-
-                float mapTraceDistance = Util.getDistance(recordList);
-                addOriginTrace(startLatLng, endLatLng, mOriginLatLngList,mapTraceDistance);
-
-               /* List<TraceLocation> mGraspTraceLocationList = Util.parseTraceLocationList(recordList);
-                // 调用轨迹纠偏，将mGraspTraceLocationList进行轨迹纠偏处理
-                mTraceClient.queryProcessedTrace(1, mGraspTraceLocationList, LBSTraceClient.TYPE_AMAP, this);*/
-            }
-        }
-    }
-
-    private void setupRecord(long createrecord) {
-        // 轨迹纠偏初始化
-        LBSTraceClient mTraceClient = new LBSTraceClient(getContext());
-
-        if (createrecord!=-1){
-            Log.i(TAG,"createrecord:"+createrecord);
-            DbAdapter dbAdapter = new DbAdapter(getActivity());
-            dbAdapter.open();
-            PathRecord pathRecord = dbAdapter.queryRecordById((int) createrecord);
-            dbAdapter.close();
-            Log.i(TAG,"pathRecord:"+pathRecord.toString());
-            // pathRecord:recordSize:103, distance:4.15064m, duration:206.922s
-            double distance = Double.parseDouble(pathRecord.getDistance());
-            String myDistance = StartRunActivity.getFormatDistance(distance);
-            tv_sport_mileage.setText(myDistance);
-
-            int duration = (int) Float.parseFloat(pathRecord.getDuration());
-
-            int durationSecend = (duration%(60*60))/60;
-            String durationSecendString =(duration%(60*60))/60+"";
-
-            if (durationSecend<10) {
-                durationSecendString = "0"+durationSecendString;
-            }
-            //String myDuration = duration/(60*60)+":"+durationSecendString+":"+durationThridString;
-            String myDuration = duration/(60*60)+"h"+durationSecendString+"'";
-
-            tv_sport_time.setText(myDuration);
-            String averagespeed = pathRecord.getAveragespeed();
-            Log.i(TAG,"pathRecord.getAveragespeed():"+averagespeed);
-            String speed = averagespeed.equals("")?"0":averagespeed;
-
-            Log.i(TAG,"speed:"+speed);
-            tv_sport_speed.setText(speed);
-
-
-            List<AMapLocation> recordList = pathRecord.getPathline();
-            AMapLocation startLoc = pathRecord.getStartpoint();
-            AMapLocation endLoc = pathRecord.getEndpoint();
-            if (recordList == null || startLoc == null || endLoc == null) {
-                return;
-            }
-            LatLng startLatLng = new LatLng(startLoc.getLatitude(), startLoc.getLongitude());
-            LatLng endLatLng = new LatLng(endLoc.getLatitude(), endLoc.getLongitude());
-            mOriginLatLngList = Util.parseLatLngList(recordList);
-
-            float mapTraceDistance = Util.getDistance(recordList);
-            addOriginTrace(startLatLng, endLatLng, mOriginLatLngList,mapTraceDistance);
-
-            /*List<TraceLocation> mGraspTraceLocationList = Util.parseTraceLocationList(recordList);
-            // 调用轨迹纠偏，将mGraspTraceLocationList进行轨迹纠偏处理
-            mTraceClient.queryProcessedTrace(1, mGraspTraceLocationList, LBSTraceClient.TYPE_AMAP, this);*/
-        }
     }
 
     /**
@@ -603,20 +509,110 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
     public void onResume() {
         super.onResume();
         Log.i(TAG,"onResume");
-        mv_finish_map.onResume();   //地图
+        if (isGoogleMap){
+            mv_finish_googlemap.onResume();
+        }
+        else {
+            mv_finish_map.onResume();   //地图
+        }
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (isGoogleMap){
+            mv_finish_googlemap.onStart();
+        }
+        else {
+            mv_finish_map.onResume();   //地图
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (isGoogleMap) {
+            mv_finish_googlemap.onStop();
+        }
+        else {
+            mv_finish_map.onResume();   //地图
+        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        if (isGoogleMap) {
+            mGoogleMap = map;
+            // A geodesic polyline that goes around the world.
+            com.google.android.gms.maps.model.PolylineOptions polylineOptions = new com.google.android.gms.maps.model.PolylineOptions();
+            Gson gson = new Gson();
+            List<List<Double>> fromJson = gson.fromJson(mUploadRecord.latitude_longitude,new TypeToken<List<List<Double>>>() {
+            }.getType());
+            Log.i(TAG,"fromJson:"+fromJson);
+            if (fromJson!=null && fromJson.size()>0){
+                com.google.android.gms.maps.model.LatLng startLatLng =
+                        new com.google.android.gms.maps.model.LatLng(fromJson.get(0).get(0),fromJson.get(0).get(1));
+                com.google.android.gms.maps.model.LatLng endLatLng =
+                        new com.google.android.gms.maps.model.LatLng(fromJson.get(fromJson.size()-1).get(0),fromJson.get(fromJson.size()-1).get(1));
+
+                com.google.android.gms.maps.model.LatLng latLng = null;
+                com.google.android.gms.maps.model.LatLngBounds.Builder builder = new com.google.android.gms.maps.model.LatLngBounds.Builder();
+                for (List<Double> list:fromJson){
+                    latLng = new com.google.android.gms.maps.model.LatLng(list.get(0),list.get(1));
+                    polylineOptions.add(latLng);
+                    builder.include(latLng);
+                }
+                map.addMarker(new com.google.android.gms.maps.model.MarkerOptions().position(startLatLng).icon(com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource(R.drawable.qidian)));
+                map.addMarker(new com.google.android.gms.maps.model.MarkerOptions().position(endLatLng).icon(com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource(R.drawable.zhongdian)));
+
+                map.addPolyline((polylineOptions)
+                        .width(getResources().getDimension(R.dimen.x8))
+                        .color(Color.RED)
+                        .geodesic(true)
+                        .clickable(true));
+                //map.moveCamera(com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(latLng, 15));
+
+                com.google.android.gms.maps.CameraUpdate cameraUpdate = com.google.android.gms.maps.CameraUpdateFactory
+                        .newLatLngBounds(builder.build(), 10);
+                map.moveCamera(cameraUpdate);
+
+                if (fromJson.size()<10){
+                    map.moveCamera(com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(startLatLng, 17));
+                }
+            }
+
+
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        if (isGoogleMap) {
+            mv_finish_googlemap.onLowMemory();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mv_finish_map.onPause();
+        if (isGoogleMap) {
+            mv_finish_googlemap.onPause();
+        }
+        else {
+            mv_finish_map.onPause();   //地图
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mv_finish_map.onDestroy();
+        if (isGoogleMap) {
+            mv_finish_googlemap.onDestroy();
+        }
+        else {
+            mv_finish_map.onDestroy();   //地图
+        }
     }
 
     @Override
@@ -656,40 +652,26 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
             }
             String myDuration = duration/(60*60)+"h"+durationSecendString+"'";*/
 
-            int duration = (int) Float.parseFloat(mUploadRecord.time);
-            String myDuration;
-            if (duration>60*60) {
-                myDuration = duration/(60*60)+"h"+(duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
-            }
-            else {
-                myDuration = (duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
-            }
-            tv_sport_time.setText(myDuration);
 
-            //距离
-            double distance = Double.parseDouble(mUploadRecord.distance);
-            String myDistance = StartRunActivity.getFormatDistance(distance);
-            tv_sport_mileage.setText(myDistance);
-
-
-            //速度
-            String average = Util.getAverage((float) distance, duration);
-
-            float mapRetrurnSpeed = (float) (distance / duration);
-
-            String formatSpeed;
-            if (mapRetrurnSpeed==0){
-                formatSpeed = "0'00''";
-            }
-            else {
-                float speed = (1/mapRetrurnSpeed)*1000f;
-                formatSpeed = (int)speed/60+"'"+(int)speed%60+"''";
-            }
-
-            tv_sport_speed.setText(formatSpeed);
 
         }
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+        if (mapViewBundle == null) {
+            mapViewBundle = new Bundle();
+            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+        }
+
+        mv_finish_googlemap.onSaveInstanceState(mapViewBundle);
+    }
+
+
+
 
 
    /* private void addGraspTrace(List<LatLng> list) {

@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#43CD80"
-    tools:context="com.amsu.healthy.activity.insole.RunTimeCountdownActivity">
+    android:background="@color/app_main_color"
+    tools:context="com.amsu.healthy.activity.RunTimeCountdownActivity">
 
     <TextView
         android:id="@+id/tv_countdown_count"

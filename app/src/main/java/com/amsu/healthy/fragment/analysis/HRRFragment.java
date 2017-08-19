@@ -44,21 +44,8 @@ public class HRRFragment extends BaseFragment {
         tv_hrr_value = (TextView) inflate.findViewById(R.id.tv_hrr_value);
         //tv_hrr_state = (TextView) inflate.findViewById(R.id.tv_hrr_state);
         tv_hrr_suggestion = (TextView) inflate.findViewById(R.id.tv_hrr_suggestion);
-        Button bt_hrv_history = (Button) inflate.findViewById(R.id.bt_hrv_history);
-        Button bt_hrv_myreport = (Button) inflate.findViewById(R.id.bt_hrv_myreport);
 
-        bt_hrv_history.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getActivity(), HistoryRecordActivity.class));
-            }
-        });
-        bt_hrv_myreport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getActivity(), MyReportActivity.class));
-            }
-        });
+
     }
 
     private void initData() {
@@ -74,15 +61,10 @@ public class HRRFragment extends BaseFragment {
             }
 
             if (Integer.parseInt(mUploadRecord.RA)>0) {
-                IndicatorAssess indicatorAssess = HealthyIndexUtil.calculateScoreHRR(Integer.parseInt(mUploadRecord.RA));
+                IndicatorAssess indicatorAssess = HealthyIndexUtil.calculateScoreHRR(Integer.parseInt(mUploadRecord.RA),getActivity());
                 tv_hrr_suggestion.setText(indicatorAssess.getSuggestion());
-
             }
-
-
-
         }
     }
-
-
 }
+

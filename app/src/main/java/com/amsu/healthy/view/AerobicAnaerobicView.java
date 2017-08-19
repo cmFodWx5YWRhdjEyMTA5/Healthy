@@ -13,6 +13,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.utils.HealthyIndexUtil;
 
 import java.text.DecimalFormat;
 
@@ -28,10 +29,12 @@ public class AerobicAnaerobicView extends View {
     private Paint mLablePaint;  //文本Lable
     float mMarginBotom = getResources().getDimension(R.dimen.y44); //坐标线与底部距离
     float mMarginleft ; //坐标线与左侧距离
-    private float mCoordinateWidth = getResources().getDimension(R.dimen.y1008);  //x轴长度
+    //private float mCoordinateWidth = getResources().getDimension(R.dimen.y1008);  //x轴长度
     private int timeLong = 20;  //时间长度
     int[] data ;
     double dataMax = 240;
+
+    double minRate;
     private Paint mCurveLinePaint;
     private float mLine_width;
     String unit = "KM";
@@ -57,7 +60,7 @@ public class AerobicAnaerobicView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         mWidth = w;
         mHeight = h;
-        mMarginleft = mWidth-mCoordinateWidth ;
+        //mMarginleft = mWidth-mCoordinateWidth ;
 
     }
 
@@ -86,6 +89,8 @@ public class AerobicAnaerobicView extends View {
         mCurveLinePaint.setAntiAlias(true);
         mCurveLinePaint.setStyle(Paint.Style.STROKE);
 
+        dataMax = 260- HealthyIndexUtil.getUserAge();
+
     }
 
     @Override
@@ -95,7 +100,7 @@ public class AerobicAnaerobicView extends View {
 
         Path path = new Path();
         if (data!=null && data.length>0){
-            float xOneGridWidth = mCoordinateWidth / data.length;
+            float xOneGridWidth = (float) mWidth / (data.length-1);
             float xIndex = 0;
             for (int i=0;i<data.length-1;i++){
                 float averageX = (xIndex+xIndex+xOneGridWidth)/2;
@@ -127,7 +132,7 @@ public class AerobicAnaerobicView extends View {
             //yText = (int) (0.25*i*timeLong)+unit;
             String xLable=decimalFormat.format(0.25*i*timeLong);//format 返回的是字符串
 
-            float x = mMarginleft +i*(mCoordinateWidth-getResources().getDimension(R.dimen.y2))/4;
+            float x = mMarginleft +i*(mWidth-getResources().getDimension(R.dimen.y2))/4;
 
             float y = mHeight-mMarginBotom;
             canvas.drawLine(x,y,x,y-divideWidth,mCoordinatePaint);
@@ -154,6 +159,8 @@ public class AerobicAnaerobicView extends View {
         timeLong = xLabeMax;
         this.data = data;
 
+
+
         /*if (timeLong<4000){
             unit="M";
         }
@@ -169,6 +176,7 @@ public class AerobicAnaerobicView extends View {
         }
         this.dataMax = max;*/
         invalidate();
-
     }
+
 }
+

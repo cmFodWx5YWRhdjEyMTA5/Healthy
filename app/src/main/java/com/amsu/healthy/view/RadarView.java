@@ -36,7 +36,7 @@ public class RadarView extends View {
     //中心Y坐标
     private int centerY;
     //各维度标题
-    private String[] titles = {"过缓/过速", "早搏漏搏", "健康储备", "BMI", "储备心率","恢复心率","抗疲劳指数"};
+    private String[] titles ;
     //各维度图标
 
     //各维度分值
@@ -57,6 +57,8 @@ public class RadarView extends View {
     private Paint value3Paint;
     //标题画笔
     private Paint titlePaint;
+    private float xLength;
+    private float yLength;
 
     public RadarView(Context context) {
         this(context, null);
@@ -74,6 +76,16 @@ public class RadarView extends View {
     }
 
     private void init(Context context, AttributeSet attrs) {
+        titles = new String[]{getResources().getString(R.string.too_fast_too_slow),
+                getResources().getString(R.string.premature_beat_missed_beat),
+                getResources().getString(R.string.health_reserve),
+                "BMI",
+                getResources().getString(R.string.heart_rate_reserve),
+                getResources().getString(R.string.heart_rate_recovery),
+                getResources().getString(R.string.indicator_for_resistance_to_fatigue)};
+        xLength = context.getResources().getDimension(R.dimen.x50);
+        yLength = context.getResources().getDimension(R.dimen.y50);
+
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.RadarView);
 
         int background_radar = typedArray.getColor(R.styleable.RadarView_background_radar, Color.WHITE);
@@ -252,12 +264,18 @@ public class RadarView extends View {
 
             float titleWidth = titlePaint.measureText(titles[i]);
 
-            x = (float) (x+ radarMargin*Math.cos(radian*i+90) - titleWidth/2);
+            if (i==1){
+                x = (float) (x+ radarMargin*Math.cos(radian*i+90) - titleWidth/4);
+            }
+            else {
+                x = (float) (x+ radarMargin*Math.cos(radian*i+90) - titleWidth/2);
+            }
+
             y = (float) (y+ radarMargin*Math.sin(radian*i+90));
 
             canvas.drawText(titles[i], x, y, titlePaint);
 
-            points.add(new Point(new Float(x).intValue(),new Float(y).intValue()));
+            points.add(new Point(Float.valueOf(x).intValue(),Float.valueOf(y).intValue()));
         }
     }
 
@@ -275,12 +293,12 @@ public class RadarView extends View {
 
                     Point point = points.get(i);
 
-                    float v1 = point.x + titlePaint.measureText(titles[i]) +50;
+                    float v1 = point.x + titlePaint.measureText(titles[i]) +xLength;
                     //Log.i(TAG, "point_x:" + point.x + "," + v1) ;
-                    float v2 = point.y + titlePaint.measureText(titles[i]) +50;
+                    float v2 = point.y  +yLength;
                     //Log.i(TAG, "point_y:" + point.y + "," + v2);
 
-                    if (x<v1 && x>point.x-50  && y<v2 && y>point.y-50){
+                    if (x<v1 && x>point.x-xLength  && y<v2 && y>point.y-yLength){
                         Log.i(TAG,"选中："+i);
                         myOnClickListener.onClick(i);
 

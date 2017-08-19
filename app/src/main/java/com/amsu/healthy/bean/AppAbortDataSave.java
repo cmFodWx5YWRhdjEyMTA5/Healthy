@@ -18,7 +18,7 @@ public class AppAbortDataSave implements Cloneable {
     public long mapTrackID;
     public int state;
     public List<Integer> speedStringList;
-    public ArrayList<String> kcalStringList;
+    public List<String> kcalStringList;
 
     public AppAbortDataSave() {
     }
@@ -38,8 +38,7 @@ public class AppAbortDataSave implements Cloneable {
         this.speedStringList = speedStringList;
     }
 
-
-    public AppAbortDataSave( long startTimeMillis, String ecgFileName, String accFileName, long mapTrackID, int state, List<Integer> speedStringList, ArrayList<String> kcalStringList) {
+    public AppAbortDataSave( long startTimeMillis, String ecgFileName, String accFileName, long mapTrackID, int state, List<Integer> speedStringList, List<String> kcalStringList) {
         this.startTimeMillis = startTimeMillis;
         this.ecgFileName = ecgFileName;
         this.accFileName = accFileName;
@@ -116,11 +115,11 @@ public class AppAbortDataSave implements Cloneable {
         this.id = id;
     }
 
-    public ArrayList<String> getKcalStringList() {
+    public List<String> getKcalStringList() {
         return kcalStringList;
     }
 
-    public void setKcalStringList(ArrayList<String> kcalStringList) {
+    public void setKcalStringList(List<String> kcalStringList) {
         this.kcalStringList = kcalStringList;
     }
 

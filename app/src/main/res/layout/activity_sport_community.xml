@@ -25,7 +25,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bunny运动社区"
+        android:text="@string/bunny_community"
         android:textColor="#3b3b3b"
         android:layout_marginTop="@dimen/x80"
         android:layout_gravity="center_horizontal"
@@ -35,7 +35,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="旨在建设全国领先的运动社区，为运动爱好者提供一个专属的交流平台，。发现志趣相投的运动爱好者。"
+        android:text="@string/bunny_community_decrible"
         android:textColor="#6e6e6e"
         android:padding="@dimen/x36"
         android:textSize="@dimen/x40"/>

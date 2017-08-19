@@ -20,7 +20,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
-            android:text="运动"
+            android:text="@string/exercise_analyze"
             android:textColor="#0c64b5"
             android:gravity="center"
             android:textSize="@dimen/x48" />
@@ -29,7 +29,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
-            android:text="HRV分析"
+            android:text="@string/hrv_analyze"
             android:textColor="#999999"
             android:gravity="center"
             android:textSize="@dimen/x48"/>
@@ -38,7 +38,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
-            android:text="心率分析"
+            android:text="@string/hr_analyze"
             android:textColor="#999999"
             android:gravity="center"
             android:textSize="@dimen/x48"/>
@@ -47,7 +47,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
-            android:text="心电分析"
+            android:text="@string/ecg_analyze"
             android:textColor="#999999"
             android:gravity="center"
             android:textSize="@dimen/x48"/>
@@ -56,7 +56,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
-            android:text="HRR分析"
+            android:text="@string/hrr_analyze"
             android:textColor="#999999"
             android:gravity="center"
             android:textSize="@dimen/x48"/>

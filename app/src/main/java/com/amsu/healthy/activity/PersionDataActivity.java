@@ -96,7 +96,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
     }
     private void initView() {
         initHeadView();
-        setCenterText("个人资料");
+        setCenterText(getResources().getString(R.string.my_profile));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -564,7 +564,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         TextView tv_pick_unit = (TextView) customLayout.findViewById(R.id.tv_pick_unit);
         Button bt_pick_cancel = (Button) customLayout.findViewById(R.id.bt_pick_cancel);
         Button bt_pick_ok = (Button) customLayout.findViewById(R.id.bt_pick_ok);
-        tv_pick_name.setText("选择身高");
+        tv_pick_name.setText(getResources().getString(R.string.choose_height));
         tv_pick_unit.setText("cm");
 
         //为对话框设置视图
@@ -615,7 +615,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         TextView tv_pick_unit = (TextView) customLayout.findViewById(R.id.tv_pick_unit);
         Button bt_pick_cancel = (Button) customLayout.findViewById(R.id.bt_pick_cancel);
         Button bt_pick_ok = (Button) customLayout.findViewById(R.id.bt_pick_ok);
-        tv_pick_name.setText("选择体重");
+        tv_pick_name.setText(getResources().getString(R.string.choose_weight));
         tv_pick_unit.setText("kg");
 
         //为对话框设置视图

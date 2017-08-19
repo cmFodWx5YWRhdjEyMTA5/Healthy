@@ -42,8 +42,8 @@ public class LookupHealthPlanActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("健康计划详情");
-        setRightText("修改");
+        setCenterText(getResources().getString(R.string.Health_plan_details));
+        setRightText(getResources().getString(R.string.modify));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override

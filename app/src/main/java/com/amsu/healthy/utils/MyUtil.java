@@ -19,6 +19,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Debug;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.design.widget.BottomSheetDialog;
@@ -84,12 +85,14 @@ import static android.content.Context.ACTIVITY_SERVICE;
 public class MyUtil {
     private static final String TAG = "MyUtil";
     private static ProgressDialog dialog;
+    private static PopupWindow mPopupWindow;
 
     public static void showDialog(String message,Activity context){
         try {
             if (dialog == null) {
                 dialog = new ProgressDialog(context);
                 dialog.setCanceledOnTouchOutside(false);
+                //dialog.setProgressStyle(R.style.progresStyle);
             }
             dialog.setMessage(message);
             dialog.show();
@@ -99,6 +102,10 @@ public class MyUtil {
             // 在其他线程调用dialog会报错
         }
         Log.i(TAG,"showDialog:"+dialog.isShowing());
+    }
+
+    public static void setDialogNull(){
+        dialog = null;
     }
 
     public static void hideDialog(Activity context) {
@@ -132,6 +139,12 @@ public class MyUtil {
     public static void showToask(Context context ,String text){
         if (context instanceof Activity) {
             Toast.makeText(context,text,Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public static void showToask(Context context ,int id){
+        if (context instanceof Activity) {
+            Toast.makeText(context,id,Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -202,6 +215,7 @@ public class MyUtil {
             if (!MyUtil.isEmpty(device.getMac())){
                 edit.putString("mac",device.getMac());
             }
+            edit.putInt("deviceType_insole",device.getDeviceType());
         }
         else {
             edit.putString("name","");
@@ -218,23 +232,24 @@ public class MyUtil {
         if (type==2){
             if (device !=null){
                 if (!MyUtil.isEmpty(device.getName())){
-                    edit.putString("name_cloth",device.getName());
+                    edit.putString("name_insole",device.getName());
                 }
                 if (!MyUtil.isEmpty(device.getLEName())){
-                    edit.putString("LEName_cloth",device.getLEName());
+                    edit.putString("LEName_insole",device.getLEName());
                 }
                 if (!MyUtil.isEmpty(device.getState())){
-                    edit.putString("state_cloth",device.getState());
+                    edit.putString("state_insole",device.getState());
                 }
                 if (!MyUtil.isEmpty(device.getMac())){
-                    edit.putString("mac_cloth",device.getMac());
+                    edit.putString("mac_insole",device.getMac());
                 }
+                edit.putInt("deviceType_insole",device.getDeviceType());
             }
             else {
-                edit.putString("name_cloth","");
-                edit.putString("LEName_cloth","");
-                edit.putString("state_cloth","");
-                edit.putString("mac_cloth","");
+                edit.putString("name_insole","");
+                edit.putString("LEName_insole","");
+                edit.putString("state_insole","");
+                edit.putString("mac_insole","");
             }
         }
         else {
@@ -251,6 +266,7 @@ public class MyUtil {
                 if (!MyUtil.isEmpty(device.getMac())){
                     edit.putString("mac",device.getMac());
                 }
+                edit.putInt("deviceType_cloth",device.getDeviceType());
             }
             else {
                 edit.putString("name","");
@@ -279,22 +295,25 @@ public class MyUtil {
         String LEName ;
         String state ;
         String mac ;
+        int type = Constant.sportType_Cloth;
 
-        if (deviceType==2){ // 1:衣服   2:鞋垫
-            name = getStringValueFromSP("name_cloth");
-            LEName = getStringValueFromSP("LEName_cloth");
-            state = getStringValueFromSP("state_cloth");
-            mac = getStringValueFromSP("mac_cloth");
+        if (deviceType==Constant.sportType_Insole){ // 1:衣服   2:鞋垫
+            name = getStringValueFromSP("name_insole");
+            LEName = getStringValueFromSP("LEName_insole");
+            state = getStringValueFromSP("state_insole");
+            mac = getStringValueFromSP("mac_insole");
+            type = getIntValueFromSP("deviceType_insole");
         }
         else {
             name = getStringValueFromSP("name");
             LEName = getStringValueFromSP("LEName");
             state = getStringValueFromSP("state");
             mac = getStringValueFromSP("mac");
+            type = getIntValueFromSP("deviceType_cloth");
         }
         Device device = null;
         if (!LEName.equals("") && !mac.equals("")){
-            device = new Device(name,state,mac,LEName,0);
+            device = new Device(name,state,mac,LEName,type);
         }
         return device;
     }
@@ -555,9 +574,11 @@ public class MyUtil {
 
     //根据当前时间生成一个ecg格式文件
     public static String generateECGFilePath(Context context,Long timeMillis){
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA);  //07-12 15:10
-        String fileName = format.format(new Date(timeMillis));
-        return context.getCacheDir()+"/"+fileName+".ecg";
+        /*SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA);  //07-12 15:10
+        String fileName = format.format(new Date(timeMillis));*/
+        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth";
+        return filePath+"/"+MyUtil.getECGFileNameDependFormatTime(new Date(timeMillis))+".ecg";
+
     }
 
     public static  List<String> getWeekStringList(int weekCount) {
@@ -791,12 +812,14 @@ public class MyUtil {
         MyUtil.putStringValueFromSP(Constant.sosNumberList,sosNumberListString);
     }
 
-    public static void showPopWindow(final int connectType) {
+
+
+    public static void showDeviceConnectedChangePopWindow(final int connectType, final String msg) {
         new Thread(){
             @Override
             public void run() {
                 super.run();
-                //Log.i(TAG,"showPopWindow:"+activity.getClass());
+                //Log.i(TAG,"showDeviceConnectedChangePopWindow:"+activity.getClass());
                 final BaseActivity activity = MyApplication.mCurrApplicationActivity;
                 Log.i(TAG,"MyApplication.mCurrApplicationActivity:"+MyApplication.mCurrApplicationActivity);
                 //Log.i(TAG,"activity:"+activity.getClass());
@@ -807,21 +830,20 @@ public class MyUtil {
                 View popupView = View.inflate(activity, R.layout.layout_popupwindow_onoffline, null);
                 ImageView iv_pop_icon = (ImageView) popupView.findViewById(R.id.iv_pop_icon);
                 TextView tv_pop_text = (TextView) popupView.findViewById(R.id.tv_pop_text);
+
+                tv_pop_text.setText(msg);
                 if (connectType == 0) {
                     //断开
                     iv_pop_icon.setImageResource(R.drawable.duankai);
-                    tv_pop_text.setText("设备连接已断开");
                     isConnectedSuccess = false;
 
                 } else {
                     //连接
                     iv_pop_icon.setImageResource(R.drawable.yilianjie);
-                    tv_pop_text.setText("设备已连接");
-
                     isConnectedSuccess = true;
                 }
 
-                final PopupWindow mPopupWindow = new PopupWindow(popupView, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
+                mPopupWindow = new PopupWindow(popupView, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
                 mPopupWindow.setTouchable(true);
                 mPopupWindow.setOutsideTouchable(true);
                 mPopupWindow.setBackgroundDrawable(new BitmapDrawable(activity.getResources(), (Bitmap) null));
@@ -831,7 +853,7 @@ public class MyUtil {
                     public void run() {
                         //showToask(finalActivity,"设备连接或断开");
                         //mPopupWindow.showAsDropDown(activity.getTv_base_rightText());
-                        if (activity.isFinishing() || activity.isDestroyed()) return;
+                        if (activity.isFinishing() || activity.isDestroyed() || activity != MyApplication.mCurrApplicationActivity) return;
                         if (!mPopupWindow.isShowing()) {
                             mPopupWindow.showAtLocation(activity.getTv_base_rightText(), Gravity.TOP, 0, 0);
                             Log.i(TAG, "PopupWindow.showAtLocation:");
@@ -843,14 +865,13 @@ public class MyUtil {
                     }
                 });
 
-
                 try {
                     Thread.sleep(3000);
+                    if (activity.isFinishing() || activity.isDestroyed() || activity != MyApplication.mCurrApplicationActivity) return;
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (activity.isFinishing() || activity.isDestroyed()) return;
-                            if (mPopupWindow.isShowing()) {
+                            if (mPopupWindow!=null && mPopupWindow.isShowing()) {
                                 mPopupWindow.dismiss();
                             }
                         }
@@ -860,8 +881,12 @@ public class MyUtil {
                 }
             }
         }.start();
+    }
 
-
+    public static void dismissPopWindow() {
+        if (mPopupWindow!=null && mPopupWindow.isShowing()) {
+            mPopupWindow.dismiss();
+        }
     }
 
 

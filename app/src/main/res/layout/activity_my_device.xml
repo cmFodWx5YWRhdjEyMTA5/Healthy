@@ -43,7 +43,7 @@
             android:layout_marginLeft="@dimen/x32"
             android:textSize="@dimen/x38"
             android:textColor="#383838"
-            android:text="切换新设备"/>
+            android:text="@string/add_new_device"/>
 
     </RelativeLayout>
 </RelativeLayout>

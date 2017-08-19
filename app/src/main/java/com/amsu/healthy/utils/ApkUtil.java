@@ -76,7 +76,7 @@ public class ApkUtil {
         Log.i(TAG,"isSplashActivityInstance:"+isSplashActivityInstance);
 
         if (!isSplashActivityInstance){
-            MyUtil.showDialog("正在检测",context);
+            MyUtil.showDialog(context.getResources().getString(R.string.checking_version_information),context);
         }
 
         HttpUtils httpUtils = new HttpUtils();
@@ -126,9 +126,9 @@ public class ApkUtil {
             //有更新
             AlertDialog alertDialog = new AlertDialog.Builder(context)
 
-                    .setTitle("有新版本")
+                    .setTitle(context.getResources().getString(R.string.find_new_version))
                     .setMessage(remark)
-                    .setPositiveButton("更新", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(context.getResources().getString(R.string.update_now), new DialogInterface.OnClickListener() {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -136,7 +136,7 @@ public class ApkUtil {
                             downLoadAppAndShowProgereeNoitfy(context,path);
                         }
                     })
-                    .setNegativeButton("不更新", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(context.getResources().getString(R.string.update_later), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
@@ -149,7 +149,7 @@ public class ApkUtil {
         }
         else {
             if (isShowToask){
-                MyUtil.showToask(context,"当前已是最新版本");
+                MyUtil.showToask(context,context.getResources().getString(R.string.this_latest_version));
             }
         }
     }

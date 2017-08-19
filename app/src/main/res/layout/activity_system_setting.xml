@@ -14,11 +14,12 @@
         android:id="@+id/ll_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/rl_base_head"
         android:divider="@drawable/deiver_horiz_line"
         android:showDividers="middle"
         android:orientation="vertical"
-        android:background="#FFFFFF">
+        android:background="#FFFFFF"
+        android:layout_below="@+id/rl_base_head"
+        android:layout_alignParentStart="true">
 
 
         <RelativeLayout
@@ -32,7 +33,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="个人资料"
+                android:text="@string/my_profile"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -63,7 +64,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="我的设备"
+                android:text="@string/my_devices"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -94,7 +95,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="系统更新"
+                android:text="@string/update"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -125,7 +126,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="关于我们"
+                android:text="@string/about_us"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -157,7 +158,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="用户反馈"
+                android:text="@string/user_feedback"
                 android:textColor="#030303"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>
@@ -178,6 +179,39 @@
                 android:layout_toLeftOf="@+id/iv_persion_7"
                 android:layout_marginRight="5dp"/>
         </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_persiondata_Multilingual"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/y140"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="多语言"
+                android:textColor="#030303"
+                android:textSize="@dimen/x48"
+                android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_8"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+            <TextView
+                android:id="@+id/tv_persiondata_Multilingual"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#9f9f9f"
+                android:textSize="@dimen/x48"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/iv_persion_8"
+                android:layout_marginRight="5dp"/>
+        </RelativeLayout>
     </LinearLayout>
 
     <RelativeLayout
@@ -193,7 +227,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="退出登录"
+            android:text="@string/exit"
             android:textColor="#030303"
             android:textSize="@dimen/x48"
             android:layout_centerVertical="true"/>

@@ -27,7 +27,7 @@
             android:textSize="@dimen/x56"
             android:textColor="#1f1f1f"
             android:textColorHint="#a9a9a9"
-            android:hint="输入标题"
+            android:hint="@string/enter_title"
             android:paddingTop="@dimen/x12"
             android:paddingBottom="@dimen/x36"/>
         <EditText
@@ -41,7 +41,7 @@
             android:paddingTop="@dimen/x36"
             android:lines="10"
             android:gravity="top"
-            android:hint="输入内容"/>
+            android:hint="@string/enter_content"/>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#a9a9a9"
                 android:textSize="@dimen/x46"
-                android:text="选择时间"/>
+                android:hint="@string/choose_time"/>
             <TextView
                 android:id="@+id/tv_addplan_time"
                 android:layout_width="wrap_content"

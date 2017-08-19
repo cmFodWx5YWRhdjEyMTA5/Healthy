@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.utils.MyUtil;
 
@@ -68,21 +69,27 @@ public class HistoryRecordAdapter extends BaseAdapter {
             inflate.setTag(myHolder);
         }
 
-
         //"datatime": "2016-10-28 10:56:04"
         String datatime = historyRecord.getDatatime();
         String[] split = datatime.split(" ");
         String[] dateSplits = split[0].split("-");
-        String date = dateSplits[0]+"年"+dateSplits[1]+"月"+dateSplits[2]+"日";
+        String date = "";
+        if (MyApplication.languageType==MyApplication.language_ch){
+            date = dateSplits[0]+"年"+dateSplits[1]+"月"+dateSplits[2]+"日";
+        }
+        else if (MyApplication.languageType==MyApplication.language_en){
+            date = dateSplits[0]+"-"+dateSplits[1]+"-"+dateSplits[2];
+        }
+
         myHolder.tv_history_date.setText(date);
         myHolder.tv_history_time.setText(split[1]);
 
         if (historyRecord.getState()==1){
-            myHolder.tv_history_sportstate.setText("动态");
+            myHolder.tv_history_sportstate.setText(R.string.active);
             myHolder.tv_history_sportstate.setBackgroundResource(R.drawable.button_lishi2);
         }
         else  if (historyRecord.getState()==0){
-            myHolder.tv_history_sportstate.setText("静态");
+            myHolder.tv_history_sportstate.setText(R.string.rest);
             myHolder.tv_history_sportstate.setBackgroundResource(R.drawable.button_lishi1);
         }
         else {
@@ -99,7 +106,7 @@ public class HistoryRecordAdapter extends BaseAdapter {
         }
         else {
             //默认，已分析
-            myHolder.tv_history_alstate.setText("已分析");
+            myHolder.tv_history_alstate.setText(R.string.analysised);
             myHolder.tv_history_alstate.setTextColor(Color.parseColor("#CCCCCC"));
         }
 

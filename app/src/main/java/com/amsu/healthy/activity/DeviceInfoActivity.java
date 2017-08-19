@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
@@ -33,6 +35,8 @@ public class DeviceInfoActivity extends BaseActivity {
     private TextView tv_device_devicename;
     private Device deviceFromSP;
     private TextView tv_device_electric;
+    private ImageView iv_deviceinfo_switvh;
+    private boolean mIsAutoOffline;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +49,7 @@ public class DeviceInfoActivity extends BaseActivity {
     private void initView() {
         initHeadView();
         setHeadBackgroudColor("#0c64b5");
-        setCenterText("设备信息");
+        setCenterText(getResources().getString(R.string.device_information));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,6 +62,9 @@ public class DeviceInfoActivity extends BaseActivity {
         final TextView tv_device_hardware = (TextView) findViewById(R.id.tv_device_hardware);
         final TextView tv_device_software = (TextView) findViewById(R.id.tv_device_software);
         tv_device_devicename = (TextView) findViewById(R.id.tv_device_devicename);
+        iv_deviceinfo_switvh = (ImageView) findViewById(R.id.iv_deviceinfo_switvh);
+
+        RelativeLayout rl_deviceinfo_switvh = (RelativeLayout) findViewById(R.id.rl_deviceinfo_switvh);
 
         /*if (MainActivity.mLeService!=null && !MyUtil.isEmpty(MainActivity.clothDeviceConnecedMac)){
             MainActivity.mLeService.send(MainActivity.clothDeviceConnecedMac, Constant.readDeviceIDOrder,true);
@@ -78,7 +85,6 @@ public class DeviceInfoActivity extends BaseActivity {
                 }
             }
         }
-
 
         final String hardWareVersion = MyUtil.getStringValueFromSP(Constant.hardWareVersion);
         final String softWareVersion = MyUtil.getStringValueFromSP(Constant.softWareVersion);
@@ -124,6 +130,21 @@ public class DeviceInfoActivity extends BaseActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(MainActivity.ACTION_CHARGE_CHANGE);
         registerReceiver(mchargeReceiver, filter);
+
+
+        boolean mIsAutoOffline = MyUtil.getBooleanValueFromSP("mIsAutoOffline");
+        if (mIsAutoOffline){
+            iv_deviceinfo_switvh.setImageResource(R.drawable.switch_on);
+        }
+        else {
+            iv_deviceinfo_switvh.setImageResource(R.drawable.switch_of);
+        }
+
+        Intent intent = getIntent();
+        int intExtra = intent.getIntExtra(Constant.sportState, -1);
+        if (intExtra==Constant.sportType_Insole){
+            rl_deviceinfo_switvh.setVisibility(View.GONE);
+        }
     }
 
     private final BroadcastReceiver mchargeReceiver = new BroadcastReceiver() {
@@ -177,7 +198,7 @@ public class DeviceInfoActivity extends BaseActivity {
 
             //params.addBodyParameter("deviceMAC","");
             MyUtil.addCookieForHttp(params);
-            MyUtil.showDialog("正在绑定",this);
+            MyUtil.showDialog("正在解绑",this);
 
             httpUtils.send(HttpRequest.HttpMethod.POST, Constant.bindingDeviceURL, params, new RequestCallBack<String>() {
                 @Override
@@ -244,4 +265,18 @@ public class DeviceInfoActivity extends BaseActivity {
         super.onDestroy();
         unregisterReceiver(mchargeReceiver);
     }
+
+    public void switchState(View view) {
+        if (!mIsAutoOffline){
+            iv_deviceinfo_switvh.setImageResource(R.drawable.switch_on);
+            mIsAutoOffline = true;
+            MyUtil.putBooleanValueFromSP("mIsAutoOffline",true);
+        }
+        else {
+            iv_deviceinfo_switvh.setImageResource(R.drawable.switch_of);
+            mIsAutoOffline = false;
+            MyUtil.putBooleanValueFromSP("mIsAutoOffline",false);
+        }
+    }
+
 }

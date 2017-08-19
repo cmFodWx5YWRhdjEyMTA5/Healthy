@@ -1,4 +1,4 @@
-package com.amsu.healthy.activity.insole;
+package com.amsu.healthy.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,14 +6,8 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.activity.insole.InsoleRunningActivity;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.MyUtil;
-import com.lidroid.xutils.HttpUtils;
-import com.lidroid.xutils.exception.HttpException;
-import com.lidroid.xutils.http.RequestParams;
-import com.lidroid.xutils.http.ResponseInfo;
-import com.lidroid.xutils.http.callback.RequestCallBack;
-import com.lidroid.xutils.http.client.HttpRequest;
 
 public class RunTimeCountdownActivity extends Activity {
 
@@ -55,7 +49,14 @@ public class RunTimeCountdownActivity extends Activity {
                     }
                     count--;
                     if (count==1){
-                        startActivity(new Intent(RunTimeCountdownActivity.this,InsoleRunningActivity.class));
+                        Intent intent = getIntent();
+                        int intExtra = intent.getIntExtra(Constant.sportState, -1);
+                        if (intExtra==Constant.sportType_Cloth){
+                            startActivity(new Intent(RunTimeCountdownActivity.this,StartRunActivity.class));
+                        }
+                        else if (intExtra==Constant.sportType_Insole){
+                            startActivity(new Intent(RunTimeCountdownActivity.this,InsoleRunningActivity.class));
+                        }
                         finish();
                     }
                 }

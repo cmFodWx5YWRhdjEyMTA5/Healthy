@@ -17,16 +17,20 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.amsu.healthy.activity.BaseActivity;
+import com.amsu.healthy.fragment.inoutdoortype.OutDoorRunFragment;
+import com.amsu.healthy.fragment.inoutdoortype.OutDoorRunGoogleFragment;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.service.LocalGuardService;
 import com.amsu.healthy.service.MyTestService2;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import cn.smssdk.SMSSDK;
-import im.fir.sdk.FIR;
 
 /**
  * Created by HP on 2016/11/23.
@@ -49,6 +53,11 @@ public class MyApplication extends Application{
     private Handler handler;
     public static boolean isNeedSynMsgToDevice;
     public static String insoleAccessToken;
+    public static int deivceType = Constant.sportType_Cloth;
+    public static int languageType = 1;
+    public static int language_ch = 1;  //中文
+    public static int language_en = 2;  //英文
+    public static Context appContext ;
 
     @Override
     public void onCreate() {
@@ -62,7 +71,7 @@ public class MyApplication extends Application{
 
         sharedPreferences = getSharedPreferences("userinfo", MODE_PRIVATE);
         mActivities = new ArrayList<>();
-        FIR.init(this);
+
 
         String currentProcessName = getCurrentProcessName(); //com.amsu.healthy
         Log.i(TAG,"currentProcessName:"+currentProcessName);
@@ -70,6 +79,30 @@ public class MyApplication extends Application{
         if (currentProcessName.equals("com.amsu.healthy")){
             MyUtil.startServices(this);
             isNeedSynMsgToDevice = true;
+
+            CrashReport.initCrashReport(getApplicationContext(), "d139ea916b", false);   //腾讯Bugly
+
+            int type = MyUtil.getIntValueFromSP(Constant.sportType);
+
+            if (type==Constant.sportType_Cloth){
+               deivceType = Constant.sportType_Cloth;
+            }
+            else if (type==Constant.sportType_Insole){
+                deivceType = Constant.sportType_Insole;
+            }
+
+            String country = Locale.getDefault().getCountry();
+            Log.i(TAG,"country:"+country);Locale.CHINA.getCountry();
+            if(country.equals(Locale.CHINA.getCountry())){
+                //中国
+                languageType = 1;
+            }
+            else {
+                //国外
+                languageType = 2;
+            }
+
+            appContext = getApplicationContext();
         }
 
     }

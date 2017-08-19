@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -53,6 +54,7 @@ public class RateAnalysisActivity extends BaseActivity {
     private float mOneTableWidth;
     private int subFormAlCount = 0 ;  //当有四个fragment是为0，有5个fragment时为1
     public static String ecgLocalFileName;
+    private ImageView iv_base_myreport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +93,17 @@ public class RateAnalysisActivity extends BaseActivity {
         tv_analysis_hrr.setOnClickListener(myClickListener);
         tv_analysis_sport.setOnClickListener(myClickListener);
 
+        iv_base_myreport = (ImageView) findViewById(R.id.iv_base_myreport);
+
+        setRightImage(R.drawable.lishijilu);
+        getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(RateAnalysisActivity.this, HistoryRecordActivity.class));
+            }
+        });
+
+        iv_base_myreport.setVisibility(View.VISIBLE);
 
         //每一个小格的宽度
         mOneTableWidth = MyUtil.getScreeenWidth(this)/5;
@@ -114,6 +127,13 @@ public class RateAnalysisActivity extends BaseActivity {
             @Override
             public void onPageScrollStateChanged(int state) {
                // Log.i(TAG,"onPageScrollStateChanged===state:"+state);
+            }
+        });
+
+        iv_base_myreport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(RateAnalysisActivity.this, MyReportActivity.class));
             }
         });
     }
@@ -140,7 +160,13 @@ public class RateAnalysisActivity extends BaseActivity {
 
                     //根据历史记录id进行网络查询
                     String datatime = historyRecord.getDatatime();
-                    setCenterText(datatime);  // 2016-10-28 10:56:04
+                    if (datatime!=null && datatime.split(" ").length==2){
+                        //setCenterText(datatime.split(" ")[0]);  // 2016-10-28 10:56:04
+                        setCenterText(datatime.substring(0,datatime.length()-3));  // 2016-10-28 10:56:04
+                    }
+                    else {
+                        setCenterText(datatime);  // 2016-10-28 10:56:04
+                    }
 
                     //奔溃缓存策略
                     //先从本地数据库中根据datatime查询数据，没有的话根据id从服务器获取
@@ -168,7 +194,7 @@ public class RateAnalysisActivity extends BaseActivity {
 
 
 
-                    MyUtil.showDialog("加载数据",RateAnalysisActivity.this);
+                    MyUtil.showDialog(getResources().getString(R.string.loading),RateAnalysisActivity.this);
                     HttpUtils httpUtils = new HttpUtils();
                     RequestParams params = new RequestParams();
                     params.addBodyParameter("id",historyRecord.getID());

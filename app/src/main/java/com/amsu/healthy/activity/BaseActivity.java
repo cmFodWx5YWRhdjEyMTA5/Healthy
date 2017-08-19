@@ -1,8 +1,11 @@
 package com.amsu.healthy.activity;
 
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -10,7 +13,10 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.utils.MyUtil;
 import com.umeng.analytics.MobclickAgent;
+
+import java.util.Locale;
 
 public class BaseActivity extends FragmentActivity {
 
@@ -35,6 +41,22 @@ public class BaseActivity extends FragmentActivity {
         tv_base_lefttext = (TextView) findViewById(R.id.tv_base_lefttext);
         tv_base_rightText = (TextView) findViewById(R.id.tv_base_rightText);
         iv_base_rightimage = (ImageView) findViewById(R.id.iv_base_rightimage);
+
+        //changeAppLanguage();
+
+    }
+
+    public void changeAppLanguage() {
+        String sta = MyUtil.getStringValueFromSP("language");//这是SharedPreferences工具类，用于保存设置，代码很简单，自己实现吧
+        if (!MyUtil.isEmpty(sta)){
+            // 本地语言设置
+            Locale myLocale = new Locale(sta);
+            Resources res = getResources();
+            DisplayMetrics dm = res.getDisplayMetrics();
+            Configuration conf = res.getConfiguration();
+            conf.locale = myLocale;
+            res.updateConfiguration(conf, dm);
+        }
     }
 
     public void setLeftImage(int resource) {
@@ -121,9 +143,8 @@ public class BaseActivity extends FragmentActivity {
     protected void onPause() {
         super.onPause();
         //MobclickAgent.onPageEnd(this.getClass().getSimpleName());
-        MobclickAgent.onPause(this);
-
         MyApplication.mCurrApplicationActivity = null;
+        MobclickAgent.onPause(this);
     }
 
     @Override

@@ -52,21 +52,7 @@ public class HRVFragment extends BaseFragment {
         iv_hrv_mood = (ImageView) inflate.findViewById(R.id.iv_hrv_mood);
 
         tv_hrv_suggestion = (TextView) inflate.findViewById(R.id.tv_hrv_suggestion);
-        Button bt_hrv_history = (Button) inflate.findViewById(R.id.bt_hrv_history);
-        Button bt_hrv_myreport = (Button) inflate.findViewById(R.id.bt_hrv_myreport);
 
-        bt_hrv_history.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getActivity(), HistoryRecordActivity.class));
-            }
-        });
-        bt_hrv_myreport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getActivity(), MyReportActivity.class));
-            }
-        });
     }
 
 
@@ -110,6 +96,7 @@ public class HRVFragment extends BaseFragment {
 
             if (!MyUtil.isEmpty( mUploadRecord.HRVs)){
                 tv_hrv_suggestion.setText(mUploadRecord.HRVs);
+
             }
         }
     }

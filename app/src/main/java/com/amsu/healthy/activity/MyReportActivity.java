@@ -54,12 +54,11 @@ public class MyReportActivity extends BaseActivity {
 
         initView();
         iniData();
-
     }
 
     private void initView() {
         initHeadView();
-        setCenterText("我的报告");
+        setCenterText(getResources().getString(R.string.my_report_plan));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,14 +66,21 @@ public class MyReportActivity extends BaseActivity {
                 finish();
             }
         });
-        setRightText("历史纪录");
+        /*setRightText("历史纪录");
         getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MyReportActivity.this,HistoryRecordActivity.class));
             }
-        });
+        });*/
 
+        setRightImage(R.drawable.lishijilu);
+        getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MyReportActivity.this,HistoryRecordActivity.class));
+            }
+        });
 
         tv_report_mouth = (TextView) findViewById(R.id.tv_report_mouth);
         tv_report_quarter = (TextView) findViewById(R.id.tv_report_quarter);
@@ -94,19 +100,16 @@ public class MyReportActivity extends BaseActivity {
         quarterReprtFragment = new QuarterReprtFragment();
         yearReprtFragment = new YearReprtFragment();
 
-
-
     }
 
     private void iniData() {
-
         loadMouthFullReportData();
         loadQuarterFullReportData();
         loadYearFullReportData();
     }
 
     private void loadMouthFullReportData() {
-        MyUtil.showDialog("正在加载",this);
+        MyUtil.showDialog(getResources().getString(R.string.loading),this);
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
         String formatTime = MyUtil.getSpecialFormatTime("yyyy-MM",new Date());

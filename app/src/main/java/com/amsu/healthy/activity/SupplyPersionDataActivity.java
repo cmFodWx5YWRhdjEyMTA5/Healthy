@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,6 +81,8 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                startActivity(new Intent(SupplyPersionDataActivity.this,MainActivity.class));
+                MyUtil.destoryAllAvtivity();
                 finish();
             }
         });
@@ -194,9 +197,7 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
             Toast.makeText(this,"请输入地区", Toast.LENGTH_SHORT).show();
             return;
         }
-
         registerToDB();
-
     }
 
     private void chooseAreaDialog() {
@@ -453,12 +454,12 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
                     if (ret==0){
                         //个人资料完善成功
                         MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
-
                         MobclickAgent.onProfileSignIn(phone); //友盟登陆账号统计
 
                         birthday = year+"-"+month+"-"+day;
                         user.setBirthday(birthday);
                         MyUtil.saveUserToSP(user);
+                        MyUtil.destoryAllAvtivity();
                         startActivity(new Intent(SupplyPersionDataActivity.this,MainActivity.class));
                         finish();
                     }
@@ -473,6 +474,23 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
                 MyUtil.hideDialog(SupplyPersionDataActivity.this);
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
+
+
         });
+
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        startActivity(new Intent(SupplyPersionDataActivity.this,MainActivity.class));
+        MyUtil.destoryAllAvtivity();
+        finish();
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MyUtil.setDialogNull();
     }
 }

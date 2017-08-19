@@ -56,7 +56,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="心率监控"
+            android:text="@string/heart_rate_monitor"
             android:textSize="@dimen/x28"
             android:textColor="#a1a1a1"
             android:layout_marginLeft="@dimen/x64"

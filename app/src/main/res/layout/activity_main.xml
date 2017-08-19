@@ -37,7 +37,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="静态心电"
+                    android:text="@string/stationary_ecg"
                     android:layout_below="@+id/iv1"
                     android:layout_centerInParent="true"/>
             </RelativeLayout>
@@ -60,9 +60,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="运动模式"
+                    android:text="@string/active_mode"
                     android:layout_below="@+id/iv2"
-                    android:layout_centerInParent="true"/>
+                    android:layout_centerHorizontal="true" />
             </RelativeLayout>
         </LinearLayout>
 
@@ -90,7 +90,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="运动社区"
+                    android:text="@string/community"
                     android:layout_below="@+id/iv3"
                     android:layout_centerInParent="true"/>
             </RelativeLayout>
@@ -112,7 +112,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="我的"
+                    android:text="@string/my"
                     android:layout_below="@+id/iv4"
                     android:layout_centerInParent="true"/>
             </RelativeLayout>
@@ -128,7 +128,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="跑步"
+                android:text="@string/start"
                 android:textSize="@dimen/x48"
                 android:textColor="#1f1f1f"
                 android:layout_centerInParent="true"/>
@@ -204,7 +204,7 @@
                 android:id="@+id/tv_text1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="生理年龄"
+                android:text="@string/age"
                 android:textSize="@dimen/x36"
                 android:textColor="#FFFFFF"
                 android:layout_centerInParent="true"/>
@@ -247,7 +247,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="健康指标"
+                android:text="@string/indicator"
                 android:textColor="#FEFEFE"
                 android:layout_below="@+id/tv_main_indexvalue"
                 android:layout_centerHorizontal="true"
@@ -280,7 +280,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="预警指标"
+                android:text="@string/warning"
                 android:textColor="#FEFEFE"
                 android:layout_below="@+id/tv_main_warring"
                 android:layout_centerHorizontal="true"

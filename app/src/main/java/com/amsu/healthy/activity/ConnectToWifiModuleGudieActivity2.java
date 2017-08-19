@@ -38,7 +38,7 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("同步数据2/2");
+        setCenterText(getResources().getString(R.string.synced_data)+"2/2");
         setHeadBackgroudColor("#72D5F4");
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
@@ -55,14 +55,14 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
         final WifiInfo wifiinfo = mWifiManage.getConnectionInfo();
         Log.i(TAG,"wifiinfo:"+wifiinfo);
         Log.i(TAG,"wifiinfo.getSSID():"+wifiinfo.getSSID());  //  "ESP8266"
-        if (wifiinfo!=null && (("\""+DeviceOffLineFileUtil.HOST_SPOT_SSID+"\"").equals(wifiinfo.getSSID()) || "\"Amsu\"".equals(wifiinfo.getSSID()))){
+        if (wifiinfo!=null && (("\""+DeviceOffLineFileUtil.HOST_SPOT_SSID+"\"").equals(wifiinfo.getSSID()) || "\"ESP8266\"".equals(wifiinfo.getSSID()))){
             Log.i(TAG,"WiFi已连接");
-            MyUtil.showToask(this,"WiFi已连接");
-            MyUtil.showDialog("WiFi已连接，正在创建socket连接",this);
+            MyUtil.showToask(this,getResources().getString(R.string.connectted_socket_dialog));
+            MyUtil.showDialog(getResources().getString(R.string.connectted_socket_dialog),this);
             loopCreateSocketConnect();
         }
         else {
-            MyUtil.showDialog("正在连接WiFi，请稍等",this);
+            MyUtil.showDialog(getResources().getString(R.string.connectting_wifi_dialog),this);
             final WifiAutoConnectManager wifiAutoConnectManager = new WifiAutoConnectManager(this,mWifiManage);
             wifiAutoConnectManager.setConnectStateResultChanged(new WifiAutoConnectManager.ConnectStateResultChanged() {
                 @Override
@@ -71,13 +71,13 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
                     Log.i(TAG,"isConnected:"+isConnected);
                     if (isConnected){
                         Log.i(TAG,"WiFi连接成功:");
-                        MyUtil.showDialog("WiFi已连接，正在创建socket连接",ConnectToWifiModuleGudieActivity2.this);
+                        MyUtil.showDialog(getResources().getString(R.string.connectted_socket_dialog),ConnectToWifiModuleGudieActivity2.this);
                         loopCreateSocketConnect();
                     }
                     else {
                         Log.i(TAG,"WiFi连接失败:");
                         //连接失败
-                        MyUtil.showToask(ConnectToWifiModuleGudieActivity2.this,"WiFi连接失败，请点击重连");
+                        MyUtil.showToask(ConnectToWifiModuleGudieActivity2.this,getResources().getString(R.string.connectting_wifi_fail));
                     }
                 }
             });

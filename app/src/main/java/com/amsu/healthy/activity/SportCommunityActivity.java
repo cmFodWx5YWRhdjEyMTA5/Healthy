@@ -40,7 +40,7 @@ public class SportCommunityActivity extends BaseActivity {
         initHeadView();
         setHeadBackgroudColor("#60afe7");
         setLeftImage(R.drawable.back_icon);
-        setCenterText("运动社区");
+        setCenterText(getResources().getString(R.string.community));
 
         vp_sport_content = (ViewPager) findViewById(R.id.vp_sport_content);
         v_sport_select = findViewById(R.id.v_sport_select);

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#FFFFFF"
-    tools:context="com.amsu.healthy.activity.insole.PrepareRunningActivity">
+    tools:context="com.amsu.healthy.activity.PrepareRunningActivity">
 
     <include layout="@layout/page_head"
         android:id="@+id/rl_base_head">
@@ -18,13 +18,44 @@
         android:layout_height="@dimen/y950"></android.support.v4.view.ViewPager>
 
 
-    <ImageView
+    <!--<ImageView
         android:layout_width="@dimen/x340"
         android:layout_height="@dimen/x340"
         android:layout_marginTop="@dimen/x240"
         android:src="@drawable/kaishianniu"
         android:onClick="goStartRun"
-        android:layout_gravity="center_horizontal"/>
+        android:layout_gravity="center_horizontal"/>-->
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x240">
+
+        <ImageView
+            android:id="@+id/iv_choose_online"
+            android:layout_width="@dimen/x296"
+            android:layout_height="@dimen/x296"
+            android:onClick="goStartRun"
+            android:src="@drawable/kaishipaobu"
+            android:layout_centerInParent="true"/>
+
+        <Button
+            android:id="@+id/bt_choose_offline"
+            android:layout_width="@dimen/x160"
+            android:layout_height="@dimen/x160"
+            android:text="离线跑"
+            android:textColor="#666666"
+            android:onClick="goStartOffLineRun"
+            android:layout_toRightOf="@+id/iv_choose_online"
+            android:layout_marginLeft="@dimen/x110"
+            android:textSize="@dimen/x32"
+            android:background="@drawable/bg_icon_press_oofline"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:visibility="gone"/>
+    </RelativeLayout>
+
+
 
 
 </LinearLayout>

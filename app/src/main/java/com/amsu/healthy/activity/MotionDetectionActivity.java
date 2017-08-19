@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 
@@ -36,7 +37,7 @@ public class MotionDetectionActivity extends BaseActivity implements View.OnClic
 
     private void initView() {
         initHeadView();
-        setCenterText("运动模式");
+        setCenterText(getResources().getString(R.string.active_mode));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,13 +55,9 @@ public class MotionDetectionActivity extends BaseActivity implements View.OnClic
         rl_dection_cloth.setOnClickListener(this);
         rl_dection_insole.setOnClickListener(this);
 
-        int type = MyUtil.getIntValueFromSP(Constant.sportType);
-        Log.i(TAG,"type:"+type);
 
-        if (type!=-1){
-            switchSelectedState(type);
+        switchSelectedState(MyApplication.deivceType);
 
-        }
     }
 
    /* public void defaultOnclick(View view) {
@@ -101,19 +98,20 @@ public class MotionDetectionActivity extends BaseActivity implements View.OnClic
             case Constant.sportType_Cloth:
                 iv_detction_cloth.setBackgroundResource(R.drawable.bg_center_circle);
                 iv_detction_insole1.setBackgroundResource(R.drawable.bg_sport_type);
-                if (mSportType!=-1){
+                /*if (mSportType!=-1){
                     MyUtil.showToask(this,"衣服切换成功");
-                }
+                }*/
                 break;
             case Constant.sportType_Insole:
                 iv_detction_cloth.setBackgroundResource(R.drawable.bg_sport_type);
                 iv_detction_insole1.setBackgroundResource(R.drawable.bg_center_circle);
-                if (mSportType!=-1){
+                /*if (mSportType!=-1){
                     MyUtil.showToask(this,"鞋垫切换成功");
-                }
+                }*/
                 break;
         }
         mSportType = type;
         MyUtil.putIntValueFromSP(Constant.sportType,mSportType);
+        MyApplication.deivceType = mSportType;
     }
 }

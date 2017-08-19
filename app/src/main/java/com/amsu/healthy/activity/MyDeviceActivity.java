@@ -53,7 +53,7 @@ public class MyDeviceActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("我的设备");
+        setCenterText(getResources().getString(R.string.my_devices));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,7 +61,6 @@ public class MyDeviceActivity extends BaseActivity {
                 finish();
             }
         });
-
 
         deviceList = new ArrayList<>();
         lv_device_devicelist = (ListView) findViewById(R.id.lv_device_devicelist);
@@ -80,14 +79,17 @@ public class MyDeviceActivity extends BaseActivity {
         tempDeviceList.setDeviceList(this.deviceList);
         MyUtil.putDeviceListToSP(tempDeviceList);*/
 
-        Device deviceFromSP = MyUtil.getDeviceFromSP();
-        Device deviceClothFromSP = MyUtil.getDeviceFromSP(2);
+        Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
+        Device deviceClothFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
         if (deviceFromSP!=null){
             deviceList.add(deviceFromSP);
         }
         if (deviceClothFromSP!=null){
             deviceList.add(deviceClothFromSP);
         }
+
+        Log.i(TAG,"deviceFromSP:"+deviceFromSP);
+        Log.i(TAG,"deviceClothFromSP:"+deviceClothFromSP);
 
         /*List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
         if (deviceListFromSP!=null){
@@ -123,31 +125,28 @@ public class MyDeviceActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 final Device device = deviceList.get(position);
-                if (device.getLEName().startsWith("BLE")){
+                Log.i(TAG,"device:"+device);
+
+                if (device.getDeviceType()==Constant.sportType_Cloth){
                     Device deviceFromSP = MyUtil.getDeviceFromSP();
                     if (deviceFromSP == null ){
-                        //切换当前设备
-                        //MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,device.getMac());
-                        if(device.getState().equals("点击绑定")){
-                            bingDeviceToServer(device,position,false);
+                        //没有绑定过，直接绑定
+                        if(device.getState().equals(getResources().getString(R.string.click_bind))){
+                            bingDeviceToServer(device,position,false,Constant.sportType_Cloth);
                         }
-                    /*MyUtil.saveUserToSP(device);
-                    MyUtil.showToask(MyDeviceActivity.this,"已激活设备");
-                    deviceAdapter.notifyDataSetChanged();*/
                     }
                     else if (!device.getMac().equals(deviceFromSP.getMac())){
-                        if(device.getState().equals("点击绑定")){
-
+                        //有绑定过，点击的不是绑定过的那个（切换）
+                        if(device.getState().equals(getResources().getString(R.string.click_bind))){
                             AlertDialog alertDialog = new AlertDialog.Builder(MyDeviceActivity.this)
-
-                                    .setTitle("您已经绑定过其他设备，确定要切换其他设备吗？")
-                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                    .setTitle(getResources().getString(R.string.sure_you_want_to_switch))
+                                    .setPositiveButton(getResources().getString(R.string.exit_confirm), new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            bingDeviceToServer(device,position,true);
+                                            bingDeviceToServer(device,position,true,Constant.sportType_Cloth);
                                         }
                                     })
-                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                    .setNegativeButton(getResources().getString(R.string.exit_cancel), new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
 
@@ -156,10 +155,10 @@ public class MyDeviceActivity extends BaseActivity {
                                     .create();
                             alertDialog.setCanceledOnTouchOutside(false);
                             alertDialog.show();
-
                         }
                     }
                     else {
+                        //点击的是绑定过的那个，跳到详情页
                         new Thread(){
                             @Override
                             public void run() {
@@ -177,12 +176,42 @@ public class MyDeviceActivity extends BaseActivity {
                         startActivityForResult(new Intent(MyDeviceActivity.this,DeviceInfoActivity.class),201);
                     }
                 }
-                else if (device.getName().equals("鞋垫")){
+                else if (device.getDeviceType()==Constant.sportType_Insole){
                     //需要绑定到服务器
                     //这里现在本地缓存
 
-                    MyUtil.saveDeviceToSP(device,2);
+                    Device deviceClothFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
+                    if (deviceClothFromSP==null){
+                        if(device.getState().equals(getResources().getString(R.string.click_bind))){
+                            bingDeviceToServer(device,position,false,Constant.sportType_Insole);
+                        }
+                    }
+                    else if (!device.getMac().equals(deviceClothFromSP.getMac())){
+                        if(device.getState().equals(getResources().getString(R.string.click_bind))){
+                            AlertDialog alertDialog = new AlertDialog.Builder(MyDeviceActivity.this)
+                                    .setTitle("您已经绑定过鞋垫，确定要切换吗？")
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            bingDeviceToServer(device,position,true,Constant.sportType_Insole);
+                                        }
+                                    })
+                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
 
+                                        }
+                                    })
+                                    .create();
+                            alertDialog.setCanceledOnTouchOutside(false);
+                            alertDialog.show();
+                        }
+                    }
+                    else {
+                        Intent intent = new Intent(MyDeviceActivity.this, DeviceInfoActivity.class);
+                        intent.putExtra(Constant.sportState,Constant.sportType_Insole);
+                        startActivityForResult(intent,201);
+                    }
                 }
 
             }
@@ -190,6 +219,8 @@ public class MyDeviceActivity extends BaseActivity {
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
     }
+
+
     private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -198,37 +229,71 @@ public class MyDeviceActivity extends BaseActivity {
             TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);
             switch (intent.getAction()){
                 case LeProxy.ACTION_GATT_CONNECTED:// 接收到从机数据
-                    Log.i(TAG,"设备连接");
-                    tv_item_state.setText("已连接");
-                    tv_item_state.setTextColor(Color.parseColor("#43CD80"));
+
+                    if (MyApplication.deivceType==Constant.sportType_Cloth || CommunicateToBleService.mInsoleConnectedCount==2){
+                        Log.i(TAG,"设备连接");
+                        if (MyApplication.deivceType==Constant.sportType_Cloth){
+                            Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
+                            if (deviceFromSP!=null && deviceFromSP.getMac().equals(deviceList.get(mBndDevicePostion).getMac())){
+                                tv_item_state.setText(getResources().getString(R.string.connected));
+                                tv_item_state.setTextColor(Color.parseColor("#43CD80"));
+                            }
+                        }
+                        else {
+                            tv_item_state.setText(getResources().getString(R.string.connected));
+                            tv_item_state.setTextColor(Color.parseColor("#43CD80"));
+                        }
+
+
+                    }
                     break;
                 case LeProxy.ACTION_GATT_DISCONNECTED:
                     Log.w(TAG,"已断开 ");
-                    tv_item_state.setText("未连接");
+                    tv_item_state.setText(getResources().getString(R.string.unconnected));
                     tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
                     break;
                 case LeProxy.ACTION_CONNECT_ERROR:
                     Log.w(TAG,"连接异常 ");
-                    tv_item_state.setText("未连接");
+                    tv_item_state.setText(getResources().getString(R.string.unconnected));
                     tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
                     break;
                 case LeProxy.ACTION_CONNECT_TIMEOUT:
-                    tv_item_state.setText("未连接");
+                    tv_item_state.setText(getResources().getString(R.string.unconnected));
                     tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
                     break;
             }
         }
     };
 
-    private void bingDeviceToServer(final Device device, final int position, final boolean iSNeedUnbind) {
+    private void bingDeviceToServer(final Device device, final int position, final boolean iSNeedUnbind, final int deviceType) {
+        Log.i(TAG,"绑定：device "+device.toString());
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
-
-        params.addBodyParameter("deviceMAC",device.getLEName());
         MyUtil.addCookieForHttp(params);
-        MyUtil.showDialog("正在绑定",this);
 
-        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.bindingDeviceURL, params, new RequestCallBack<String>() {
+
+        String url = null;
+
+        if (deviceType==Constant.sportType_Cloth){
+            url = Constant.bindingDeviceURL;
+            params.addBodyParameter("deviceMAC",device.getLEName());
+            MyUtil.showDialog(getResources().getString(R.string.The_clothe_is_binding),this);
+        }
+        else if (deviceType==Constant.sportType_Insole){
+            url = Constant.bindDeviceInsoleUrl;
+            String[] split = device.getMac().split(",");
+            if (split!=null && split.length==2){
+                params.addBodyParameter("leftDeviceMAC",split[0]);
+                params.addBodyParameter("rightDeviceMAC",split[1]);
+                MyUtil.showDialog("鞋垫正在绑定",this);
+            }
+            else {
+                MyUtil.showToask(this,"设备mac地址错误");
+                return;
+            }
+        }
+
+        httpUtils.send(HttpRequest.HttpMethod.POST, url, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 MyUtil.hideDialog(MyDeviceActivity.this);
@@ -246,7 +311,7 @@ public class MyDeviceActivity extends BaseActivity {
                 AlertDialog alertDialog = new AlertDialog.Builder(MyDeviceActivity.this)
 
                         .setTitle(restult)
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(getResources().getString(R.string.exit_confirm), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
@@ -258,21 +323,31 @@ public class MyDeviceActivity extends BaseActivity {
 
                 if (jsonBase.getRet() == 0){
                     //绑定成功
-                    device.setState("未连接");
-                    MyUtil.saveDeviceToSP(device);
-                    TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(position).findViewById(R.id.tv_item_state);
-                    tv_item_state.setText("已绑定");
+                    if (deviceType==Constant.sportType_Cloth){
+                        device.setState(getResources().getString(R.string.unconnected));
+                        MyUtil.saveDeviceToSP(device,Constant.sportType_Cloth);
+                        TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(position).findViewById(R.id.tv_item_state);
+                        tv_item_state.setText(getResources().getString(R.string.bound));
 
-                    if (iSNeedUnbind){
-                        if (MyApplication.isHaveDeviceConnectted){
-                            //断开蓝牙连接
-                            CommunicateToBleService.mLeProxy.disconnect(MyApplication.clothConnectedMacAddress);
+                        if (iSNeedUnbind){
+                            if (MyApplication.isHaveDeviceConnectted){
+                                //断开蓝牙连接
+                                CommunicateToBleService.mLeProxy.disconnect(MyApplication.clothConnectedMacAddress);
 
-                            deviceList.get(mBndDevicePostion).setState("点击绑定");
-                            TextView tv_item_state1 = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);
-                            tv_item_state1.setText("点击绑定");
-                            tv_item_state1.setTextColor(Color.parseColor("#c7c7cc"));
+                                deviceList.get(mBndDevicePostion).setState(getResources().getString(R.string.click_bind));
+                                TextView tv_item_state1 = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);
+                                tv_item_state1.setText(getResources().getString(R.string.click_bind));
+                                tv_item_state1.setTextColor(Color.parseColor("#c7c7cc"));
+                            }
                         }
+                    }
+                    else if (deviceType==Constant.sportType_Insole){
+                        device.setState(getResources().getString(R.string.unconnected));
+
+                        //device.setDeviceType(Constant.sportType_Insole);
+                        MyUtil.saveDeviceToSP(device,Constant.sportType_Insole);
+                        TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(position).findViewById(R.id.tv_item_state);
+                        tv_item_state.setText(getResources().getString(R.string.bound));
                     }
                     mBndDevicePostion = position;
                 }
@@ -303,11 +378,8 @@ public class MyDeviceActivity extends BaseActivity {
                 Device tempDevice = null;
                 for (Device device:searchDeviceLists){
                     Log.i(TAG,"device:"+device.toString());
-                    if (device.getLEName().startsWith("BLE")){
-                        device.setState("点击绑定");
-                        deviceList.add(device);
-                    }
-                    else if (device.getLEName().startsWith("AMSU_P")){
+
+                    if (device.getDeviceType()==Constant.sportType_Insole){
                         count++;
                         if (count==1){
                             tempDevice = device;
@@ -318,7 +390,8 @@ public class MyDeviceActivity extends BaseActivity {
                                 device.setLEName(":左脚("+tempDevice.getMac().substring(tempDevice.getMac().length()-2)+
                                         ")+右脚("+device.getMac().substring(device.getMac().length()-2)+")");
                                 device.setMac(tempDevice.getMac()+","+device.getMac());
-                                device.setState("点击绑定");
+                                device.setState(getResources().getString(R.string.click_bind));
+                                //device.setDeviceType(Constant.sportType_Insole);
                                 Log.i(TAG,"添加一双鞋垫："+device.toString());
                                 deviceList.add(device);
                                 tempDevice = null;
@@ -326,23 +399,50 @@ public class MyDeviceActivity extends BaseActivity {
                             }
                         }
                     }
+                    else  if (device.getDeviceType()==Constant.sportType_Cloth){  //衣服有BLE、AMSU开头的
+                        device.setState(getResources().getString(R.string.click_bind));
+                        //device.setDeviceType(Constant.sportType_Cloth);
+                        deviceList.add(device);
+                    }
                 }
             }
             else {
                 //没有搜索到设备
             }
 
-            if (MyApplication.isHaveDeviceConnectted){
-                Device deviceFromSP = MyUtil.getDeviceFromSP();
-                if (deviceFromSP!=null){
-                    deviceList.add(deviceFromSP);
-                    for (int i=0;i<deviceList.size();i++){
-                        if (deviceList.get(i).getLEName().equals(deviceFromSP.getLEName())){
-                            mBndDevicePostion = i;
-                        }
+            Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
+            if (deviceFromSP!=null){
+                boolean isNeedAdd = true;
+                for (int i=0;i<deviceList.size();i++){
+                    if (deviceList.get(i).getLEName().equals(deviceFromSP.getLEName())){
+                        mBndDevicePostion = i;
+                        isNeedAdd =  false;
+                        break;
                     }
                 }
+
+                if (isNeedAdd && MyApplication.isHaveDeviceConnectted){
+                    deviceList.add(deviceFromSP);
+                    mBndDevicePostion = deviceList.size()-1;
+                }
             }
+
+            /*if (MyApplication.isHaveDeviceConnectted){
+                if (deviceFromSP!=null){
+                    boolean isNeedAdd = true;
+                    for (int i=0;i<deviceList.size();i++){
+                        if (deviceList.get(i).getLEName().equals(deviceFromSP.getLEName())){
+                            isNeedAdd =  false;
+                            break;
+                        }
+                    }
+                    if (isNeedAdd){
+                        deviceList.add(deviceFromSP);
+                    }
+                }
+            }*/
+
+
             deviceAdapter.notifyDataSetChanged();
         }
         else if (requestCode==201 &  resultCode==RESULT_OK ){
@@ -355,9 +455,9 @@ public class MyDeviceActivity extends BaseActivity {
             /*deviceList.get(mBndDevicePostion).setState("点击绑定");
             deviceAdapter.notifyDataSetChanged();*/
 
-            deviceList.get(mBndDevicePostion).setState("点击绑定");
+            deviceList.get(mBndDevicePostion).setState(getResources().getString(R.string.click_bind));
             TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);
-            tv_item_state.setText("点击绑定");
+            tv_item_state.setText(getResources().getString(R.string.click_bind));
             tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
         }
 

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.DeviceList;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 
@@ -50,7 +51,6 @@ public class SearchDevicehActivity extends BaseActivity {
         //deviceListFromSP = MyUtil.getDeviceListFromSP();
         searchDeviceList = new ArrayList<>();
         mDeviceFromSP = MyUtil.getDeviceFromSP();
-
 
         ImageView iv_heartrate_rotateimage = (ImageView) findViewById(R.id.iv_heartrate_rotateimage);
         tv_search_state = (TextView) findViewById(R.id.tv_search_state);
@@ -130,7 +130,7 @@ public class SearchDevicehActivity extends BaseActivity {
             else {
                 //有新设备
                 Log.i(TAG,"添加新设备成功");
-                MyUtil.showToask(SearchDevicehActivity.this,"发现多个设备,点击设置需要运行的设备");
+                //MyUtil.showToask(SearchDevicehActivity.this,"发现多个设备,点击设置需要运行的设备");
             }
 
             mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
@@ -237,7 +237,7 @@ public class SearchDevicehActivity extends BaseActivity {
                         }
                     }
                     if (!isAdded){
-                        int currentIndex = deviceListFromSP.get(deviceListFromSP.size() - 1).getIndex()+1;
+                        int currentIndex = deviceListFromSP.get(deviceListFromSP.size() - 1).getDeviceType()+1;
                         deviceListFromSP.add(new Device("智能运动衣"+currentIndex,"",device.getAddress(), leName,currentIndex));
                         DeviceList deviceList = new DeviceList();
                         deviceList.setDeviceList(deviceListFromSP);
@@ -264,10 +264,10 @@ public class SearchDevicehActivity extends BaseActivity {
                 if (isAddToList){
                     if (leName.startsWith("AMSU_P")){
                         //鞋垫
-                        searchDeviceList.add(new Device("鞋垫","",device.getAddress(), leName,1));
+                        searchDeviceList.add(new Device(getResources().getString(R.string.insole),"",device.getAddress(), leName, Constant.sportType_Insole));
                     }
                     else {
-                        searchDeviceList.add(new Device("运动衣","",device.getAddress(), leName,1));
+                        searchDeviceList.add(new Device(getResources().getString(R.string.sportswear),"",device.getAddress(), leName,Constant.sportType_Cloth));
                     }
                 }
                 if (timeTask10ScendOver){
@@ -276,7 +276,6 @@ public class SearchDevicehActivity extends BaseActivity {
             }
         }
     };
-
 
     public void stopsearch(View view) {
         scanTimeOver();

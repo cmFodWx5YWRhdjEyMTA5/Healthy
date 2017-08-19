@@ -30,7 +30,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="衣服"
+                android:text="@string/running_type"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true" />
         </RelativeLayout>
@@ -46,14 +46,14 @@
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/yq_wxz"
+                android:src="@drawable/ydms_bt"
                 android:background="@drawable/bg_sport_type"
                 android:padding="@dimen/x50"
                 android:layout_centerHorizontal="true"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="鞋垫"
+                android:text="@string/walking"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true" />
         </RelativeLayout>
@@ -67,14 +67,14 @@
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/yifu"
+                android:src="@drawable/ydms_qx"
                 android:background="@drawable/bg_sport_type"
                 android:padding="@dimen/x50"
                 android:layout_centerHorizontal="true"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="骑行"
+                android:text="@string/cycling"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true" />
         </RelativeLayout>
@@ -91,14 +91,14 @@
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/yifu"
+                android:src="@drawable/ydms_js"
                 android:background="@drawable/bg_sport_type"
                 android:padding="@dimen/x50"
                 android:layout_centerHorizontal="true"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="健身"
+                android:text="@string/gym"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true" />
         </RelativeLayout>
@@ -113,14 +113,14 @@
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/yifu"
+                android:src="@drawable/ydms_yy"
                 android:background="@drawable/bg_sport_type"
                 android:padding="@dimen/x50"
                 android:layout_centerHorizontal="true"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="游泳"
+                android:text="@string/swimming"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true" />
         </RelativeLayout>

@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BodyListener</string>
+    <string name="indicator">Indicator</string>
+    <string name="warning">Warning</string>
+    <string name="stationary_ecg">Stationary ECG</string>
+    <string name="active_mode">Active mode</string>
+    <string name="community">Community</string>
+    <string name="my">My</string>
+    <string name="age">Age</string>
+    <string name="start">Start</string>
+
+
+    <string name="my_history">My history</string>
+    <string name="my_report_plan">My report</string>
+    <string name="health_plan">Health plan</string>
+    <string name="following">Following</string>
+    <string name="emergency_help">Emergency help</string>
+    <string name="settings">Settings</string>
+
+    <string name="login">Login</string>
+    <string name="verification_Code">Verification Code</string>
+    <string name="user_agreement">User agreement</string>
+    <string name="agree">agree</string>
+    <string name="enter_cell_phone_number">Enter cell phone number</string>
+    <string name="input_validation_code">Input validation code</string>
+    <string name="code">code</string>
+    <string name="non_consent_logon_protocol">Non consent logon protocol</string>
+    <string name="getting_validation_code">Getting validation code...</string>
+    <string name="verify_code_sent_successfully">Verify code sent successfully</string>
+    <string name="login_successful_synchronizing_data">Login successful. Synchronizing data</string>
+    <string name="login_was_successful">login was successful</string>
+    <string name="now_improve_data">Now go and improve the data?</string>
+    <string name="network_exception">Network exception, please check if the network is open</string>
+
+    <string name="complete">complete</string>
+    <string name="Enter_nickname">Enter nickname</string>
+    <string name="Choose_birthday">Choose birthday</string>
+    <string name="Choose_sex">Choose sex</string>
+    <string name="Choose_weight">Choose weight</string>
+    <string name="Choose_height">Choose height</string>
+    <string name="Choose_address">Choose address</string>
+
+    <string name="querying">Querying</string>
+    <string name="active">active</string>
+    <string name="rest">rest</string>
+    <string name="analysised">analysised</string>
+    <string name="not_synchronized">Not synchronized</string>
+    <string name="synced_data">Synced data</string>
+    <string name="charging">Charging</string>
+    <string name="connected_guide1">Connect device to the bottom of the charging station</string>
+    <string name="connecteto_wifi">Connect to WiFi</string>
+    <string name="connecteto_wifi_name">WiFi Name:Amsu</string>
+    <string name="connecteto_wifi_password">WiFi Password:0123456789</string>
+    <string name="next_step">next step</string>
+    <string name="connect_immediately">Connect immediately</string>
+    <string name="connectting_wifi_dialog">Connectting to wifi ,please waiting</string>
+    <string name="connectting_wifi_fail">WiFi connection failed. Please try again</string>
+    <string name="connectted_socket_dialog">wifi connected ,Connecting socket now</string>
+    <string name="connected_check_offline_files">Check offline files</string>
+    <string name="connected_synced_offline_files">Synced offline files</string>
+    <string name="exit_sure_offline_files">There are also offline data to make sure you want to quit</string>
+    <string name="exit_confirm">ok</string>
+    <string name="exit_cancel">cancel</string>
+    <string name="choose_sport_state">choose sport state</string>
+    <string name="insufficient_to_analyze">The data is insufficient to analyze</string>
+
+
+    <string name="exercise_analyze">Exercise</string>
+    <string name="hrv_analyze">HRV</string>
+    <string name="hr_analyze">HR</string>
+    <string name="ecg_analyze">ECG</string>
+    <string name="hrr_analyze">HRR</string>
+
+    <string name="distance">distance</string>
+    <string name="exercise_distance">distance(KM)</string>
+    <string name="exercise_time">time</string>
+    <string name="exercise_heart_rate">heart rate</string>
+    <string name="exercise_heart_ecg">ECG</string>
+    <string name="exercise_pace">pace</string>
+    <string name="exercise_pace_unit">min/km</string>
+    <string name="exercise_speed">speed(min/km)</string>
+    <string name="exercise_calories">calories(Kcal)</string>
+    <string name="exercise_calorie">calories</string>
+    <string name="exercise_cadence">cadence</string>
+    <string name="exercise_cadence_curve">cadence curve</string>
+    <string name="exercise_steps_min">Cadence:steps/min</string>
+    <string name="steps_min">steps/min</string>
+    <string name="exercise_time_min">time:min</string>
+    <string name="exercise_calories_curve">calories curve</string>
+    <string name="exercise_calories_consumption">calories consumption:calories</string>
+    <string name="exercise_heart_rate_curve">heart rate curve</string>
+    <string name="exercise_heart_rate_beat">heart rate:beat/min</string>
+    <string name="exercise_speed_curve">speed curve</string>
+    <string name="exercise_speed_minkm">speed:min/km</string>
+    <string name="exercise_steps_cardio">cardio:degree of cardio</string>
+    <string name="exercise_cardio_curve">cardio curve</string>
+    <string name="exercise_cardio">cardio</string>
+    <string name="exercise_flat">flat</string>
+    <string name="exercise_oxygenated">oxygenated</string>
+    <string name="exercise_without_oxygen">without oxygen</string>
+    <string name="exercise_in_danger">in danger</string>
+
+    <string name="hrv_physical_fatigue">physical fatigue</string>
+    <string name="hrv_mental_fatigue">mental fatigue</string>
+    <string name="hrv_mode">mode</string>
+    <string name="health_advice">health advice</string>
+    <string name="data_is_insufficient">The data is insufficient to analyze the results</string>
+    <string name="data_is_nohrr">The heart rate is not recovered. Please press the acquisition button after the run</string>
+    <string name="data_is_noecg">There is no ECG data </string>
+
+    <string name="hr_max">max</string>
+    <string name="hr_average">average</string>
+
+
+    <string name="hrr_heart_rate_recovery">Heart rate recovery</string>
+    <string name="hrr_recovery_capability">The above value is your current heart rate recovery capability</string>
+
+    <string name="monthly_report">monthly</string>
+    <string name="quarterly_report">quarterly</string>
+    <string name="annual_report">annual</string>
+
+    <string name="monthly_rate_report">monthly heart rate report</string>
+    <string name="quarterly_rate_report">quarterly heart rate report</string>
+    <string name="annual_rate_report">annual heart rate report</string>
+    <string name="monthly_ecg_report">monthly ECG report</string>
+    <string name="quarterly_ecg_report">quarterly ECG report</string>
+    <string name="annual_ecg_report">annual ECG report</string>
+    <string name="monthly_hrr_report">monthly HRR report</string>
+    <string name="quarterly_hrr_report">quarterly HRR report</string>
+    <string name="annual_hrr_report">annual HRR report</string>
+
+
+    <string name="loading">Loading</string>
+
+    <string name="normal">normal</string>
+    <string name="abnormal">abnormal</string>
+    <string name="cardiac_leak">missed beat</string>
+    <string name="premature_beat">premature beat</string>
+
+    <string name="new_health_plan">New health plan</string>
+    <string name="enter_title">Enter title</string>
+    <string name="enter_content">Enter content</string>
+    <string name="choose_time">Choose time</string>
+    <string name="save">Save</string>
+    <string name="choose_data">Choose data</string>
+    <string name="Health_plan_details">Health plan details</string>
+    <string name="modify">Modify</string>
+
+
+    <string name="add_emergency_contact">Add emergency contact</string>
+    <string name="help_information">help information</string>
+    <string name="enter_help_information">Enter help information</string>
+    <string name="warn">warning</string>
+    <string name="no_help_information_set">No help information is set,Are you sure you want to quit?</string>
+
+
+    <string name="my_profile">My profile</string>
+    <string name="my_devices">My devices</string>
+    <string name="survey">Survey</string>
+    <string name="about_us">About us</string>
+    <string name="exit">Exit</string>
+    <string name="update">Update</string>
+    <string name="user_feedback">User feedback</string>
+
+    <string name="portrait">Portrait</string>
+    <string name="nick_name">Nick name</string>
+    <string name="birthday">Birthday </string>
+    <string name="gende">Gender</string>
+    <string name="weight">Weight</string>
+    <string name="height">Height</string>
+    <string name="rest_heart_rate">Rest heart rate</string>
+    <string name="address">Address</string>
+    <string name="phone">Phone</string>
+    <string name="email">Email</string>
+
+    <string name="select_from_album">Select from album </string>
+    <string name="take_a_picture">take a picture</string>
+    <string name="modify_nick_name">Modify nick name</string>
+    <string name="modify_gender">Modify gender</string>
+    <string name="modify_email">Modify email</string>
+    <string name="modify_phone">Modify phone</string>
+    <string name="modify_rest_heart">Modify rest heart rate</string>
+    <string name="choose_birthday">Choose birthday</string>
+    <string name="choose_weight">Choose Weight</string>
+    <string name="choose_height">Choose Height</string>
+    <string name="choose_address">Choose Address</string>
+    <string name="male">male</string>
+    <string name="female">female</string>
+
+    <string name="add_new_device">Add new device</string>
+    <string name="searching_for_new_device">Searching for new device</string>
+    <string name="device_close_to_your_cell">Please put the device close to your cell phone</string>
+    <string name="searching">Searching</string>
+    <string name="The_clothe_is_binding">The clothe is binding</string>
+    <string name="sure_you_want_to_switch">You have bound your clothes. Are you sure you want to switch them?</string>
+    <string name="click_bind">Click bind</string>
+    <string name="bound">Bound</string>
+    <string name="unbound">Unbound</string>
+    <string name="unconnected">Unconnected</string>
+    <string name="connected">connected</string>
+    <string name="device_information">Device information</string>
+    <string name="remaining_battery_power">remaining battery power</string>
+    <string name="device_name">Device name</string>
+    <string name="hardware_version">Hardware Version</string>
+    <string name="software_version">Software Version</string>
+    <string name="sportswear">Sportswear</string>
+    <string name="insole">Insole</string>
+    <string name="clothing_host_automatically_offline">Is the clothing host automatically offline</string>
+    <string name="clothing_host_automatically_offline_explain">When enabled, the host and APP Bluetooth are disconnected and are disconnected in 10 seconds, and the host enters offline mode. (you need to restart the host after modification.)</string>
+    <string name="sportswear_connection_successful">Sportswear connection successful</string>
+    <string name="insole_connection_successful">Insole connection successful</string>
+    <string name="sportswear_connection_disconnected">Sportswear connection disconnected</string>
+    <string name="insole_connection_disconnected">Insole connection disconnected</string>
+
+
+    <string name="checking_version_information">Checking version information</string>
+    <string name="this_latest_version">This is the latest version at this time</string>
+    <string name="update_now">update</string>
+    <string name="update_later">later</string>
+    <string name="find_new_version">Find new version</string>
+
+    <string name="company_info">Amsu (Shenzhen) new technology Corps was founded in 2015, focusing on using wearable technologies to track accurate health parameters. We aim to provide the best health monitoring and coaching with the best convenience and comfort.</string>
+    <string name="company_right">Amsu (Shenzhen) New Technology all right reserved</string>
+
+
+    <string name="motion_detection">Motion detection</string>
+    <string name="ecg_graph">ECG</string>
+    <string name="long_press_end">Long press end</string>
+    <string name="lock">Lock</string>
+    <string name="glide_to_unlock">Glide to unlock</string>
+    <string name="running">running</string>
+    <string name="motion_position">Motion position</string>
+
+
+    <string name="current_heart_rate">Current heart rate</string>
+    <string name="adjust">adjust</string>
+    <string name="analysis">analysis</string>
+    <string name="bunny_community">Bunny community</string>
+    <string name="bunny_community_decrible">aim to build the top of notch exercise community, and provide sports enthusiasts an exclusiveplatform for sharing ideas and meeting new friends</string>
+
+    <string name="running_type">running</string>
+    <string name="swimming">swimming</string>
+    <string name="cycling">cycling</string>
+    <string name="gym">gym</string>
+    <string name="walking">walking</string>
+
+    <string name="health_reserve">health reserve </string>
+    <string name="premature_beat_missed_beat">premature/miss beat</string>
+    <string name="too_fast_too_slow">too fast/slow</string>
+    <string name="indicator_for_resistance_to_fatigue">resistance to fatigue</string>
+    <string name="heart_rate_recovery">HR recovery</string>
+    <string name="heart_rate_reserve">HR reserve</string>
+    <string name="selected_time">selected time</string>
+    <string name="this_week">This week</string>
+    <string name="last_week">Last week</string>
+
+    <string name="degree_of_warning">Degree of warning</string>
+    <string name="heart_rate_too_slow">heart rate too slow</string>
+    <string name="heart_rate_too_fast">heart rate too fast</string>
+    <string name="data_source">data source</string>
+    <string name="look_more">more</string>
+    <string name="red_warning">red warning</string>
+    <string name="yellow_warning">yellow warning</string>
+    <string name="heart_rate_monitor">Heart rate monitor</string>
+    <string name="testing_ecg_quit">Testing ECG. Are you sure to quit?</string>
+    <string name="testing_runing_quit">Running. Are you sure to quit?</string>
+    <string name="process_of_analyzin">processing</string>
+    <string name="please_wait_a_moment">Please wait a moment</string>
+    <string name="being_processed">Being processed</string>
+
+    <string name="sending_text_messages">Sending text messages</string>
+    <string name="deleting">Deleting</string>
+    <string name="delete_successfully">Delete successfully</string>
+    <string name="delete_failed">Delete failed</string>
+    <string name="no_data">No data</string>
+    <string name="no_data_this_week">No data this week</string>
+
+    <string name="hrv_suggetstion_lev1">You have a lot of energy, but is very mentally fatigue. Please relax, take a break from work and do more exercise. </string>
+    <string name="hrv_suggetstion_lev2">You have a lot of energy, but is slightly mentally fatigue. Please start exercise more.  </string>
+    <string name="hrv_suggetstion_lev3">You have a well balance life with plenty of energy. Keep doing the good work. </string>
+    <string name="hrv_suggetstion_lev4">You are slightly physically tired, but you have a good mood. It is aa good time for you to explore more opportunities and find the right inspiration. </string>
+    <string name="hrv_suggetstion_lev5">You are physically exhausted, please don’t not over exhaust yourself. Take a break, do some stretch for the body to recover.  </string>
+    <string name="hrv_suggetstion_default">Error. Unable to get analysis results. </string>
+
+    <string name="HeartRate_suggetstion_fast">Heart rate too fast: for a healthy individual,stress and other factor could lead to fast heart rate. Please have enough rest, keep a happy mood, and consult to your doctor when it gets worse. </string>
+    <string name="HeartRate_suggetstion_slow">Heart rate too slow: it is normal for a healthy individual, but consult to your doctor if it gets worse. </string>
+    <string name="HeartRate_suggetstion_nodata">not enoughdata or bad connection with the device</string>
+    <string name="HeartRate_suggetstion_normal">normal heart rate</string>
+
+    <string name="premature_beat_times">Premature beat </string>
+    <string name="premature_beat_times_decrible"> times. Sometimes it is normal for a healthy individual to have premature beat. If it gets worse, consult your doctor. </string>
+    <string name="missed_beat_times">Missed beat </string>
+    <string name="missed_beat_times_decrible"> times. Sometimes it is normal for a healthy individual to have premature beat. If it gets worse, consult your doctor.</string>
+    <string name="abnormal_ecg">Abnormal ECG</string>
+
+    <string name="hrr_suggetstion_lev1">You are the best.</string>
+    <string name="hrr_suggetstion_lev2">You are doing very well, but need to keep with the same exercise schedule, otherwise, performance will go down. </string>
+    <string name="hrr_suggetstion_lev3">You are doing well, please keep the same exercise schedule, otherwise, other people will catch up with you. </string>
+    <string name="hrr_suggetstion_lev4">You are doing well, but need to keep the same exercise schedule in order to improve.</string>
+    <string name="hrr_suggetstion_lev5">You are above average, but need to keep exercise a habit to stay in shape. </string>
+    <string name="hrr_suggetstion_lev6">Your are about average, and there is room for improvement. Please exercise more.  </string>
+    <string name="hrr_suggetstion_lev7">Please add more cardio to start getting into shape. </string>
+    <string name="hrr_suggetstion_nodata">Heart recovery rate collection error or no data</string>
+
+    <string name="heart_rate_reserve_decrible">Heart rate reserve is the difference of maximum heart rate and resting heart rate, and it is closely related to the resistance during exercise. The higher the heart rate reserve, the better the resistance. </string>
+    <string name="heart_rate_recovery_decrible">heart rate recovery: after intense exercise, the decrease of heart rate in the next 3 minutes. In general, the healthier the individual, the larger the heart rate drop; the faster the heart rate drop, the better recovery of the individual for another intense training. Therefore, it is useful for assessing health. </string>
+    <string name="heart_rate_variability_decrible">heart rate variability can derive a lot of health indicators, one of the most used ones is physical fatigue index (SDNN) and mood and mental index (LF/HF). </string>
+    <string name="heart_rate_slow_fast_decrible">normal individual heart rate is 45–105 beat/min, heart rate too slow is less than 45; heart rate too fast is greater than 105 beat/min. </string>
+    <string name="premature_beat_missed_beat_decrible">Premature heartbeat is the most frequent arrhythmia, which is caused by an ectopic pacemaker. If there is a short shot, it is a leak, which is usually a combination of premature beat. Frequent premature beat will damage the function of the myocardium, induce myocardial ischemia, some premature beat can also induce ventricular tachycardia and fibrillation</string>
+    <string name="health_reserve_decrible">We use the time of exercise each week to assess your health reserve, and help you customizean exercise plan. We recommend 30 mins of cardio each day, 60 mins the best, and accumulatively 420 mins per week, but not exceeding 90 minutes per ay.</string>
+    <string name="health_BMI_decrible">(body mass index, referred to as BMI), is obtained by weight in kilograms divided by height in meters squared figure, is a commonly used measure body fat levels and whether the international health is one of the important standards. When we compare and analyze the health effects of a person\'s weight on people of different heights, the BMI value is a neutral and reliable indicator.</string>
+    <string name="heart_rate_indicator_decrible">We used captured ECG data and advanced data analysis to index heart rate reserve, heart rate recovery, fatigue indicator, abnormal heart rate, health reserved, etc. and the higher the index score, the healthier you are.</string>
+    <string name="points">points</string>
+
+    <string name="bmi_suggetstion_lev1">You are on the thinner side, and your BMI index is very low. Please add more nutrition to your diet and exercise to increase your weight in a healthier way.</string>
+    <string name="bmi_suggetstion_lev2">You are a little thin, and please consult with a nutritionist if you wish to improve.</string>
+    <string name="bmi_suggetstion_lev3">You are too thin, and please consult with a physician.</string>
+    <string name="bmi_suggetstion_lev4">You have a very satisfactory BMI. Keep it up!</string>
+    <string name="bmi_suggetstion_lev5">You BMI is slightly high, please refrain from taking fat in your diet and get better balanced diet. Exercise will also help.</string>
+    <string name="bmi_suggetstion_lev6">Your BMI is extremely high, please refrain from taking fat in your diet and actively engage in exercises. </string>
+    <string name="bmi_suggetstion_lev7">Your BMI is well above average, but it doesn’t matter as long as you keep a happy mood and actively participate in all kinds of exercises. </string>
+    <string name="bmi_suggetstion_lev8">Please increase your cardio to get into shape.</string>
+    <string name="bmi_suggetstion_lev9">Your current BMI is enviable. Keep doing the good job. </string>
+
+    <string name="reservehealth_suggetstion_lev1">You are the best. Keep up with the good work.</string>
+    <string name="reservehealth_suggetstion_lev2">You are very good. Please keep the training intensity and enjoy a healthy living.</string>
+    <string name="reservehealth_suggetstion_lev3">Excellent. Please keep the good job.</string>
+    <string name="reservehealth_suggetstion_lev4">You are outstanding, but there is room for improvement!</string>
+    <string name="reservehealth_suggetstion_lev5">Your health is above average, but need to keep exercising to stay in shape. </string>
+    <string name="reservehealth_suggetstion_lev6">Your health reserve is at an average level and there is still room for improvement! Let\'s improve our training!</string>
+    <string name="reservehealth_suggetstion_lev7">Don\'t let you look down, please increase the aerobic training, the road ahead will be long, I will seek! </string>
+
+    <string name="reserverate_suggetstion_lev1">You are the best. </string>
+    <string name="reserverate_suggetstion_lev2">You are doing very well, but need to keep with the same exercise schedule, otherwise, performance will go down.</string>
+    <string name="reserverate_suggetstion_lev3">You are doing well, but need to keep the same exercise schedule in order to improve.  </string>
+    <string name="reserverate_suggetstion_lev4">You are doing very well, but need to keep with the same exercise schedule, otherwise, performance will go down. </string>
+    <string name="reserverate_suggetstion_lev5">Your HRR is in average and there is still room for improvement! Please increase training intensity! </string>
+    <string name="reserverate_suggetstion_lev6">It seems that you cannot afford a modest increase in exposed to wind and rain, please aerobic training, improve the quality of the body is the most important </string>
+
+    <string name="rv_suggetstion_lev1">You are full of energy. The hardest exercise means nothing to you.</string>
+    <string name="rv_suggetstion_lev2">You are very well, and you can increase the intensity of your training.</string>
+    <string name="rv_suggetstion_lev3">There is room for improvement, and you can start with some light exercises.</string>
+    <string name="rv_suggetstion_lev4">You can start with some cardio and you will feel much better soon.</string>
+    <string name="rv_suggetstion_lev5">looks you are exhausted, please take a rest.</string>
+
+    <string name="over_slow_suggetstion_lev1">your heart rate is great, please keep exercising.</string>
+    <string name="over_slow_suggetstion_lev2">your heart rate is on the slow side. If you exercise often, the slow rate means you have very good heart function. </string>
+    <string name="over_slow_suggetstion_lev3">You have a tendency to slow your heart rate. It may be normal if you take regular high load exercise.</string>
+    <string name="over_slow_suggetstion_lev4">your heart rate is slightly high, please increase your cardio to improve your heart and lungs.</string>
+    <string name="over_slow_suggetstion_lev5">your heart rate is slow, but it is mostly normal. Please consult with your physician. </string>
+    <string name="over_slow_suggetstion_lev6">You have very high heart rate, please increase your exercise to improveyour heart and lungs.  </string>
+
+    <string name="sosreBeat_suggetstion_lev1">There is no evidence of premature heart beat. Your heart is great and please keep the current intensity. </string>
+    <string name="sosreBeat_suggetstion_lev2">There are 1–5 times of missed beat, no premature beat. It is likely that stress, cigarettes, alcohol, bad lifestyle, lack of sleep can lead to this condition. If it is very rare, please don’t worry and slightly slow down your exercise. </string>
+    <string name="sosreBeat_suggetstion_lev3">Found 1 times premature beat, 1-10 times the loss of stroke, the occasional premature beat can be seen in normal people, more frequent loss of Bo, if there is no such as dizziness, fatigue, fainting, and even angina feel, you do not need to worry too much. Aerobic exercises can be performed to improve cardiopulmonary function.</string>
+    <string name="sosreBeat_suggetstion_lev4">It is found that the continuous premature beat is 1-3 times, accompanied by 1-10 times of leakage stroke. Your heart function is not optimistic. It is recommended to have a detailed ECG examination in the hospital. Please pay attention to whether the heart feels uncomfortable or not. Moderate exercise, work and rest.</string>
+    <string name="sosreBeat_suggetstion_lev5">In the known test period, found more than 3 times of continuous premature beat, accompanied by leakage of 1-5 times, your heart has a pathological risk, I suggest you go to the hospital for detailed ECG examination as soon as possible. Exercise is risky. Please reduce the intensity of exercise!</string>
+
+    <string name="necessary_to_collect_recovery">Is it necessary to collect one minute of ECG data to calculate the recovery of heart rate?</string>
+
+    <string name="low_suggetstion_lev1">Your heart rate is very good, not too slow, please keep exercising.</string>
+    <string name="low_suggetstion_lev2">You have a heart rate low, bradycardia may. Suggest you go to the hospital to listen to the doctor\'s professional advice.</string>
+    <string name="low_suggetstion_lev3">You have a heart rate low phenomenon, may be due to illness or rational drug induced bradycardia. I hope you will go to the hospital for professional examination and diagnose and remove it as soon as possible.</string>
+
+    <string name="over_suggetstion_lev1">Your heart rate is very good. There is no excessive speed. Please keep exercising.</string>
+    <string name="over_suggetstion_lev2">You have a higher heart rate phenomenon, such as running, drinking, not because of the heavy physical labor and emotional lead rhythm accelerate, there may be tachycardia caused by disease, suggest to the hospital to listen to the doctor\'s professional advice</string>
+    <string name="over_suggetstion_lev3">You have a higher heart rate phenomenon, such as running, drinking, not because of the heavy physical labor and emotional lead rhythm accelerate, there may be tachycardia caused by disease, suggest to the hospital to listen to the doctor\'s professional advice.</string>
+
+    <string name="beforebeat_suggetstion_lev1">No premature beats are found. Your heart is excellent and can maintain the current training intensity.</string>
+    <string name="beforebeat_suggetstion_lev2">It is found that continuous premature beat 1-3 times, your heart function is not optimistic, it is recommended to go to the hospital for detailed ECG examination, please pay attention to whether the heart has any discomfort</string>
+    <string name="beforebeat_suggetstion_lev3">In the known test period, found that continuous premature beat more than 3 times, your heart has a pathological risk, suggest you go to the hospital as soon as possible for detailed ECG examination. Please pay attention to whether the heart feels uncomfortable or not.</string>
+
+    <string name="missbeat_suggetstion_lev1">There is no leakage. Your heart is excellent and can keep the current training intensity.</string>
+    <string name="missbeat_suggetstion_lev2">You have had a phenomenon of leakage, usually due to mental stress, excessive alcohol and tobacco, irregular life, lack of night rest and so on. If there is only a feeling of cardiac leakage, no other symptoms such as dizziness, fatigue, fainting or even angina pectoris, it is important to adjust the pace of life, maintain good habits, and do not have to worry too much.</string>
+
+
+
+
+
+</resources>

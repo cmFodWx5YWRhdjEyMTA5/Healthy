@@ -46,7 +46,7 @@ public class HealthyPlanActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("健康计划");
+        setCenterText(getResources().getString(R.string.health_plan));
         setLeftImage(R.drawable.back_icon);
         setRightImage(R.drawable.plan_calendar);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {

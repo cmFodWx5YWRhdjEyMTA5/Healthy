@@ -11,8 +11,10 @@ public class Device implements Parcelable {
     String state;
     String mac;
     String LEName;
-    int index;
+    int deviceType;
 
+    public Device() {
+    }
 
     public Device(String name, String state) {
         this.name = name;
@@ -27,12 +29,12 @@ public class Device implements Parcelable {
     }
 
 
-    public Device(String name, String state, String mac, String LEName, int index) {
+    public Device(String name, String state, String mac, String LEName, int deviceType) {
         this.name = name;
         this.state = state;
         this.mac = mac;
         this.LEName = LEName;
-        this.index = index;
+        this.deviceType = deviceType;
     }
 
     public String getName() {
@@ -70,7 +72,7 @@ public class Device implements Parcelable {
         dest.writeString(state);
         dest.writeString(mac);
         dest.writeString(LEName);
-        dest.writeInt(index);
+        dest.writeInt(deviceType);
     }
 
     public static final Creator<Device> CREATOR = new Creator<Device>() {
@@ -101,12 +103,12 @@ public class Device implements Parcelable {
         this.LEName = LEName;
     }
 
-    public int getIndex() {
-        return index;
+    public int getDeviceType() {
+        return deviceType;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
+    public void setDeviceType(int deviceType) {
+        this.deviceType = deviceType;
     }
 
 
@@ -117,7 +119,7 @@ public class Device implements Parcelable {
                 ", state='" + state + '\'' +
                 ", mac='" + mac + '\'' +
                 ", LEName='" + LEName + '\'' +
-                ", index=" + index +
+                ", deviceType=" + deviceType +
                 '}';
     }
 }

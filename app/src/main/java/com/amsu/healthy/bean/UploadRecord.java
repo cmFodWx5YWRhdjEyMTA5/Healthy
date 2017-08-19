@@ -10,9 +10,9 @@ import com.amsu.healthy.utils.Constant;
  */
 
 public class UploadRecord implements Parcelable,Cloneable {
-    public String FI;                      //疲劳指数(Fatigue index)
+    public String FI;                      //疲劳指数(Fatigue deviceType)
     public String ES;                      //	情绪状态(emotional state)
-    public String PI;         //压力指数(Pressure index)
+    public String PI;         //压力指数(Pressure deviceType)
     public String CC;       //抗压能力(Compressive capacity)
     public String HRVr;       //hrv分析结果(hrv result)
     public String HRVs;       //hrv健康建议(hrv suggest)
@@ -59,15 +59,15 @@ public class UploadRecord implements Parcelable,Cloneable {
         PI = Constant.uploadRecordDefaultString;
         CC = Constant.uploadRecordDefaultString;
         HRVr = Constant.uploadRecordDefaultString;
-        HRVs = Constant.uploadRecordDefaultString;
+        HRVs = "数据不足，无法得出分析结果";
         AHR = Constant.uploadRecordDefaultString;
         MaxHR = Constant.uploadRecordDefaultString;
         MinHR = Constant.uploadRecordDefaultString;
         HRr =Constant.uploadRecordDefaultString;
-        HRs ="心率健康建议";
+        HRs ="数据不足，无法得出分析结果";
         EC = Constant.uploadRecordDefaultString;
         ECr ="1";
-        ECs ="心电健康建议！";
+        ECs ="数据不足，无法得出分析结果";
         RA = Constant.uploadRecordDefaultString;
         timestamp =Constant.uploadRecordDefaultString;
         datatime = Constant.uploadRecordDefaultString;

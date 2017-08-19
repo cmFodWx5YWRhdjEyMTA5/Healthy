@@ -1,8 +1,13 @@
 package com.amsu.healthy.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -14,6 +19,8 @@ import com.amsu.healthy.utils.ApkUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.umeng.analytics.MobclickAgent;
+
+import java.util.Locale;
 
 public class SystemSettingActivity extends BaseActivity implements View.OnClickListener {
 
@@ -29,7 +36,7 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
 
     private void initView() {
         initHeadView();
-        setCenterText("系统设置");
+        setCenterText(getResources().getString(R.string.settings));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,6 +51,7 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         RelativeLayout rl_persiondata_aboutus = (RelativeLayout) findViewById(R.id.rl_persiondata_aboutus);
         RelativeLayout rl_persiondata_exit = (RelativeLayout) findViewById(R.id.rl_persiondata_exit);
         RelativeLayout rl_persiondata_questionnaire = (RelativeLayout) findViewById(R.id.rl_persiondata_questionnaire);
+        RelativeLayout rl_persiondata_Multilingual = (RelativeLayout) findViewById(R.id.rl_persiondata_Multilingual);
 
         rl_persiondata_persiondata.setOnClickListener(this);
         rl_persiondata_device.setOnClickListener(this);
@@ -51,6 +59,7 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         rl_persiondata_aboutus.setOnClickListener(this);
         rl_persiondata_exit.setOnClickListener(this);
         rl_persiondata_questionnaire.setOnClickListener(this);
+        rl_persiondata_Multilingual.setOnClickListener(this);
 
         if (!MyApplication.mActivities.contains(this)){
             MyApplication.mActivities.add(this);
@@ -76,11 +85,101 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
             case R.id.rl_persiondata_questionnaire:
                 startActivity(new Intent(SystemSettingActivity.this,QuestionnaireActivity.class));
                 break;
+            case R.id.rl_persiondata_Multilingual:
+                changeLanguage();
+                break;
             case R.id.rl_persiondata_exit:
                 exit();
                 break;
         }
     }
+
+    private void changeLanguage() {
+        /*final String[] items = {"中文","english"};
+        new AlertDialog.Builder(this)
+                .setTitle("选择")
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Resources resources = getResources();
+                        DisplayMetrics dm = resources.getDisplayMetrics();
+                        Configuration config = resources.getConfiguration();
+                        switch (which){
+                            case 0:
+                                // 应用用户选择语言
+                                config.locale = Locale.CHINESE;
+                                resources.updateConfiguration(config, dm);
+                                break;
+                            case 1:
+                                // 应用用户选择语言
+                                config.locale = Locale.ENGLISH;
+                                resources.updateConfiguration(config, dm);
+                                break;
+                        }
+                        MyUtil.showToask(SystemSettingActivity.this, "已切换为 "+items[which]);
+                    }
+                })
+                .show();*/
+
+        final String[] items = {"中文","english"};
+        new AlertDialog.Builder(this)
+                .setTitle("选择")
+                .setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        Resources resources = getResources();
+                        DisplayMetrics dm = resources.getDisplayMetrics();
+                        Configuration config = resources.getConfiguration();
+
+                        String saveLanguage = MyUtil.getStringValueFromSP("language");
+                        String defaultLanguage = Locale.getDefault().getLanguage();
+                        boolean isNeedChange = false;
+                        switch (which){
+                            case 0:
+                                // 应用用户选择语言
+                                if (defaultLanguage.equals(Locale.CHINESE.toString()) && (!MyUtil.isEmpty(saveLanguage) && !saveLanguage.equals(Locale.CHINESE.toString()))){
+                                    isNeedChange =true;
+                                }
+                                else if (!defaultLanguage.equals(Locale.CHINESE.toString()) && (!MyUtil.isEmpty(saveLanguage) || !saveLanguage.equals(Locale.CHINESE.toString()))){
+                                    isNeedChange =true;
+                                }
+
+                                if (isNeedChange){
+                                    config.locale = Locale.CHINESE;
+                                    MyUtil.putStringValueFromSP("language",Locale.CHINESE.toString());
+                                }
+
+                                break;
+                            case 1:
+                                // 应用用户选择语言
+                                if (defaultLanguage.equals(Locale.ENGLISH.toString()) && (!MyUtil.isEmpty(saveLanguage) && !saveLanguage.equals(Locale.ENGLISH.toString()))){
+                                    isNeedChange =true;
+                                }
+                                else if (!defaultLanguage.equals(Locale.ENGLISH.toString()) && (!MyUtil.isEmpty(saveLanguage) || !saveLanguage.equals(Locale.ENGLISH.toString()))){
+                                    isNeedChange =true;
+                                }
+
+                                if (isNeedChange){
+                                    config.locale = Locale.ENGLISH;
+                                    MyUtil.putStringValueFromSP("language",Locale.ENGLISH.toString());
+                                }
+                                break;
+                        }
+                        if (isNeedChange){
+                            resources.updateConfiguration(config, dm);
+                            MyUtil.showToask(SystemSettingActivity.this, "已切换为 "+items[which]);
+                            MyUtil.destoryAllAvtivity();
+                            Intent intent = new Intent(SystemSettingActivity.this, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+                })
+                .show();
+    }
+
 
     private void exit() {
         Log.i(TAG,"isLogin:"+ MyUtil.getBooleanValueFromSP("isLogin"));
@@ -103,9 +202,7 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         startActivity(new Intent(SystemSettingActivity.this,LoginActivity.class));
         MobclickAgent.onProfileSignOff();  ////友盟退出登陆账号统计
 
-        for (Activity activity: MyApplication.mActivities){
-            activity.finish();
-        }
+
         int healthyIindexvalue = MyUtil.getIntValueFromSP("healthyIindexvalue");
         int physicalAge = MyUtil.getIntValueFromSP("physicalAge");
 

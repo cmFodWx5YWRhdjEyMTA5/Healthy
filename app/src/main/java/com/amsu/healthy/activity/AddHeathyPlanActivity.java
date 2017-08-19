@@ -53,9 +53,9 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
 
     private void initView() {
         initHeadView();
-        setCenterText("新建健康计划");
+        setCenterText(getResources().getString(R.string.new_health_plan));
         setLeftImage(R.drawable.back_icon);
-        setRightText("保存");
+        setRightText(getResources().getString(R.string.save));
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

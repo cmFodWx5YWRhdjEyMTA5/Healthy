@@ -63,6 +63,8 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     private TextView tv_test;
     private final int insole_left = 1;
     private final int insole_right = 2;
+    private String mLeftMacAddress;
+    private String mRightMacAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,51 +122,67 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
 
         tv_test = (TextView) findViewById(R.id.tv_test);
+
+        String data  = "B7";
+        boolean send1 = LeProxy.getInstance().send(CommunicateToBleService.mInsole_connecMac1, Constant.insoleSerUuid, Constant.insoleCharUuid, data.getBytes(), false);
+        boolean send = LeProxy.getInstance().send(CommunicateToBleService.mInsole_connecMac2, Constant.insoleSerUuid, Constant.insoleCharUuid, data.getBytes(), false);
+        Log.i("30ScendCount","send1:"+send1+",send:"+send);
     }
 
     private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            String address = intent.getStringExtra(LeProxy.EXTRA_ADDRESS);
             switch (intent.getAction()){
                 case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
                     //if (!mIsRunning)return;
                     //byte[] data = intent.getByteArrayExtra(LeProxy.EXTRA_DATA);
-                    dealwithLebDataChange(DataUtil.byteArrayToHex(intent.getByteArrayExtra(LeProxy.EXTRA_DATA)));
+                    dealwithLebDataChange(DataUtil.byteArrayToHex(intent.getByteArrayExtra(LeProxy.EXTRA_DATA)),address);
                     break;
             }
         }
     };
 
-    private void dealwithLebDataChange(String hexData) {
+    private void dealwithLebDataChange(String hexData,String address) {
 
-        if (mCurrentTimeMillis==-1){
-            mCurrentTimeMillis = System.currentTimeMillis();
-        }
-        if (System.currentTimeMillis()-mCurrentTimeMillis>=1000*40){
-            //30s,上传到服务器分析
-            if (leftDataOutputStream!=null){
-                try {
-                    leftDataOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                leftDataOutputStream = null;
+        if (MyUtil.isEmpty(mLeftMacAddress) || MyUtil.isEmpty(mRightMacAddress)){
+            if (hexData.startsWith("AA 4C")){
+                //L 左脚
+                mLeftMacAddress = address;
             }
-            if (rightDataOutputStream!=null){
-                try {
-                    rightDataOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                rightDataOutputStream = null;
+            else if (hexData.startsWith("AA 52")) {
+                mRightMacAddress = address;
             }
-            mCurrentTimeMillis = System.currentTimeMillis();
-            commitToServerAnaly(mLeftInsole30SencendFileAbsolutePath,mRightInsole30SencendFileAbsolutePath);
-            mLeftReceivePackageCount=0;
-            mRightReceivePackageCount=0;
         }
 
         if (hexData.length()==53){  //AA 4C FF FF FF FF FF FE FF 1A FF D6 10 1A 85 09 D8 8D  长度为53
+            if (mCurrentTimeMillis==-1){
+                mCurrentTimeMillis = System.currentTimeMillis();
+            }
+            if (System.currentTimeMillis()-mCurrentTimeMillis>=1000*40){
+                //30s,上传到服务器分析
+                if (leftDataOutputStream!=null){
+                    try {
+                        leftDataOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    leftDataOutputStream = null;
+                }
+                if (rightDataOutputStream!=null){
+                    try {
+                        rightDataOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    rightDataOutputStream = null;
+                }
+                mCurrentTimeMillis = System.currentTimeMillis();
+                commitToServerAnaly(mLeftInsole30SencendFileAbsolutePath,mRightInsole30SencendFileAbsolutePath);
+                mLeftReceivePackageCount=0;
+                mRightReceivePackageCount=0;
+            }
+
             String[] split = hexData.split(" ");
             double time = Integer.parseInt(split[14]+split[15]+split[16], 16)*0.000025;
             //Log.i(TAG,"time:"+time);
@@ -197,7 +215,48 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 Log.i(TAG,"右脚 角速度："+gyrX+","+gyrY+","+gyrZ+",加速度:"+accX+","+accY+","+accZ);
             }
         }
+        else if (hexData.length()==5){
+            //鞋垫步数
+            String[] split = hexData.split(" ");
+            if (split.length==2){
+                String stepCountString = split[0]+split[1];
+
+                //Log.i("30ScendCount","步数 hexData:"+hexData);
+                int tempStepCount = Integer.parseInt(stepCountString, 16);
+                Log.i("30ScendCount","步数 "+address+", "+ tempStepCount);
+                Log.i("30ScendCount","步数 mPreLeftStepCount:"+mPreLeftStepCount+", mPreRightStepCount:"+mPreRightStepCount);
+
+                if (!MyUtil.isEmpty(mLeftMacAddress) && address.equals(mLeftMacAddress)){
+                    if (mPreLeftStepCount!=-1){
+                        mLeftStepCount = tempStepCount-mPreLeftStepCount;
+                    }
+                    mPreLeftStepCount = tempStepCount;
+                }
+                else if (!MyUtil.isEmpty(mRightMacAddress) && address.equals(mRightMacAddress)){
+                    if (mPreRightStepCount!=-1){
+                        mRightStepCount = tempStepCount-mPreRightStepCount;
+                    }
+                    mPreRightStepCount = tempStepCount;
+                }
+
+                //Log.i("30ScendCount","步数  左脚："+mLeftStepCount+",       右脚："+mRightStepCount+"\n");
+                if (mLeftStepCount!=-1 && mRightStepCount!=-1 ){
+                    testText += "步数  左脚："+mLeftStepCount+",       右脚："+mRightStepCount+"\n";
+                    tv_test.setText(testText);
+                    mLeftStepCount = mRightStepCount = -1;
+                }
+
+            }
+
+        }
+
     }
+
+    int mPreLeftStepCount = -1;
+    int mPreRightStepCount = -1;
+
+    int mLeftStepCount = -1;
+    int mRightStepCount = -1;
 
     double mLeftTime = -1;
     double mRightTime = -1;
@@ -321,9 +380,15 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
         Log.i("30ScendCount","mLeftReceivePackageCount:"+mLeftReceivePackageCount);
         Log.i("30ScendCount","mRightReceivePackageCount:"+mRightReceivePackageCount);
 
-        testText += CommunicateToBleService.clothDeviceConnecedMac +" 40秒到 左脚count："+mLeftReceivePackageCount+"\n";
-        testText += CommunicateToBleService.clothDeviceConnecedMac +" 40秒到 右脚count："+mRightReceivePackageCount+"\n\n";
+        testText += mLeftMacAddress +"左脚   40秒到  count："+mLeftReceivePackageCount+"\n";
+        testText += mRightMacAddress +"右脚   40秒到  count："+mRightReceivePackageCount+"\n";
         tv_test.setText(testText);
+
+
+        String data  = "B7";
+        boolean send1 = LeProxy.getInstance().send(CommunicateToBleService.mInsole_connecMac1, Constant.insoleSerUuid, Constant.insoleCharUuid, data.getBytes(), false);
+        boolean send = LeProxy.getInstance().send(CommunicateToBleService.mInsole_connecMac2, Constant.insoleSerUuid, Constant.insoleCharUuid, data.getBytes(), false);
+        Log.i("30ScendCount","send1:"+send1+",send:"+send);
 
 
         Log.i(TAG,"leftFilePath:"+leftFilePath);
@@ -387,10 +452,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
         params.addBodyParameter("phone",userFromSP.getPhone());
         params.addBodyParameter("tag","鞋垫");
 
-
-
         MyUtil.addCookieForHttp(params);
-
 
         Log.i(TAG,"上传到服务器分析");
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.get30ScendInsoleAlanyDataURL, params, new RequestCallBack<String>() {
@@ -401,16 +463,28 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 Log.i("30ScendCount","上传onSuccess==result:"+result);
 
                 Gson gson = new Gson();
-
                 InsoleAnalyResult fromJson = gson.fromJson(result, InsoleAnalyResult.class);
+                InsoleAnalyResult.General general = fromJson.general;
+                if (general!=null){
+                    String rString = "质量:"+general.dataQuality+"\n步数:"+general.stepCount+"\n步频:"+general.stepRate+"\n步幅(米):"+general.strideLength+"\n对称性:"+general.symmetry+
+                            "\n一致性:"+general.variability+"\n摆动宽度(左/右 米):"+fromJson.left.swingWidthMean+"/"+fromJson.right.swingWidthMean+"\n离地高度(左/右 米):"+fromJson.left.stepHeightMean+"/"+fromJson.right.stepHeightMean
+                            +"\n触地时间(左/右 秒):"+fromJson.left.stanceDurationMean+"/"+fromJson.right.stanceDurationMean+"\n\n";
+
+                    testText += rString+"\n\n";
+                    tv_test.setText(testText);
+                }
+
                 Log.i("30ScendCount","fromJson:"+fromJson);
             }
 
             @Override
             public void onFailure(HttpException e, String s) {
                 Log.i("30ScendCount","上传onFailure==result:"+e);
+                testText += "上传onFailure==result:"+e+"\n\n";
+                tv_test.setText(testText);
                 MyUtil.hideDialog(InsoleRunningActivity.this);
             }
+
         });
     }
 

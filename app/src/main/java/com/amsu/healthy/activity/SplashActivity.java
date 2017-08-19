@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.JsonBase;
@@ -72,10 +73,9 @@ public class SplashActivity extends Activity {
     private void initView() {
 
         //MyUtil.putStringValueFromSP("abortDatas","");
-        List<AppAbortDataSave> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
-        Log.i(TAG,"abortDataListFromSP:"+abortDataListFromSP);
-
-        if (abortDataListFromSP!=null && abortDataListFromSP.size()==1){
+        AppAbortDataSave abortDataFromSP = AppAbortDbAdapter.getAbortDataFromSP();
+        Log.i(TAG,"abortDataFromSP:"+abortDataFromSP);
+        if (abortDataFromSP!=null){
             Intent intent1 = new Intent(this,MainActivity.class);
             intent1.putExtra(Constant.isNeedRecoverAbortData,true);
             startActivity(intent1);
@@ -86,10 +86,6 @@ public class SplashActivity extends Activity {
             finish();
             return;
         }
-        else if (abortDataListFromSP!=null && abortDataListFromSP.size() > 1){
-            MyUtil.putStringValueFromSP("abortDatas","");
-        }
-
         Log.i(TAG,"开启线程");
         TextView tv_splish_mark = (TextView) findViewById(R.id.tv_splish_mark);
 
@@ -166,7 +162,7 @@ public class SplashActivity extends Activity {
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadWeekReportURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-
+                MyUtil.hideDialog(activity);
                 if (isFromLogin){
                     activity.startActivity(new Intent(activity,MainActivity.class));
                     MyUtil.destoryAllAvtivity();
@@ -179,13 +175,13 @@ public class SplashActivity extends Activity {
                 if (jsonBase.getRet()==0){
                     HealthIndicatorAssessActivity.WeekReport weekReport = gson.fromJson(result, HealthIndicatorAssessActivity.WeekReport.class);
                     Log.i(TAG,"weekReport:"+ weekReport.toString());
-                    setIndicatorData(weekReport);
+                    setIndicatorData(weekReport,activity);
                 }
             }
 
             @Override
             public void onFailure(HttpException e, String s) {
-
+                MyUtil.hideDialog(activity);
                 if (isFromLogin){
                     activity.startActivity(new Intent(activity,MainActivity.class));
                     MyUtil.destoryAllAvtivity();
@@ -195,12 +191,12 @@ public class SplashActivity extends Activity {
         });
     }
 
-    public static void setIndicatorData(HealthIndicatorAssessActivity.WeekReport weekReport){
+    public static void setIndicatorData(HealthIndicatorAssessActivity.WeekReport weekReport,Activity activity){
         if (weekReport!=null){
             //BMI
-            IndicatorAssess scoreBMI = HealthyIndexUtil.calculateScoreBMI();
+            IndicatorAssess scoreBMI = HealthyIndexUtil.calculateScoreBMI(MyApplication.appContext);
             //储备心率
-            IndicatorAssess scorehrReserve = HealthyIndexUtil.calculateScorehrReserve();
+            IndicatorAssess scorehrReserve = HealthyIndexUtil.calculateScorehrReserve(MyApplication.appContext);
 
             List<String> huifuxinlv = weekReport.errDesc.huifuxinlv;
             int sum = 0;
@@ -215,10 +211,10 @@ public class SplashActivity extends Activity {
             if(count>0){
                 int avHhrr = sum/count;
                 //恢复心率HRR
-                scoreHRR = HealthyIndexUtil.calculateScoreHRR(avHhrr);
+                scoreHRR = HealthyIndexUtil.calculateScoreHRR(avHhrr,MyApplication.appContext);
             }
             else {
-                scoreHRR = HealthyIndexUtil.calculateScoreHRR(0);
+                scoreHRR = HealthyIndexUtil.calculateScoreHRR(0,MyApplication.appContext);
             }
 
             List<String> kangpilaozhishu = weekReport.errDesc.kangpilaozhishu;
@@ -234,10 +230,10 @@ public class SplashActivity extends Activity {
             if(count>0){
                 int avHhrv = sum/count;
                 //抗疲劳指数HRV(心电分析算法得出)
-                scoreHRV = HealthyIndexUtil.calculateScoreHRV(avHhrv);
+                scoreHRV = HealthyIndexUtil.calculateScoreHRV(avHhrv,MyApplication.appContext);
             }
             else {
-                scoreHRV = HealthyIndexUtil.calculateScoreHRV(0);
+                scoreHRV = HealthyIndexUtil.calculateScoreHRV(0,MyApplication.appContext);
             }
 
             List<String> guosuguohuan = weekReport.errDesc.guosuguohuan;
@@ -254,10 +250,10 @@ public class SplashActivity extends Activity {
                 int over_slow = sum/count;
                 Log.i(TAG,"over_slow:"+over_slow);
                 //过缓/过速(心电分析算法得出)
-                scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(over_slow);
+                scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(over_slow,MyApplication.appContext);
             }
             else {
-                scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(0);
+                scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(0,MyApplication.appContext);
             }
 
             IndicatorAssess scoreBeat = null;
@@ -272,10 +268,10 @@ public class SplashActivity extends Activity {
                     loubo = 0;
                 }
                 //早搏 包括房早搏APB和室早搏VPB，两者都记为早搏(心电分析算法得出)
-                scoreBeat = HealthyIndexUtil.calculateScoreBeat(zaobo,loubo);
+                scoreBeat = HealthyIndexUtil.calculateScoreBeat(zaobo,loubo,MyApplication.appContext);
 
-                IndicatorAssess zaoboIndicatorAssess = HealthyIndexUtil.calculateTypeBeforeBeat(zaobo);
-                IndicatorAssess louboIndicatorAssess = HealthyIndexUtil.calculateTypeMissBeat(loubo);
+                IndicatorAssess zaoboIndicatorAssess = HealthyIndexUtil.calculateTypeBeforeBeat(zaobo,MyApplication.appContext);
+                IndicatorAssess louboIndicatorAssess = HealthyIndexUtil.calculateTypeMissBeat(loubo,MyApplication.appContext);
                 MyUtil.putIntValueFromSP("zaoboIndicatorAssess",zaoboIndicatorAssess.getPercent());
                 MyUtil.putIntValueFromSP("louboIndicatorAssess",louboIndicatorAssess.getPercent());
             }

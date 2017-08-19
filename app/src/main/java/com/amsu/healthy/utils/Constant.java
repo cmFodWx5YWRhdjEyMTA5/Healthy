@@ -1,5 +1,7 @@
 package com.amsu.healthy.utils;
 
+import java.util.UUID;
+
 /**
  * Created by HP on 2016/11/30.
  */
@@ -50,8 +52,11 @@ public class Constant {
     public static String disclaimerAssertsURL = "http://www.amsu-new.com:8081/intellingence-web/upload/disclaimerAsserts.html";
     public static String Questionnaire1URL = "https://wj.qq.com/s/1203236/ee9b";
     public static String Questionnaire2URL = "https://wj.qq.com/s/1338652/a851";
-    public static String getInsoleTokenURL = "http://192.168.0.117:8080/intellingence-web/getToken.do";
-    public static String get30ScendInsoleAlanyDataURL = "http://192.168.0.117:8080/intellingence-web/getShoepadDatas30seconds.do";
+    public static String getInsoleTokenURL = "http://www.amsu-new.com:8081/intellingence-web/getToken.do";
+    public static String get30ScendInsoleAlanyDataURL = "http://www.amsu-new.com:8081/intellingence-web/getShoepadDatas30seconds.do";
+    public static String ServerHostName = "http://www.amsu-new.com:8081/";
+    //public static String ServerHostName = "http://192.168.0.117:8080/";
+    public static String bindDeviceInsoleUrl = ServerHostName+"intellingence-web/bangdingshoepad.do";
 
     public static long AnimatorDuration = 2000;  //动画时长，2s
 
@@ -89,6 +94,9 @@ public class Constant {
 
     public static String sendONLineMsgToServer = "http://192.168.137.1:8080/AmsuClothMonitor/AddUserInfoAction";
     public static String deleteONLineMsgToServer = "http://localhost:8080/AmsuClothMonitor/deleteOnlineUserAction";
+
+    public static UUID insoleSerUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+    public static UUID insoleCharUuid = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
 
 
 

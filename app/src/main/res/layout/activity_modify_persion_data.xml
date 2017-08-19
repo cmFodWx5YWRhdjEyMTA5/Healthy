@@ -60,7 +60,7 @@
                 android:textSize="@dimen/x48"
                 android:textColor="#030303"
                 android:layout_centerVertical="true"
-                android:text="男"
+                android:text="@string/male"
                 />
             <CheckBox
                 android:id="@+id/cb_modify_man"
@@ -89,7 +89,7 @@
                 android:textSize="@dimen/x48"
                 android:textColor="#030303"
                 android:layout_centerVertical="true"
-                android:text="女"
+                android:text="@string/female"
                 />
             <CheckBox
                 android:id="@+id/cb_modify_woman"

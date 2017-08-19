@@ -12,7 +12,7 @@
         android:layout_height="45dp"
         android:background="@drawable/actionsheet_top_selector"
         android:gravity="center"
-        android:text="从相册选择"
+        android:text="@string/select_from_album"
         android:textSize="18sp" />
     <Button
         android:id="@+id/bt_dialog_take"
@@ -20,7 +20,7 @@
         android:layout_height="45dp"
         android:background="@drawable/actionsheet_top_selector"
         android:gravity="center"
-        android:text="拍照"
+        android:text="@string/take_a_picture"
         android:textSize="18sp" />
 
     <Button
@@ -30,7 +30,7 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/actionsheet_top_selector"
         android:gravity="center"
-        android:text="取消"
+        android:text="@string/exit_cancel"
         android:textSize="18sp" />
 
 </LinearLayout>

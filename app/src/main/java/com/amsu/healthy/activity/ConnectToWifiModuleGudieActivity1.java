@@ -23,7 +23,7 @@ public class ConnectToWifiModuleGudieActivity1 extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("同步数据1/2");
+        setCenterText(getResources().getString(R.string.synced_data)+"1/2");
         setHeadBackgroudColor("#72D5F4");
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {

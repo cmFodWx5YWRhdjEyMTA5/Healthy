@@ -23,15 +23,17 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/x180"
         android:layout_gravity="center_horizontal"
-        android:text="设备充电"
+        android:text="@string/charging"
         android:textSize="@dimen/x56"
         android:textColor="#FFFFFF"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/x42"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
         android:layout_gravity="center_horizontal"
-        android:text="设备连接至设备底座充电"
+        android:text="@string/connected_guide1"
         android:textSize="@dimen/x56"
         android:textColor="#FFFFFF"/>
 
@@ -39,7 +41,7 @@
         android:layout_width="@dimen/x694"
         android:layout_height="@dimen/x140"
         android:background="@drawable/bg_bt_rec_roundangle_white"
-        android:text="下一步"
+        android:text="@string/next_step"
         android:onClick="nextStep"
         android:textSize="@dimen/x56"
         android:textColor="#1661a9"

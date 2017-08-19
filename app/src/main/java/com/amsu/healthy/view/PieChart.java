@@ -110,79 +110,78 @@ public class PieChart extends View {
 
             float currentAngle = 0;
             for (int i=0;i<mDatas.length;i++){
-                mPaint.setColor(mColors[i]);
-                mthreadletLinePaint.setColor(mColors[i]);
-                mPointAtLinePaint.setColor(mColors[i]);
-                canvas.drawArc(rectF,currentAngle,mAngles[i]+1,false,mPaint);
+                if (mAngles[i]>0){
+                    mPaint.setColor(mColors[i]);
+                    mthreadletLinePaint.setColor(mColors[i]);
+                    mPointAtLinePaint.setColor(mColors[i]);
+                    canvas.drawArc(rectF,currentAngle,mAngles[i]+1,false,mPaint);
 
-                Log.i(TAG,"currentAngle:"+currentAngle);
+                    Log.i(TAG,"currentAngle:"+currentAngle);
 
-                float litterCircleAngle = currentAngle + mAngles[i] / 2;
-                double circleAngleInRadians = Math.toRadians(litterCircleAngle);
-                Log.i(TAG,"circleAngle:"+circleAngleInRadians);
-                float circleX = (float) (mWidth/2+(mRecRadius+mRing_width/2+getResources().getDimension(R.dimen.y30))*Math.cos(circleAngleInRadians));
-                float circleY = (float) (mHeight/2+(mRecRadius+mRing_width/2+getResources().getDimension(R.dimen.y30))*Math.sin(circleAngleInRadians));
-                canvas.drawCircle(circleX,circleY,mCircleRadius,mthreadletLinePaint);
+                    float litterCircleAngle = currentAngle + mAngles[i] / 2;
+                    double circleAngleInRadians = Math.toRadians(litterCircleAngle);
+                    Log.i(TAG,"circleAngle:"+circleAngleInRadians);
+                    float circleX = (float) (mWidth/2+(mRecRadius+mRing_width/2+getResources().getDimension(R.dimen.y30))*Math.cos(circleAngleInRadians));
+                    float circleY = (float) (mHeight/2+(mRecRadius+mRing_width/2+getResources().getDimension(R.dimen.y30))*Math.sin(circleAngleInRadians));
+                    canvas.drawCircle(circleX,circleY,mCircleRadius,mthreadletLinePaint);
 
-                if (90<litterCircleAngle&&litterCircleAngle<=270){
-                    //左边
-                    if (litterCircleAngle<180){
-                        //下边
-                        float startX = (float) (circleX-mCircleRadius*Math.cos(Math.toRadians(45)));
-                        float startY = (float) (circleY+mCircleRadius*Math.cos(Math.toRadians(45)));
-                        canvas.drawLine(startX,startY,startX-xSpan,startY+xSpan,mPointAtLinePaint);
-                        canvas.drawLine(startX-xSpan,startY+xSpan,0,startY+xSpan,mPointAtLinePaint);
+                    if (90<litterCircleAngle&&litterCircleAngle<=270 ){
+                        //左边
+                        if (litterCircleAngle<180 ){
+                            //下边
+                            float startX = (float) (circleX-mCircleRadius*Math.cos(Math.toRadians(45)));
+                            float startY = (float) (circleY+mCircleRadius*Math.cos(Math.toRadians(45)));
+                            canvas.drawLine(startX,startY,startX-xSpan,startY+xSpan,mPointAtLinePaint);
+                            canvas.drawLine(startX-xSpan,startY+xSpan,0,startY+xSpan,mPointAtLinePaint);
 
-                        String percentLable = (int)(mAngles[i]/360*100)+"%";
-                        float textWidth = mPointLablePaint.measureText(percentLable);
-                        canvas.drawText(percentLable,0,startY+xSpan-getResources().getDimension(R.dimen.y5),mPointLablePaint);
+                            String percentLable = (int)(mAngles[i]/360*100)+"%";
+                            float textWidth = mPointLablePaint.measureText(percentLable);
+                            canvas.drawText(percentLable,0,startY+xSpan-getResources().getDimension(R.dimen.y5),mPointLablePaint);
+                        }
+                        else {
+                            //上边
+                            float startX = (float) (circleX-mCircleRadius*Math.cos(Math.toRadians(45)));
+                            float startY = (float) (circleY-mCircleRadius*Math.cos(Math.toRadians(45)));
+                            canvas.drawLine(startX,startY,startX-xSpan,startY-xSpan,mPointAtLinePaint);
+                            canvas.drawLine(startX-xSpan,startY-xSpan,0,startY-xSpan,mPointAtLinePaint);
+
+                            String percentLable = (int)(mAngles[i]/360*100)+"%";
+                            float textWidth = mPointLablePaint.measureText(percentLable);
+                            canvas.drawText(percentLable,0,startY-xSpan-getResources().getDimension(R.dimen.y5),mPointLablePaint);
+                        }
                     }
                     else {
-                        //上边
-                        float startX = (float) (circleX-mCircleRadius*Math.cos(Math.toRadians(45)));
-                        float startY = (float) (circleY-mCircleRadius*Math.cos(Math.toRadians(45)));
-                        canvas.drawLine(startX,startY,startX-xSpan,startY-xSpan,mPointAtLinePaint);
-                        canvas.drawLine(startX-xSpan,startY-xSpan,0,startY-xSpan,mPointAtLinePaint);
+                        //右边
+                        if (litterCircleAngle<=90){
+                            //下边
+                            float startX = (float) (circleX+mCircleRadius*Math.cos(Math.toRadians(45)));
+                            float startY = (float) (circleY+mCircleRadius*Math.cos(Math.toRadians(45)));
+                            canvas.drawLine(startX,startY,startX+xSpan,startY+xSpan,mPointAtLinePaint);
+                            canvas.drawLine(startX+xSpan,startY+xSpan,mWidth,startY+xSpan,mPointAtLinePaint);
 
-                        String percentLable = (int)(mAngles[i]/360*100)+"%";
-                        float textWidth = mPointLablePaint.measureText(percentLable);
-                        canvas.drawText(percentLable,0,startY-xSpan-getResources().getDimension(R.dimen.y5),mPointLablePaint);
-                    }
-                }
-                else {
-                    //右边
-                    if (litterCircleAngle<=90){
-                        //下边
-                        float startX = (float) (circleX+mCircleRadius*Math.cos(Math.toRadians(45)));
-                        float startY = (float) (circleY+mCircleRadius*Math.cos(Math.toRadians(45)));
-                        canvas.drawLine(startX,startY,startX+xSpan,startY+xSpan,mPointAtLinePaint);
-                        canvas.drawLine(startX+xSpan,startY+xSpan,mWidth,startY+xSpan,mPointAtLinePaint);
+                            String percentLable = (int)(mAngles[i]/360*100)+"%";
+                            float textWidth = mPointLablePaint.measureText(percentLable);
+                            canvas.drawText(percentLable,mWidth-textWidth,startY+xSpan-getResources().getDimension(R.dimen.y5),mPointLablePaint);
+                        }
+                        else {
+                            //上边
+                            float startX = (float) (circleX+mCircleRadius*Math.cos(Math.toRadians(45)));
+                            float startY = (float) (circleY-mCircleRadius*Math.cos(Math.toRadians(45)));
+                            canvas.drawLine(startX,startY,startX+xSpan,startY-xSpan,mPointAtLinePaint);
+                            canvas.drawLine(startX+xSpan,startY-xSpan,mWidth,startY-xSpan,mPointAtLinePaint);
 
-                        String percentLable = (int)(mAngles[i]/360*100)+"%";
-                        float textWidth = mPointLablePaint.measureText(percentLable);
-                        canvas.drawText(percentLable,mWidth-textWidth,startY+xSpan-getResources().getDimension(R.dimen.y5),mPointLablePaint);
+                            String percentLable = (int)(mAngles[i]/360*100)+"%";
+                            float textWidth = mPointLablePaint.measureText(percentLable);
+                            canvas.drawText(percentLable,mWidth-textWidth,startY-xSpan-getResources().getDimension(R.dimen.y5),mPointLablePaint);
+                        }
                     }
-                    else {
-                        //上边
-                        float startX = (float) (circleX+mCircleRadius*Math.cos(Math.toRadians(45)));
-                        float startY = (float) (circleY-mCircleRadius*Math.cos(Math.toRadians(45)));
-                        canvas.drawLine(startX,startY,startX+xSpan,startY-xSpan,mPointAtLinePaint);
-                        canvas.drawLine(startX+xSpan,startY-xSpan,mWidth,startY-xSpan,mPointAtLinePaint);
 
-                        String percentLable = (int)(mAngles[i]/360*100)+"%";
-                        float textWidth = mPointLablePaint.measureText(percentLable);
-                        canvas.drawText(percentLable,mWidth-textWidth,startY-xSpan-getResources().getDimension(R.dimen.y5),mPointLablePaint);
-                    }
                 }
 
                 currentAngle += mAngles[i];
             }
 
             Log.i(TAG,"mWidth:"+mWidth+",mHeight:"+mHeight);
-
-
-
-
         }
     }
 
@@ -192,7 +191,6 @@ public class PieChart extends View {
         int sum = 0;
         for (int i=0;i<datas.length;i++){
             sum +=datas[i];
-
         }
 
         int[] percents = new int[datas.length];
@@ -214,7 +212,6 @@ public class PieChart extends View {
         }
 
         invalidate();
-
     }
 
 

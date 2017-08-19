@@ -77,7 +77,7 @@ public class IndexWarringActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("健康预警");
+        setCenterText(getResources().getString(R.string.warning));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -215,8 +215,8 @@ public class IndexWarringActivity extends BaseActivity {
                 loubo = 0;
             }
             //早搏 包括房早搏APB和室早搏VPB，两者都记为早搏(心电分析算法得出)
-            scoreBeforeBeat = HealthyIndexUtil.calculateTypeBeforeBeat(zaobo);
-            scoreMissBeat = HealthyIndexUtil.calculateTypeMissBeat(loubo);
+            scoreBeforeBeat = HealthyIndexUtil.calculateTypeBeforeBeat(zaobo,this);
+            scoreMissBeat = HealthyIndexUtil.calculateTypeMissBeat(loubo,this);
         }
 
         //过缓/过速(心电分析算法得出)
@@ -259,8 +259,8 @@ public class IndexWarringActivity extends BaseActivity {
             }*/
             staticStateHistoryRecords.add(historyRecord);
 
-            IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateTypeSlow(Integer.parseInt(guosuguohuan.get(i)));
-            IndicatorAssess indicatorAssess2 = HealthyIndexUtil.calculateTypeOver(Integer.parseInt(guosuguohuan.get(i)));
+            IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateTypeSlow(Integer.parseInt(guosuguohuan.get(i)),this);
+            IndicatorAssess indicatorAssess2 = HealthyIndexUtil.calculateTypeOver(Integer.parseInt(guosuguohuan.get(i)),this);
             if (isFirst){
                 scoreSlow = indicatorAssess1;
                 scoreOver = indicatorAssess2;
@@ -325,15 +325,15 @@ public class IndexWarringActivity extends BaseActivity {
         switch (score){
             case 0:
                 progressBar.setProgress(mProgressNormal);
-                textView.setText("正常");
+                textView.setText(getResources().getString(R.string.normal));
                 break;
             case 1:
                 progressBar.setProgress(mProgressYellow+count*5);
-                textView.setText("黄色预警");
+                textView.setText(getResources().getString(R.string.yellow_warning));
                 break;
             case 2:
                 progressBar.setProgress(mProgressRed+count*5);
-                textView.setText("红色预警");
+                textView.setText(getResources().getString(R.string.red_warning));
                 break;
         }
     }
@@ -539,10 +539,10 @@ public class IndexWarringActivity extends BaseActivity {
             String timestamp = historyRecord.timestamp;
 
             if (historyRecord.state.equals("1")){
-                tv_wring_type.setText("动态");
+                tv_wring_type.setText(R.string.active);
             }
             else {
-                tv_wring_type.setText("静态");
+                tv_wring_type.setText(R.string.rest);
             }
 
             Date date = new Date(Long.parseLong(timestamp)*1000);
@@ -550,7 +550,7 @@ public class IndexWarringActivity extends BaseActivity {
             int month = date.getMonth()+1;
             int day = date.getDate();
             tv_wring_year.setText(year+"");
-            tv_wring_day.setText(month+"月"+day);
+            tv_wring_day.setText(month+"."+day);
             return inflate;
         }
     }

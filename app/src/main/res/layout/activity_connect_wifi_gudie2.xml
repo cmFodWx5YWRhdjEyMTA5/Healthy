@@ -21,9 +21,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/x180"
+        android:layout_marginTop="@dimen/x100"
         android:layout_gravity="center_horizontal"
-        android:text="连接WIFI"
+        android:text="@string/connecteto_wifi"
         android:textSize="@dimen/x56"
         android:textColor="#FFFFFF"/>
     <TextView
@@ -31,7 +31,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/x42"
         android:layout_gravity="center_horizontal"
-        android:text="连接 ESP8266 热点"
+        android:text="@string/connecteto_wifi_name"
+        android:textSize="@dimen/x56"
+        android:textColor="#FFFFFF"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/connecteto_wifi_password"
         android:textSize="@dimen/x56"
         android:textColor="#FFFFFF"/>
 
@@ -39,7 +46,7 @@
         android:layout_width="@dimen/x694"
         android:layout_height="@dimen/x140"
         android:background="@drawable/bg_bt_rec_roundangle_white"
-        android:text="马上连接"
+        android:text="@string/connect_immediately"
         android:onClick="connectNow"
         android:textSize="@dimen/x56"
         android:textColor="#1661a9"

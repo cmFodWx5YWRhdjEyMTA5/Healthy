@@ -33,7 +33,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="新的健康计划"
+                android:text="@string/new_health_plan"
                 android:textColor="#FFFFFF"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -46,8 +47,6 @@ public class ECGFragment extends BaseFragment {
     private FileInputStream fileInputStream;
     private EcgView pv_ecg_path;
 
-
-
     private List<Integer> datas;
     private boolean isFirstCreate = true;
     private ImageView iv_ecg_toggle;
@@ -57,6 +56,8 @@ public class ECGFragment extends BaseFragment {
     private int mAllTimeAtSecond;
     private String mAllTimeString;
     private TextView tv_rate_suggestion;
+    private ProgressBar pb_progress;
+    private TextView tv_ecg_nodata;
 
     @Nullable
     @Override
@@ -71,25 +72,12 @@ public class ECGFragment extends BaseFragment {
 
     private void initView() {
         pv_ecg_path = (EcgView) inflate.findViewById(R.id.pv_ecg_path);
-        Button bt_hrv_history = (Button) inflate.findViewById(R.id.bt_hrv_history);
-        Button bt_hrv_myreport = (Button) inflate.findViewById(R.id.bt_hrv_myreport);
         iv_ecg_toggle = (ImageView) inflate.findViewById(R.id.iv_ecg_toggle);
         sb_ecg_progress = (SeekBar) inflate.findViewById(R.id.sb_ecg_progress);
         tv_ecg_protime = (TextView) inflate.findViewById(R.id.tv_ecg_protime);
         tv_rate_suggestion = (TextView) inflate.findViewById(R.id.tv_rate_suggestion);
-
-        bt_hrv_history.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getActivity(), HistoryRecordActivity.class));
-            }
-        });
-        bt_hrv_myreport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getActivity(), MyReportActivity.class));
-            }
-        });
+        tv_ecg_nodata = (TextView) inflate.findViewById(R.id.tv_ecg_nodata);
+        pb_progress = (ProgressBar) inflate.findViewById(R.id.pb_progress);
 
         iv_ecg_toggle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,8 +87,6 @@ public class ECGFragment extends BaseFragment {
         });
 
         mAllTimeAtSecond = 0;
-
-
 
         //心电进度监听器
         pv_ecg_path.setOnEcgProgressChangeListener(new EcgView.OnEcgProgressChangeListener() {
@@ -170,7 +156,7 @@ public class ECGFragment extends BaseFragment {
                     Log.i(TAG,"mUploadRecord:"+mUploadRecord.toString());
                     //Log.i(TAG,"EC :"+mUploadRecord.EC);
                     //long timestamp =  Long.valueOf(mUploadRecord.timestamp);
-                    long timestamp =  System.currentTimeMillis();
+                    long timestamp =  Long.parseLong(RateAnalysisActivity.mUploadRecord.timestamp);
                     String eCGFilePath;
                     if (!MyUtil.isEmpty(RateAnalysisActivity.ecgLocalFileName)){
                         //有分析过来的心电数据，则从本地获取数据
@@ -178,6 +164,7 @@ public class ECGFragment extends BaseFragment {
                     }
                     else {
                         eCGFilePath = MyUtil.generateECGFilePath(getActivity(), timestamp);
+
                     }
                     //eCGFilePath  = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170516101758.ecg";
                     Log.i(TAG,"eCGFilePath:"+eCGFilePath);
@@ -266,31 +253,29 @@ public class ECGFragment extends BaseFragment {
 
                 }
 
-                if (datas!=null && datas.size()>0){
-                    mAllTimeAtSecond = (int) (datas.size()/(Constant.oneSecondFrame*1f));  //计算总的时间秒数，1s为150帧，即为150个数据点
-                    mAllTimeString = calcuEcgDataTimeAtSecond(mAllTimeAtSecond);
+                if (getActivity()!=null){
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (datas!=null && datas.size()>0){
+                                mAllTimeAtSecond = (int) (datas.size()/(Constant.oneSecondFrame*1f));  //计算总的时间秒数，1s为150帧，即为150个数据点
+                                mAllTimeString = calcuEcgDataTimeAtSecond(mAllTimeAtSecond);
 
-                    if (getActivity()!=null){
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
                                 tv_ecg_protime.setText("0'0/"+mAllTimeString);
-                                if (isonResume){
-                                    //startDrawSimulator();
-                                }
+                                startDrawSimulator();
+
+                                Log.i(TAG,"mAllTimeAtSecond:"+mAllTimeAtSecond);
+                                Log.i(TAG,"datas.size():"+datas.size());
                             }
-                        });
-                    }
-
-                    Log.i(TAG,"mAllTimeAtSecond:"+mAllTimeAtSecond);
-                    Log.i(TAG,"datas.size():"+datas.size());
+                            else {
+                                tv_ecg_nodata.setVisibility(View.VISIBLE);
+                            }
+                            pb_progress.setVisibility(View.GONE);
+                        }
+                    });
                 }
-
             }
         }.start();
-
-
-
 
         /*String cacheFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170220210301.ecg";  //测试
         if (!cacheFileName.equals("")){
@@ -377,11 +362,18 @@ public class ECGFragment extends BaseFragment {
         super.onResume();
         Log.i(TAG,"onResume");
         Log.i(TAG,"over:开始画图");
-        isonResume = true;
 
-        if (isFirstCreate){
+
+        if (isFirstCreate && !pv_ecg_path.isRunning && tv_ecg_nodata.getVisibility()==View.GONE){
             startDrawSimulator();
         }
+        else {
+            if (!isonResume && datas!=null && datas.size()>0 && !pv_ecg_path.isRunning && tv_ecg_nodata.getVisibility()==View.GONE){
+                iv_ecg_toggle.setImageResource(R.drawable.suspend_icon);
+                pv_ecg_path.startThread();
+            }
+        }
+        isonResume = true;
     }
 
     @Override

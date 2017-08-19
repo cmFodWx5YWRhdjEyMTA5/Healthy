@@ -74,7 +74,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("健康指标评分");
+        setCenterText(getResources().getString(R.string.indicator));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,6 +184,14 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
 
         thisWeekIndicatorAssesses = new ArrayList<>();
         lastWeekIndicatorAssesses = new ArrayList<>();
+
+        thisWeekIndicatorAssesses.add(0,new IndicatorAssess(0,getResources().getString(R.string.too_fast_too_slow),getResources().getString(R.string.heart_rate_slow_fast_decrible)));
+        thisWeekIndicatorAssesses.add(new IndicatorAssess(0,getResources().getString(R.string.premature_beat_missed_beat),getResources().getString(R.string.premature_beat_missed_beat_decrible)));
+        thisWeekIndicatorAssesses.add(new IndicatorAssess(0,getResources().getString(R.string.health_reserve),getResources().getString(R.string.health_reserve_decrible)));
+        thisWeekIndicatorAssesses.add(new IndicatorAssess(0,"BMI",getResources().getString(R.string.health_BMI_decrible)));
+        thisWeekIndicatorAssesses.add(new IndicatorAssess(0,getResources().getString(R.string.heart_rate_reserve),getResources().getString(R.string.heart_rate_reserve_decrible)));
+        thisWeekIndicatorAssesses.add(new IndicatorAssess(0,getResources().getString(R.string.heart_rate_recovery),getResources().getString(R.string.heart_rate_recovery_decrible)));
+        thisWeekIndicatorAssesses.add(new IndicatorAssess(0,getResources().getString(R.string.indicator_for_resistance_to_fatigue),getResources().getString(R.string.heart_rate_variability_decrible)));
         Calendar calendar=Calendar.getInstance();
         calendar.setTime(new Date());
         mCurrYear = calendar.get(Calendar.YEAR);
@@ -196,7 +204,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
     }
 
     private void downlaodWeekRepore(final int year, final int weekOfYear) {
-        MyUtil.showDialog("加载数据",this);
+        MyUtil.showDialog(getResources().getString(R.string.loading),this);
         Log.i(TAG,"downlaodWeekRepore=======year:"+year+"  weekOfYear:"+weekOfYear);
 
         HttpUtils httpUtils = new HttpUtils();
@@ -234,9 +242,9 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                     setIndicatorData();
                 }
                 else if (jsonBase.getRet()==-10001){
-                    String toaskText = tv_assess_compare.getText()+"无数据";
+                    String toaskText = tv_assess_compare.getText()+getResources().getString(R.string.no_data);
                     if (weekOfYear==-1){
-                        toaskText = "本周无数据";
+                        toaskText = getResources().getString(R.string.no_data_this_week);
                     }
                     MyUtil.showToask(HealthIndicatorAssessActivity.this,toaskText);
                     float[] data1 = {0, 0, 0, 0, 0,0,0};
@@ -296,9 +304,9 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
 
     private  float[] dealWithWeekData(WeekReport weekReport, boolean isCurrWeek) {
         //BMI
-        IndicatorAssess scoreBMI = HealthyIndexUtil.calculateScoreBMI();
+        IndicatorAssess scoreBMI = HealthyIndexUtil.calculateScoreBMI(this);
         //储备心率
-        IndicatorAssess scorehrReserve = HealthyIndexUtil.calculateScorehrReserve();
+        IndicatorAssess scorehrReserve = HealthyIndexUtil.calculateScorehrReserve(this);
 
         if (weekReport!=null){
             List<String> huifuxinlv = weekReport.errDesc.huifuxinlv;
@@ -314,10 +322,10 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             if(count>0){
                 int avHhrr = sum/count;
                 //恢复心率HRR
-                scoreHRR = HealthyIndexUtil.calculateScoreHRR(avHhrr);
+                scoreHRR = HealthyIndexUtil.calculateScoreHRR(avHhrr,this);
             }
             else {
-                scoreHRR = HealthyIndexUtil.calculateScoreHRR(0);
+                scoreHRR = HealthyIndexUtil.calculateScoreHRR(0,this);
             }
 
 
@@ -334,10 +342,10 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             if(count>0){
                 int avHhrv = sum/count;
                 //抗疲劳指数HRV(心电分析算法得出)
-                scoreHRV = HealthyIndexUtil.calculateScoreHRV(avHhrv);
+                scoreHRV = HealthyIndexUtil.calculateScoreHRV(avHhrv,this);
             }
             else {
-                scoreHRV = HealthyIndexUtil.calculateScoreHRV(0);
+                scoreHRV = HealthyIndexUtil.calculateScoreHRV(0,this);
             }
 
 
@@ -355,10 +363,10 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                 int over_slow = sum/count;
                 Log.i(TAG,"over_slow:"+over_slow);
                 //过缓/过速(心电分析算法得出)
-                scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(over_slow);
+                scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(over_slow,this);
             }
             else {
-                scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(0);
+                scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(0,this);
             }
 
 
@@ -374,11 +382,11 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                     loubo = 0;
                 }
                 //早搏 包括房早搏APB和室早搏VPB，两者都记为早搏(心电分析算法得出)
-                scoreBeat = HealthyIndexUtil.calculateScoreBeat(zaobo,loubo);
+                scoreBeat = HealthyIndexUtil.calculateScoreBeat(zaobo,loubo,this);
             }
 
             // 健康储备(按训练时间计算)
-            IndicatorAssess scoreReserveHealth = HealthyIndexUtil.calculateScoreReserveHealth((int) (Float.parseFloat(weekReport.errDesc.chubeijiankang)/60));
+            IndicatorAssess scoreReserveHealth = HealthyIndexUtil.calculateScoreReserveHealth((int) (Float.parseFloat(weekReport.errDesc.chubeijiankang)/60),this);
             if (isCurrWeek){
                 return getFloats(scoreBMI, scorehrReserve, scoreHRR, scoreHRV, scoreOver_slow, scoreBeat, scoreReserveHealth,thisWeekIndicatorAssesses,true);
             }
@@ -427,7 +435,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             if (!isCurrWeek && thisWeekIndicatorAssesses!=null && thisWeekIndicatorAssesses.size()>0){
                 IndicatorAssess indicatorAssess = lastWeekIndicatorAssesses.get(i);
                 int temp;
-                if (indicatorAssess.getName().equals("储备心率") || indicatorAssess.getName().equals("恢复心率(HRR)") || indicatorAssess.getName().equals("BMI")){
+                if (indicatorAssess.getName().equals(getResources().getString(R.string.heart_rate_reserve)) || indicatorAssess.getName().equals(getResources().getString(R.string.heart_rate_recovery)) || indicatorAssess.getName().equals("BMI")){
                     temp = thisWeekIndicatorAssesses.get(i).getValue() - indicatorAssess.getValue();
                 }
                 else {
@@ -466,8 +474,8 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         mAlertDialog = new AlertDialog.Builder(this).setView(inflate).create();
         mAlertDialog.show();
 
-        float width = getResources().getDimension(R.dimen.x800);
-        float height = getResources().getDimension(R.dimen.x860);
+        float width = getResources().getDimension(R.dimen.x880);
+        float height = getResources().getDimension(R.dimen.x940);
 
         mAlertDialog.getWindow().setLayout(new Float(width).intValue(),new Float(height).intValue());
 
@@ -480,13 +488,14 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             View point = new View(this);
             point.setBackgroundResource(R.drawable.shape_point_gray);
             pointWidth = getResources().getDimension(R.dimen.x16);
-            pointMargin = getResources().getDimension(R.dimen.x12);
+            pointMargin = getResources().getDimension(R.dimen.x16);
 
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(new Float(pointWidth).intValue(),new Float(pointWidth).intValue());
             if (i>0){
                 //设置圆点间隔
                 params.leftMargin = new Float(pointMargin).intValue() ;
             }
+
             //设置圆点大小
             point.setLayoutParams(params);
             //将圆点添加给线性布局
@@ -498,6 +507,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 int marginFloat = new Float(pointMargin).intValue() + new Float(pointWidth).intValue();
+                //int marginFloat = new Float(pointMargin).intValue();
 
                 int len =  (int) (marginFloat * positionOffset) + position*marginFloat;
                 //获取当前红点的布局参数
@@ -548,16 +558,18 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             TextView tv_item_suggestion = (TextView) inflate.findViewById(R.id.tv_item_suggestion);
             TextView tv_item_unit = (TextView) inflate.findViewById(R.id.tv_item_unit);
 
-            int differenceValue = indicatorAssess.getDifferenceValue();
-            String differenceValueString ="";
-            if (differenceValue>0){
-                differenceValueString = "+"+differenceValue;
-            }else {
-                differenceValueString = differenceValue+"";
-            }
+
 
             if (indicatorAssess!=null){
-                if (indicatorAssess.getName().equals("储备心率") || indicatorAssess.getName().equals("恢复心率(HRR)")){
+                int differenceValue = indicatorAssess.getDifferenceValue();
+                String differenceValueString ="";
+                if (differenceValue>0){
+                    differenceValueString = "+"+differenceValue;
+                }else {
+                    differenceValueString = differenceValue+"";
+                }
+
+                if (indicatorAssess.getName().equals(getResources().getString(R.string.heart_rate_reserve)) || indicatorAssess.getName().equals(getResources().getString(R.string.heart_rate_recovery))){
                     tv_item_unit.setText("bpm");
                     if (indicatorAssess.getValue()==0){
                         tv_item_value.setText("--");
@@ -576,7 +588,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                     }
                 }
                 else {
-                    tv_item_unit.setText("分");
+                    tv_item_unit.setText(getResources().getString(R.string.points));
                     if (indicatorAssess.getPercent()==0){
                         tv_item_value.setText("--");
                     }
@@ -585,9 +597,6 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                     }
 
                 }
-
-
-
 
                 tv_item_typeName.setText(indicatorAssess.getName());
                 tv_item_suggestion.setText(indicatorAssess.getSuggestion());

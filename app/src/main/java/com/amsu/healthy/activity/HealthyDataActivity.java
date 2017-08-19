@@ -119,7 +119,7 @@ public class HealthyDataActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("健康数据");
+        setCenterText(getResources().getString(R.string.stationary_ecg));
         setLeftImage(R.drawable.back_icon);
         setRightImage(R.drawable.yifu);
 
@@ -233,10 +233,10 @@ public class HealthyDataActivity extends BaseActivity {
     private void backJudge() {
         if (mIsHaveEcgDataReceived && !isLookupECGDataFromSport){
             ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(HealthyDataActivity.this);
-            chooseAlertDialogUtil.setAlertDialogText("正在测试心电，是否退出？","按错了","退出测试");
-            chooseAlertDialogUtil.setOnCancelClickListener(new ChooseAlertDialogUtil.OnCancelClickListener() {
+            chooseAlertDialogUtil.setAlertDialogText(getResources().getString(R.string.testing_ecg_quit));
+            chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
                 @Override
-                public void onCancelClick() {
+                public void onConfirmClick() {
                     //将离线数据记录删除
                     /*List<AppAbortDataSave> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
                     if (abortDataListFromSP!=null && abortDataListFromSP.size()>0){
@@ -291,7 +291,10 @@ public class HealthyDataActivity extends BaseActivity {
 
     }
 
+    String remainEcgPackageData;
+
     private void dealwithLebDataChange(String hexData) {
+        Log.i(TAG,"hexData:"+hexData);
         if (hexData.length()<40){
             return;
         }
@@ -301,6 +304,23 @@ public class HealthyDataActivity extends BaseActivity {
             //Log.i(TAG,"心电hexData:"+hexData);
             dealWithEcgData(hexData);
             mIsHaveEcgDataReceived = true;
+        }
+        else if(hexData.startsWith("FF 84")){
+            // FF 84 0B 11 05 02 11 06 02 0E DA 00 16 FF 83 0F
+            //FF 84 0B 11 05 02 11 06 02 0E DA 00 16 长度为13
+            String[] split = hexData.split(" ");
+            if (split.length>13){
+                //有携带的心电包数据
+                remainEcgPackageData = hexData.substring(39);
+            }
+        }
+        else {
+            if (!MyUtil.isEmpty(remainEcgPackageData)){
+                remainEcgPackageData += " "+hexData;
+                Log.i(TAG,"remainEcgPackageData:"+remainEcgPackageData);
+                dealWithEcgData(remainEcgPackageData);
+                remainEcgPackageData = null;
+            }
         }
         /*else if(hexData.startsWith("FF 86 11")){
             //加速度数据
@@ -534,7 +554,7 @@ public class HealthyDataActivity extends BaseActivity {
                 ecgFiletimeMillis = System.currentTimeMillis();
                 //String filePath = MyUtil.generateECGFilePath(HealthyDataActivity.this, ecgFiletimeMillis); //随机生成一个ecg格式文件
                 //String filePath = getCacheDir()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";  //随机生成一个文件
-                String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/abluedata";
+                String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth";
                 File file = new File(filePath);
                 if (!file.exists()) {
                     boolean mkdirs = file.mkdirs();
@@ -808,7 +828,7 @@ public class HealthyDataActivity extends BaseActivity {
             intent.putExtra(Constant.ecgLocalFileName, ecgLocalFileName);
         }
         else {
-            MyUtil.showToask(this,"采集数据不足");
+            MyUtil.showToask(this,R.string.insufficient_to_analyze);
             return;
         }
 
@@ -956,7 +976,7 @@ public class HealthyDataActivity extends BaseActivity {
     }
 
     public static String getDataHexString(){
-        SimpleDateFormat formatter = new SimpleDateFormat("yy MM dd HH mm");
+        SimpleDateFormat formatter = new SimpleDateFormat("yy MM dd HH mm ss");
         Date curDate = new Date();
         String dateString = formatter.format(curDate);
         System.out.println(dateString);
@@ -983,6 +1003,15 @@ public class HealthyDataActivity extends BaseActivity {
         }
 
         dateHexString += maxHeartHex+minHeartHex;
+
+
+        boolean mIsAutoOffline = MyUtil.getBooleanValueFromSP("mIsAutoOffline");
+        if (mIsAutoOffline){
+            dateHexString += "01";
+        }
+        else {
+            dateHexString += "00";
+        }
         //Log.i(TAG,"dateHexString:"+dateHexString);
         return dateHexString;
     }

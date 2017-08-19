@@ -44,13 +44,13 @@ public class LockScreenActivity extends BaseActivity {
         initView();
     }
 
-    private boolean isNeedStartActivity = true;
-    private boolean isBind = false;
+    private boolean isNeedUpdateData = true;
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.i(TAG,"onResume");
+        isNeedUpdateData = true;
     }
 
     private void initView() {
@@ -71,6 +71,7 @@ public class LockScreenActivity extends BaseActivity {
             @Override
             public void onLock() {
                 rl_run_lock.setVisibility(View.GONE);
+                isNeedUpdateData = false;
                 finish();
             }
         });
@@ -87,7 +88,6 @@ public class LockScreenActivity extends BaseActivity {
         }
 
 
-
         if (StartRunActivity.mCurrTimeDate!=null){
             String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", StartRunActivity.mCurrTimeDate);
             tv_run_time.setText(specialFormatTime);
@@ -98,7 +98,7 @@ public class LockScreenActivity extends BaseActivity {
                 @Override
                 public void run() {
                     super.run();
-                    while (isNeedStartActivity){
+                    while (isNeedUpdateData){
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
@@ -137,30 +137,22 @@ public class LockScreenActivity extends BaseActivity {
         }
     }
 
-    private final ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.i(TAG,"onServiceDisconnected");
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.i(TAG,"onServiceConnected");
-
-        }
-    };
-
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return false;
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        isNeedUpdateData = false;
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
-        isNeedStartActivity = false;
+        isNeedUpdateData = false;
 
     }
 

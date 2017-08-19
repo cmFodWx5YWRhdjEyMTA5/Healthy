@@ -145,6 +145,27 @@ public class AppAbortDbAdapter {
         isPut = false;
     }
 
+    public static synchronized void putAbortDataToSP(AppAbortDataSave abortData){
+        Gson gson = new Gson();
+        String  listString = gson.toJson(abortData);
+        Log.i(TAG,"listString:"+listString);
+        MyUtil.putStringValueFromSP("abortDatas",listString);
+    }
+
+    public static synchronized AppAbortDataSave getAbortDataFromSP(){
+        String stringValueFromSP = MyUtil.getStringValueFromSP("abortDatas");
+        Log.i(TAG,"stringValueFromSP:"+stringValueFromSP);
+        Gson gson = new Gson();
+        if (!MyUtil.isEmpty(stringValueFromSP)){
+            AppAbortDataSave abortDatasTemp =  gson.fromJson(stringValueFromSP, new TypeToken<AppAbortDataSave>() {
+            }.getType());
+            if (abortDatasTemp!=null){
+                return abortDatasTemp;
+            }
+        }
+        return null;
+    }
+
     public static void saveOrUpdateAbortDataRecordToDataBase(){
 
     }

@@ -37,10 +37,9 @@ public class RunTrailMapActivity extends BaseActivity implements LocationSource,
         initView();
     }
 
-
     protected void initView() {
         initHeadView();
-        setCenterText("运动位置");
+        setCenterText(getResources().getString(R.string.motion_position));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new OnClickListener() {
             @Override

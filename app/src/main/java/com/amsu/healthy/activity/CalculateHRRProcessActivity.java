@@ -31,6 +31,8 @@ public class CalculateHRRProcessActivity extends BaseActivity {
     private RotateAnimation animation;
     private int minHeartRate = 0;
     private int maxHeartRate = 0;
+    private int firstHeartRate = 0;
+    private int lastHeartRate = 0;
     private boolean isTimeOut;
 
     @Override
@@ -80,7 +82,8 @@ public class CalculateHRRProcessActivity extends BaseActivity {
 
             Intent intent = new Intent(this, HeartRateActivity.class);
             if (isTimeOut){    //到一分钟，传递恢复心率数据
-                int hrr = maxHeartRate - minHeartRate;
+                //int hrr = maxHeartRate - minHeartRate;
+                int hrr = firstHeartRate - lastHeartRate;
                 if (hrr<=0){
                     hrr = 0;
                 }
@@ -149,7 +152,7 @@ public class CalculateHRRProcessActivity extends BaseActivity {
             }
             tv_process_rate.setText(data+"");
 
-            if (isFirstValue){
+            /*if (isFirstValue){
                 minHeartRate = maxHeartRate = data;
                 isFirstValue = false;
             }
@@ -159,6 +162,15 @@ public class CalculateHRRProcessActivity extends BaseActivity {
             }
             else if (data>maxHeartRate){
                 maxHeartRate = data;
+            }*/
+
+
+            if (isFirstValue){
+                firstHeartRate = data;
+                isFirstValue = false;
+            }
+            else {
+                lastHeartRate = data;
             }
         }
     };

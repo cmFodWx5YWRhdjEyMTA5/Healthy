@@ -50,6 +50,8 @@ public class CorrectInsoleActivity extends Activity {
         Intent intent = getIntent();
         insole_connecMac1 = intent.getStringExtra("insole_connecMac1");
         insole_connecMac2 = intent.getStringExtra("insole_connecMac2");
+        Log.i(TAG,"insole_connecMac1:"+insole_connecMac1);
+        Log.i(TAG,"insole_connecMac2:"+insole_connecMac2);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
     }
@@ -96,7 +98,7 @@ public class CorrectInsoleActivity extends Activity {
 
             if (mCorrectedSuccessedCount==2){
                 //2个都校准成功
-                correctedfinshed("校准成功，快去跑步吧!",false);
+                correctedfinshed("校准成功，快去跑步吧!",true);
             }
         }
         else if ((hexData.length()==14)){
@@ -137,8 +139,15 @@ public class CorrectInsoleActivity extends Activity {
         if (!MyUtil.isEmpty(insole_connecMac1)){
             sendCorrectOrderToDevice(insole_connecMac1);
         }
+        else {
+            MyUtil.showToask(this,"鞋垫1为空");
+        }
+
         if (!MyUtil.isEmpty(insole_connecMac2)){
             sendCorrectOrderToDevice(insole_connecMac2);
+        }
+        else {
+            MyUtil.showToask(this,"鞋垫2为空");
         }
     }
 

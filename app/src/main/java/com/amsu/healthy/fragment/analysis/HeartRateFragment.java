@@ -53,22 +53,6 @@ public class HeartRateFragment extends BaseFragment {
 
         tv_rate_suggestion = (TextView) inflate.findViewById(R.id.tv_rate_suggestion);
 
-        Button bt_hrv_history = (Button) inflate.findViewById(R.id.bt_hrv_history);
-        Button bt_hrv_myreport = (Button) inflate.findViewById(R.id.bt_hrv_myreport);
-
-        bt_hrv_history.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getActivity(), HistoryRecordActivity.class));
-            }
-        });
-        bt_hrv_myreport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getActivity(), MyReportActivity.class));
-            }
-        });
-
 
     }
 

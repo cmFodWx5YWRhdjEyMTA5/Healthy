@@ -33,9 +33,9 @@ public class ChooseWeekActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("选择日期");
-        setLeftText("取消");
-        setRightText("完成");
+        setCenterText(getResources().getString(R.string.selected_time));
+        setLeftText(getResources().getString(R.string.exit_cancel));
+        setRightText(getResources().getString(R.string.exit_confirm));
 
         getTv_base_leftText().setOnClickListener(new View.OnClickListener() {
             @Override

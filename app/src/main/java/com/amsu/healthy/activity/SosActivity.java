@@ -52,7 +52,7 @@ public class SosActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("紧急求助");
+        setCenterText(getResources().getString(R.string.emergency_help));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,7 +93,7 @@ public class SosActivity extends BaseActivity {
     }
 
     private void deleteSosContact(final int position) {
-        MyUtil.showDialog("正在删除",this);
+        MyUtil.showDialog(getResources().getString(R.string.deleting),this);
         SosNumber sosNumber = sosNumberList.get(position);
         HttpUtils httpUtils = new HttpUtils();
         final RequestParams params = new RequestParams();
@@ -112,7 +112,7 @@ public class SosActivity extends BaseActivity {
                     sosNumberList.remove(position);
                     sosListAdapter.notifyDataSetChanged();
                     MyUtil.putSosNumberList(sosNumberList);
-                    MyUtil.showToask(SosActivity.this,"删除成功");
+                    MyUtil.showToask(SosActivity.this,getResources().getString(R.string.delete_successfully));
                 }
             }
 
@@ -120,7 +120,7 @@ public class SosActivity extends BaseActivity {
             public void onFailure(HttpException e, String s) {
                 MyUtil.hideDialog(SosActivity.this);
                 Log.i(TAG,"上传onFailure==s:"+s);
-                MyUtil.showToask(SosActivity.this,"删除失败");
+                MyUtil.showToask(SosActivity.this,getResources().getString(R.string.delete_failed));
             }
         });
     }
@@ -130,10 +130,10 @@ public class SosActivity extends BaseActivity {
         if (MyUtil.isEmpty(sosinfo) || (sosNumberList!=null && sosNumberList.size()==0)){
             //MyUtil.showToask(SosActivity.this,"请输入求助信息");
             ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(this);
-            chooseAlertDialogUtil.setAlertDialogText("未设置求助信息","继续设置","不设置");
-            chooseAlertDialogUtil.setOnCancelClickListener(new ChooseAlertDialogUtil.OnCancelClickListener() {
+            chooseAlertDialogUtil.setAlertDialogText(getResources().getString(R.string.no_help_information_set),getResources().getString(R.string.exit_confirm),getResources().getString(R.string.exit_cancel));
+            chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
                 @Override
-                public void onCancelClick() {
+                public void onConfirmClick() {
                     finish();
                 }
             });
