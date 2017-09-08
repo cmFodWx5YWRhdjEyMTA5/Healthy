@@ -17,45 +17,49 @@ public class FullReport {
 
     public  class HRrepBean{
         public String id;
-        public String datatime;
-        public String AHR;
+        public long datatime;
+        public int ahr;
+        public long timestamp;
 
         @Override
         public String toString() {
-            return "ReportItem{" +
+            return "HRrepBean{" +
                     "id='" + id + '\'' +
                     ", datatime='" + datatime + '\'' +
-                    ", AHR='" + AHR + '\'' +
+                    ", ahr='" + ahr + '\'' +
+                    ", timestamp=" + timestamp +
                     '}';
         }
     }
 
     public  class HRRrepBean{
         public String id;
-        public String datatime;
-        public String RA;
+        public long datatime;
+        public int ra;
+        public long timestamp;
 
         @Override
         public String toString() {
             return "ReportItem{" +
                     "id='" + id + '\'' +
                     ", datatime='" + datatime + '\'' +
-                    ", AHR='" + RA + '\'' +
+                    ", ahr='" + ra + '\'' +
                     '}';
         }
     }
 
     public  class HRVrepBean{
         public String id;
-        public String datatime;
-        public String FI;
+        public long datatime;
+        public int fi;
+        public long timestamp;
 
         @Override
         public String toString() {
             return "ReportItem{" +
                     "id='" + id + '\'' +
                     ", datatime='" + datatime + '\'' +
-                    ", AHR='" + FI + '\'' +
+                    ", ahr='" + fi + '\'' +
                     '}';
         }
     }

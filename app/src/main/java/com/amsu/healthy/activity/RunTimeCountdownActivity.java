@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.insole.InsoleRunningActivity;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.Constant;
 
 public class RunTimeCountdownActivity extends Activity {
@@ -49,14 +50,15 @@ public class RunTimeCountdownActivity extends Activity {
                     }
                     count--;
                     if (count==1){
-                        Intent intent = getIntent();
-                        int intExtra = intent.getIntExtra(Constant.sportState, -1);
+                        int intExtra = MyApplication.deivceType;
+                        Intent intent = new Intent();
                         if (intExtra==Constant.sportType_Cloth){
-                            startActivity(new Intent(RunTimeCountdownActivity.this,StartRunActivity.class));
+                            intent.setClass(RunTimeCountdownActivity.this,StartRunActivity.class);
                         }
                         else if (intExtra==Constant.sportType_Insole){
-                            startActivity(new Intent(RunTimeCountdownActivity.this,InsoleRunningActivity.class));
+                            intent.setClass(RunTimeCountdownActivity.this,InsoleRunningActivity.class);
                         }
+                        startActivity(intent);
                         finish();
                     }
                 }

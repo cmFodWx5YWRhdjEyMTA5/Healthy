@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#212121"
-    tools:context="com.amsu.healthy.activity.HeartRateActivity">
+    tools:context="com.amsu.healthy.activity.HeartRateAnalysisActivity">
 
     <TextView
         android:id="@+id/tv_heartrate_txt"
@@ -85,7 +85,8 @@
         android:layout_marginBottom="20dp"
         android:src="@drawable/guanbi"
         android:onClick="close"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"/>
 
 
 </RelativeLayout>

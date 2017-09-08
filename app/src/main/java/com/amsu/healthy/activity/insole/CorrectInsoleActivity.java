@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.MyDeviceActivity;
+import com.amsu.healthy.activity.RunTimeCountdownActivity;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
@@ -48,8 +49,10 @@ public class CorrectInsoleActivity extends Activity {
 
     private void initData() {
         Intent intent = getIntent();
-        insole_connecMac1 = intent.getStringExtra("insole_connecMac1");
-        insole_connecMac2 = intent.getStringExtra("insole_connecMac2");
+        /*insole_connecMac1 = intent.getStringExtra("insole_connecMac1");
+        insole_connecMac2 = intent.getStringExtra("insole_connecMac2");*/
+        insole_connecMac1 = CommunicateToBleService.mInsole_connecMac1;
+        insole_connecMac2 = CommunicateToBleService.mInsole_connecMac2;
         Log.i(TAG,"insole_connecMac1:"+insole_connecMac1);
         Log.i(TAG,"insole_connecMac2:"+insole_connecMac2);
 
@@ -98,10 +101,32 @@ public class CorrectInsoleActivity extends Activity {
 
             if (mCorrectedSuccessedCount==2){
                 //2个都校准成功
-                correctedfinshed("校准成功，快去跑步吧!",true);
+                //校准成功后，需要等待4s的静止时间
+                /*MyUtil.showDialog("正在采集初始数据，请保持静止状态",this);
+                new Thread(){
+                    @Override
+                    public void run() {
+                        super.run();
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                MyUtil.hideDialog(CorrectInsoleActivity.this);
+                                correctedfinshed("校准成功，快去跑步吧!",true);
+                            }
+                        });
+                    }
+                }.start();*/
+                MyUtil.showToask(this,"校准成功，开始跑步");
+                startActivity(new Intent(CorrectInsoleActivity.this,InsoleRunningActivity.class));
+                finish();
             }
         }
-        else if ((hexData.length()==14)){
+        else if ((hexData.length()==8)){ //校准失败： 45 52 52
             if(address.equals(insole_connecMac1)){
                 tv_correct_insole1.setText(insole_connecMac1.substring(insole_connecMac1.length()-2)+"进度：校准失败!");
                 mCorrectedSuccessedCount--;
@@ -113,23 +138,28 @@ public class CorrectInsoleActivity extends Activity {
 
             if (mCorrectedSuccessedCount<=0){  //能保证2个都校准进度完成
                 //2个都校准成功
-                correctedfinshed("校准失败，请重新校准!",false);
+                //correctedfinshed("校准失败，请重新校准!",false);
+                MyUtil.showToask(this,"校准失败，请重新校准!");
             }
         }
-
     }
 
     private void correctedfinshed(String msg, final boolean isSuccessed) {
         AlertDialog alertDialog = new AlertDialog.Builder(CorrectInsoleActivity.this)
                 .setTitle(msg)
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                .setPositiveButton("去跑步", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (isSuccessed){
+                          startActivity(new Intent(CorrectInsoleActivity.this,RunTimeCountdownActivity.class));
                             finish();
+                        }
+                        else {
+                            MyUtil.showToask(CorrectInsoleActivity.this,"鞋垫校准失败，重新校准后再试");
                         }
                     }
                 })
+                .setNegativeButton("稍后再去", null)
                 .create();
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();
@@ -149,6 +179,7 @@ public class CorrectInsoleActivity extends Activity {
         else {
             MyUtil.showToask(this,"鞋垫2为空");
         }
+        mCorrectedSuccessedCount = 0;
     }
 
     private void sendCorrectOrderToDevice(String address){
@@ -166,5 +197,10 @@ public class CorrectInsoleActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
+    }
+
+    public void startNow(View view) {
+        startActivity(new Intent(CorrectInsoleActivity.this,InsoleRunningActivity.class));
+        finish();
     }
 }

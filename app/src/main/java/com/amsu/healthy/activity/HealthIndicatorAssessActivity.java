@@ -26,6 +26,7 @@ import com.amsu.healthy.bean.FullReport;
 import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.JsonBase;
+import com.amsu.healthy.bean.WeekReport;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
@@ -101,7 +102,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                 Window win = selectDialog.getWindow();
                 WindowManager.LayoutParams params = win.getAttributes();
                 win.setGravity(Gravity.RIGHT | Gravity.TOP);
-                params.x = new Float(HealthIndicatorAssessActivity.this.getResources().getDimension(R.dimen.x28)).intValue() ;//设置x坐标
+                params.circle_ring = new Float(HealthIndicatorAssessActivity.this.getResources().getDimension(R.dimen.x28)).intValue() ;//设置x坐标
                 params.y =  new Float(HealthIndicatorAssessActivity.this.getResources().getDimension(R.dimen.x148)).intValue();//设置y坐标
                 win.setAttributes(params);
 
@@ -192,29 +193,29 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         thisWeekIndicatorAssesses.add(new IndicatorAssess(0,getResources().getString(R.string.heart_rate_reserve),getResources().getString(R.string.heart_rate_reserve_decrible)));
         thisWeekIndicatorAssesses.add(new IndicatorAssess(0,getResources().getString(R.string.heart_rate_recovery),getResources().getString(R.string.heart_rate_recovery_decrible)));
         thisWeekIndicatorAssesses.add(new IndicatorAssess(0,getResources().getString(R.string.indicator_for_resistance_to_fatigue),getResources().getString(R.string.heart_rate_variability_decrible)));
+
+    }
+
+    private void initData() {
         Calendar calendar=Calendar.getInstance();
         calendar.setTime(new Date());
         mCurrYear = calendar.get(Calendar.YEAR);
         mCurrWeekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+
+        downlaodWeekRepore(mCurrYear,mCurrWeekOfYear,true);
+        downlaodWeekRepore(mCurrYear,mCurrWeekOfYear-1,false);
     }
 
-    private void initData() {
-        downlaodWeekRepore(-1,-1);
-        downlaodWeekRepore(mCurrYear,mCurrWeekOfYear-1);
-    }
-
-    private void downlaodWeekRepore(final int year, final int weekOfYear) {
+    private void downlaodWeekRepore(final int year, final int weekOfYear, final boolean isThisWeek) {
         MyUtil.showDialog(getResources().getString(R.string.loading),this);
         Log.i(TAG,"downlaodWeekRepore=======year:"+year+"  weekOfYear:"+weekOfYear);
 
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
-        if (year!=-1){
-            params.addBodyParameter("year",year+"");
-        }
-        if (weekOfYear!=-1){
-            params.addBodyParameter("week",weekOfYear+"");
-        }
+
+        params.addBodyParameter("year",year+"");
+        params.addBodyParameter("week",weekOfYear+"");
+
         MyUtil.addCookieForHttp(params);
 
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadWeekReportURL, params, new RequestCallBack<String>() {
@@ -229,7 +230,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                 JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
                 Log.i(TAG,"jsonBase:"+jsonBase);
                 if (jsonBase.getRet()==0){
-                    if (year==-1){
+                    if (isThisWeek){
                         //本周数据
                         thisWeekReport = gson.fromJson(result, WeekReport.class);
                         Log.i(TAG,"thisWeekReport:"+ thisWeekReport.toString());
@@ -293,7 +294,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                 Log.i(TAG,"year:"+year+", currWeekOfYear:"+currWeekOfYear+",mChoosedweek:"+mChoosedweek);
 
                 if (year!=-1 && currWeekOfYear!=-1){
-                    downlaodWeekRepore(year,currWeekOfYear);
+                    downlaodWeekRepore(year,currWeekOfYear,false);
                 }
                 if (!MyUtil.isEmpty(mChoosedweek)){
                     tv_assess_compare.setText(mChoosedweek);
@@ -371,10 +372,10 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
 
 
             IndicatorAssess scoreBeat = null;
-            List<Integer> zaoboloubo = weekReport.errDesc.zaoboloubo;
-            if (zaoboloubo!=null && zaoboloubo.size()>1){
-                int zaobo  = zaoboloubo.get(0);
-                int loubo  = zaoboloubo.get(1);
+            List<WeekReport.WeekReportResult.Zaoboloubo> zaoboloubo = weekReport.errDesc.zaoboloubo;
+            if (zaoboloubo!=null && zaoboloubo.size()>0){
+                int zaobo  = zaoboloubo.get(0).zaoboTimes;
+                int loubo  = zaoboloubo.get(0).louboTimes;
                 if (zaobo<0){
                     zaobo = 0;
                 }
@@ -611,49 +612,6 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         }
     }
 
-    class WeekReport{
-        public String ret;
-        public WeekReportResult errDesc;
 
-         class WeekReportResult{
-            public String chubeijiankang;
-            public List<Integer> zaoboloubo;
-            public List<String> guosuguohuan;
-            public List<String> kangpilaozhishu;
-            public List<String> huifuxinlv;
-            public List<HistoryRecordItem> list;
-
-            public class HistoryRecordItem {
-                public String ID;
-                public String timestamp;
-                public String state;
-
-                public HistoryRecordItem(String ID, String timestamp, String state) {
-                    this.ID = ID;
-                    this.timestamp = timestamp;
-                    this.state = state;
-                }
-
-                @Override
-                public String toString() {
-                    return "HistoryRecordItem [ID=" + ID + ", timestamp="
-                            + timestamp + ", state=" + state + "]";
-                }
-            }
-
-            @Override
-            public String toString() {
-                return "WeekReport [chubeijiankang=" + chubeijiankang
-                        + ", zaoboloubo=" + zaoboloubo + ", guosuguohuan="
-                        + guosuguohuan + ", kangpilaozhishu=" + kangpilaozhishu
-                        + ", huifuxinlv=" + huifuxinlv + ", list=" + list + "]";
-            }
-        }
-
-        @Override
-        public String toString() {
-            return "WeekReport [ret=" + ret + ", errDesc=" + errDesc + "]";
-        }
-    }
 
 }

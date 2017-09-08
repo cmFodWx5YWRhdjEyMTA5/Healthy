@@ -1,26 +1,19 @@
 package com.amsu.healthy.fragment.analysis;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.HistoryRecordActivity;
-import com.amsu.healthy.activity.MyReportActivity;
-import com.amsu.healthy.activity.RateAnalysisActivity;
+import com.amsu.healthy.activity.HeartRateResultShowActivity;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.fragment.BaseFragment;
-import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
-import com.amsu.healthy.utils.MyUtil;
 
 public class HRRFragment extends BaseFragment {
 
@@ -49,22 +42,17 @@ public class HRRFragment extends BaseFragment {
     }
 
     private void initData() {
-        UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
+        UploadRecord mUploadRecord = HeartRateResultShowActivity.mUploadRecord;
         Log.i(TAG,"mUploadRecord:"+mUploadRecord);
-        if (mUploadRecord!=null && !MyUtil.isEmpty(mUploadRecord.RA) && !mUploadRecord.RA.equals(Constant.uploadRecordDefaultString)){
+        if (mUploadRecord!=null && mUploadRecord.ra>0){
             Log.i(TAG,"mUploadRecord:"+mUploadRecord);
-            if (mUploadRecord.RA.equals("0")){
-                tv_hrr_value.setText("--");
-            }
-            else {
-                tv_hrr_value.setText(mUploadRecord.RA);  //注意：此处的是恢复数值，不是分数
-            }
+            tv_hrr_value.setText(mUploadRecord.ra+"");  //注意：此处的是恢复数值，不是分数
 
-            if (Integer.parseInt(mUploadRecord.RA)>0) {
-                IndicatorAssess indicatorAssess = HealthyIndexUtil.calculateScoreHRR(Integer.parseInt(mUploadRecord.RA),getActivity());
-                tv_hrr_suggestion.setText(indicatorAssess.getSuggestion());
-            }
+            IndicatorAssess indicatorAssess = HealthyIndexUtil.calculateScoreHRR(mUploadRecord.ra,getActivity());
+            tv_hrr_suggestion.setText(indicatorAssess.getSuggestion());
+
         }
     }
+
 }
 

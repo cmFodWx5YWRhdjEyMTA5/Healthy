@@ -11,13 +11,12 @@ import java.util.List;
  */
 public class ECGUtil {
 
-    public static int[] geIntEcgaArr(String hexString,String splitSring,int startIndex,int parseLength) {
-        int [] intEcgaArr = new int[parseLength];
+    public static void geIntEcgaArr(String hexString,String splitSring,int startIndex,int parseLength,int[] ecgInts) {
+        //int [] intEcgaArr = new int[parseLength];
         String[] split = hexString.split(splitSring);
         for (int i = startIndex; i < startIndex+parseLength; i++) {
-            intEcgaArr[i-startIndex] = Integer.parseInt(split[i],16);
+            ecgInts[i-startIndex] = Integer.parseInt(split[i],16);
         }
-        return intEcgaArr;
     }
 
     public static List<Integer> geIntEcgaArrList(String hexString,String splitSring,int startIndex,int parseLength) {

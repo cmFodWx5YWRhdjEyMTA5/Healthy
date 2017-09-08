@@ -69,7 +69,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="户外跑步"
+        android:text="@string/outdoor_running"
         android:layout_marginTop="@dimen/x92"
         android:textColor="#000000"
         android:textSize="@dimen/x70"/>
@@ -91,7 +91,6 @@
             android:layout_marginLeft="@dimen/x24"
             android:background="@drawable/bg_view_circle_grid"></View>
     </LinearLayout>
-
 
 
 

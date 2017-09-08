@@ -129,22 +129,22 @@ public class MyReportActivity extends BaseActivity {
                         "            {\n" +
                         "                \"id\": \"157\",\n" +
                         "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
-                        "                \"AHR\": \"79\"\n" +
+                        "                \"ahr\": \"79\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"158\",\n" +
                         "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
-                        "                \"AHR\": \"79\"\n" +
+                        "                \"ahr\": \"79\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"159\",\n" +
                         "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
-                        "                \"AHR\": \"79\"\n" +
+                        "                \"ahr\": \"79\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"160\",\n" +
                         "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
-                        "                \"AHR\": \"79\"\n" +
+                        "                \"ahr\": \"79\"\n" +
                         "            }\n" +
                         "        ],\n" +
                         "        \"ECrep\": [\n" +
@@ -157,44 +157,44 @@ public class MyReportActivity extends BaseActivity {
                         "            {\n" +
                         "                \"id\": \"157\",\n" +
                         "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
-                        "                \"RA\": \"96\"\n" +
+                        "                \"ra\": \"96\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"158\",\n" +
                         "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
-                        "                \"RA\": \"96\"\n" +
+                        "                \"ra\": \"96\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"159\",\n" +
                         "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
-                        "                \"RA\": \"96\"\n" +
+                        "                \"ra\": \"96\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"160\",\n" +
                         "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
-                        "                \"RA\": \"96\"\n" +
+                        "                \"ra\": \"96\"\n" +
                         "            }\n" +
                         "        ],\n" +
                         "        \"HRVrep\": [\n" +
                         "            {\n" +
                         "                \"id\": \"157\",\n" +
                         "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
-                        "                \"FI\": \"30\"\n" +
+                        "                \"fi\": \"30\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"158\",\n" +
                         "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
-                        "                \"FI\": \"30\"\n" +
+                        "                \"fi\": \"30\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"159\",\n" +
                         "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
-                        "                \"FI\": \"30\"\n" +
+                        "                \"fi\": \"30\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"160\",\n" +
                         "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
-                        "                \"FI\": \"30\"\n" +
+                        "                \"fi\": \"30\"\n" +
                         "            }\n" +
                         "        ],\n" +
                         "        \"HRlist\": [\n" +
@@ -212,11 +212,15 @@ public class MyReportActivity extends BaseActivity {
                 Log.i(TAG,"上传onSuccess==result:"+result);
 
                 loadDataSucces();
-                JsonBase<FullReport> jsonBase =  MyUtil.commonJsonParse(result,new TypeToken<JsonBase<FullReport>>() {}.getType());
-                Log.i(TAG,"jsonBase:"+jsonBase);
-                if (jsonBase!=null&&jsonBase.getRet()==0){
-                    mMouthFullReport = jsonBase.errDesc;
-                    Log.i(TAG,"mMouthFullReport:"+mMouthFullReport.toString());
+                try {
+                    JsonBase<FullReport> jsonBase =  MyUtil.commonJsonParse(result,new TypeToken<JsonBase<FullReport>>() {}.getType());
+                    Log.i(TAG,"jsonBase:"+jsonBase);
+                    if (jsonBase!=null&&jsonBase.getRet()==0){
+                        mMouthFullReport = jsonBase.errDesc;
+                        Log.i(TAG,"mMouthFullReport:"+mMouthFullReport.toString());
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
             }
 
@@ -255,22 +259,22 @@ public class MyReportActivity extends BaseActivity {
                         "            {\n" +
                         "                \"id\": \"157\",\n" +
                         "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
-                        "                \"AHR\": \"79\"\n" +
+                        "                \"ahr\": \"79\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"158\",\n" +
                         "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
-                        "                \"AHR\": \"79\"\n" +
+                        "                \"ahr\": \"79\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"159\",\n" +
                         "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
-                        "                \"AHR\": \"79\"\n" +
+                        "                \"ahr\": \"79\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"160\",\n" +
                         "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
-                        "                \"AHR\": \"79\"\n" +
+                        "                \"ahr\": \"79\"\n" +
                         "            }\n" +
                         "        ],\n" +
                         "        \"ECrep\": [\n" +
@@ -283,44 +287,44 @@ public class MyReportActivity extends BaseActivity {
                         "            {\n" +
                         "                \"id\": \"157\",\n" +
                         "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
-                        "                \"RA\": \"96\"\n" +
+                        "                \"ra\": \"96\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"158\",\n" +
                         "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
-                        "                \"RA\": \"96\"\n" +
+                        "                \"ra\": \"96\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"159\",\n" +
                         "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
-                        "                \"RA\": \"96\"\n" +
+                        "                \"ra\": \"96\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"160\",\n" +
                         "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
-                        "                \"RA\": \"96\"\n" +
+                        "                \"ra\": \"96\"\n" +
                         "            }\n" +
                         "        ],\n" +
                         "        \"HRVrep\": [\n" +
                         "            {\n" +
                         "                \"id\": \"157\",\n" +
                         "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
-                        "                \"FI\": \"30\"\n" +
+                        "                \"fi\": \"30\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"158\",\n" +
                         "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
-                        "                \"FI\": \"30\"\n" +
+                        "                \"fi\": \"30\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"159\",\n" +
                         "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
-                        "                \"FI\": \"30\"\n" +
+                        "                \"fi\": \"30\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"160\",\n" +
                         "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
-                        "                \"FI\": \"30\"\n" +
+                        "                \"fi\": \"30\"\n" +
                         "            }\n" +
                         "        ],\n" +
                         "        \"HRlist\": [\n" +
@@ -336,12 +340,17 @@ public class MyReportActivity extends BaseActivity {
                         "    }\n" +
                         "}";*/
 
-                JsonBase<FullReport> jsonBase =  MyUtil.commonJsonParse(result,new TypeToken<JsonBase<FullReport>>() {}.getType());
-                Log.i(TAG,"jsonBase:"+jsonBase);
-                if (jsonBase!=null&&jsonBase.getRet()==0){
-                    mQuarterFullReport = jsonBase.errDesc;
-                    Log.i(TAG,"mQuarterFullReport:"+mQuarterFullReport.toString());
+                try {
+                    JsonBase<FullReport> jsonBase =  MyUtil.commonJsonParse(result,new TypeToken<JsonBase<FullReport>>() {}.getType());
+                    Log.i(TAG,"jsonBase:"+jsonBase);
+                    if (jsonBase!=null&&jsonBase.getRet()==0){
+                        mQuarterFullReport = jsonBase.errDesc;
+                        Log.i(TAG,"mQuarterFullReport:"+mQuarterFullReport.toString());
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
+
             }
 
             @Override
@@ -371,22 +380,22 @@ public class MyReportActivity extends BaseActivity {
                         "            {\n" +
                         "                \"id\": \"157\",\n" +
                         "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
-                        "                \"AHR\": \"79\"\n" +
+                        "                \"ahr\": \"79\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"158\",\n" +
                         "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
-                        "                \"AHR\": \"79\"\n" +
+                        "                \"ahr\": \"79\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"159\",\n" +
                         "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
-                        "                \"AHR\": \"79\"\n" +
+                        "                \"ahr\": \"79\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"160\",\n" +
                         "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
-                        "                \"AHR\": \"79\"\n" +
+                        "                \"ahr\": \"79\"\n" +
                         "            }\n" +
                         "        ],\n" +
                         "        \"ECrep\": [\n" +
@@ -399,44 +408,44 @@ public class MyReportActivity extends BaseActivity {
                         "            {\n" +
                         "                \"id\": \"157\",\n" +
                         "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
-                        "                \"RA\": \"96\"\n" +
+                        "                \"ra\": \"96\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"158\",\n" +
                         "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
-                        "                \"RA\": \"96\"\n" +
+                        "                \"ra\": \"96\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"159\",\n" +
                         "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
-                        "                \"RA\": \"96\"\n" +
+                        "                \"ra\": \"96\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"160\",\n" +
                         "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
-                        "                \"RA\": \"96\"\n" +
+                        "                \"ra\": \"96\"\n" +
                         "            }\n" +
                         "        ],\n" +
                         "        \"HRVrep\": [\n" +
                         "            {\n" +
                         "                \"id\": \"157\",\n" +
                         "                \"datatime\": \"2016-10-25 12:49:24\",\n" +
-                        "                \"FI\": \"30\"\n" +
+                        "                \"fi\": \"30\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"158\",\n" +
                         "                \"datatime\": \"2016-10-25 08:16:04\",\n" +
-                        "                \"FI\": \"30\"\n" +
+                        "                \"fi\": \"30\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"159\",\n" +
                         "                \"datatime\": \"2016-10-27 12:02:44\",\n" +
-                        "                \"FI\": \"30\"\n" +
+                        "                \"fi\": \"30\"\n" +
                         "            },\n" +
                         "            {\n" +
                         "                \"id\": \"160\",\n" +
                         "                \"datatime\": \"2016-10-26 12:56:04\",\n" +
-                        "                \"FI\": \"30\"\n" +
+                        "                \"fi\": \"30\"\n" +
                         "            }\n" +
                         "        ],\n" +
                         "        \"HRlist\": [\n" +
@@ -452,11 +461,16 @@ public class MyReportActivity extends BaseActivity {
                         "    }\n" +
                         "}";
 */
-                JsonBase<FullReport> jsonBase =  MyUtil.commonJsonParse(result,new TypeToken<JsonBase<FullReport>>() {}.getType());
-                Log.i(TAG,"jsonBase:"+jsonBase);
-                if (jsonBase!=null&&jsonBase.getRet()==0){
-                    mYearFullReport = jsonBase.errDesc;
-                    Log.i(TAG,"mYearFullReport:"+mYearFullReport.toString());
+
+                try {
+                    JsonBase<FullReport> jsonBase =  MyUtil.commonJsonParse(result,new TypeToken<JsonBase<FullReport>>() {}.getType());
+                    Log.i(TAG,"jsonBase:"+jsonBase);
+                    if (jsonBase!=null&&jsonBase.getRet()==0){
+                        mYearFullReport = jsonBase.errDesc;
+                        Log.i(TAG,"mYearFullReport:"+mYearFullReport.toString());
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
             }
 

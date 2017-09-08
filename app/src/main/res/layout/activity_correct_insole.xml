@@ -71,5 +71,19 @@
         android:onClick="startCorrect"
         android:layout_centerHorizontal="true"/>
 
+    <TextView
+        android:id="@+id/tv_correct_startnow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_below="@+id/iv_img1"
+        android:text="跳过"
+        android:textColor="#0c64b5"
+        android:textSize="@dimen/x48"
+        android:layout_marginTop="@dimen/y492"
+        android:padding="@dimen/x40"
+        android:onClick="startNow"
+        android:layout_alignParentRight="true"/>
+
 
 </RelativeLayout>

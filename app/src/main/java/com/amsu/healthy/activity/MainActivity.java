@@ -3,6 +3,8 @@ package com.amsu.healthy.activity;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -48,6 +50,8 @@ import com.ble.api.DataUtil;
 import com.ble.ble.BleService;
 import com.google.gson.Gson;
 import com.tencent.bugly.crashreport.CrashReport;
+import com.test.objects.HeartRateResult;
+import com.test.utils.DiagnosisNDK;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
@@ -170,10 +174,17 @@ public class MainActivity extends BaseActivity {
 
         Log.i(TAG,"currentHeartRate:"+currentHeartRate);*/
 
-        //List<AppAbortDbAdapter.AbortData> abortDataListFromSP = AppAbortDbAdapter.getAbortDataListFromSP();
+        /*int[] test = new int[180000];
+        for (int i=0;i<180000;i++){
+            test[i] = 60+i%20;
+        }
+        HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(test, test.length, Constant.oneSecondFrame);
+        Log.i(TAG,"heartRateResult:"+heartRateResult.toString());*/
+
+        //List<AppAbortDbAdapterUtil.AbortData> abortDataListFromSP = AppAbortDbAdapterUtil.getAbortDataListFromSP();
         //Log.i(TAG,"abortDataListFromSP:"+abortDataListFromSP.toString());
 
-        //AppAbortDbAdapter.putAbortDataListToSP(new ArrayList<AppAbortDbAdapter.AbortData>());
+        //AppAbortDbAdapterUtil.putAbortDataListToSP(new ArrayList<AppAbortDbAdapterUtil.AbortData>());
 
 
         /*ActivityManager myManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -295,6 +306,9 @@ public class MainActivity extends BaseActivity {
 
 
         Log.i(TAG,"Build.MODEL: "+ Build.MODEL);
+        /*String test =  "gwCBAH8AfgB9AHwAewB7AHsAewB7AHsAewB7AHwAewB7AHwAfAB8AH0AfQB+AH8AfwB+AH4AfQB9AHwAfAB8AHwAfAB8AH0AfQB9AH0AfwCEAI4AkgCDAHEAcgB5AHsAfAB9AH0AfgB/AIAAgACBAIEAggCEAIUAhwCJAIwAjgCPAI8AjwCOAIwAiQCGAIMAgQB/AH0AfAB8AHsAewB7AHsAewB7AHwAfAB8AHwAfAB8AH0AfQB9AH0AfgB/AH8AfgB9AH0AfQB9AH0AfQB+AH4AfgB9AH4AfgB/AIQAjACTAIkAdABxAHkAfQB+AH4AfwB/AIAAgACBAIIAgwCDAIQAhgCHAIoAjACOAJAAkACQAI8AjQCKAIcAhQCCAH8AfgB9AHwAfAB7AHsAewB7AHwAfAB8AHwAfAB8AHwAfAB8AHwAfAB9AH4AfgB+AH4AfQB9AHwAfAB8AH0AfAB8AH0AfQB8AHwAfgCCAIsAkwCKAHQAcQB4AHsAfAB8AHwAfQB+AH4AfwB/AIAAgQCCAIMAhQCHAIkAjACOAI4AjgCNAIsAiQCGAIMAgAB+AH0AfAB7AHsAegB6AHoAegB6AHoAewB6AHsAewB7AHsAfAB7AHwAfQB+AH4AfQB9AHwAfAB8AHwAfAB8AHwAfAB9AH0AfQB8AHwAgACIAJMAjgB4AHAAdgB6AHsAfAB8AHwAfQB+AH4AfwCAAIAAggCDAIUAhwCJAIwAjQCOAI8AjwCNAIoAhwCEAIIAgAA=\n";
+        String s = MyUtil.decodeBase64String(test);
+        Log.i(TAG,"s:"+s);*/
 
 
         /*测试计算心率算法
@@ -426,12 +440,12 @@ public class MainActivity extends BaseActivity {
             }
         },5);*/
 
-        /*AppAbortDbAdapter offLineDbAdapter = new AppAbortDbAdapter(this);
+        /*AppAbortDbAdapterUtil offLineDbAdapter = new AppAbortDbAdapterUtil(this);
         offLineDbAdapter.open();
 
         UploadRecord uploadRecord = new UploadRecord();
         uploadRecord.setUploadState("0");
-        uploadRecord.setFI("BBBBBBBB");
+        uploadRecord.setFi("BBBBBBBB");
         uploadRecord.setId("1496398469312");
 
         offLineDbAdapter.createOrUpdateUploadReportObject(uploadRecord);
@@ -440,7 +454,7 @@ public class MainActivity extends BaseActivity {
         Log.i(TAG,"uploadRecordsState:"+uploadRecordsState);*/
 
 
-        /*AppAbortDbAdapter offLineDbAdapter = new AppAbortDbAdapter(this);
+        /*AppAbortDbAdapterUtil offLineDbAdapter = new AppAbortDbAdapterUtil(this);
         offLineDbAdapter.open();
         offLineDbAdapter.addColumnToTable("serveId","STRING");
 
@@ -464,16 +478,22 @@ public class MainActivity extends BaseActivity {
         /*Intent service = new Intent(this, CommunicateToBleService.class);
         startService(service);*/
 
-        Log.i(TAG,"Build.MODEL"+Build.MODEL);
+        /*Log.i(TAG,"Build.MODEL"+Build.MODEL);
 
 
-        /*int []calcuEcgRate  = new int[1800];
+        int []calcuEcgRate  = new int[1800];
 
         for (int i=0;i<1800;i++){
             calcuEcgRate[i] = i%20;
         }
+
+        int mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+        Log.i(TAG,"mCurrentHeartRate:"+mCurrentHeartRate);*/
+
+
+
         //计算
-        byte[] bytes = new byte[1800];
+        /*byte[] bytes = new byte[1800];
         for (int i=0;i<1800;i++){
             bytes[i] = (byte)(int)calcuEcgRate[i];
         }
@@ -482,6 +502,8 @@ public class MainActivity extends BaseActivity {
         DiagnosisNDK.AnalysisPedo(bytes,calcuEcgRate.length,results);
 
         Log.i(TAG,"results: "+results[0]+"  "+results[1]);   //results: 2  30*/
+
+
 
     }
 
@@ -519,7 +541,7 @@ public class MainActivity extends BaseActivity {
                         iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
                     }
                     else if (MyApplication.deivceType==Constant.sportType_Insole){
-                        if (CommunicateToBleService.mInsoleConnectedCount==2){
+                        if (MyApplication.insoleConnectedMacAddress.size()==2){
                             iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
                         }
                     }
@@ -625,7 +647,7 @@ public class MainActivity extends BaseActivity {
         if (mValueAnimator!=null){
             mValueAnimator.start();
             cv_mian_index.setValue(170);
-            cv_mian_warring.setValue(270);
+            cv_mian_warring.setValue(230);
             if (scoreALL >0){
                 dv_main_compass.setAgeData(physicalAge-10);
             }
@@ -707,7 +729,16 @@ public class MainActivity extends BaseActivity {
                     //startActivity(new Intent(MainActivity.this,PrepareRunningActivity.class));
                     break;
                 case R.id.rl_main_me:
+                    /*List<BluetoothDevice> connectedDevices = LeProxy.getInstance().getConnectedDevices();
+                    Log.i(TAG,"connectedDevices:"+connectedDevices);
+                    for (BluetoothDevice bluetoothDevice:connectedDevices){
+                        Log.i(TAG,"bluetoothDevice:"+bluetoothDevice.toString());
+
+                    }*/
                     startActivity(new Intent(MainActivity.this,MeActivity.class));
+
+                    BluetoothGatt bluetoothGatt ;
+
 
                     break;
                 case R.id.rl_mian_start:
@@ -799,8 +830,8 @@ public class MainActivity extends BaseActivity {
     private void startOnlineRun(AlertDialog alertDialog) {
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         // 判断GPS模块是否开启，如果没有则开启
-        Log.i(TAG,"gps打开？:"+locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER));
-        if (!locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
+        Log.i(TAG,"gps打开？:"+locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             MyUtil.chooseOpenGps(this);
         }
         else {
@@ -817,7 +848,7 @@ public class MainActivity extends BaseActivity {
             boolean send = LeProxy.getInstance().send(CommunicateToBleService.clothDeviceConnecedMac, DataUtil.hexToByteArray(Constant.stopDataTransmitOrder), true);
             if (send){
                 alertDialog.dismiss();
-                android.support.v7.app.AlertDialog alertDialog_1 = new android.support.v7.app.AlertDialog.Builder(MainActivity.this)
+                AlertDialog alertDialog_1 = new AlertDialog.Builder(MainActivity.this)
                         .setTitle("主机已进入离线，快去跑步吧，记得回来同步跑步数据哦！")
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override

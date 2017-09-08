@@ -219,7 +219,6 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
             grade.add(provinceModels.get(i).getName());
         }
 
-
         //省份的数据
         picker_provice.setData(grade);
         province = grade.get(grade.size()/2);

@@ -64,16 +64,16 @@
                 android:layout_height="wrap_content"
                 android:text="--"
                 android:textColor="#3b3b3b"
-                android:textSize="@dimen/x96"
+                android:textSize="@dimen/x92"
                 android:gravity="center"/>
             <TextView
                 android:id="@+id/tv_run_time"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="0:00:00"
+                android:text="00:00:00"
                 android:textColor="#3b3b3b"
-                android:textSize="@dimen/x96"
+                android:textSize="@dimen/x92"
                 android:gravity="center"/>
 
             <TextView
@@ -83,7 +83,7 @@
                 android:layout_height="wrap_content"
                 android:text="--"
                 android:textColor="#3b3b3b"
-                android:textSize="@dimen/x96"
+                android:textSize="@dimen/x92"
                 android:gravity="center"/>
 
         </LinearLayout>
@@ -142,7 +142,7 @@
                 android:layout_height="wrap_content"
                 android:text="--"
                 android:textColor="#3b3b3b"
-                android:textSize="@dimen/x96"
+                android:textSize="@dimen/x92"
                 android:gravity="center"/>
 
             <TextView
@@ -152,7 +152,7 @@
                 android:layout_height="wrap_content"
                 android:text="--"
                 android:textColor="#3b3b3b"
-                android:textSize="@dimen/x96"
+                android:textSize="@dimen/x92"
                 android:gravity="center"/>
             <TextView
                 android:id="@+id/tv_run_kcal"
@@ -161,11 +161,10 @@
                 android:layout_height="wrap_content"
                 android:text="--"
                 android:textColor="#3b3b3b"
-                android:textSize="@dimen/x96"
+                android:textSize="@dimen/x92"
                 android:gravity="center"/>
         </LinearLayout>
     </RelativeLayout>
-
 
     <RelativeLayout
         android:id="@+id/rl_run_lock"

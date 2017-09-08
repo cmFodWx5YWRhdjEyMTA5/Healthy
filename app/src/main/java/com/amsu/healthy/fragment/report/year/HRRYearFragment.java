@@ -17,6 +17,7 @@ import com.amsu.healthy.view.FoldLineViewWithPoint;
 import com.amsu.healthy.view.FoldLineViewWithTextOne;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -75,10 +76,13 @@ public class HRRYearFragment extends BaseFragment {
                 List<Integer> dataList = new ArrayList<>();
                 List<String> labeList = new ArrayList<>();
                 for (FullReport.HRRrepBean hrRrepBean:hRrep){
-                    if (Integer.parseInt(hrRrepBean.RA)>0){
-                        dataList.add(Integer.parseInt(hrRrepBean.RA));
-                        labeList.add(MyUtil.getReportDateStingForMouthAndDay(hrRrepBean.datatime));
-                    }
+
+                        if (hrRrepBean.ra>0){
+                            dataList.add(hrRrepBean.ra);
+                            labeList.add(MyUtil.getSpecialFormatTime("MM月dd日",new Date(hrRrepBean.datatime)));
+                        }
+
+
                 }
 
                 int[] datas = new int[dataList.size()];

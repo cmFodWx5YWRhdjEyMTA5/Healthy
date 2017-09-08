@@ -41,7 +41,7 @@
                 android:id="@+id/tv_text1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="生理年龄"
+                android:text="@string/age"
                 android:textSize="@dimen/x36"
                 android:textColor="#FFFFFF"
                 android:layout_centerInParent="true"/>
@@ -72,7 +72,7 @@
                 android:id="@+id/tv_physical_agereal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="实际年龄--"
+                android:text="@string/actual_age"
                 android:textColor="#FFFFFF"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"

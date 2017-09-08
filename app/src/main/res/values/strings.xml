@@ -75,7 +75,7 @@
     <string name="distance">里程</string>
     <string name="exercise_time">用时</string>
     <string name="exercise_heart_rate">心率</string>
-    <string name="exercise_heart_ecg">心率</string>
+    <string name="exercise_heart_ecg">心电</string>
     <string name="exercise_pace">配速</string>
     <string name="exercise_pace_unit">分钟/公里</string>
     <string name="exercise_speed">配速(分钟/公里)</string>
@@ -96,7 +96,7 @@
     <string name="exercise_cardio_curve">有氧无氧曲线</string>
     <string name="exercise_cardio">有氧无氧</string>
     <string name="exercise_flat">平缓</string>
-    <string name="exercise_oxygenated">有氧,</string>
+    <string name="exercise_oxygenated">有氧</string>
     <string name="exercise_without_oxygen">无氧</string>
     <string name="exercise_in_danger">高危</string>
 
@@ -167,7 +167,7 @@
     <string name="height">身高</string>
     <string name="rest_heart_rate">静息心率</string>
     <string name="address">地址</string>
-    <string name="phone">电话</string>
+    <string name="phone">手机号</string>
     <string name="email">邮箱</string>
 
     <string name="select_from_album">从相册中选择</string>
@@ -208,7 +208,7 @@
     <string name="sportswear_connection_successful">运动衣连接成功</string>
     <string name="insole_connection_successful">鞋垫连接成功</string>
     <string name="sportswear_connection_disconnected">运动衣连接断开</string>
-    <string name="insole_connection_disconnected">鞋垫衣连接断开</string>
+    <string name="insole_connection_disconnected">鞋垫连接断开</string>
 
     <string name="checking_version_information">正在查询版本信息</string>
     <string name="this_latest_version">当前已是最新版本</string>
@@ -225,7 +225,7 @@
     <string name="lock">锁屏</string>
     <string name="glide_to_unlock">下滑解锁</string>
     <string name="running">正在跑步</string>
-    <string name="motion_position">运动位置</string>
+    <string name="motion_position">当前位置</string>
 
 
     <string name="current_heart_rate">当前心率</string>
@@ -282,11 +282,11 @@
 
     <string name="HeartRate_suggetstion_fast">心动过速：正常人可由运动或精神紧张引起,也可见于发热、甲状腺功能亢进、贫血、失血等情况。请您注意休息，保持情绪稳定，当感觉身体不适时，请及时就医。 </string>
     <string name="HeartRate_suggetstion_slow">心动过缓：常见于健康的青年人、运动员，及睡眠状态下的一般健康人群，也可见于窦房结功能障碍、甲状腺功能低下、颅内压增高及服用某些药物后的异常反应，偶尔出现属正常现象，不必过于紧张。当症状频繁出现或感觉身体不适时可到医院做进一步检查 </string>
-    <string name="HeartRate_suggetstion_nodata">采样时间不够或设备脱落"</string>
+    <string name="HeartRate_suggetstion_nodata">采样时间不够三分钟或设备连接脱落"</string>
     <string name="HeartRate_suggetstion_normal">心率正常</string>
 
     <string name="premature_beat_times">本次测量早搏</string>
-    <string name="premature_beat_times_decrible">次。早搏：早搏是指异位起搏点发出的过早冲动引起的心脏搏动。早搏除常见于各种器质性心脏病人外，健康人也会偶有发生，请您不必紧张，保持心情放松；当有明显症状或感觉身体不适时请及时就医检查。</string>
+    <string name="premature_beat_times_decrible">次。早搏是指异位起搏点发出的过早冲动引起的心脏搏动。早搏除常见于各种器质性心脏病人外，健康人也会偶有发生，请您不必紧张，保持心情放松；当有明显症状或感觉身体不适时请及时就医检查。</string>
     <string name="missed_beat_times">本次测量漏搏</string>
     <string name="missed_beat_times_decrible">次。与迷走神经张力增高有关，可见于正常人或运动员，也可见于急性心肌梗死、冠状动脉痉挛、心肌炎等情况，当有明显状况时请及时就医。</string>
     <string name="abnormal_ecg">正常心电图</string>
@@ -306,7 +306,7 @@
     <string name="heart_rate_slow_fast_decrible">正常人静态心率是45～105次/分，小于45就称为心动过缓。除运动员、经常进行重负荷锻炼或劳动的人之外，心率或脉搏小于50次多数为病理性。\n心动过速：成人静态心率每分钟超过105次称心动过速。心动过速分生理性、病理性两种。跑步、饮酒、重体力劳动及情绪激动时心律加快为生理性心动过速；若高热、贫血、甲亢、出血、疼痛、缺氧、心衰和心肌病等疾病引起心动过速，称病理性心动过速</string>
     <string name="premature_beat_missed_beat_decrible">是指异位起搏点发出的过早冲动引起的心脏搏动，为最常见的心律失常。如果存在少跳一拍的情况，就是漏博，这通常可能就是合并早搏。频发的早搏会损害心肌功能，诱发心肌缺血，某些早搏还可诱发室速、室颤，情况十分危险，一不小心还容易有猝死的隐患。对于非良性的早搏患者一定要引起重视，积极接受治疗，严重的还需要进行手术治疗</string>
     <string name="health_reserve_decrible">以每周的运动时间（T）来衡量健康储备，通过适量的运动，储备体能，提高心肺能力，合理安排训练计划，储备健康。健康储备的标准，建议每天坚持有氧运动半小时，最好是每天锻炼60分钟，一周累计420分钟，但是每次训练建议不要超过90分钟。</string>
-    <string name="health_BMI_decrible">您现在的BMI指数处于令人羡慕的范围，但是不要骄傲哦！坚持适当运动，合理搭配营养，保持一个好身体，您才是人生最大赢家。</string>
+    <string name="health_BMI_decrible">（即身体质量指数，简称BMI），是用体重公斤数除以身高米数平方得出的数字，是目前国际上常用的衡量人体胖瘦程度以及是否健康的一个重要标准。</string>
     <string name="heart_rate_indicator_decrible">针对采集到的人体静态和动态的心电数据，经由专业的应用程序进行数据分析，把心电数据体现出来的储备心率、恢复心率、抗疲劳指数、心率异常、健康储备等数据进行中和评价得出的身体健康状态评分，分数越高标识身体综合状态越好。</string>
     <string name="points">分</string>
 
@@ -371,7 +371,21 @@
     <string name="missbeat_suggetstion_lev1">未发现漏搏现象，您的心脏很棒，可以保持当前训练强度。</string>
     <string name="missbeat_suggetstion_lev2">您发生过漏博现象，通常可能因为精神紧张、烟酒过度、生活不规律、夜间休息不足等原因所导致。如只出现心脏漏跳的感觉，没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则只需注意调整生活节奏保持良好生活习惯，不需要过分担心。"</string>
 
+    <string name="outdoor_running">户外跑步</string>
+    <string name="indoor_running">室内跑步</string>
 
+    <string name="scan_code">扫码登陆</string>
 
+    <string name="resting_heart_collected">正在采集静态心率</string>
+    <string name="please_wait_moment">需要一分钟，请稍后</string>
 
+    <string name="running_tim_or_distance">跑步时间或距离太短，无法保存记录，是否继续跑步？ </string>
+    <string name="keep_running">继续跑步</string>
+    <string name="end_the_run">结束跑步</string>
+
+    <string name="modify_device_name">修改设备名称</string>
+    <string name="input_device_name">输入设备名称</string>
+
+    <string name="actual_age">实际年龄</string>
+    <string name="loading_more">正在加载</string>
 </resources>

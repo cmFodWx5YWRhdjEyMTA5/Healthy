@@ -267,6 +267,7 @@ public class LeProxy {
 
         @Override
         public void onRegRead(String address, String regData, int regFlag, int status) {
+
             //获取到模组寄存器数据
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 Intent intent = new Intent(ACTION_REG_DATA_AVAILABLE);

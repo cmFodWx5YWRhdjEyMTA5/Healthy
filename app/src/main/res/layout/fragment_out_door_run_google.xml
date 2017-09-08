@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".fragment.inoutdoortype.OutDoorRunGoogleFragment">
     <com.google.android.gms.maps.MapView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/mv_map_outdoor"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="@dimen/x672"
+        android:background="#4444"/>
     <!--<fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/fg_map_outdoor"
@@ -29,5 +31,33 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" >
     </fragment>-->
-</RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/outdoor_running"
+        android:layout_marginTop="@dimen/x92"
+        android:textColor="#000000"
+        android:textSize="@dimen/x70"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/x48"
+        android:gravity="center">
+        <View
+            android:layout_width="@dimen/x16"
+            android:layout_height="@dimen/x16"
+            android:background="@drawable/bg_view_circle_black"></View>
+
+        <View
+            android:layout_width="@dimen/x16"
+            android:layout_height="@dimen/x16"
+            android:layout_marginLeft="@dimen/x24"
+            android:background="@drawable/bg_view_circle_grid"></View>
+    </LinearLayout>
+
+</LinearLayout>
 

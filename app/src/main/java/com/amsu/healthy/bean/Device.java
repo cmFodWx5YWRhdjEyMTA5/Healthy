@@ -12,6 +12,7 @@ public class Device implements Parcelable {
     String mac;
     String LEName;
     int deviceType;
+    Integer rssi;
 
     public Device() {
     }
@@ -28,6 +29,14 @@ public class Device implements Parcelable {
         this.mac = mac;
     }
 
+    public Device(String name, String state, String mac, String LEName, int deviceType, int rssi) {
+        this.name = name;
+        this.state = state;
+        this.mac = mac;
+        this.LEName = LEName;
+        this.deviceType = deviceType;
+        this.rssi = rssi;
+    }
 
     public Device(String name, String state, String mac, String LEName, int deviceType) {
         this.name = name;
@@ -66,6 +75,14 @@ public class Device implements Parcelable {
         return 0;
     }
 
+    public Integer getRssi() {
+        return rssi;
+    }
+
+    public void setRssi(Integer rssi) {
+        this.rssi = rssi;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
@@ -73,12 +90,13 @@ public class Device implements Parcelable {
         dest.writeString(mac);
         dest.writeString(LEName);
         dest.writeInt(deviceType);
+        dest.writeInt(rssi);
     }
 
     public static final Creator<Device> CREATOR = new Creator<Device>() {
         @Override
         public Device createFromParcel(Parcel source) {
-            return new Device(source.readString(),source.readString(),source.readString(),source.readString(),source.readInt());
+            return new Device(source.readString(),source.readString(),source.readString(),source.readString(),source.readInt(),source.readInt());
         }
 
         @Override
@@ -111,7 +129,6 @@ public class Device implements Parcelable {
         this.deviceType = deviceType;
     }
 
-
     @Override
     public String toString() {
         return "Device{" +
@@ -120,6 +137,7 @@ public class Device implements Parcelable {
                 ", mac='" + mac + '\'' +
                 ", LEName='" + LEName + '\'' +
                 ", deviceType=" + deviceType +
+                ", rssi=" + rssi +
                 '}';
     }
 }

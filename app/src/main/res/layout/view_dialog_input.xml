@@ -26,7 +26,7 @@
             android:layout_marginTop="@dimen/y20"
             android:layout_below="@+id/tv_choose_title"
             android:padding="@dimen/x20"
-            android:hint="输入设备名称"
+            android:hint="@string/input_device_name"
             android:background="@drawable/bg_dialog_input"
             android:textSize="@dimen/x48"
             android:textColor="#666"

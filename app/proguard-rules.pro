@@ -89,6 +89,12 @@ public static final int *;
 
 
 #短信sdk
+# SMSSDK
+-dontwarn com.mob.**
+-keep class com.mob.**{*;}
+-dontwarn cn.smssdk.**
+-keep class cn.smssdk.**{*;}
+
 
 
 

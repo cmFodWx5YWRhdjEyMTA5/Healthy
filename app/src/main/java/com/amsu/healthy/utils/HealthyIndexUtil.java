@@ -53,7 +53,7 @@ public class HealthyIndexUtil {
                 scoreBMI = 100;
                 suggestion = context.getResources().getString(R.string.bmi_suggetstion_lev1);
             }
-            else if (23.1<=bmi && bmi<24.49){
+            else if (23.1<=bmi && bmi<24.99){
                 //99-61
                 scoreBMI = 99-(int) ((bmi - 23.1) * (30.0 / (24.5 - 23.1)));
                 suggestion = context.getResources().getString(R.string.bmi_suggetstion_lev9);
@@ -86,10 +86,12 @@ public class HealthyIndexUtil {
         Log.i(TAG,"birthday:"+birthday);
         if (!birthday.equals("") && !birthday.equals("null")) {
             String[] split = birthday.split("-");
-            Date date = new Date();
-            int age = 1900 + date.getYear() - Integer.parseInt(split[0]);
-            Log.i(TAG, "age:" + age);
-            return age;
+            if (split.length > 0) {
+                Date date = new Date();
+                int age = 1900 + date.getYear() - Integer.parseInt(split[0]);
+                Log.i(TAG, "age:" + age);
+                return age;
+            }
         }
         return 0;
     }
@@ -500,7 +502,7 @@ public class HealthyIndexUtil {
             slowType = 2;
             suggestion = context.getResources().getString(R.string.beforebeat_suggetstion_lev3);
         }
-        IndicatorAssess indicatorAssess = new IndicatorAssess(over_slow,slowType,"早搏",suggestion);
+        IndicatorAssess indicatorAssess = new IndicatorAssess(over_slow,slowType,context.getResources().getString(R.string.premature_beat),suggestion);
 
         return indicatorAssess;
     }
@@ -595,7 +597,6 @@ public class HealthyIndexUtil {
 
         return indicatorAssess;
     }
-
 
     //过缓/过速(心电分析算法得出)
     public static IndicatorAssess calculateScoreOver_slow(int over_slow,Context context){
@@ -1131,7 +1132,7 @@ public class HealthyIndexUtil {
     }
 
     public static String  getHRVSuggetstion(int sdnn, int lf, Context context){
-        String defaultSuggetstion = context.getResources().getString(R.string.hrv_suggetstion_default);
+        String defaultSuggetstion = context.getResources().getString(R.string.HeartRate_suggetstion_nodata);
         if (sdnn >=280 || lf<2) {
             return context.getResources().getString(R.string.hrv_suggetstion_lev1);
         }else if ((sdnn >=200 && sdnn<280) ||(lf>=2 && lf<=5)){

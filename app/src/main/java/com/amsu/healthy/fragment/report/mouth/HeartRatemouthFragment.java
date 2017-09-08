@@ -1,8 +1,6 @@
 package com.amsu.healthy.fragment.report.mouth;
 
 
-import android.graphics.Color;
-import android.nfc.Tag;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,10 +15,9 @@ import com.amsu.healthy.bean.FullReport;
 import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineViewWithPoint;
-import com.amsu.healthy.view.FoldLineViewWithText;
-import com.amsu.healthy.view.FoldLineViewWithTextOne;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -74,10 +71,10 @@ public class HeartRatemouthFragment extends BaseFragment {
                 List<String> datetimesList = new ArrayList<>();
                 int heart;
                 for (FullReport.HRrepBean hRrepBean:hRrep){
-                    heart = Integer.parseInt(hRrepBean.AHR);
+                    heart = hRrepBean.ahr;
                     if (heart>0) {
                         dataIntegerList.add(heart);
-                        datetimesList.add(MyUtil.getReportDateStingForMouthAndDay(hRrepBean.datatime));
+                        datetimesList.add( MyUtil.getSpecialFormatTime("MM月dd日",new Date(hRrepBean.datatime)));
                     }
                 }
 

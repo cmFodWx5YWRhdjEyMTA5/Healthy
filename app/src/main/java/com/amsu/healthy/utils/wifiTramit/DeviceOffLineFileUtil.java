@@ -67,7 +67,7 @@ public class DeviceOffLineFileUtil {
         return hex;
     }
 
-    //计算累加和，fileName为上传的文件名如 "20170412102300.ecg"
+    //计算累加和，startOrder :"FF 04 00 18"   fileName为上传的文件名如 "20170412102300.ecg"
     public static String readDeviceSpecialFileBeforeAddSum(String startOrder, String fileName){
         int sumFile =0;
         for (int i = 0; i < fileName.length(); i++) {
@@ -85,7 +85,6 @@ public class DeviceOffLineFileUtil {
         String  sumString = Integer.toHexString(sumFile+sumStart);
         String lastString = sumString.substring(sumString.length()-2, sumString.length());
         return lastString;
-
     }
 
     //计算累加和，startOrder为前面的命令

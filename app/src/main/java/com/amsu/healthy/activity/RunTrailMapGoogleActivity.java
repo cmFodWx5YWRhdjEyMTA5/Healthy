@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
@@ -42,7 +44,7 @@ import java.util.Locale;
  */
 public class RunTrailMapGoogleActivity extends BaseActivity implements
 
-        OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,LocationListener {
 
     private static final String TAG = "RunTrailMapGoogleActivity";
     LocationRequest mLocationRequest;
@@ -54,6 +56,7 @@ public class RunTrailMapGoogleActivity extends BaseActivity implements
     Marker mCurrLocation;
 
     private static final int REQUESTCODE = 6001;
+    private TextView mTvAddress;
 
 
     @Override
@@ -61,13 +64,30 @@ public class RunTrailMapGoogleActivity extends BaseActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_run_trail_map_google);
 
+        initView();
+
+
+
+    }
+
+    private void initView() {
+        initHeadView();
+        setCenterText(getResources().getString(R.string.motion_position));
+        setLeftImage(R.drawable.back_icon);
+        getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         mMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mMapFragment.getMapAsync(this);
 
         int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
-        
         Log.i(TAG,"status:"+status);
 
+        mTvAddress = (TextView) findViewById(R.id.mTvAddress);
     }
 
     @Override
@@ -87,7 +107,7 @@ public class RunTrailMapGoogleActivity extends BaseActivity implements
     public void onPause() {
         super.onPause();
         //Unregister for location callbacks:
-        if (mGoogleApiClient != null) {
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
@@ -117,7 +137,6 @@ public class RunTrailMapGoogleActivity extends BaseActivity implements
             e.printStackTrace();
         }
 
-
         if (mLastLocation != null) {
             //place marker at current position
             mGoogleMap.clear();
@@ -140,15 +159,19 @@ public class RunTrailMapGoogleActivity extends BaseActivity implements
             Log.i(TAG, "最新的位置 Latitude() " + mLastLocation.getLatitude());
             Log.i(TAG, "最新的位置 Longitude()() " + mLastLocation.getLongitude());
             Log.i(TAG, " =============  ");
-            TextView mTvAddress = (TextView) findViewById(R.id.mTvAddress);
-            String address = getAddress(RunTrailMapGoogleActivity.this, mLastLocation.getLatitude(), mLastLocation.getLongitude());
-            mTvAddress.setText(address);
+
+            //String address = getAddress(RunTrailMapGoogleActivity.this, mLastLocation.getLatitude(), mLastLocation.getLongitude());
+
         }
         mLocationRequest = LocationRequest.create();
-        mLocationRequest.setInterval(5000); //5 seconds
-        mLocationRequest.setFastestInterval(3000); //3 seconds
+        mLocationRequest.setInterval(800); //5 seconds
+        mLocationRequest.setFastestInterval(800); //3 seconds
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         //mLocationRequest.setSmallestDisplacement(0.1F); //1/10 meter
+
+        startLocationUpdates();
+
+
 
         //LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, new LocationCallback() {
@@ -160,6 +183,31 @@ public class RunTrailMapGoogleActivity extends BaseActivity implements
         });
     }
 
+    /**
+     * 开始监听位置变化
+     */
+    protected void startLocationUpdates() {
+        // The final argument to {@code requestLocationUpdates()} is a LocationListener
+        // (http://developer.android.com/reference/com/google/android/gms/location/LocationListener.html).
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        //实时位置信息
+        Log.i(TAG,"onLocationChanged:"+location.toString());
+        mTvAddress.setText(mTvAddress.getText().toString()+"\n"+ location.toString());
+        MarkerOptions markerOptions = new MarkerOptions();
+        latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        markerOptions.position(latLng);
+        markerOptions.title("Current Position");
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        // 添加marker，但是这里我们特意把marker弄成透明的
+        //markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.chat_loc_point));
+
+        mCurrLocation = mGoogleMap.addMarker(markerOptions);
+    }
+
     @Override
     public void onConnectionSuspended(int i) {
         Toast.makeText(this, "onConnectionSuspended", Toast.LENGTH_SHORT).show();
@@ -169,7 +217,6 @@ public class RunTrailMapGoogleActivity extends BaseActivity implements
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Toast.makeText(this, "onConnectionFailed", Toast.LENGTH_SHORT).show();
     }
-
 
     /**
      * 逆地理编码 得到地址
@@ -213,4 +260,6 @@ public class RunTrailMapGoogleActivity extends BaseActivity implements
             }
         }
     }
+
+
 }

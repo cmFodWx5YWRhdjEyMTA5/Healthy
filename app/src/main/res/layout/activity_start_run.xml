@@ -177,7 +177,7 @@
             android:layout_height="wrap_content"
             android:text="--"
             android:textColor="#000000"
-            android:textSize="@dimen/x92"
+            android:textSize="@dimen/x72"
             android:gravity="center"/>
     </LinearLayout>
 
@@ -385,7 +385,7 @@
         <Button
             android:id="@+id/bt_run_start"
             android:layout_width="@dimen/x248"
-            android:layout_height="@dimen/x248"
+            android:layout_height="@dimen/y248"
             android:text="@string/start"
             android:background="@drawable/bg_center_circle"
             android:textColor="#FFFFFF"

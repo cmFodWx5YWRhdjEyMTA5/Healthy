@@ -1,10 +1,13 @@
 package com.amsu.healthy.activity;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,6 +28,7 @@ import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
+import com.xys.libzxing.zxing.activity.CaptureActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,6 +69,7 @@ public class MeActivity extends BaseActivity {
         RelativeLayout rl_me_follow = (RelativeLayout) findViewById(R.id.rl_me_follow);
         RelativeLayout rl_me_help = (RelativeLayout) findViewById(R.id.rl_me_help);
         RelativeLayout rl_me_setting = (RelativeLayout) findViewById(R.id.rl_me_setting);
+        RelativeLayout rl_me_scan = (RelativeLayout) findViewById(R.id.rl_me_scan);
 
         tv_me_name = (TextView) findViewById(R.id.tv_me_name);
         tv_me_city = (TextView) findViewById(R.id.tv_me_city);
@@ -79,6 +84,7 @@ public class MeActivity extends BaseActivity {
         rl_me_follow.setOnClickListener(myOnClickListener);
         rl_me_help.setOnClickListener(myOnClickListener);
         rl_me_setting.setOnClickListener(myOnClickListener);
+        rl_me_scan.setOnClickListener(myOnClickListener);
 
         if (!MyApplication.mActivities.contains(this)){
             MyApplication.mActivities.add(this);
@@ -107,10 +113,8 @@ public class MeActivity extends BaseActivity {
                     BitmapUtils bitmapUtils = new BitmapUtils(this);
                     bitmapUtils.display(iv_me_headicon,iconUrl);
                 }
-
             }
         }
-
     }
 
     /*public void test(View view) {
@@ -187,6 +191,10 @@ public class MeActivity extends BaseActivity {
                 case R.id.rl_me_setting:
                     startActivity(new Intent(MeActivity.this,SystemSettingActivity.class));
                     break;
+                case R.id.rl_me_scan:
+                    //startActivity(new Intent(MeActivity.this,QRCodeActivity.class));
+                    startActivityForResult(new Intent(MeActivity.this, CaptureActivity.class),0);
+                    break;
             }
         }
     }
@@ -194,10 +202,99 @@ public class MeActivity extends BaseActivity {
     private void dumpToPersionData() {
         boolean isLogin = MyUtil.getBooleanValueFromSP("isLogin");
         if (isLogin){
-            startActivity(new Intent(MeActivity.this,PersionDataActivity.class));
+            startActivityForResult(new Intent(MeActivity.this,PersionDataActivity.class),140);
         }
         else {
             startActivity(new Intent(MeActivity.this,LoginActivity.class));
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode==RESULT_OK && requestCode==0){
+            final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+            alertDialog.setPositiveButton("确定", null);
+
+            //alertDialog.setCanceledOnTouchOutside(false);
+
+            Bundle bundle = data.getExtras();
+            if (bundle != null) {
+                String result=bundle.getString("result");
+
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    String key = (String) jsonObject.get("key");
+                    String url = (String) jsonObject.get("url");
+                    Log.i(TAG,"key:"+key);
+                    Log.i(TAG,"url:"+url);
+
+                    if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(url)){
+                        MyUtil.showDialog("正在进行服务器验证",MeActivity.this);
+
+                        final HttpUtils httpUtils = new HttpUtils();
+                        RequestParams params = new RequestParams();
+                        params.addBodyParameter("passToken",key);
+                        MyUtil.addCookieForHttp(params);
+
+                        httpUtils.send(HttpRequest.HttpMethod.POST, url, params, new RequestCallBack<String>() {
+                            @Override
+                            public void onSuccess(ResponseInfo<String> responseInfo) {
+                                String result = responseInfo.result;
+                                Log.i(TAG,"onSuccess==result:"+result);
+                                MyUtil.hideDialog(MeActivity.this);
+
+                                alertDialog.setTitle("手机验证成功");
+                                alertDialog.create();
+                                alertDialog.show();
+
+                            }
+
+                            @Override
+                            public void onFailure(HttpException e, String s) {
+                                Log.i(TAG,"onFailure:"+e);
+                                MyUtil.hideDialog(MeActivity.this);
+
+                                alertDialog.setTitle("手机验证失败，请检查网络后重试");
+                                alertDialog.create();
+                                alertDialog.show();
+                            }
+                        });
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+
+                    alertDialog.setTitle("验证失败，请对准手表上的二维码");
+                    alertDialog.create();
+                    alertDialog.show();
+                }
+            }
+        }
+        else if (resultCode==RESULT_OK && requestCode==140){
+            User userFromSP = MyUtil.getUserFromSP();
+            if (userFromSP!=null){
+                tv_me_name.setText(userFromSP.getUsername());
+
+                String area = userFromSP.getArea();  //广东省深圳市
+                if (!area.equals("") && area.contains("省")){
+                    String[] areas = area.split("省");
+                    tv_me_city.setText(areas[1]);
+                }
+
+                int userAge = HealthyIndexUtil.getUserAge();
+
+                tv_me_age.setText(userAge+"");
+
+                String iconUrl = userFromSP.getIcon();
+                if (!iconUrl.equals("")){
+                    if (iconUrl.endsWith("jpg") || iconUrl.endsWith("png") || iconUrl.endsWith("jpeg") || iconUrl.endsWith("gif")){
+                        BitmapUtils bitmapUtils = new BitmapUtils(this);
+                        bitmapUtils.display(iv_me_headicon,iconUrl);
+                    }
+                }
+            }
         }
     }
 }

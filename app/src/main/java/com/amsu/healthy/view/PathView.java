@@ -119,16 +119,16 @@ public class PathView extends CardiographView {
                 float x = (drawIndex)*tenPointlength + i * onePointWidth;
                 float y = normalizationMethod(arr[i])*mVirGigGridCount*mGridWidth+30;
                 mPath.lineTo(2*x,  y);
-                Log.i(TAG,"x:"+x+",y:"+y);
+                Log.i(TAG,"circle_ring:"+x+",y:"+y);
             }
 
             /*int j=0;
             //绘制
             for (int i=0;i<arr.length;i++){
-                float x = (drawIndex)*tenPointlength + i * onePointWidth;
-                points[j] = x;
+                float circle_ring = (drawIndex)*tenPointlength + i * onePointWidth;
+                points[j] = circle_ring;
                 points[j+1] = arr[i];
-                Log.i(TAG,"points:"+x+" ,"+arr[i]);
+                Log.i(TAG,"points:"+circle_ring+" ,"+arr[i]);
                 j+=2;
             }*/
         }

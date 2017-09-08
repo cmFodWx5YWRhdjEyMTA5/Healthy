@@ -75,14 +75,14 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:background="#FFF"
-                android:text="@string/exit_confirm"/>
+                android:text="@string/exit_cancel"/>
             <Button
                 android:id="@+id/bt_pick_ok"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:background="#FFF"
-                android:text="@string/exit_cancel"/>
+                android:text="@string/exit_confirm"/>
 
         </LinearLayout>
 

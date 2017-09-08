@@ -13,8 +13,9 @@ import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.bean.WeekReport;
 import com.amsu.healthy.utils.ApkUtil;
-import com.amsu.healthy.utils.AppAbortDbAdapter;
+import com.amsu.healthy.utils.AppAbortDbAdapterUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
@@ -27,6 +28,8 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class SplashActivity extends Activity {
@@ -73,7 +76,7 @@ public class SplashActivity extends Activity {
     private void initView() {
 
         //MyUtil.putStringValueFromSP("abortDatas","");
-        AppAbortDataSave abortDataFromSP = AppAbortDbAdapter.getAbortDataFromSP();
+        AppAbortDataSave abortDataFromSP = AppAbortDbAdapterUtil.getAbortDataFromSP();
         Log.i(TAG,"abortDataFromSP:"+abortDataFromSP);
         if (abortDataFromSP!=null){
             Intent intent1 = new Intent(this,MainActivity.class);
@@ -116,16 +119,20 @@ public class SplashActivity extends Activity {
     }
 
     private void initData() {
-        downlaodWeekReport(-1,-1,false,null);
+        Calendar calendar=Calendar.getInstance();
+        calendar.setTime(new Date());
+        int mCurrYear = calendar.get(Calendar.YEAR);
+        int mCurrWeekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+        downlaodWeekReport(mCurrYear,mCurrWeekOfYear,false,null);
         ApkUtil.checkUpdate(this);
 
-        boolean networkConnected = MyUtil.isNetworkConnected(this);
+        boolean networkConnected = MyUtil.isNetworkConnected(MyApplication.appContext);
         if (networkConnected){
             //有网络连接
             new Thread(){
                 @Override
                 public void run() {
-                    startUploadOffLineData(SplashActivity.this);
+                    startUploadOffLineData(MyApplication.appContext);
                 }
             }.start();
 
@@ -133,15 +140,24 @@ public class SplashActivity extends Activity {
     }
 
     private void startUploadOffLineData(Context context) {
+        Log.i(TAG,"startUploadOffLineData:");
         OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(context);
-        offLineDbAdapter.open();
+        try {
+            offLineDbAdapter.open();
+            List<UploadRecord> uploadRecordsState = offLineDbAdapter.queryRecordByUploadState("0");
+            try {
+                offLineDbAdapter.close();
+            }catch (Exception e1){
+                Log.i(TAG,"e1:"+e1);
+            }
+            Log.i(TAG,"uploadRecordsState:"+uploadRecordsState);
+            Log.i(TAG,"uploadRecordsState.size():"+uploadRecordsState.size());
 
-        List<UploadRecord> uploadRecordsState = offLineDbAdapter.queryRecordByUploadState("0");
-        Log.i(TAG,"uploadRecordsState:"+uploadRecordsState);
-        Log.i(TAG,"uploadRecordsState.size():"+uploadRecordsState.size());
-
-        for (UploadRecord uploadRecord:uploadRecordsState){
-            HeartRateActivity.uploadRecordDataToServer(uploadRecord,context,true);
+            for (UploadRecord uploadRecord:uploadRecordsState){
+                HeartRateAnalysisActivity.uploadRecordDataToServer(uploadRecord,context,true);
+            }
+        }catch (Exception e){
+            Log.i(TAG,"e:"+e);
         }
     }
 
@@ -173,7 +189,7 @@ public class SplashActivity extends Activity {
                 JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
                 Log.i(TAG,"jsonBase:"+jsonBase);
                 if (jsonBase.getRet()==0){
-                    HealthIndicatorAssessActivity.WeekReport weekReport = gson.fromJson(result, HealthIndicatorAssessActivity.WeekReport.class);
+                   WeekReport weekReport = gson.fromJson(result, WeekReport.class);
                     Log.i(TAG,"weekReport:"+ weekReport.toString());
                     setIndicatorData(weekReport,activity);
                 }
@@ -191,7 +207,7 @@ public class SplashActivity extends Activity {
         });
     }
 
-    public static void setIndicatorData(HealthIndicatorAssessActivity.WeekReport weekReport,Activity activity){
+    public static void setIndicatorData(WeekReport weekReport, Activity activity){
         if (weekReport!=null){
             //BMI
             IndicatorAssess scoreBMI = HealthyIndexUtil.calculateScoreBMI(MyApplication.appContext);
@@ -257,10 +273,10 @@ public class SplashActivity extends Activity {
             }
 
             IndicatorAssess scoreBeat = null;
-            List<Integer> zaoboloubo = weekReport.errDesc.zaoboloubo;
-            if (zaoboloubo!=null && zaoboloubo.size()>1){
-                int zaobo  = zaoboloubo.get(0);
-                int loubo  = zaoboloubo.get(1);
+            List<WeekReport.WeekReportResult.Zaoboloubo> zaoboloubo = weekReport.errDesc.zaoboloubo;
+            if (zaoboloubo!=null && zaoboloubo.size()>0){
+                int zaobo  = zaoboloubo.get(0).zaoboTimes;
+                int loubo  = zaoboloubo.get(0).louboTimes;
                 if (zaobo<0){
                     zaobo = 0;
                 }
@@ -279,7 +295,16 @@ public class SplashActivity extends Activity {
             // 健康储备(按训练时间计算)
             IndicatorAssess scoreReserveHealth = HealthyIndexUtil.calculateScoreReserveHealth();
 
-            int healthyIindexvalue = HealthyIndexUtil.calculateIndexvalue(scoreBMI, scorehrReserve, scoreHRR, scoreHRV, scoreOver_slow, scoreBeat, scoreReserveHealth);
+            Log.i(TAG,"scoreBMI:"+scoreBMI);
+            Log.i(TAG,"scorehrReserve:"+scorehrReserve);
+            Log.i(TAG,"scorehrReserve:"+scorehrReserve);
+            Log.i(TAG,"scoreHRV:"+scoreHRV);
+            Log.i(TAG,"scoreOver_slow:"+scoreOver_slow);
+            Log.i(TAG,"scoreBeat:"+scoreBeat);
+            Log.i(TAG,"scoreReserveHealth:"+scoreReserveHealth);
+
+            int healthyIindexvalue = HealthyIndexUtil.calculateIndexvalue(scoreBMI, scorehrReserve, scorehrReserve, scoreHRV, scoreOver_slow, scoreBeat, scoreReserveHealth);
+            Log.i(TAG,"healthyIindexvalue:"+healthyIindexvalue);
             MyUtil.putIntValueFromSP("healthyIindexvalue",healthyIindexvalue);
 
             int physicalAge = HealthyIndexUtil.calculatePhysicalAge(scoreBMI, scorehrReserve, scoreHRR, scoreHRV, scoreReserveHealth);

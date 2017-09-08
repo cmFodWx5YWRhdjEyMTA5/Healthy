@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.amsu.healthy.R;
@@ -25,12 +26,13 @@ import java.util.Locale;
 public class SystemSettingActivity extends BaseActivity implements View.OnClickListener {
 
     private static final String TAG = "SystemSettingActivity";
+    private boolean mIsAutoMonitor;
+    private ImageView iv_persiondata_switvh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_system_setting);
-
         initView();
     }
 
@@ -53,6 +55,8 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         RelativeLayout rl_persiondata_questionnaire = (RelativeLayout) findViewById(R.id.rl_persiondata_questionnaire);
         RelativeLayout rl_persiondata_Multilingual = (RelativeLayout) findViewById(R.id.rl_persiondata_Multilingual);
 
+        iv_persiondata_switvh = (ImageView) findViewById(R.id.iv_persiondata_switvh);
+
         rl_persiondata_persiondata.setOnClickListener(this);
         rl_persiondata_device.setOnClickListener(this);
         rl_persiondata_update.setOnClickListener(this);
@@ -63,6 +67,14 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
 
         if (!MyApplication.mActivities.contains(this)){
             MyApplication.mActivities.add(this);
+        }
+
+        mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
+        if (mIsAutoMonitor){
+            iv_persiondata_switvh.setImageResource(R.drawable.switch_on);
+        }
+        else {
+            iv_persiondata_switvh.setImageResource(R.drawable.switch_of);
         }
     }
 
@@ -220,4 +232,16 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
     }
 
 
+    public void switchMonitorState(View view) {
+        if (!mIsAutoMonitor){
+            iv_persiondata_switvh.setImageResource(R.drawable.switch_on);
+            mIsAutoMonitor = true;
+            MyUtil.putBooleanValueFromSP("mIsAutoMonitor",true);
+        }
+        else {
+            iv_persiondata_switvh.setImageResource(R.drawable.switch_of);
+            mIsAutoMonitor = false;
+            MyUtil.putBooleanValueFromSP("mIsAutoMonitor",false);
+        }
+    }
 }

@@ -209,7 +209,7 @@ public class SearchDevicehActivity extends BaseActivity {
         public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
             //BLE#0x44A6E51FC5BF,44:A6:E5:1F:C5:BF,null,10,2
             //null,72:A8:23:AF:25:42,null,10,0
-            //null,63:5C:3E:B6:A0:AE,null,10,0
+            //null,63:5C:3E:B6:A0:ae,null,10,0
 
             Log.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
 
@@ -264,10 +264,10 @@ public class SearchDevicehActivity extends BaseActivity {
                 if (isAddToList){
                     if (leName.startsWith("AMSU_P")){
                         //鞋垫
-                        searchDeviceList.add(new Device(getResources().getString(R.string.insole),"",device.getAddress(), leName, Constant.sportType_Insole));
+                        searchDeviceList.add(new Device(getResources().getString(R.string.insole),"",device.getAddress(), leName, Constant.sportType_Insole,rssi));
                     }
                     else {
-                        searchDeviceList.add(new Device(getResources().getString(R.string.sportswear),"",device.getAddress(), leName,Constant.sportType_Cloth));
+                        searchDeviceList.add(new Device(getResources().getString(R.string.sportswear),"",device.getAddress(), leName,Constant.sportType_Cloth,rssi));
                     }
                 }
                 if (timeTask10ScendOver){

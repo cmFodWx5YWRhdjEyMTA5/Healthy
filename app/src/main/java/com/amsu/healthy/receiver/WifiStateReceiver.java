@@ -9,9 +9,8 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
-import com.amsu.healthy.activity.HeartRateActivity;
+import com.amsu.healthy.activity.HeartRateAnalysisActivity;
 import com.amsu.healthy.bean.UploadRecord;
-import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.OffLineDbAdapter;
 import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
@@ -81,14 +80,25 @@ public class WifiStateReceiver extends BroadcastReceiver {
     //此处有bug，上传时从数据库里查，但是数据库里的EC为空，上传失败
     private void startUploadOffLineData(Context context) {
         OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(context);
-        offLineDbAdapter.open();
+        try {
+            offLineDbAdapter.open();
+        }catch (Exception ignored){
+        }
 
         List<UploadRecord> uploadRecordsState = offLineDbAdapter.queryRecordByUploadState("0");
+
+        try {
+            offLineDbAdapter.close();
+        }catch (Exception ignored){
+        }
         Log.i(TAG,"uploadRecordsState:"+uploadRecordsState);
         Log.i(TAG,"uploadRecordsState.size():"+uploadRecordsState.size());
 
+        //HeartRateAnalysisActivity.uploadRecordDataToServer(uploadRecordsState.get(0),context,true);
+
         for (UploadRecord uploadRecord:uploadRecordsState){
-            HeartRateActivity.uploadRecordDataToServer(uploadRecord,context,true);
+            HeartRateAnalysisActivity.uploadRecordDataToServer(uploadRecord,context,true);
+            break;
         }
     }
 

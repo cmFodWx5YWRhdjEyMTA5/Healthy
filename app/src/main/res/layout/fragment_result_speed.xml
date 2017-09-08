@@ -27,8 +27,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignTop="@+id/tv_speed_average"
                 android:text="平均配速"
+                android:layout_below="@+id/tv_speed_average"
+                android:layout_marginTop="@dimen/x20"
                 android:gravity="center_horizontal"
                 android:textColor="#4d4d4d"
                 android:textSize="@dimen/x36"/>
@@ -50,7 +51,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignTop="@+id/tv_speed_fastest"
+                android:layout_below="@+id/tv_speed_fastest"
+                android:layout_marginTop="@dimen/x20"
                 android:text="最快配速"
                 android:gravity="center_horizontal"
                 android:textColor="#4d4d4d"
@@ -102,6 +104,17 @@
         android:layout_marginRight="@dimen/x36"
         android:divider="@null">
     </ListView>
+
+    <TextView
+        android:id="@+id/tv_speed_lastspeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lv_speed_speedlist"
+        android:text="最后一公里"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginTop="@dimen/x20"
+        android:textColor="#999999"
+        android:textSize="@dimen/x36"/>
 
     <!--<TextView
         android:id="@+id/tv_speed_lastspeed"

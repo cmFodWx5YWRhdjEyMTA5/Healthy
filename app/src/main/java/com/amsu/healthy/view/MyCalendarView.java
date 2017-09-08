@@ -400,13 +400,13 @@ public class MyCalendarView extends View implements View.OnTouchListener {
 		// change month
 //		if (y < surface.monthHeight) {
 //			// pre month
-//			if (x < surface.monthChangeWidth) {
+//			if (circle_ring < surface.monthChangeWidth) {
 //				calendar.setTime(curDate);
 //				calendar.add(Calendar.MONTH, -1);
 //				curDate = calendar.getTime();
 //			}
 //			// next month
-//			else if (x > surface.width - surface.monthChangeWidth) {
+//			else if (circle_ring > surface.width - surface.monthChangeWidth) {
 //				calendar.setTime(curDate);
 //				calendar.add(Calendar.MONTH, 1);
 //				curDate = calendar.getTime();

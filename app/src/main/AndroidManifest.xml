@@ -80,6 +80,9 @@
             android:name=".activity.MainActivity"
             android:screenOrientation="portrait" />
 
+        <meta-data android:name="Mob-AppKey" android:value="1976143c3c888"/>
+        <meta-data android:name="Mob-AppSecret" android:value="0c1784d4bf495891bf142767b314651c"/>
+
         <!-- 高德地图 -->
         <meta-data
             android:name="com.amap.api.v2.apikey"
@@ -100,7 +103,6 @@
         <meta-data
             android:name="UMENG_CHANNEL"
             android:value="${UMENG_CHANNEL_VALUE}" />
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -121,10 +123,10 @@
             android:name=".activity.MoveStateActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.HeartRateActivity"
+            android:name=".activity.HeartRateAnalysisActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.RateAnalysisActivity"
+            android:name=".activity.HeartRateResultShowActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activity.SupplyPersionDataActivity"
@@ -260,10 +262,10 @@
             android:name=".activity.MotionDetectionActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.ConnectToWifiModuleGudieActivity1"
+            android:name=".activity.ConnectToWifiGudieActivity1"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.ConnectToWifiModuleGudieActivity2"
+            android:name=".activity.ConnectToWifiGudieActivity2"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activity.AboutUsActivity"
@@ -375,6 +377,15 @@
         <activity android:name=".activity.insole.InsoleRunningActivity" />
         <activity android:name=".activity.insole.AnalyticFinshResultActivity">
 
+            <!--<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>-->
+        </activity>
+        <activity android:name=".activity.insole.CorrectInsoleActivity" />
+        <activity android:name=".activity.RunTrailMapGoogleActivity">
+
             <!--
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -383,14 +394,7 @@
             </intent-filter>
             -->
         </activity>
-        <activity android:name=".activity.insole.CorrectInsoleActivity" />
-        <activity android:name=".activity.RunTrailMapGoogleActivity">
-            <!--<intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
-        </activity>
+        <activity android:name=".activity.QRCodeActivity"></activity>
     </application>
 
 </manifest>

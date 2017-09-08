@@ -43,6 +43,7 @@
     <string name="Choose_address">Choose address</string>
 
     <string name="querying">Querying</string>
+    <string name="deleting">deleting</string>
     <string name="active">active</string>
     <string name="rest">rest</string>
     <string name="analysised">analysised</string>
@@ -69,7 +70,7 @@
 
     <string name="exercise_analyze">Exercise</string>
     <string name="hrv_analyze">HRV</string>
-    <string name="hr_analyze">HR</string>
+    <string name="hr_analyze">hr</string>
     <string name="ecg_analyze">ECG</string>
     <string name="hrr_analyze">HRR</string>
 
@@ -98,9 +99,9 @@
     <string name="exercise_cardio_curve">cardio curve</string>
     <string name="exercise_cardio">cardio</string>
     <string name="exercise_flat">flat</string>
-    <string name="exercise_oxygenated">oxygenated</string>
-    <string name="exercise_without_oxygen">without oxygen</string>
-    <string name="exercise_in_danger">in danger</string>
+    <string name="exercise_oxygenated">aerobic</string>
+    <string name="exercise_without_oxygen">anaerobic</string>
+    <string name="exercise_in_danger">danger</string>
 
     <string name="hrv_physical_fatigue">physical fatigue</string>
     <string name="hrv_mental_fatigue">mental fatigue</string>
@@ -231,7 +232,7 @@
     <string name="lock">Lock</string>
     <string name="glide_to_unlock">Glide to unlock</string>
     <string name="running">running</string>
-    <string name="motion_position">Motion position</string>
+    <string name="motion_position">Current position</string>
 
 
     <string name="current_heart_rate">Current heart rate</string>
@@ -250,8 +251,8 @@
     <string name="premature_beat_missed_beat">premature/miss beat</string>
     <string name="too_fast_too_slow">too fast/slow</string>
     <string name="indicator_for_resistance_to_fatigue">resistance to fatigue</string>
-    <string name="heart_rate_recovery">HR recovery</string>
-    <string name="heart_rate_reserve">HR reserve</string>
+    <string name="heart_rate_recovery">hr recovery</string>
+    <string name="heart_rate_reserve">hr reserve</string>
     <string name="selected_time">selected time</string>
     <string name="this_week">This week</string>
     <string name="last_week">Last week</string>
@@ -271,7 +272,6 @@
     <string name="being_processed">Being processed</string>
 
     <string name="sending_text_messages">Sending text messages</string>
-    <string name="deleting">Deleting</string>
     <string name="delete_successfully">Delete successfully</string>
     <string name="delete_failed">Delete failed</string>
     <string name="no_data">No data</string>
@@ -286,14 +286,14 @@
 
     <string name="HeartRate_suggetstion_fast">Heart rate too fast: for a healthy individual,stress and other factor could lead to fast heart rate. Please have enough rest, keep a happy mood, and consult to your doctor when it gets worse. </string>
     <string name="HeartRate_suggetstion_slow">Heart rate too slow: it is normal for a healthy individual, but consult to your doctor if it gets worse. </string>
-    <string name="HeartRate_suggetstion_nodata">not enoughdata or bad connection with the device</string>
+    <string name="HeartRate_suggetstion_nodata">Time is less than three minutes or bad connection with the device</string>
     <string name="HeartRate_suggetstion_normal">normal heart rate</string>
 
     <string name="premature_beat_times">Premature beat </string>
     <string name="premature_beat_times_decrible"> times. Sometimes it is normal for a healthy individual to have premature beat. If it gets worse, consult your doctor. </string>
     <string name="missed_beat_times">Missed beat </string>
     <string name="missed_beat_times_decrible"> times. Sometimes it is normal for a healthy individual to have premature beat. If it gets worse, consult your doctor.</string>
-    <string name="abnormal_ecg">Abnormal ECG</string>
+    <string name="abnormal_ecg">Normal ECG</string>
 
     <string name="hrr_suggetstion_lev1">You are the best.</string>
     <string name="hrr_suggetstion_lev2">You are doing very well, but need to keep with the same exercise schedule, otherwise, performance will go down. </string>
@@ -310,7 +310,7 @@
     <string name="heart_rate_slow_fast_decrible">normal individual heart rate is 45–105 beat/min, heart rate too slow is less than 45; heart rate too fast is greater than 105 beat/min. </string>
     <string name="premature_beat_missed_beat_decrible">Premature heartbeat is the most frequent arrhythmia, which is caused by an ectopic pacemaker. If there is a short shot, it is a leak, which is usually a combination of premature beat. Frequent premature beat will damage the function of the myocardium, induce myocardial ischemia, some premature beat can also induce ventricular tachycardia and fibrillation</string>
     <string name="health_reserve_decrible">We use the time of exercise each week to assess your health reserve, and help you customizean exercise plan. We recommend 30 mins of cardio each day, 60 mins the best, and accumulatively 420 mins per week, but not exceeding 90 minutes per ay.</string>
-    <string name="health_BMI_decrible">(body mass index, referred to as BMI), is obtained by weight in kilograms divided by height in meters squared figure, is a commonly used measure body fat levels and whether the international health is one of the important standards. When we compare and analyze the health effects of a person\'s weight on people of different heights, the BMI value is a neutral and reliable indicator.</string>
+    <string name="health_BMI_decrible">(body mass index, referred to as BMI), is obtained by weight in kilograms divided by height in meters squared figure, is a commonly used measure body fat levels and whether the international health is one of the important standards.</string>
     <string name="heart_rate_indicator_decrible">We used captured ECG data and advanced data analysis to index heart rate reserve, heart rate recovery, fatigue indicator, abnormal heart rate, health reserved, etc. and the higher the index score, the healthier you are.</string>
     <string name="points">points</string>
 
@@ -375,6 +375,21 @@
     <string name="missbeat_suggetstion_lev1">There is no leakage. Your heart is excellent and can keep the current training intensity.</string>
     <string name="missbeat_suggetstion_lev2">You have had a phenomenon of leakage, usually due to mental stress, excessive alcohol and tobacco, irregular life, lack of night rest and so on. If there is only a feeling of cardiac leakage, no other symptoms such as dizziness, fatigue, fainting or even angina pectoris, it is important to adjust the pace of life, maintain good habits, and do not have to worry too much.</string>
 
+    <string name="outdoor_running">Outdoor running</string>
+    <string name="indoor_running">Indoor running</string>
+
+    <string name="scan_code">Scan code login</string>
+
+    <string name="resting_heart_collected">The resting heart rate is being collected</string>
+    <string name="please_wait_moment">It takes a minute, please wait a moment</string>
+    <string name="running_tim_or_distance">Running time or distance is too short to keep records. Do you want to continue running? </string>
+    <string name="keep_running">Keep running </string>
+    <string name="end_the_run">end the run</string>
+
+    <string name="modify_device_name">Modify device name</string>
+    <string name="input_device_name">Input device name</string>
+    <string name="actual_age">Actual age</string>
+    <string name="loading_more">Loading more</string>
 
 
 

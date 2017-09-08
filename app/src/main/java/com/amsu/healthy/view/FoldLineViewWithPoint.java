@@ -194,7 +194,7 @@ public class FoldLineViewWithPoint extends View {
         @Override
         public String toString() {
             return "CirclePoint{" +
-                    "x=" + x +
+                    "circle_ring=" + x +
                     ", y=" + y +
                     '}';
         }
@@ -203,7 +203,7 @@ public class FoldLineViewWithPoint extends View {
     OnDateTimeChangeListener onDateTimeChangeListener;
 
     public interface OnDateTimeChangeListener{
-        void onDateTimeChange(int heartRate,String dateTime);
+        void onDateTimeChange(int heartRate, String dateTime);
     }
 
     public void setOnDateTimeChangeListener(OnDateTimeChangeListener onDateTimeChangeListener) {

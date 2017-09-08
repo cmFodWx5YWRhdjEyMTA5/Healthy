@@ -181,6 +181,34 @@
         </RelativeLayout>
 
         <RelativeLayout
+            android:id="@+id/rl_persiondata_switvh"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y140"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
+
+            <TextView
+                android:id="@id/text1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x48"
+                android:text="是否开启网页心电监测"
+                android:textColor="#212121"
+                android:textSize="@dimen/x48"
+                android:layout_centerVertical="true"/>
+
+            <ImageView
+                android:id="@+id/iv_persiondata_switvh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="@dimen/x48"
+                android:onClick="switchMonitorState"
+                android:src="@drawable/switch_of"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
+
+        <RelativeLayout
             android:id="@+id/rl_persiondata_Multilingual"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/y140"
@@ -221,7 +249,7 @@
         android:layout_below="@+id/ll_item"
         android:background="@drawable/list_item_background"
         android:gravity="center_horizontal"
-        android:layout_marginTop="@dimen/x40"
+        android:layout_marginTop="@dimen/x80"
         android:paddingLeft="@dimen/x36"
         android:paddingRight="@dimen/x40">
         <TextView

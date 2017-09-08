@@ -233,7 +233,10 @@
                 android:id="@+id/cv_mian_index"
                 android:layout_width="@dimen/x228"
                 android:layout_height="@dimen/x228"
-                dashboardview:circlering_width="@dimen/x18"/>
+                dashboardview:circlering_width="@dimen/x18"
+                dashboardview:circlering_background_color="#307ABD"
+                dashboardview:circlering_start_color="#307ABD"
+                dashboardview:circlering_end_color="#81ADD7"/>
             <TextView
                 android:id="@+id/tv_main_indexvalue"
                 android:layout_width="wrap_content"
@@ -268,7 +271,10 @@
                 android:id="@+id/cv_mian_warring"
                 android:layout_width="@dimen/x228"
                 android:layout_height="@dimen/x228"
-                dashboardview:circlering_width="@dimen/x18"/>
+                dashboardview:circlering_width="@dimen/x18"
+                dashboardview:circlering_background_color="#307ABD"
+                dashboardview:circlering_start_color="#307ABD"
+                dashboardview:circlering_end_color="#81ADD7"/>
             <ImageView
                 android:id="@+id/tv_main_warring"
                 android:layout_width="@dimen/x72"

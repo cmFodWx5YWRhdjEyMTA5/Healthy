@@ -34,6 +34,9 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 public class MyDeviceActivity extends BaseActivity {
@@ -115,6 +118,11 @@ public class MyDeviceActivity extends BaseActivity {
                     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     startActivity(enableBtIntent);
                     return;
+                }
+                if (MyApplication.insoleConnectedMacAddress.size()==1){
+                    for (String oldStr : MyApplication.insoleConnectedMacAddress) {
+                        CommunicateToBleService.mLeProxy.disconnect(oldStr);
+                    }
                 }
                 Intent intent = new Intent(MyDeviceActivity.this,SearchDevicehActivity.class);
                 startActivityForResult(intent,130);
@@ -230,7 +238,7 @@ public class MyDeviceActivity extends BaseActivity {
             switch (intent.getAction()){
                 case LeProxy.ACTION_GATT_CONNECTED:// 接收到从机数据
 
-                    if (MyApplication.deivceType==Constant.sportType_Cloth || CommunicateToBleService.mInsoleConnectedCount==2){
+                    if (MyApplication.deivceType==Constant.sportType_Cloth || MyApplication.insoleConnectedMacAddress.size()==2){
                         Log.i(TAG,"设备连接");
                         if (MyApplication.deivceType==Constant.sportType_Cloth){
                             Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
@@ -270,7 +278,6 @@ public class MyDeviceActivity extends BaseActivity {
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
         MyUtil.addCookieForHttp(params);
-
 
         String url = null;
 
@@ -370,10 +377,14 @@ public class MyDeviceActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode==130 &  resultCode==RESULT_OK && data!=null){
-            ArrayList<Device> searchDeviceLists = data.getParcelableArrayListExtra("searchDeviceList");
-            Log.i(TAG,"searchDeviceLists:"+searchDeviceLists);
+            List<Device> searchDeviceLists = data.getParcelableArrayListExtra("searchDeviceList");
+
             deviceList.clear();
             if (searchDeviceLists!=null && searchDeviceLists.size()>0){
+                Log.i(TAG,"searchDeviceLists:"+searchDeviceLists);
+                Collections.sort(searchDeviceLists,new RssiComparator());
+                Log.i(TAG,"searchDeviceLists:"+searchDeviceLists);
+
                 int count = 0;
                 Device tempDevice = null;
                 for (Device device:searchDeviceLists){
@@ -387,8 +398,8 @@ public class MyDeviceActivity extends BaseActivity {
                         else if (count==2){
                             //2个算一双鞋垫
                             if (tempDevice!=null){
-                                device.setLEName(":左脚("+tempDevice.getMac().substring(tempDevice.getMac().length()-2)+
-                                        ")+右脚("+device.getMac().substring(device.getMac().length()-2)+")");
+                                device.setLEName("：鞋垫1("+tempDevice.getLEName().substring(tempDevice.getMac().length()-3)+
+                                        ")+鞋垫2("+device.getLEName().substring(device.getMac().length()-3)+")");
                                 device.setMac(tempDevice.getMac()+","+device.getMac());
                                 device.setState(getResources().getString(R.string.click_bind));
                                 //device.setDeviceType(Constant.sportType_Insole);
@@ -442,7 +453,10 @@ public class MyDeviceActivity extends BaseActivity {
                 }
             }*/
 
+            /*Log.i(TAG,"deviceList:"+deviceList);
 
+            Collections.sort(deviceList,new RssiComparator());
+            Log.i(TAG,"deviceList:"+deviceList);*/
             deviceAdapter.notifyDataSetChanged();
         }
         else if (requestCode==201 &  resultCode==RESULT_OK ){
@@ -455,12 +469,22 @@ public class MyDeviceActivity extends BaseActivity {
             /*deviceList.get(mBndDevicePostion).setState("点击绑定");
             deviceAdapter.notifyDataSetChanged();*/
 
-            deviceList.get(mBndDevicePostion).setState(getResources().getString(R.string.click_bind));
+            /*deviceList.get(mBndDevicePostion).setState(getResources().getString(R.string.click_bind));
             TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);
             tv_item_state.setText(getResources().getString(R.string.click_bind));
-            tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
+            tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));*/
+
+            deviceList.clear();
+            deviceAdapter.notifyDataSetChanged();
         }
 
+    }
+
+    private class RssiComparator implements Comparator<Device>{
+        @Override
+        public int compare(Device o1, Device o2) {
+            return o2.getRssi().compareTo(o1.getRssi());
+        }
     }
 
     @Override

@@ -14,6 +14,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
@@ -44,14 +45,7 @@ public class LockScreenActivity extends BaseActivity {
         initView();
     }
 
-    private boolean isNeedUpdateData = true;
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i(TAG,"onResume");
-        isNeedUpdateData = true;
-    }
 
     private void initView() {
 
@@ -76,24 +70,59 @@ public class LockScreenActivity extends BaseActivity {
             }
         });
 
-        if (!MyUtil.isEmpty(StartRunActivity.mFinalFormatSpeed)){
-            tv_run_speed.setText(StartRunActivity.mFinalFormatSpeed);
-        }
 
-        if (StartRunActivity.mAllDistance>0){
-            tv_run_distance.setText(StartRunActivity.getFormatDistance(StartRunActivity.mAllDistance));
-        }
-        if (StartRunActivity.mCurrentHeartRate>0){
-            tv_run_heartrate.setText(StartRunActivity.mCurrentHeartRate+"");
-        }
+    }
 
 
-        if (StartRunActivity.mCurrTimeDate!=null){
-            String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", StartRunActivity.mCurrTimeDate);
+
+    private boolean isNeedUpdateData = true;
+    boolean isSetDated = false;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG,"onResume");
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.i(TAG,"onNewIntent");
+
+        boolean isScroonOn = intent.getBooleanExtra("isScroonOn", false);
+        Log.i(TAG,"isScroonOn:"+isScroonOn);
+        if (!isSetDated && isScroonOn){
+            isSetDated = true;
+            setScreenData();
+        }
+    }
+
+    private void setScreenData() {
+        Log.i(TAG,"setScreenData:");
+
+        final MyApplication application = (MyApplication) getApplication();
+
+        if (!MyUtil.isEmpty(application.getRunningFinalFormatSpeed())){
+            tv_run_speed.setText(application.getRunningFinalFormatSpeed());
+        }
+
+        if (!MyUtil.isEmpty(application.getRunningFormatDistance())){
+            tv_run_distance.setText(application.getRunningFormatDistance());
+        }
+        if (application.getRunningmCurrentHeartRate()>0){
+            tv_run_heartrate.setText(application.getRunningmCurrentHeartRate()+"");
+        }
+
+        Log.i(TAG,"isNeedUpdateData:"+isNeedUpdateData);
+        Log.i(TAG,"application.getRunningCurrTimeDate():"+application.getRunningCurrTimeDate());
+
+        if (application.getRunningCurrTimeDate() != null){
+            String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", application.getRunningCurrTimeDate());
+            Log.i(TAG,"specialFormatTime:"+specialFormatTime);
             tv_run_time.setText(specialFormatTime);
 
             new Thread(){
-                long time = StartRunActivity.mCurrTimeDate.getTime();
+                long time = application.getRunningCurrTimeDate().getTime();
                 int count = 0;
                 @Override
                 public void run() {
@@ -113,19 +142,19 @@ public class LockScreenActivity extends BaseActivity {
                                 tv_run_time.setText(specialFormatTime);
 
                                 if (count==10){
-                                    if (!MyUtil.isEmpty(StartRunActivity.mFinalFormatSpeed)){
-                                        tv_run_speed.setText(StartRunActivity.mFinalFormatSpeed);
+                                    if (!MyUtil.isEmpty(application.getRunningFinalFormatSpeed())){
+                                        tv_run_speed.setText(application.getRunningFinalFormatSpeed());
                                     }
 
-                                    if (StartRunActivity.mAllDistance>0){
-                                        tv_run_distance.setText(StartRunActivity.getFormatDistance(StartRunActivity.mAllDistance));
+                                    if (!MyUtil.isEmpty(application.getRunningFormatDistance())){
+                                        tv_run_distance.setText(application.getRunningFormatDistance());
                                     }
-                                    if (StartRunActivity.mCurrentHeartRate>0){
-                                        tv_run_heartrate.setText(StartRunActivity.mCurrentHeartRate+"");
+                                    if (application.getRunningmCurrentHeartRate()>0){
+                                        tv_run_heartrate.setText(application.getRunningmCurrentHeartRate()+"");
                                     }
                                     count = 0;
-                                    startActivity(new Intent(LockScreenActivity.this,LockScreenActivity.class));
-                                    Log.i(TAG,"10s设置数据  重启LockScreenActivity");
+                                    //startActivity(new Intent(LockScreenActivity.this,LockScreenActivity.class));
+                                    //Log.i(TAG,"10s设置数据  重启LockScreenActivity");
                                 }
 
                                 count++;
@@ -145,15 +174,12 @@ public class LockScreenActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        isNeedUpdateData = false;
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
-        isNeedUpdateData = false;
-
     }
 
     @Override

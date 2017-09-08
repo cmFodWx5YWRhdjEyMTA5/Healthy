@@ -8,8 +8,8 @@ import android.os.Parcelable;
  */
 
 public class HistoryRecord implements Parcelable{
-    private String ID;
-    private String datatime;
+    private String id;
+    private long datatime;
     private int state;
     private int analysisState;  //""：已分析(正常，默认的)，1：未分析（在离线传输时），2：异常中断
 
@@ -17,24 +17,24 @@ public class HistoryRecord implements Parcelable{
     public static int analysisState_noAnalysised = 1;
     public static int analysisState_abort = 2;
 
-    public String getID() {
-        return ID;
+    public String getId() {
+        return id;
     }
 
-    public void setID(String ID) {
-        this.ID = ID;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getDatatime() {
+    public long getDatatime() {
         return datatime;
     }
 
-    public void setDatatime(String datatime) {
+    public void setDatatime(long datatime) {
         this.datatime = datatime;
     }
 
-    public HistoryRecord(String ID, String datatime) {
-        this.ID = ID;
+    public HistoryRecord(String ID, long datatime) {
+        this.id = ID;
         this.datatime = datatime;
     }
 
@@ -51,22 +51,22 @@ public class HistoryRecord implements Parcelable{
         return 0;
     }
 
-    public HistoryRecord(String ID, String datatime, int state) {
-        this.ID = ID;
+    public HistoryRecord(String ID, long datatime, int state) {
+        this.id = ID;
         this.datatime = datatime;
         this.state = state;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(ID);
-        dest.writeString(datatime);
+        dest.writeString(id);
+        dest.writeLong(datatime);
         dest.writeInt(state);
     }
     public static final Creator<HistoryRecord> CREATOR = new Creator<HistoryRecord>() {
         @Override
         public HistoryRecord createFromParcel(Parcel source) {
-            return new HistoryRecord(source.readString(),source.readString(),source.readInt());
+            return new HistoryRecord(source.readString(),source.readLong(),source.readInt());
         }
 
         @Override
@@ -75,8 +75,8 @@ public class HistoryRecord implements Parcelable{
         }
     };
 
-    public HistoryRecord(String ID, String datatime, int state, int analysisState) {
-        this.ID = ID;
+    public HistoryRecord(String ID, long datatime, int state, int analysisState) {
+        this.id = ID;
         this.datatime = datatime;
         this.state = state;
         this.analysisState = analysisState;
@@ -94,7 +94,7 @@ public class HistoryRecord implements Parcelable{
     @Override
     public String toString() {
         return "HistoryRecord{" +
-                "ID='" + ID + '\'' +
+                "id='" + id + '\'' +
                 ", datatime='" + datatime + '\'' +
                 ", state=" + state +
                 ", analysisState='" + analysisState + '\'' +

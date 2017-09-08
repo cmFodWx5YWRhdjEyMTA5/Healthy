@@ -1,5 +1,6 @@
 package com.amsu.healthy.activity;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,6 +15,8 @@ import android.view.View;
 import android.widget.Button;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.activity.insole.CorrectInsoleActivity;
+import com.amsu.healthy.activity.insole.InsoleRunningActivity;
 import com.amsu.healthy.adapter.FragmentListRateAdapter;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.fragment.inoutdoortype.InDoorRunFragment;
@@ -42,7 +45,7 @@ public class PrepareRunningActivity extends BaseActivity {
 
     private static final String TAG = "PrepareRunningActivity";
     private Button bt_choose_offline;
-    private boolean mIsOutDoor = true;
+    //private boolean mIsOutDoor = true;
 
 
     @Override
@@ -51,7 +54,6 @@ public class PrepareRunningActivity extends BaseActivity {
         setContentView(R.layout.activity_prepare_running);
 
         initView();
-
     }
 
     private void initView() {
@@ -89,10 +91,10 @@ public class PrepareRunningActivity extends BaseActivity {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 if (position==0){
-                    mIsOutDoor = true;
+                    MyApplication.mIsOutDoor = true;
                 }
                 else {
-                    mIsOutDoor = false;
+                    MyApplication.mIsOutDoor = false;
                 }
             }
 
@@ -117,6 +119,20 @@ public class PrepareRunningActivity extends BaseActivity {
         }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
+    }
+
+    boolean isonResumeEd ;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isonResumeEd){
+            if (MainActivity.mBluetoothAdapter!=null && !MainActivity.mBluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, MainActivity.REQUEST_ENABLE_BT);
+            }
+            isonResumeEd = true;
+        }
     }
 
     private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
@@ -148,21 +164,25 @@ public class PrepareRunningActivity extends BaseActivity {
     public void goStartRun(View view) {
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         // 判断GPS模块是否开启，如果没有则开启
-        Log.i(TAG,"gps打开？:"+locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER));
-        if (!locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
+        Log.i(TAG,"gps打开？:"+locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             MyUtil.chooseOpenGps(this);
         }
         else {
             Intent intent = new Intent(this,RunTimeCountdownActivity.class);
-            intent.putExtra("mIsOutDoor",mIsOutDoor);
-            intent.putExtra(Constant.sportState,MyApplication.deivceType);
 
             if (MyApplication.deivceType==Constant.sportType_Cloth){
 
             }
             else if (MyApplication.deivceType==Constant.sportType_Insole){
+                intent = new Intent(this,CorrectInsoleActivity.class);
+                //intent = new Intent(this,InsoleRunningActivity.class);
                 getInsoleToken();
             }
+            //intent.putExtra(Constant.mIsOutDoor,mIsOutDoor);
+            /*intent.putExtra("mIsOutDoor",mIsOutDoor);
+            intent.putExtra(Constant.sportState,MyApplication.deivceType);*/
+
             startActivity(intent);
             finish();
         }
@@ -260,7 +280,7 @@ public class PrepareRunningActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        MyUtil.dismissPopWindow();
+
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
     }
 }

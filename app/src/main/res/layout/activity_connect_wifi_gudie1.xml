@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.amsu.healthy.activity.ConnectToWifiModuleGudieActivity1"
+    tools:context="com.amsu.healthy.activity.ConnectToWifiGudieActivity1"
     android:background="#72D5F4">
 
     <include layout="@layout/page_head"

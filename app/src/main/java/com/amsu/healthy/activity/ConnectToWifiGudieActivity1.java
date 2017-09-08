@@ -1,19 +1,16 @@
 package com.amsu.healthy.activity;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.TextView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.utils.MyUtil;
 
 /**
  * Created by HP on 2017/4/5.
  */
 
-public class ConnectToWifiModuleGudieActivity1 extends BaseActivity {
+public class ConnectToWifiGudieActivity1 extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +33,7 @@ public class ConnectToWifiModuleGudieActivity1 extends BaseActivity {
     }
 
     public void nextStep(View view) {
-        startActivity(new Intent(this,ConnectToWifiModuleGudieActivity2.class));
+        startActivity(new Intent(this,ConnectToWifiGudieActivity2.class));
         finish();
     }
 }

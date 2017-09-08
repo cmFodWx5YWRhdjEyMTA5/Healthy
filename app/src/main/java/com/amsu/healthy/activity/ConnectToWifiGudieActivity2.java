@@ -16,14 +16,12 @@ import com.amsu.healthy.utils.wifiTramit.WifiAutoConnectManager;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Created by HP on 2017/4/5.
  */
 
-public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
+public class ConnectToWifiGudieActivity2 extends BaseActivity {
     private static final String TAG = "ConnectToWifi2";
     public static Socket mSock;
     private WifiManager mWifiManage;
@@ -67,17 +65,17 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
             wifiAutoConnectManager.setConnectStateResultChanged(new WifiAutoConnectManager.ConnectStateResultChanged() {
                 @Override
                 public void onConnectStateChanged(boolean isConnected) {
-                    MyUtil.hideDialog(ConnectToWifiModuleGudieActivity2.this);
+                    MyUtil.hideDialog(ConnectToWifiGudieActivity2.this);
                     Log.i(TAG,"isConnected:"+isConnected);
                     if (isConnected){
                         Log.i(TAG,"WiFi连接成功:");
-                        MyUtil.showDialog(getResources().getString(R.string.connectted_socket_dialog),ConnectToWifiModuleGudieActivity2.this);
+                        MyUtil.showDialog(getResources().getString(R.string.connectted_socket_dialog),ConnectToWifiGudieActivity2.this);
                         loopCreateSocketConnect();
                     }
                     else {
                         Log.i(TAG,"WiFi连接失败:");
                         //连接失败
-                        MyUtil.showToask(ConnectToWifiModuleGudieActivity2.this,getResources().getString(R.string.connectting_wifi_fail));
+                        MyUtil.showToask(ConnectToWifiGudieActivity2.this,getResources().getString(R.string.connectting_wifi_fail));
                     }
                 }
             });
@@ -146,9 +144,9 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        MyUtil.showToask(ConnectToWifiModuleGudieActivity2.this,"主机连接成功");
-                        MyUtil.hideDialog(ConnectToWifiModuleGudieActivity2.this);
-                        startActivity(new Intent(ConnectToWifiModuleGudieActivity2.this,UploadOfflineFileActivity.class));
+                        MyUtil.showToask(ConnectToWifiGudieActivity2.this,"主机连接成功");
+                        MyUtil.hideDialog(ConnectToWifiGudieActivity2.this);
+                        startActivity(new Intent(ConnectToWifiGudieActivity2.this,UploadOfflineFileActivity.class));
                         finish();
                     }
                 });
@@ -158,8 +156,8 @@ public class ConnectToWifiModuleGudieActivity2 extends BaseActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        MyUtil.hideDialog(ConnectToWifiModuleGudieActivity2.this);
-                        //MyUtil.showToask(ConnectToWifiModuleGudieActivity2.this,"主机连接失败，请检查WiFi连接是否成功");
+                        MyUtil.hideDialog(ConnectToWifiGudieActivity2.this);
+                        //MyUtil.showToask(ConnectToWifiGudieActivity2.this,"主机连接失败，请检查WiFi连接是否成功");
                     }
                 });
             }

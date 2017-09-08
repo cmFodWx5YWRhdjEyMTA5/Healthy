@@ -1,8 +1,10 @@
 package com.amsu.healthy.fragment.report.mouth;
 
 
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,12 +20,14 @@ import com.amsu.healthy.view.FoldLineViewWithText;
 import com.amsu.healthy.view.FoldLineViewWithTextOne;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class HRRMouthFragment extends BaseFragment {
+    private static final String TAG = "HRRMouthFragment";
     private FoldLineViewWithPoint mLineChart;
     private View inflate;
     private TextView tv_mouth_value;
@@ -69,9 +73,10 @@ public class HRRMouthFragment extends BaseFragment {
                 List<Integer> dataList = new ArrayList<>();
                 List<String> labeList = new ArrayList<>();
                 for (FullReport.HRRrepBean hrRrepBean:hRrep){
-                    if (Integer.parseInt(hrRrepBean.RA)>0){
-                        dataList.add(Integer.parseInt(hrRrepBean.RA));
-                        labeList.add(MyUtil.getReportDateStingForMouthAndDay(hrRrepBean.datatime));
+                    Log.i(TAG,"hrRrepBean.ra:"+hrRrepBean.ra);
+                    if (hrRrepBean.ra>0){
+                        dataList.add(hrRrepBean.ra);
+                        labeList.add(MyUtil.getSpecialFormatTime("MM月dd日",new Date(hrRrepBean.datatime)));
                     }
                 }
 

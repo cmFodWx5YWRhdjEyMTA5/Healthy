@@ -24,13 +24,18 @@ import com.amsu.healthy.service.LocalGuardService;
 import com.amsu.healthy.service.MyTestService2;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
+import com.mob.MobSDK;
 import com.tencent.bugly.crashreport.CrashReport;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
-import cn.smssdk.SMSSDK;
+
 
 /**
  * Created by HP on 2016/11/23.
@@ -58,6 +63,14 @@ public class MyApplication extends Application{
     public static int language_ch = 1;  //中文
     public static int language_en = 2;  //英文
     public static Context appContext ;
+    public static Set<String> insoleConnectedMacAddress = new HashSet<>();
+    public static boolean mIsOutDoor = true;
+
+    public String runningFormatDistance;
+    public String runningFinalFormatSpeed;
+    public Date runningCurrTimeDate;
+    public boolean runningIsRunning;
+    public int runningmCurrentHeartRate;
 
     @Override
     public void onCreate() {
@@ -67,7 +80,8 @@ public class MyApplication extends Application{
 
 
         //sharesdk短信
-        SMSSDK.initSDK(this, "1976143c3c888", "0c1784d4bf495891bf142767b314651c");
+        //MobSDK.init(this, "1976143c3c888", "0c1784d4bf495891bf142767b314651c");
+        MobSDK.init(this);
 
         sharedPreferences = getSharedPreferences("userinfo", MODE_PRIVATE);
         mActivities = new ArrayList<>();
@@ -80,7 +94,7 @@ public class MyApplication extends Application{
             MyUtil.startServices(this);
             isNeedSynMsgToDevice = true;
 
-            CrashReport.initCrashReport(getApplicationContext(), "d139ea916b", false);   //腾讯Bugly
+            CrashReport.initCrashReport(this, "d139ea916b", false);   //腾讯Bugly
 
             int type = MyUtil.getIntValueFromSP(Constant.sportType);
 
@@ -120,4 +134,44 @@ public class MyApplication extends Application{
         return currentProcName;
     }
 
+
+    public Date getRunningCurrTimeDate() {
+        return runningCurrTimeDate;
+    }
+
+    public void setRunningCurrTimeDate(Date runningCurrTimeDate) {
+        this.runningCurrTimeDate = runningCurrTimeDate;
+    }
+
+    public String getRunningFormatDistance() {
+        return runningFormatDistance;
+    }
+
+    public void setRunningFormatDistance(String runningFormatDistance) {
+        this.runningFormatDistance = runningFormatDistance;
+    }
+
+    public String getRunningFinalFormatSpeed() {
+        return runningFinalFormatSpeed;
+    }
+
+    public void setRunningFinalFormatSpeed(String runningFinalFormatSpeed) {
+        this.runningFinalFormatSpeed = runningFinalFormatSpeed;
+    }
+
+    public boolean isRunningIsRunning() {
+        return runningIsRunning;
+    }
+
+    public void setRunningIsRunning(boolean runningIsRunning) {
+        this.runningIsRunning = runningIsRunning;
+    }
+
+    public int getRunningmCurrentHeartRate() {
+        return runningmCurrentHeartRate;
+    }
+
+    public void setRunningmCurrentHeartRate(int runningmCurrentHeartRate) {
+        this.runningmCurrentHeartRate = runningmCurrentHeartRate;
+    }
 }

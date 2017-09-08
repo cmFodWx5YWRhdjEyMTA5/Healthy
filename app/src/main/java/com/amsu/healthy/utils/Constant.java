@@ -34,13 +34,24 @@ public class Constant {
     public static String getHealthyPlanningMonthListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningMonthList";
     public static String getOneDayHealthyPlanListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningDateList";
     public static String getAfter20ItemHealthyPlanListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningPastList";
-    public static String uploadReportURL = "http://bodylistener.amsu-new.com:83/intellingence/ReportController/uploadReport";
-    public static String downloadQuarterReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadQuarterReport";
-    public static String downloadMonthReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadMonthReport";
-    public static String downloadYearReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadYearReport";
-    public static String getHistoryReportListURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/getReportList";
-    public static String getHistoryReportDetailURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/getDetail";
-    public static String downloadWeekReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadWeekReport";
+    //public static String uploadReportURL = "http://bodylistener.amsu-new.com:83/intellingence/ReportController/uploadReport";
+    public static String uploadReportURL = "http://www.amsu-new.com:8081/intellingence-web/uploadReport.do";
+    //public static String downloadQuarterReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadQuarterReport";
+    public static String downloadQuarterReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadQuarterReport.do";
+    //public static String downloadMonthReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadMonthReport";
+    public static String downloadMonthReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadMonthReport.do";
+    //public static String downloadYearReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadYearReport";
+    public static String downloadYearReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadYearReport.do";
+
+    String x = "www.amsu-new.com:8081";
+
+    //public static String getHistoryReportListURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/getReportList";
+    public static String getHistoryReportListURL = "http://www.amsu-new.com:8081/intellingence-web/getReportList.do";
+    //public static String getHistoryReportDetailURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/getDetail";
+    public static String getHistoryReportDetailURL = "http://www.amsu-new.com:8081/intellingence-web/getDetail.do";
+    //public static String downloadWeekReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadWeekReport";
+    //public static String downloadWeekReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadWeekReport.do";
+    public static String downloadWeekReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadWeekReport.do";
     public static String addSosContact = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/addContacts";
     public static String getAllContacts = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/getContactsAndMessage";
     public static String setSosMessage = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/setMessage";
@@ -75,6 +86,7 @@ public class Constant {
     public static int SPORTSTATE_ATHLETIC = 1;
     public static String hrr = "hrr";
     public static String ecgFiletimeMillis = "ecgFiletimeMillis";
+    public static String startTimeMillis = "startTimeMillis";
     public static String restingHR = "restingHR";
     public static String sosinfo = "sosinfo";
     public static String sosNumberList = "sosNumberList";
@@ -85,18 +97,24 @@ public class Constant {
     public static String myDeceiveName = "myDeceiveName";
     public static String isNeedRecoverAbortData = "isNeedRecoverAbortData";
     public static String sportType = "sportType";
+    public static String mIsOutDoor = "mIsOutDoor";
     public static final int sportType_Cloth = 1;
     public static final int sportType_Insole = 2;
 
     public static String uploadRecordDefaultString = "0";
+    public static String uploadRecordDefaultString_1 = "-1";
+    public static int uploadRecordDefaultInt = 0;
 
-    public static String noIntentNotifyMsg = "网络异常,请检查网络连接";
+    public static String noIntentNotifyMsg = "请求失败，网络异常或服务器错误";
 
     public static String sendONLineMsgToServer = "http://192.168.137.1:8080/AmsuClothMonitor/AddUserInfoAction";
     public static String deleteONLineMsgToServer = "http://localhost:8080/AmsuClothMonitor/deleteOnlineUserAction";
 
     public static UUID insoleSerUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
     public static UUID insoleCharUuid = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
+
+    public static String deleteHistoryRecordURL = "http://www.amsu-new.com:8081/intellingence-web/deleteById.do";
+    public static String deleteBangdingByUserId = "http://www.amsu-new.com:8081/intellingence-web/deleteBangdingByUserid.do";
 
 
 

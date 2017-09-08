@@ -39,7 +39,7 @@ public class ResultSpeedFragment extends Fragment {
         TextView tv_speed_average = (TextView) inflate.findViewById(R.id.tv_speed_average);
         TextView tv_speed_fastest = (TextView) inflate.findViewById(R.id.tv_speed_fastest);
         ListView lv_speed_speedlist = (ListView) inflate.findViewById(R.id.lv_speed_speedlist);
-        //TextView tv_speed_lastspeed = (TextView) inflate.findViewById(R.id.tv_speed_lastspeed);
+        TextView tv_speed_lastspeed = (TextView) inflate.findViewById(R.id.tv_speed_lastspeed);
 
 
         speedListInt[0] = 20;
@@ -48,11 +48,11 @@ public class ResultSpeedFragment extends Fragment {
         speedListInt[3] = 60;
         speedListInt[4] = 80;
 
-        TextView textView = new TextView(getActivity());
+        /*TextView textView = new TextView(getActivity());
         textView.setTextColor(Color.parseColor("#999999"));
         textView.setTextSize(getActivity().getResources().getDimension(R.dimen.x18));
         textView.setText("最后一公里");
-        lv_speed_speedlist.addFooterView(textView);
+        lv_speed_speedlist.addFooterView(textView);*/
 
         lv_speed_speedlist.setAdapter(new SpeedListAdapter());
     }

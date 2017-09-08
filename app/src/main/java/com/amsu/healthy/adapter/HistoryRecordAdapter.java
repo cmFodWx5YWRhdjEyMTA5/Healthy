@@ -8,15 +8,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.utils.MyUtil;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,10 +32,12 @@ public class HistoryRecordAdapter extends BaseAdapter {
     private static final String TAG = "HistoryRecordAdapter";
     private List<HistoryRecord> historyRecords ;
     private Context context;
+    private int mRightWidth = 0;
 
-    public HistoryRecordAdapter(List<HistoryRecord> historyRecords, Context context) {
+    public HistoryRecordAdapter(List<HistoryRecord> historyRecords, Context context, int rightWidth) {
         this.historyRecords = historyRecords;
         this.context = context;
+        mRightWidth = rightWidth;
     }
 
     @Override
@@ -49,7 +56,7 @@ public class HistoryRecordAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         Log.i(TAG,"getView:position "+position);
         HistoryRecord historyRecord = historyRecords.get(position);
 
@@ -62,6 +69,8 @@ public class HistoryRecordAdapter extends BaseAdapter {
         else {
             inflate = View.inflate(context, R.layout.list_history_item, null);
             myHolder = new MyHolder();
+            myHolder.item_left = (RelativeLayout)inflate.findViewById(R.id.item_left);
+            myHolder.item_right = (RelativeLayout)inflate.findViewById(R.id.item_right);
             myHolder.tv_history_date = (TextView) inflate.findViewById(R.id.tv_history_date);
             myHolder.tv_history_time = (TextView) inflate.findViewById(R.id.tv_history_time);
             myHolder.tv_history_alstate = (TextView) inflate.findViewById(R.id.tv_history_alstate);
@@ -70,7 +79,7 @@ public class HistoryRecordAdapter extends BaseAdapter {
         }
 
         //"datatime": "2016-10-28 10:56:04"
-        String datatime = historyRecord.getDatatime();
+        String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm:ss",new Date(historyRecord.getDatatime()));
         String[] split = datatime.split(" ");
         String[] dateSplits = split[0].split("-");
         String date = "";
@@ -110,18 +119,45 @@ public class HistoryRecordAdapter extends BaseAdapter {
             myHolder.tv_history_alstate.setTextColor(Color.parseColor("#CCCCCC"));
         }
 
-        ProgressBar pb_item_progress = (ProgressBar) inflate.findViewById(R.id.pb_item_progress);
+        LinearLayout.LayoutParams lp1 = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        myHolder.item_left.setLayoutParams(lp1);
+        LinearLayout.LayoutParams lp2 = new LayoutParams(mRightWidth, LayoutParams.MATCH_PARENT);
+        myHolder.item_right.setLayoutParams(lp2);
+
+        myHolder.item_right.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mListener != null) {
+                    mListener.onRightItemClick(v, position);
+                }
+            }
+        });
+        //ProgressBar pb_item_progress = (ProgressBar) inflate.findViewById(R.id.pb_item_progress);
 
         return inflate;
     }
 
     class MyHolder {
+        RelativeLayout item_left;
+        RelativeLayout item_right;
+
         TextView tv_history_date;
         TextView tv_history_time;
         TextView tv_history_alstate;
         TextView tv_history_sportstate;
     }
 
+    /**
+     * 单击事件监听器
+     */
+    private onRightItemClickListener mListener = null;
 
+    public void setOnRightItemClickListener(onRightItemClickListener listener){
+        mListener = listener;
+    }
+
+    public interface onRightItemClickListener {
+        void onRightItemClick(View v, int position);
+    }
 
 }

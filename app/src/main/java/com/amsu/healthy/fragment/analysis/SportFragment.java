@@ -3,7 +3,6 @@ package com.amsu.healthy.fragment.analysis;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,9 +16,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.amap.api.location.AMapLocation;
 import com.amap.api.maps.AMap;
-import com.amap.api.maps.CameraUpdate;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.LatLng;
@@ -28,28 +25,20 @@ import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
-import com.amap.api.trace.LBSTraceClient;
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.RateAnalysisActivity;
-import com.amsu.healthy.activity.StartRunActivity;
+import com.amsu.healthy.activity.HeartRateResultShowActivity;
+import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.ParcelableDoubleList;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.fragment.BaseFragment;
-import com.amsu.healthy.fragment.inoutdoortype.OutDoorRunFragment;
-import com.amsu.healthy.fragment.inoutdoortype.OutDoorRunGoogleFragment;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.map.DbAdapter;
-import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
 import com.amsu.healthy.view.AerobicAnaerobicView;
 import com.amsu.healthy.view.HeightCurveView;
 import com.amsu.healthy.view.MyMapView;
 import com.amsu.healthy.view.PieChart;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -93,6 +82,7 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
     GoogleMap mGoogleMap;
     private boolean isGoogleMap;
+    private boolean mIsOutDoor;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -111,8 +101,7 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
 
     private void initView(Bundle savedInstanceState) {
         Log.i(TAG,"initView");
-        mv_finish_map = (MyMapView) inflate.findViewById(R.id.mv_finish_map);
-        mv_finish_map.onCreate(savedInstanceState);// 此方法必须重写
+
 
         tv_sport_mileage = (TextView) inflate.findViewById(R.id.tv_sport_mileage);
         tv_sport_time = (TextView) inflate.findViewById(R.id.tv_sport_time);
@@ -129,27 +118,34 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
         hv_sport_aerobicanaerobic = (AerobicAnaerobicView) inflate.findViewById(R.id.hv_sport_aerobicanaerobic);
         pc_sport_piechart = (PieChart) inflate.findViewById(R.id.pc_sport_piechart);
 
-        String country = Locale.getDefault().getCountry();
-        Log.i(TAG,"country:"+country);Locale.CHINA.getCountry();
-        if(country.equals(Locale.CHINA.getCountry())){
-            //中国
-            initMap();
+        mv_finish_map = (MyMapView) inflate.findViewById(R.id.mv_finish_map);
+
+        mIsOutDoor = MyApplication.mIsOutDoor;
+        if (!mIsOutDoor){
+            mv_finish_map.setVisibility(View.GONE);
         }
         else {
-            //国外
-            isGoogleMap = true;
-            mv_finish_map.setVisibility(View.GONE);
-            mv_finish_googlemap.setVisibility(View.VISIBLE);
-
-            Bundle mapViewBundle = null;
-            if (savedInstanceState != null) {
-                mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
+            mv_finish_map.onCreate(savedInstanceState);// 此方法必须重写
+            String country = Locale.getDefault().getCountry();
+            Log.i(TAG,"country:"+country);Locale.CHINA.getCountry();
+            if(country.equals(Locale.CHINA.getCountry())){
+                //中国
+                initMap();
             }
-            mv_finish_googlemap.onCreate(mapViewBundle);
-            mv_finish_googlemap.getMapAsync(this);
+            else {
+                //国外
+                isGoogleMap = true;
+                mv_finish_map.setVisibility(View.GONE);
+                mv_finish_googlemap.setVisibility(View.VISIBLE);
+
+                Bundle mapViewBundle = null;
+                if (savedInstanceState != null) {
+                    mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
+                }
+                mv_finish_googlemap.onCreate(mapViewBundle);
+                mv_finish_googlemap.getMapAsync(this);
+            }
         }
-
-
 
 
         TogatherOnClickListener togatherOnClickListener = new TogatherOnClickListener();
@@ -304,13 +300,12 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
     }
 
     private void initData() {
-        mUploadRecord = RateAnalysisActivity.mUploadRecord;
+        mUploadRecord = HeartRateResultShowActivity.mUploadRecord;
 
-
+        Log.i(TAG, "mUploadRecord:" + mUploadRecord);
         if (mUploadRecord !=null) {
-            Log.i(TAG, "mUploadRecord:" + mUploadRecord.toString());
 
-            int duration = (int) Float.parseFloat(mUploadRecord.time);
+            long duration =mUploadRecord.time;
             String myDuration;
             if (duration>60*60) {
                 myDuration = duration/(60*60)+"h"+(duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
@@ -321,15 +316,18 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
             tv_sport_time.setText(myDuration);
 
             //距离
-            double distance = Double.parseDouble(mUploadRecord.distance);
-            String myDistance = StartRunActivity.getFormatDistance(distance);
+            double distance = mUploadRecord.distance;
+            String myDistance = MyUtil.getFormatDistance(distance);
             tv_sport_mileage.setText(myDistance);
 
 
             //速度
             //String average = Util.getAverage((float) distance, duration);
 
-            float mapRetrurnSpeed = (float) (distance / duration);
+            float mapRetrurnSpeed =0;
+            if (duration>0){
+                mapRetrurnSpeed = (float) (distance / duration);
+            }
 
             Log.i(TAG,"distance:"+distance);
             Log.i(TAG,"duration:"+duration);
@@ -351,29 +349,21 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
             }
             tv_sport_speed.setText(formatSpeed);
 
-            Gson gson = new Gson();
-            if (!MyUtil.isEmpty(mUploadRecord.HR) && !mUploadRecord.HR.equals("-1")){//心率
-                List<Integer> fromJson = gson.fromJson(mUploadRecord.HR,new TypeToken<List<Integer>>() {
-                }.getType());
-                heartData = MyUtil.listToIntArray(fromJson);
-                int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
-                if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
+            int time = (int) (Math.ceil(mUploadRecord.time/60));;
+
+            if (mUploadRecord.hr!=null && mUploadRecord.hr.size()>0){//心率
+                heartData = MyUtil.listToIntArray(mUploadRecord.hr);
+                if (time>0){
                     Log.i(TAG,"time:"+time);
                     hv_sport_rateline.setData(heartData,time,HeightCurveView.LINETYPE_HEART);
-                }
-
-                hv_sport_aerobicanaerobic.setData(heartData, time);
-
-                /*int distance = (int) Double.parseDouble(mUploadRecord.distance);
-                if (distance>0){
                     hv_sport_aerobicanaerobic.setData(heartData, time);
-                }*/
+                }
 
                 int typeIsOx = 0;
                 int typeGentle = 0;
                 int typeDanger = 0;
                 int typeNoOx = 0;
-                int maxRate = 220-HealthyIndexUtil.getUserAge();
+                int maxRate = 220- HealthyIndexUtil.getUserAge();
                 for (int rate: heartData){
                     if (rate<=maxRate*0.6){
                         typeGentle++;
@@ -392,16 +382,14 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
                 float[] piechartData = {typeIsOx,typeGentle,typeDanger,typeNoOx};
                 pc_sport_piechart.setDatas(piechartData);
             }
-            if (!MyUtil.isEmpty(mUploadRecord.AHR) && !mUploadRecord.AHR.equals(Constant.uploadRecordDefaultString)  && !mUploadRecord.AHR.equals("-1")){
-                tv_sport_rate.setText(mUploadRecord.AHR);
+            if (mUploadRecord.ahr>0){
+                tv_sport_rate.setText(mUploadRecord.ahr+"");
             }
-            if (!MyUtil.isEmpty(mUploadRecord.cadence) && !mUploadRecord.cadence.equals(Constant.uploadRecordDefaultString) && !mUploadRecord.cadence.equals("-1")){ //步频
-                List<Integer> fromJson = gson.fromJson(mUploadRecord.cadence,new TypeToken<List<Integer>>() {
-                }.getType());
-                Log.i(TAG,"步频数据： "+fromJson);
-                stepData = MyUtil.listToIntArray(fromJson);
-                if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
-                    int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
+            Log.i(TAG,"mUploadRecord.cadence:"+mUploadRecord.cadence);
+            if (mUploadRecord.cadence!=null && mUploadRecord.cadence.size()>0){ //步频
+                Log.i(TAG,"步频数据： "+mUploadRecord.cadence);
+                stepData = MyUtil.listToIntArray(mUploadRecord.cadence);
+                if (time>0){
                     hv_sport_stepline.setData(stepData,time,HeightCurveView.LINETYPE_SETP);
                     int allcadence = 0 ;
                     for (int i: stepData){
@@ -412,13 +400,10 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
                     tv_sport_freqstride.setText(averageCadence +"");
                 }
             }
-            if (!MyUtil.isEmpty(mUploadRecord.calorie) && !mUploadRecord.calorie.equals(Constant.uploadRecordDefaultString) && !mUploadRecord.calorie.equals("-1")){ //卡路里
-                List<String> fromJson = gson.fromJson(mUploadRecord.calorie,new TypeToken<List<String>>() {
-                }.getType());
-                kaliluliData = MyUtil.listToFloatArray(fromJson);
+            if (mUploadRecord.calorie!=null && mUploadRecord.calorie.size()>0){ //卡路里
+                kaliluliData = MyUtil.listToFloatArray(mUploadRecord.calorie);
                 Log.i(TAG,"kaliluliData:"+ Arrays.toString(kaliluliData));
-                if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
-                    int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
+                if (time>0){
                     hv_sport_kaliluline.setData(kaliluliData,time,HeightCurveView.LINETYPE_CALORIE);
                     float allcalorie = 0 ;
                     float max= 0;
@@ -434,12 +419,9 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
                 }
             }
 
-            if (!MyUtil.isEmpty(mUploadRecord.AE) && !mUploadRecord.AE.equals(Constant.uploadRecordDefaultString)){ //卡路里
-                List<Integer> fromJson = gson.fromJson(mUploadRecord.AE,new TypeToken<List<Integer>>() {
-                }.getType());
-                speedData = MyUtil.listToIntArray(fromJson);
-                if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
-                    int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
+            if (mUploadRecord.ae!=null && mUploadRecord.ae.size()>0){ //卡路里
+                speedData = MyUtil.listToIntArray(mUploadRecord.ae);
+                if (time>0){
                     hv_sport_speedline.setData(speedData,time,HeightCurveView.LINETYPE_SPEED);
                 }
             }
@@ -509,33 +491,39 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
     public void onResume() {
         super.onResume();
         Log.i(TAG,"onResume");
-        if (isGoogleMap){
-            mv_finish_googlemap.onResume();
-        }
-        else {
-            mv_finish_map.onResume();   //地图
+        if (mIsOutDoor){
+            if (isGoogleMap){
+                mv_finish_googlemap.onResume();
+            }
+            else {
+                mv_finish_map.onResume();   //地图
+            }
         }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if (isGoogleMap){
-            mv_finish_googlemap.onStart();
-        }
-        else {
-            mv_finish_map.onResume();   //地图
+        if (mIsOutDoor){
+            if (isGoogleMap){
+                mv_finish_googlemap.onStart();
+            }
+            else {
+                mv_finish_map.onResume();   //地图
+            }
         }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (isGoogleMap) {
-            mv_finish_googlemap.onStop();
-        }
-        else {
-            mv_finish_map.onResume();   //地图
+        if (mIsOutDoor){
+            if (isGoogleMap) {
+                mv_finish_googlemap.onStop();
+            }
+            else {
+                mv_finish_map.onResume();   //地图
+            }
         }
     }
 
@@ -544,44 +532,45 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
         if (isGoogleMap) {
             mGoogleMap = map;
             // A geodesic polyline that goes around the world.
-            com.google.android.gms.maps.model.PolylineOptions polylineOptions = new com.google.android.gms.maps.model.PolylineOptions();
-            Gson gson = new Gson();
-            List<List<Double>> fromJson = gson.fromJson(mUploadRecord.latitude_longitude,new TypeToken<List<List<Double>>>() {
-            }.getType());
-            Log.i(TAG,"fromJson:"+fromJson);
-            if (fromJson!=null && fromJson.size()>0){
-                com.google.android.gms.maps.model.LatLng startLatLng =
-                        new com.google.android.gms.maps.model.LatLng(fromJson.get(0).get(0),fromJson.get(0).get(1));
-                com.google.android.gms.maps.model.LatLng endLatLng =
-                        new com.google.android.gms.maps.model.LatLng(fromJson.get(fromJson.size()-1).get(0),fromJson.get(fromJson.size()-1).get(1));
+            if (mUploadRecord!=null){
+                com.google.android.gms.maps.model.PolylineOptions polylineOptions = new com.google.android.gms.maps.model.PolylineOptions();
+                Gson gson = new Gson();
+                /*List<List<Double>> fromJson = gson.fromJson(mUploadRecord.latitudeLongitude,new TypeToken<List<List<Double>>>() {
+                }.getType());*/
+                List<ParcelableDoubleList> fromJson = mUploadRecord.latitudeLongitude;
+                Log.i(TAG,"fromJson:"+fromJson);
+                if (fromJson!=null && fromJson.size()>0){
+                    com.google.android.gms.maps.model.LatLng startLatLng =
+                            new com.google.android.gms.maps.model.LatLng(fromJson.get(0).get(0),fromJson.get(0).get(1));
+                    com.google.android.gms.maps.model.LatLng endLatLng =
+                            new com.google.android.gms.maps.model.LatLng(fromJson.get(fromJson.size()-1).get(0),fromJson.get(fromJson.size()-1).get(1));
 
-                com.google.android.gms.maps.model.LatLng latLng = null;
-                com.google.android.gms.maps.model.LatLngBounds.Builder builder = new com.google.android.gms.maps.model.LatLngBounds.Builder();
-                for (List<Double> list:fromJson){
-                    latLng = new com.google.android.gms.maps.model.LatLng(list.get(0),list.get(1));
-                    polylineOptions.add(latLng);
-                    builder.include(latLng);
-                }
-                map.addMarker(new com.google.android.gms.maps.model.MarkerOptions().position(startLatLng).icon(com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource(R.drawable.qidian)));
-                map.addMarker(new com.google.android.gms.maps.model.MarkerOptions().position(endLatLng).icon(com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource(R.drawable.zhongdian)));
+                    com.google.android.gms.maps.model.LatLng latLng = null;
+                    com.google.android.gms.maps.model.LatLngBounds.Builder builder = new com.google.android.gms.maps.model.LatLngBounds.Builder();
+                    for (List<Double> list:fromJson){
+                        latLng = new com.google.android.gms.maps.model.LatLng(list.get(0),list.get(1));
+                        polylineOptions.add(latLng);
+                        builder.include(latLng);
+                    }
+                    map.addMarker(new com.google.android.gms.maps.model.MarkerOptions().position(startLatLng).icon(com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource(R.drawable.qidian)));
+                    map.addMarker(new com.google.android.gms.maps.model.MarkerOptions().position(endLatLng).icon(com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource(R.drawable.zhongdian)));
 
-                map.addPolyline((polylineOptions)
-                        .width(getResources().getDimension(R.dimen.x8))
-                        .color(Color.RED)
-                        .geodesic(true)
-                        .clickable(true));
-                //map.moveCamera(com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                    map.addPolyline((polylineOptions)
+                            .width(getResources().getDimension(R.dimen.x8))
+                            .color(Color.RED)
+                            .geodesic(true)
+                            .clickable(true));
+                    //map.moveCamera(com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(latLng, 15));
 
-                com.google.android.gms.maps.CameraUpdate cameraUpdate = com.google.android.gms.maps.CameraUpdateFactory
-                        .newLatLngBounds(builder.build(), 10);
-                map.moveCamera(cameraUpdate);
+                    com.google.android.gms.maps.CameraUpdate cameraUpdate = com.google.android.gms.maps.CameraUpdateFactory
+                            .newLatLngBounds(builder.build(), 10);
+                    map.moveCamera(cameraUpdate);
 
-                if (fromJson.size()<10){
-                    map.moveCamera(com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(startLatLng, 17));
+                    if (fromJson.size()<10){
+                        map.moveCamera(com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(startLatLng, 17));
+                    }
                 }
             }
-
-
         }
     }
 
@@ -596,23 +585,29 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
     @Override
     public void onPause() {
         super.onPause();
-        if (isGoogleMap) {
-            mv_finish_googlemap.onPause();
+        if (mIsOutDoor){
+            if (isGoogleMap) {
+                mv_finish_googlemap.onPause();
+            }
+            else {
+                mv_finish_map.onPause();   //地图
+            }
         }
-        else {
-            mv_finish_map.onPause();   //地图
-        }
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (isGoogleMap) {
-            mv_finish_googlemap.onDestroy();
+        if (mIsOutDoor){
+            if (isGoogleMap) {
+                mv_finish_googlemap.onDestroy();
+            }
+            else {
+                mv_finish_map.onDestroy();   //地图
+            }
         }
-        else {
-            mv_finish_map.onDestroy();   //地图
-        }
+
     }
 
     @Override
@@ -624,10 +619,9 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
             setupRecord(StartRunActivity.createrecord);
         }*/
 
-        if (mUploadRecord!=null && !MyUtil.isEmpty(mUploadRecord.latitude_longitude) && !mUploadRecord.latitude_longitude.equals(Constant.uploadRecordDefaultString)){ //经纬度
+        if (mUploadRecord!=null){ //经纬度
             Gson gson = new Gson();
-            List<List<Double>> fromJson = gson.fromJson(mUploadRecord.latitude_longitude,new TypeToken<List<List<Double>>>() {
-            }.getType());
+            List<ParcelableDoubleList> fromJson = mUploadRecord.latitudeLongitude;
             Log.i(TAG,"fromJson:"+fromJson);
             List<LatLng> latLngList = new ArrayList<>();
             for (List<Double> list:fromJson){
@@ -651,23 +645,21 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
                 durationSecendString = "0"+durationSecendString;
             }
             String myDuration = duration/(60*60)+"h"+durationSecendString+"'";*/
-
-
-
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        if (mIsOutDoor){
+            Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+            if (mapViewBundle == null) {
+                mapViewBundle = new Bundle();
+                outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+            }
 
-        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
-        if (mapViewBundle == null) {
-            mapViewBundle = new Bundle();
-            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+            mv_finish_googlemap.onSaveInstanceState(mapViewBundle);
         }
-
-        mv_finish_googlemap.onSaveInstanceState(mapViewBundle);
     }
 
 

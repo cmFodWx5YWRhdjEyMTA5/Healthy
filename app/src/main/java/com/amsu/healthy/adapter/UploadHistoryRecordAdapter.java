@@ -10,6 +10,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.utils.MyUtil;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,13 +52,17 @@ public class UploadHistoryRecordAdapter extends BaseAdapter {
         TextView tv_history_sportstate = (TextView) inflate.findViewById(R.id.tv_history_sportstate);
 
         //"datatime": "2016-10-28 10:56:04"
-        String datatime = historyRecord.getDatatime();
+        //String datatime = historyRecord.getDatatime();
+        String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd Hh:mm:ss",new Date(historyRecord.getDatatime()));
         String[] split = datatime.split(" ");
-        String[] dateSplits = split[0].split("-");
-        String date = dateSplits[0]+"年"+dateSplits[1]+"月"+dateSplits[2]+"日";
-        tv_history_date.setText(date);
-        tv_history_time.setText(split[1]);
-
+        if (split.length==2){
+            String[] dateSplits = split[0].split("-");
+            if (dateSplits.length==3){
+                String date = dateSplits[0]+"年"+dateSplits[1]+"月"+dateSplits[2]+"日";
+                tv_history_date.setText(date);
+                tv_history_time.setText(split[1]);
+            }
+        }
 
         return inflate;
     }

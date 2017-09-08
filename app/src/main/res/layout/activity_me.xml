@@ -262,6 +262,39 @@
                 android:layout_marginRight="@dimen/x36"/>
 
         </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_me_scan"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y160"
+            android:clickable="true"
+            android:background="@drawable/list_item_background">
+            <ImageView
+                android:id="@+id/iv_me_scan"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/scan_barcode"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/x36"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/iv_me_scan"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/x36"
+                android:textSize="@dimen/x48"
+                android:textColor="#383838"
+                android:text="@string/scan_code"/>
+            <ImageView
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/x36"/>
+
+        </RelativeLayout>
+
         <RelativeLayout
             android:id="@+id/rl_me_setting"
             android:layout_width="match_parent"
@@ -293,6 +326,7 @@
                 android:layout_marginRight="@dimen/x36"/>
 
         </RelativeLayout>
+
 
     </LinearLayout>
 

@@ -9,7 +9,7 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="@dimen/y72"
-        android:layout_marginTop="@dimen/y36"
+        android:layout_marginTop="@dimen/y20"
         android:progressDrawable="@drawable/bg_progressbar_speed"
         android:layout_below="@+id/tv_speed_t1"
         android:progress="40"

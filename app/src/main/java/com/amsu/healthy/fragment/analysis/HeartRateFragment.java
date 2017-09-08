@@ -1,29 +1,20 @@
 package com.amsu.healthy.fragment.analysis;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.HistoryRecordActivity;
-import com.amsu.healthy.activity.MyReportActivity;
-import com.amsu.healthy.activity.RateAnalysisActivity;
+import com.amsu.healthy.activity.HeartRateResultShowActivity;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.fragment.BaseFragment;
-import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.view.FoldLineView;
 import com.amsu.healthy.view.HeightCurveView;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,20 +48,20 @@ public class HeartRateFragment extends BaseFragment {
     }
 
     private void initData() {
-        UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
+        UploadRecord mUploadRecord = HeartRateResultShowActivity.mUploadRecord;
         if (mUploadRecord!=null){
             Log.i(TAG,"mUploadRecord:"+mUploadRecord.toString());
 
-            if (!MyUtil.isEmpty(mUploadRecord.MaxHR )&& !mUploadRecord.MaxHR.equals(Constant.uploadRecordDefaultString)){
-                tv_rate_max.setText("最大:"+mUploadRecord.MaxHR+"");
-                tv_rate_average.setText("平均:"+mUploadRecord.AHR+"");
+            if (mUploadRecord.maxhr>0){
+                tv_rate_max.setText("最大:"+mUploadRecord.maxhr +"");
+                tv_rate_average.setText("平均:"+mUploadRecord.maxhr +"");
             }
 
-            String hr = mUploadRecord.getHR();
-            if (!MyUtil.isEmpty(hr) && !hr.equals("-1")){
-                Gson gson = new Gson();
-                List<Integer> heartDatas = gson.fromJson(hr, new TypeToken<List<Integer>>() {
-                }.getType());
+            List<Integer> heartDatas = mUploadRecord.hr;
+            if (heartDatas!=null && heartDatas.size()>0){
+//                Gson gson = new Gson();
+//                List<Integer> heartDatas = gson.fromJson(hr, new TypeToken<List<Integer>>() {
+//                }.getType());
 
                 List<Integer> tempHeartDatas = new ArrayList<>();
                 for (int i:heartDatas){
@@ -78,54 +69,18 @@ public class HeartRateFragment extends BaseFragment {
                 }
                 int[] ints = MyUtil.listToIntArray(tempHeartDatas);
                 if (ints!=null && ints.length>0){
-                    int time = (int) (Math.ceil(Double.parseDouble(mUploadRecord.time)/60));
-                    if (!mUploadRecord.time.equals(Constant.uploadRecordDefaultString)){
+                    int time = (int) (Math.ceil(mUploadRecord.time/60));
+                    if (mUploadRecord.time>0){
                         Log.i(TAG,"time:"+time);
                         hv_rate_rateline.setData(ints,time,HeightCurveView.LINETYPE_HEART);
                     }
                 }
             }
 
-
-
-
-            if (!MyUtil.isEmpty(mUploadRecord.HRVs)){
-                /*int heartRate = Integer.parseInt(mUploadRecord.AHR);
-                String suggestion ;
-                if (heartRate == 0) {
-                    suggestion = "采样时间不够或设备脱落";
-                }
-
-                if (Integer.parseInt(mUploadRecord.state) == 1) {
-                    if (heartRate > 220- HealthyIndexUtil.getUserAge()) {
-                        suggestion ="心动过速：正常人可由运动或精神紧张引起,也可见于发热、甲状腺功能亢进、贫血、失血等情况。请您注意休息，保持情绪稳定，当感觉身体不适时，请及时就医。";
-                    }else if(heartRate < 45 && heartRate >0){
-                        suggestion ="心动过缓：常见于健康的青年人、运动员，及睡眠状态下的一般健康人群。也可见于窦房结功能障碍、甲状腺功能低下、颅内压增高及服用某些药物后的异常反应。请您注意休息，当心率<45次/分或感觉身体不适时请及时就医";
-                    }else if(heartRate == 0){
-                        suggestion ="采样时间不够或设备脱落";
-                    }else{
-                        suggestion ="心率正常";
-                    }
-                }
-                else {
-                    if (heartRate>105){
-                        suggestion ="心动过速：正常人可由运动或精神紧张引起,也可见于发热、甲状腺功能亢进、贫血、失血等情况。请您注意休息，保持情绪稳定，当心率>160次/分时或感觉身体不适时，请及时就医。";
-                    }
-                    else if (heartRate<45){
-                        suggestion ="心动过缓：常见于健康的青年人、运动员，及睡眠状态下的一般健康人群。也可见于窦房结功能障碍、甲状腺功能低下、颅内压增高及服用某些药物后的异常反应。请您注意休息，当心率<45次/分或感觉身体不适时请及时就医";
-                    }
-                    else if (heartRate==0){
-                        suggestion ="采样时间不够或设备脱落";
-                    }
-                    else{
-                        suggestion ="心率正常";
-                    }
-                }
-
-                tv_rate_suggestion.setText(suggestion);*/
-                tv_rate_suggestion.setText(mUploadRecord.HRs);
-            }
-
+            int state =mUploadRecord.state;
+            int AHR = mUploadRecord.ahr;
+            String heartRateSuggetstion = HealthyIndexUtil.getHeartRateSuggetstion(state, AHR,getActivity());
+            tv_rate_suggestion.setText(heartRateSuggetstion);
         }
     }
 

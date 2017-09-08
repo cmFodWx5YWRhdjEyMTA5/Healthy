@@ -22,8 +22,6 @@ import com.amsu.healthy.utils.MyUtil;
 
 import java.util.ArrayList;
 
-import static com.amsu.healthy.R.id.textView;
-
 public class CalculateHRRProcessActivity extends BaseActivity {
 
     private static final String TAG = "CalculateHRRProcess";
@@ -80,7 +78,7 @@ public class CalculateHRRProcessActivity extends BaseActivity {
 
             HealthyDataActivity.stopTransmitData();
 
-            Intent intent = new Intent(this, HeartRateActivity.class);
+            Intent intent = new Intent(this, HeartRateAnalysisActivity.class);
             if (isTimeOut){    //到一分钟，传递恢复心率数据
                 //int hrr = maxHeartRate - minHeartRate;
                 int hrr = firstHeartRate - lastHeartRate;
@@ -116,6 +114,11 @@ public class CalculateHRRProcessActivity extends BaseActivity {
             ArrayList<Integer> mStridefreData = runIntent.getIntegerArrayListExtra(Constant.mStridefreData);
             if (mStridefreData!=null && mStridefreData.size()>0){
                 intent.putIntegerArrayListExtra(Constant.mStridefreData,mStridefreData);
+            }
+
+            ArrayList<Integer> mSpeedStringList = runIntent.getIntegerArrayListExtra(Constant.mSpeedStringListData);
+            if (mSpeedStringList!=null && mSpeedStringList.size()>0){
+                intent.putIntegerArrayListExtra(Constant.mSpeedStringListData,mSpeedStringList);
             }
             startActivity(intent);
             for (Activity activity:MyApplication.mActivities){

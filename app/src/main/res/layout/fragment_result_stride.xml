@@ -1,13 +1,90 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.amsu.healthy.fragment.analysis_insole.ResultStrideFragment">
+    xmlns:dashboardview="http://schemas.android.com/apk/res-auto">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="ResultStrideFragment" />
+        android:layout_height="200dp"
+        android:orientation="vertical"
+        >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x128"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x36"
+            android:background="#FFF">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="对称性"
+                android:textColor="#01bf9d"
+                android:textSize="@dimen/x52"
+                android:layout_centerVertical="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="了解对称性"
+                android:textColor="#808080"
+                android:textSize="@dimen/x36"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"/>
+        </RelativeLayout>
 
-</FrameLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y848"
+            android:gravity="center">
+            <com.amsu.healthy.view.CircleRingView
+                android:id="@+id/vr_strid_symmetry"
+                android:layout_width="@dimen/x600"
+                android:layout_height="@dimen/x600"
+                dashboardview:circlering_width="@dimen/x76"
+                dashboardview:circlering_background_color="#BBB"
+                dashboardview:circlering_start_color="#01bf9d"
+                dashboardview:circlering_end_color="#01bf9d"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x128"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x36"
+            android:background="#FFF">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="一致性"
+                android:textColor="#01bf9d"
+                android:textSize="@dimen/x52"
+                android:layout_centerVertical="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="了解一致性"
+                android:textColor="#808080"
+                android:textSize="@dimen/x36"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y848"
+            android:gravity="center">
+            <com.amsu.healthy.view.CircleRingView
+                android:id="@+id/vr_strid_variability"
+                android:layout_width="@dimen/x600"
+                android:layout_height="@dimen/x600"
+                dashboardview:circlering_width="@dimen/x76"
+                dashboardview:circlering_background_color="#BBB"
+                dashboardview:circlering_start_color="#1fcf6d"
+                dashboardview:circlering_end_color="#1fcf6d"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+
+</ScrollView>

@@ -236,9 +236,9 @@ public class LoginActivity extends BaseActivity {
         String phone = et_login_phone.getText().toString();
         if(!TextUtils.isEmpty(phone)){
             getMESCode("86",phone);  //86为国家代码
-            MyUtil.showDialog(getResources().getString(R.string.enter_cell_phone_number),this);
+            MyUtil.showDialog(getResources().getString(R.string.getting_validation_code),this);
         }else{
-            Toast.makeText(this,getResources().getString(R.string.getting_validation_code), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,getResources().getString(R.string.input_validation_code), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -329,6 +329,7 @@ public class LoginActivity extends BaseActivity {
         }
 
         String url = "https://bodylistener.amsu-new.com/intellingence/LoginController/phoneVerify"; //登陆
+        //String url = "http://192.168.0.107:8080/intellingence-web/phoneVerify.do"; //登陆
         httpUtils.send(HttpRequest.HttpMethod.POST, url,params, new RequestCallBack<String>() {
 
             @Override
@@ -351,8 +352,6 @@ public class LoginActivity extends BaseActivity {
                         MyUtil.putStringValueFromSP("phone",phone);
 
                         saveCookieToSP(httpUtils);
-
-
 
                         HttpUtils httpUtils1 = new HttpUtils();
                         RequestParams params = new RequestParams();

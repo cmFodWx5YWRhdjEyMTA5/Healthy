@@ -66,7 +66,7 @@ public class WifiAutoConnectManager {
 		// nopass
 		if (Type == WifiCipherType.WIFICIPHER_NOPASS) {
 			// config.wepKeys[0] = "";
-			config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+			config.allowedKeyManagement.set(KeyMgmt.NONE);
 			// config.wepTxKeyIndex = 0;
 		}
 		// wep
@@ -88,9 +88,9 @@ public class WifiAutoConnectManager {
 			config.preSharedKey = "\"" + Password + "\"";
 			config.hiddenSSID = true;
 			config.allowedAuthAlgorithms
-					.set(WifiConfiguration.AuthAlgorithm.OPEN);
+					.set(AuthAlgorithm.OPEN);
 			config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-			config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+			config.allowedKeyManagement.set(KeyMgmt.WPA_PSK);
 			config.allowedPairwiseCiphers
 					.set(WifiConfiguration.PairwiseCipher.TKIP);
 			// 此处需要修改否则不能自动重联

@@ -1,31 +1,23 @@
 package com.amsu.healthy.fragment.analysis;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.HistoryRecordActivity;
-import com.amsu.healthy.activity.MyReportActivity;
-import com.amsu.healthy.activity.RateAnalysisActivity;
+import com.amsu.healthy.activity.HeartRateResultShowActivity;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.EcgFilterUtil;
 import com.amsu.healthy.utils.EcgFilterUtil_1;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.OffLineDbAdapter;
 import com.amsu.healthy.view.EcgView;
 
 import java.io.DataInputStream;
@@ -33,12 +25,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class ECGFragment extends BaseFragment {
 
@@ -87,6 +76,7 @@ public class ECGFragment extends BaseFragment {
         });
 
         mAllTimeAtSecond = 0;
+        datas = new ArrayList<>();
 
         //心电进度监听器
         pv_ecg_path.setOnEcgProgressChangeListener(new EcgView.OnEcgProgressChangeListener() {
@@ -145,7 +135,7 @@ public class ECGFragment extends BaseFragment {
             }
         });
 
-        final UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
+        final UploadRecord mUploadRecord = HeartRateResultShowActivity.mUploadRecord;
 
 
         new Thread(){
@@ -154,19 +144,19 @@ public class ECGFragment extends BaseFragment {
                 super.run();
                 if (mUploadRecord!=null){
                     Log.i(TAG,"mUploadRecord:"+mUploadRecord.toString());
-                    //Log.i(TAG,"EC :"+mUploadRecord.EC);
+                    //Log.i(TAG,"ec :"+mUploadRecord.ec);
                     //long timestamp =  Long.valueOf(mUploadRecord.timestamp);
-                    long timestamp =  Long.parseLong(RateAnalysisActivity.mUploadRecord.timestamp);
+
                     String eCGFilePath;
-                    if (!MyUtil.isEmpty(RateAnalysisActivity.ecgLocalFileName)){
+                    if (!MyUtil.isEmpty(mUploadRecord.localEcgFileName)){
                         //有分析过来的心电数据，则从本地获取数据
-                        eCGFilePath  = RateAnalysisActivity.ecgLocalFileName;
+                        eCGFilePath  = mUploadRecord.localEcgFileName;
                     }
                     else {
+                        long timestamp =  HeartRateResultShowActivity.mUploadRecord.timestamp;
                         eCGFilePath = MyUtil.generateECGFilePath(getActivity(), timestamp);
-
                     }
-                    //eCGFilePath  = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20170516101758.ecg";
+                    //eCGFilePath  = Environment.getExternalStorageDirectory().getAbsolutePath()+"/10-f3fbbf03-6925-49cd-881a-c2dad9e9b791";
                     Log.i(TAG,"eCGFilePath:"+eCGFilePath);
 
                     if (MyUtil.isEmpty(eCGFilePath)){
@@ -179,9 +169,9 @@ public class ECGFragment extends BaseFragment {
                     try {
                         if (fileInputStream==null){
                             File file = new File(eCGFilePath);
-                            if (!file.exists() && !MyUtil.isEmpty(mUploadRecord.EC) && !mUploadRecord.EC.equals(Constant.uploadRecordDefaultString)){
+                            if (!file.exists() && !MyUtil.isEmpty(mUploadRecord.ec) && !mUploadRecord.ec.equals(Constant.uploadRecordDefaultString)){
                                 //文件不存在的话说明  1、本地文件已经被删除了  2、第一次从历史记录获取文件，需用Base64生成文件
-                                file = MyUtil.base64ToFile(mUploadRecord.EC, eCGFilePath);
+                                file = MyUtil.base64ToFile(mUploadRecord.ec, eCGFilePath);
                                 Log.i(TAG,"base64ToFile");
                             }
 
@@ -191,7 +181,7 @@ public class ECGFragment extends BaseFragment {
                                 DataInputStream dataInputStream = new DataInputStream(fileInputStream); //读取二进制文件
 
                                 try {
-                                    datas = new ArrayList<>();
+
                                     /*byte[] bytes = new byte[2];
                                     ByteBuffer buffer=  ByteBuffer.wrap(bytes);
                                     while( dataInputStream.available() >1){
@@ -339,7 +329,23 @@ public class ECGFragment extends BaseFragment {
                 suggestion += "正常心电图";
             }
             tv_rate_suggestion.setText(suggestion);*/
-            tv_rate_suggestion.setText(mUploadRecord.ECs);
+
+            String suggestion =getResources().getString(R.string.HeartRate_suggetstion_nodata);
+
+            int zaobo = mUploadRecord.zaobo;
+            int loubo = mUploadRecord.loubo;
+            if (zaobo >0){
+                suggestion = getResources().getString(R.string.premature_beat_times)+zaobo+getResources().getString(R.string.premature_beat_times_decrible);
+            }
+            if (loubo>0){
+                suggestion += getResources().getString(R.string.missed_beat_times)+loubo+getResources().getString(R.string.missed_beat_times_decrible);
+            }
+            else {
+                if (mUploadRecord.ahr>0){
+                    suggestion = getResources().getString(R.string.abnormal_ecg);
+                }
+            }
+            tv_rate_suggestion.setText(suggestion);
         }
 
     }
@@ -364,13 +370,18 @@ public class ECGFragment extends BaseFragment {
         Log.i(TAG,"over:开始画图");
 
 
-        if (isFirstCreate && !pv_ecg_path.isRunning && tv_ecg_nodata.getVisibility()==View.GONE){
+        if (isFirstCreate && datas.size()>0 && tv_ecg_nodata.getVisibility()==View.GONE){
             startDrawSimulator();
         }
         else {
-            if (!isonResume && datas!=null && datas.size()>0 && !pv_ecg_path.isRunning && tv_ecg_nodata.getVisibility()==View.GONE){
+            if (!isonResume  && datas.size()>0 && !pv_ecg_path.isRunning && tv_ecg_nodata.getVisibility()==View.GONE){
                 iv_ecg_toggle.setImageResource(R.drawable.suspend_icon);
+                if (pv_ecg_path.ecgDatas!=null && pv_ecg_path.ecgDatas.size()>0){
+                    pv_ecg_path.setEcgDatas(datas);
+                    Log.i(TAG," pv_ecg_path.setEcgDatas(datas);");
+                }
                 pv_ecg_path.startThread();
+                Log.i(TAG,"pv_ecg_path.startThread();");
             }
         }
         isonResume = true;
@@ -427,6 +438,7 @@ public class ECGFragment extends BaseFragment {
     public void onDestroy() {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
+        fileInputStream = null;
     }
 
     //暂停或开始
@@ -437,7 +449,7 @@ public class ECGFragment extends BaseFragment {
             pv_ecg_path.stopThread();
         }
         else {
-            if (pv_ecg_path.ecgDatas.size()<10){
+            if (pv_ecg_path.ecgDatas!=null &&  pv_ecg_path.ecgDatas.size()<10){
                 pv_ecg_path.setEcgDatas(datas);
                 setPercent(0);
             }
@@ -458,6 +470,8 @@ public class ECGFragment extends BaseFragment {
         Log.i(TAG,"position:"+position);
         pv_ecg_path.setCurrentcountIndex(position);
     }
+
+
 
 
 }

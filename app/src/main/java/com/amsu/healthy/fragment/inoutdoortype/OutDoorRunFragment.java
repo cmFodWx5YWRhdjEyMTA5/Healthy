@@ -49,7 +49,6 @@ public class OutDoorRunFragment extends Fragment implements LocationSource,
         mv_item_map.onCreate(savedInstanceState);// 此方法必须重写
 
         setUpMap();
-
     }
 
 
@@ -137,13 +136,14 @@ public class OutDoorRunFragment extends Fragment implements LocationSource,
             if (amapLocation != null && amapLocation.getErrorCode() == 0) {
                 mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
                 LatLng mylocation = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
-                if (isFirtst){
+                mAMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mylocation,18));
+                /*if (isFirtst){
                     mAMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mylocation,18));
                     isFirtst = false;
                 }
                 else {
                     //mAMap.moveCamera(CameraUpdateFactory.changeLatLng(mylocation));
-                }
+                }*/
 
 
             } else {

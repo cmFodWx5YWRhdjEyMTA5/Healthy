@@ -153,9 +153,9 @@ public class HeightCurveView extends View {
         float x =0 ;
         float y =0 ;
         for (int i=0;i<data.length;i++){
-            //x = mMarginleft+(i)*mOneGridWidth+mOneGridWidth/2;
+            //circle_ring = mMarginleft+(i)*mOneGridWidth+mOneGridWidth/2;
             x = (i)*mOneGridWidth;
-            Log.i(TAG,"i:"+i+", x:"+x);
+            Log.i(TAG,"i:"+i+", circle_ring:"+x);
 
             y = 0;
             //if (data[i]>40  && data[i]<220){
@@ -254,7 +254,7 @@ public class HeightCurveView extends View {
 
             float x = 0;
             float y = mHeight-mMarginBotom- mYOneSpanHeight *(i+1);
-            //canvas.drawLine(x,y,x+divideWidth,y,mCoordinatePaint);
+            //canvas.drawLine(circle_ring,y,circle_ring+divideWidth,y,mCoordinatePaint);
 
             x = 0;
             y += getResources().getDimension(R.dimen.x14);
@@ -276,17 +276,17 @@ public class HeightCurveView extends View {
         for (int i=0;i<5;i++){
             //yText = (int) (0.25*i*timeLong);
             String xLable=decimalFormat.format(0.25*i*timeLong);//format 返回的是字符串
-            /*float x = mMarginleft +i*(mCoordinateWidth- getResources().getDimension(R.dimen.y40))/4;
+            /*float circle_ring = mMarginleft +i*(mCoordinateWidth- getResources().getDimension(R.dimen.y40))/4;
             float y = mHeight;
-            canvas.drawText(String.valueOf(yText),x,y,mLablePaint);
+            canvas.drawText(String.valueOf(yText),circle_ring,y,mLablePaint);
 
-            x -= mLablePaint.measureText(yText+"")/2;
+            circle_ring -= mLablePaint.measureText(yText+"")/2;
             y = mHeight-mMarginBotom;
-            canvas.drawLine(x,y,x,y-divideWidth,mCoordinatePaint);*/
+            canvas.drawLine(circle_ring,y,circle_ring,y-divideWidth,mCoordinatePaint);*/
 
             float x = i*(mWidth)/4;
             float y = mHeight-mMarginBotom;
-            //canvas.drawLine(x,y,x,y-divideWidth,mCoordinatePaint);
+            //canvas.drawLine(circle_ring,y,circle_ring,y-divideWidth,mCoordinatePaint);
 
             if (0<i && i<4){
                 x = x - mLablePaint.measureText(xLable)/2;
@@ -339,7 +339,7 @@ public class HeightCurveView extends View {
 
                 float x = mWidth-mCoordinatePaint.measureText(yText);
                 float y = mHeight-mMarginBotom- mYOneSpanHeight *(i+1);
-                //canvas.drawLine(x,y,x+divideWidth,y,mCoordinatePaint);
+                //canvas.drawLine(circle_ring,y,circle_ring+divideWidth,y,mCoordinatePaint);
 
                 x = mWidth-mAnotherLablePaint.measureText(yText);
                 y += getResources().getDimension(R.dimen.x14);

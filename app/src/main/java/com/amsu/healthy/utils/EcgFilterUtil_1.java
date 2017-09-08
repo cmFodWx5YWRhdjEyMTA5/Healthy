@@ -15,14 +15,14 @@ public class EcgFilterUtil_1 {
     private  final int FILT_TIME= 2;
     private  final int  M_NOTCH = 60;
 
-    float Buffer_X_org[] = new float[M_NOTCH-1];
-    double Buffer_X[][] = new double[FILT_TIME][M_NOTCH+1];
-    double Buffer_Y[][] = new double[FILT_TIME][2];
-    int Pos_X[] = new int[FILT_TIME];
-    int Pos_X_org;
-    double Coef_Y;
-    double Gain;
-    char Filt_Mark_notch = 0xF;
+    private float Buffer_X_org[] = new float[M_NOTCH-1];
+    private double Buffer_X[][] = new double[FILT_TIME][M_NOTCH+1];
+    private double Buffer_Y[][] = new double[FILT_TIME][2];
+    private int Pos_X[] = new int[FILT_TIME];
+    private int Pos_X_org;
+    private double Coef_Y;
+    private double Gain;
+    private char Filt_Mark_notch = 0xF;
     /*
         typedef struct FILTINFO
         {
@@ -30,7 +30,7 @@ public class EcgFilterUtil_1 {
             int  nDelay;   //延迟点数
         }sFiltInfo;
      */
-    public static class FILTINFO{
+    public class FILTINFO{
         int  nFilterData;  //滤波后值
         int  nDelay;   //延迟点数
     }
@@ -124,7 +124,7 @@ public class EcgFilterUtil_1 {
         return y;
 
     }
-    public int NotchPowerLine(int data,int Filter_Mark)
+    public   int NotchPowerLine(int data,int Filter_Mark)
     {
         int i,posx;
         double y;
@@ -190,7 +190,7 @@ public class EcgFilterUtil_1 {
     private final int ECG_HPASS_LEN=12;
 
     private double hx0[] = new double[ECG_HPASS_LEN];
-    public int miniEcgFilterHp(int d)
+    public   int miniEcgFilterHp(int d)
     {
         //输入 int d  待滤波的点
         //输出 int    滤波后的点
@@ -223,7 +223,7 @@ public class EcgFilterUtil_1 {
     private final int ECG_LPASS_LEN=22;
 
     private double lx0[] = new double[ECG_LPASS_LEN];
-    public int miniEcgFilterLp(int d)
+    public  int miniEcgFilterLp(int d)
     {
         //输入 int d  待滤波的点
         //输出 int    滤波后的点

@@ -133,6 +133,9 @@ public class ModifyPersionDataActivity extends BaseActivity {
         }
         Log.i(TAG,"###modifyType:"+modifyType+",modifyValue:"+modifyValue);
         Intent intent = getIntent();
+        if (MyUtil.isEmpty(modifyValue)){
+            modifyValue = "0";
+        }
         intent.putExtra("modifyValue",modifyValue);
         intent.putExtra("modifyType",modifyType);
         setResult(RESULT_OK,intent);

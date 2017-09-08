@@ -66,6 +66,7 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -795,7 +796,13 @@ public class MyUtil {
 
     public static int getUserWeight(){
         String weight = getStringValueFromSP("weight");
-        return Integer.parseInt(weight);
+        try {
+            return Integer.parseInt(weight);
+        } catch (NumberFormatException e) {
+            // TODO: handle exception
+            System.out.println(e);
+        }
+        return 0;
     }
 
     public static List<SosActivity.SosNumber> getSosNumberList(){
@@ -811,84 +818,6 @@ public class MyUtil {
         String sosNumberListString = gson.toJson(sosNumberList);
         MyUtil.putStringValueFromSP(Constant.sosNumberList,sosNumberListString);
     }
-
-
-
-    public static void showDeviceConnectedChangePopWindow(final int connectType, final String msg) {
-        new Thread(){
-            @Override
-            public void run() {
-                super.run();
-                //Log.i(TAG,"showDeviceConnectedChangePopWindow:"+activity.getClass());
-                final BaseActivity activity = MyApplication.mCurrApplicationActivity;
-                Log.i(TAG,"MyApplication.mCurrApplicationActivity:"+MyApplication.mCurrApplicationActivity);
-                //Log.i(TAG,"activity:"+activity.getClass());
-
-                final boolean isConnectedSuccess;
-
-                if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
-                View popupView = View.inflate(activity, R.layout.layout_popupwindow_onoffline, null);
-                ImageView iv_pop_icon = (ImageView) popupView.findViewById(R.id.iv_pop_icon);
-                TextView tv_pop_text = (TextView) popupView.findViewById(R.id.tv_pop_text);
-
-                tv_pop_text.setText(msg);
-                if (connectType == 0) {
-                    //断开
-                    iv_pop_icon.setImageResource(R.drawable.duankai);
-                    isConnectedSuccess = false;
-
-                } else {
-                    //连接
-                    iv_pop_icon.setImageResource(R.drawable.yilianjie);
-                    isConnectedSuccess = true;
-                }
-
-                mPopupWindow = new PopupWindow(popupView, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
-                mPopupWindow.setTouchable(true);
-                mPopupWindow.setOutsideTouchable(true);
-                mPopupWindow.setBackgroundDrawable(new BitmapDrawable(activity.getResources(), (Bitmap) null));
-
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //showToask(finalActivity,"设备连接或断开");
-                        //mPopupWindow.showAsDropDown(activity.getTv_base_rightText());
-                        if (activity.isFinishing() || activity.isDestroyed() || activity != MyApplication.mCurrApplicationActivity) return;
-                        if (!mPopupWindow.isShowing()) {
-                            mPopupWindow.showAtLocation(activity.getTv_base_rightText(), Gravity.TOP, 0, 0);
-                            Log.i(TAG, "PopupWindow.showAtLocation:");
-                        }
-
-                        if (activity.getClass().getSimpleName().equals("StartRunActivity")) {
-                            StartRunActivity.setDeviceConnectedState(isConnectedSuccess);
-                        }
-                    }
-                });
-
-                try {
-                    Thread.sleep(3000);
-                    if (activity.isFinishing() || activity.isDestroyed() || activity != MyApplication.mCurrApplicationActivity) return;
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mPopupWindow!=null && mPopupWindow.isShowing()) {
-                                mPopupWindow.dismiss();
-                            }
-                        }
-                    });
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
-    }
-
-    public static void dismissPopWindow() {
-        if (mPopupWindow!=null && mPopupWindow.isShowing()) {
-            mPopupWindow.dismiss();
-        }
-    }
-
 
     public static short getShortByTwoBytes(byte argB1, byte argB2) {
         return (short) ((argB1 & 0xFF)| (argB2 << 8));
@@ -1054,7 +983,7 @@ public class MyUtil {
         }
 
         if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.CommunicateToBleService")) {
-            Intent service = new Intent(context, com.amsu.healthy.service.CommunicateToBleService.class);
+            Intent service = new Intent(context, CommunicateToBleService.class);
             context.startService(service);
             Log.i(TAG, "Start CommunicateToBleService");
         }
@@ -1092,7 +1021,7 @@ public class MyUtil {
         }*/
 
         if(MyUtil.isServiceWorked(context, "com.amsu.healthy.service.CommunicateToBleService")) {
-            Intent service = new Intent(context, com.amsu.healthy.service.CommunicateToBleService.class);
+            Intent service = new Intent(context, CommunicateToBleService.class);
             context.stopService(service);
             Log.i(TAG, "stop CommunicateToBleService");
         }
@@ -1108,7 +1037,7 @@ public class MyUtil {
         boolean b1 = context.stopService(service1);
         Log.i(TAG, "stop RemoteGuardService："+b1);
 
-        Intent service2 = new Intent(context, com.amsu.healthy.service.CommunicateToBleService.class);
+        Intent service2 = new Intent(context, CommunicateToBleService.class);
         boolean b2 = context.stopService(service2);
         Log.i(TAG, "stop CommunicateToBleService："+b2);
     }
@@ -1186,6 +1115,13 @@ public class MyUtil {
         return data&0x0FFFF;
     }
 
-
+    private static DecimalFormat mDecimalFormat;
+    public static String getFormatDistance(double distance) {
+        //构造方法的字符格式这里如果小数不足2位,会以0补足.
+        if (mDecimalFormat==null){
+            mDecimalFormat = new DecimalFormat("0.00");
+        }
+        return mDecimalFormat.format(distance/1000);
+    }
 }
 

@@ -28,7 +28,7 @@ public class PhysicalAgeActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText("生理年龄");
+        setCenterText(getResources().getString(R.string.age));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,7 +48,7 @@ public class PhysicalAgeActivity extends BaseActivity {
             setAgeTextAnimator(tv_physical_age,0, physicalAge);
         }
         int userAge = HealthyIndexUtil.getUserAge();
-        tv_physical_agereal.setText("实际年龄"+userAge);
+        tv_physical_agereal.setText(getResources().getString(R.string.actual_age)+userAge);
     }
 
     @Override

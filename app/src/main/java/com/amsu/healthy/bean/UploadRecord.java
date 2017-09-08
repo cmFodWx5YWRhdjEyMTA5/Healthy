@@ -3,44 +3,45 @@ package com.amsu.healthy.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.amsu.healthy.utils.Constant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by HP on 2017/3/19.
  */
 
 public class UploadRecord implements Parcelable,Cloneable {
-    public String FI;                      //疲劳指数(Fatigue deviceType)
-    public String ES;                      //	情绪状态(emotional state)
-    public String PI;         //压力指数(Pressure deviceType)
-    public String CC;       //抗压能力(Compressive capacity)
-    public String HRVr;       //hrv分析结果(hrv result)
-    public String HRVs;       //hrv健康建议(hrv suggest)
-    public String AHR;       //平均心率(average heart rate)
-    public String MaxHR;       //最大心率(maximal heart rate)
-    public String MinHR;       //L最小心率(Minimum heart rate)
-    public String HRr;       //心率分析结果(heart rater result)
-    public String HRs;       //心率健康建议(heart rater suggest)
-    public String EC;       //心电数据(electrocardio)
-    public String ECr;       //心电分析结果(electrocardioresult)(1正常心电，2异常心电，3漏博，4早博)
-    public String ECs;       //心电健康建议(electrocardio suggest)
-    public String RA;                        //心率恢能力（recovery ability）
-    public String timestamp;       //
+    public int fi;                      //疲劳指数(Fatigue deviceType)
+    public int es;                      //	情绪状态(emotional state)
+    public int pi;         //压力指数(Pressure deviceType)
+    public int cc;       //抗压能力(Compressive capacity)
+    public String hrvr;       //hrv分析结果(hrv result)
+    public String hrvs;       //hrv健康建议(hrv suggest)
+    public int ahr;       //平均心率(average heart rate)
+    public int maxhr;       //最大心率(maximal heart rate)
+    public int minhr;       //L最小心率(Minimum heart rate)
+    public String hrr;       //心率分析结果(heart rater result)
+    public String hrs;       //心率健康建议(heart rater suggest)
+    public String ec;       //心电数据(electrocardio)
+    public int ecr;       //心电分析结果(electrocardioresult)(1正常心电，2异常心电，3漏博，4早博)
+    public String ecs;       //心电健康建议(electrocardio suggest)
+    public int ra;                        //心率恢能力（recovery ability）
+    public long timestamp;       //
     public String datatime;       //
-    public String HR;                        //
-    public String AE;                        //
-    public String distance;       //
-    public String time;                        //
-    public String cadence;       //
-    public String calorie;       //
-    public String state;                        //
-    public String zaobo;
-    public String loubo;
-    public String latitude_longitude;
-    public String uploadState;
-
-    public String id;
+    public List<Integer> hr;                        //
+    public List<Integer> ae;                        //
+    public double distance;       //
+    public long time;                        //
+    public List<Integer> cadence;       //
+    public List<String> calorie;       //
+    public int state;                        //
+    public int zaobo;
+    public int loubo;
+    public List<ParcelableDoubleList> latitudeLongitude;
+    public int uploadState;
+    public long id;
     public String localEcgFileName;
+    public int inuse ;
 
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -54,102 +55,89 @@ public class UploadRecord implements Parcelable,Cloneable {
     }
 
     public UploadRecord() {
-        FI = Constant.uploadRecordDefaultString;
-        ES = Constant.uploadRecordDefaultString;
-        PI = Constant.uploadRecordDefaultString;
-        CC = Constant.uploadRecordDefaultString;
-        HRVr = Constant.uploadRecordDefaultString;
-        HRVs = "数据不足，无法得出分析结果";
-        AHR = Constant.uploadRecordDefaultString;
-        MaxHR = Constant.uploadRecordDefaultString;
-        MinHR = Constant.uploadRecordDefaultString;
-        HRr =Constant.uploadRecordDefaultString;
-        HRs ="数据不足，无法得出分析结果";
-        EC = Constant.uploadRecordDefaultString;
-        ECr ="1";
-        ECs ="数据不足，无法得出分析结果";
-        RA = Constant.uploadRecordDefaultString;
-        timestamp =Constant.uploadRecordDefaultString;
-        datatime = Constant.uploadRecordDefaultString;
-        HR = "-1";
-        AE = Constant.uploadRecordDefaultString;
-        distance = Constant.uploadRecordDefaultString;
-        time = Constant.uploadRecordDefaultString;
-        cadence = Constant.uploadRecordDefaultString;
-        calorie = Constant.uploadRecordDefaultString;
-        state = Constant.uploadRecordDefaultString;
-        zaobo = Constant.uploadRecordDefaultString;
-        loubo = Constant.uploadRecordDefaultString;
+        this.fi = 0;
+        this.es = 0;
+        this.pi = 0;
+        this.cc = 0;
+        this.hrvr = "";
+        this.hrvs = "";
+        this.ahr = 0;
+        this.maxhr = 0;
+        this.minhr = 0;
+        this.hrr = "";
+        this.hrs = "";
+        this.ec = "";
+        this.ecr = 0;
+        this.ecs = "";
+        this.ra = 0;
+        this.timestamp = 0;
+        this.datatime = "";
+        this.hr = new ArrayList<>();
+        this.ae = new ArrayList<>();
+        this.distance = 0.0;
+        this.time = 0;
+        this.cadence = new ArrayList<>();
+        this.calorie = new ArrayList<>();
+        this.state = 0;
+        this.zaobo = 0;
+        this.loubo = 0;
+        this.latitudeLongitude = new ArrayList<>();
+        this.uploadState = 0;
+        this.id = 0;
+        this.localEcgFileName = "";
+        this.inuse =  0;
+    }
+
+    /*public UploadRecord(Context context) {
+        fi = Constant.uploadRecordDefaultInt;
+        es = Constant.uploadRecordDefaultInt;
+        pi = Constant.uploadRecordDefaultInt;
+        cc = Constant.uploadRecordDefaultInt;
+        hrvr = Constant.uploadRecordDefaultString;
+        hrvs = context.getResources().getString(R.string.HeartRate_suggetstion_nodata);
+        ahr = Constant.uploadRecordDefaultInt;
+        maxhr = Constant.uploadRecordDefaultInt;
+        minhr = Constant.uploadRecordDefaultInt;
+        hrr =Constant.uploadRecordDefaultString;
+        hrs =context.getResources().getString(R.string.HeartRate_suggetstion_nodata);
+        ec = Constant.uploadRecordDefaultString;
+        ecr =0;
+        ecs =context.getResources().getString(R.string.HeartRate_suggetstion_nodata);
+        ra = Constant.uploadRecordDefaultInt;
+        timestamp =Constant.uploadRecordDefaultInt;
+        datatime = Constant.uploadRecordDefaultInt;
+        hr = "-1";
+        ae = Constant.uploadRecordDefaultInt;
+        distance = Constant.uploadRecordDefaultInt;
+        time = Constant.uploadRecordDefaultInt;
+        cadence = Constant.uploadRecordDefaultInt;
+        calorie = Constant.uploadRecordDefaultInt;
+        state = Constant.uploadRecordDefaultInt;
+        zaobo = Constant.uploadRecordDefaultInt;
+        loubo = Constant.uploadRecordDefaultInt;
         latitude_longitude = Constant.uploadRecordDefaultString;
-    }
+    }*/
 
-    public UploadRecord(String FI, String ES, String PI, String CC, String HRVr, String HRVs, String AHR, String maxHR, String minHR, String HRr, String HRs, String EC, String ECr, String ECs, String RA, String timestamp, String datatime) {
-        this.FI = FI;
-        this.ES = ES;
-        this.PI = PI;
-        this.CC = CC;
-        this.HRVr = HRVr;
-        this.HRVs = HRVs;
-        this.AHR = AHR;
-        MaxHR = maxHR;
-        MinHR = minHR;
-        this.HRr = HRr;
-        this.HRs = HRs;
-        this.EC = EC;
-        this.ECr = ECr;
-        this.ECs = ECs;
-        this.RA = RA;
+    public UploadRecord(int fi, int es, int pi, int cc, String hrvr, String hrvs, int ahr, int maxhr, int minhr, String hrr, String hrs, String ec, int ecr, String ecs, int ra, long timestamp, String datatime, List<Integer> hr, List<Integer> ae, double distance, long time, List<Integer> cadence, List<String> calorie, int state, int zaobo, int loubo, List<ParcelableDoubleList> latitudeLongitude, int uploadState, long id, String localEcgFileName, int inuse) {
+        this.fi = fi;
+        this.es = es;
+        this.pi = pi;
+        this.cc = cc;
+        this.hrvr = hrvr;
+        this.hrvs = hrvs;
+        this.ahr = ahr;
+        this.maxhr = maxhr;
+        this.minhr = minhr;
+        this.hrr = hrr;
+        this.hrs = hrs;
+        this.ec = ec;
+        this.ecr = ecr;
+        this.ecs = ecs;
+        this.ra = ra;
         this.timestamp = timestamp;
         this.datatime = datatime;
-    }
-
-    public UploadRecord(String FI, String ES, String PI, String CC, String HRVr, String HRVs, String AHR, String maxHR, String minHR, String HRr, String HRs, String EC, String ECr, String ECs, String RA, String timestamp, String datatime, String HR, String AE, String distance, String time, String cadence, String calorie, String state) {
-        this.FI = FI;
-        this.ES = ES;
-        this.PI = PI;
-        this.CC = CC;
-        this.HRVr = HRVr;
-        this.HRVs = HRVs;
-        this.AHR = AHR;
-        MaxHR = maxHR;
-        MinHR = minHR;
-        this.HRr = HRr;
-        this.HRs = HRs;
-        this.EC = EC;
-        this.ECr = ECr;
-        this.ECs = ECs;
-        this.RA = RA;
-        this.timestamp = timestamp;
-        this.datatime = datatime;
-        this.HR = HR;
-        this.AE = AE;
-        this.distance = distance;
-        this.time = time;
-        this.cadence = cadence;
-        this.calorie = calorie;
-        this.state = state;
-    }
-
-    public UploadRecord(String FI, String ES, String PI, String CC, String HRVr, String HRVs, String AHR, String maxHR, String minHR, String HRr, String HRs, String EC, String ECr, String ECs, String RA, String timestamp, String datatime, String HR, String AE, String distance, String time, String cadence, String calorie, String state, String zaobo, String loubo, String latitude_longitude) {
-        this.FI = FI;
-        this.ES = ES;
-        this.PI = PI;
-        this.CC = CC;
-        this.HRVr = HRVr;
-        this.HRVs = HRVs;
-        this.AHR = AHR;
-        MaxHR = maxHR;
-        MinHR = minHR;
-        this.HRr = HRr;
-        this.HRs = HRs;
-        this.EC = EC;
-        this.ECr = ECr;
-        this.ECs = ECs;
-        this.RA = RA;
-        this.timestamp = timestamp;
-        this.datatime = datatime;
-        this.HR = HR;
-        this.AE = AE;
+        this.hr = hr;
+        this.ae = ae;
         this.distance = distance;
         this.time = time;
         this.cadence = cadence;
@@ -157,223 +145,49 @@ public class UploadRecord implements Parcelable,Cloneable {
         this.state = state;
         this.zaobo = zaobo;
         this.loubo = loubo;
-        this.latitude_longitude = latitude_longitude;
+        this.latitudeLongitude = latitudeLongitude;
+        this.uploadState = uploadState;
+        this.id = id;
+        this.localEcgFileName = localEcgFileName;
+        this.inuse = inuse;
     }
 
-    public String getFI() {
-        return FI;
-    }
 
-    public void setFI(String FI) {
-        this.FI = FI;
-    }
-
-    public String getES() {
-        return ES;
-    }
-
-    public void setES(String ES) {
-        this.ES = ES;
-    }
-
-    public String getPI() {
-        return PI;
-    }
-
-    public void setPI(String PI) {
-        this.PI = PI;
-    }
-
-    public String getCC() {
-        return CC;
-    }
-
-    public void setCC(String CC) {
-        this.CC = CC;
-    }
-
-    public String getHRVr() {
-        return HRVr;
-    }
-
-    public void setHRVr(String HRVr) {
-        this.HRVr = HRVr;
-    }
-
-    public String getHRVs() {
-        return HRVs;
-    }
-
-    public void setHRVs(String HRVs) {
-        this.HRVs = HRVs;
-    }
-
-    public String getAHR() {
-        return AHR;
-    }
-
-    public void setAHR(String AHR) {
-        this.AHR = AHR;
-    }
-
-    public String getMaxHR() {
-        return MaxHR;
-    }
-
-    public void setMaxHR(String maxHR) {
-        MaxHR = maxHR;
-    }
-
-    public String getMinHR() {
-        return MinHR;
-    }
-
-    public void setMinHR(String minHR) {
-        MinHR = minHR;
-    }
-
-    public String getHRr() {
-        return HRr;
-    }
-
-    public void setHRr(String HRr) {
-        this.HRr = HRr;
-    }
-
-    public String getHRs() {
-        return HRs;
-    }
-
-    public void setHRs(String HRs) {
-        this.HRs = HRs;
-    }
-
-    public String getEC() {
-        return EC;
-    }
-
-    public void setEC(String EC) {
-        this.EC = EC;
-    }
-
-    public String getECr() {
-        return ECr;
-    }
-
-    public void setECr(String ECr) {
-        this.ECr = ECr;
-    }
-
-    public String getECs() {
-        return ECs;
-    }
-
-    public void setECs(String ECs) {
-        this.ECs = ECs;
-    }
-
-    public String getRA() {
-        return RA;
-    }
-
-    public void setRA(String RA) {
-        this.RA = RA;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getDatatime() {
-        return datatime;
-    }
-
-    public void setDatatime(String datatime) {
-        this.datatime = datatime;
-    }
-
-    public String getHR() {
-        return HR;
-    }
-
-    public void setHR(String HR) {
-        this.HR = HR;
-    }
-
-    public String getAE() {
-        return AE;
-    }
-
-    public void setAE(String AE) {
-        this.AE = AE;
-    }
-
-    public String getDistance() {
-        return distance;
-    }
-
-    public void setDistance(String distance) {
-        this.distance = distance;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public String getCadence() {
-        return cadence;
-    }
-
-    public void setCadence(String cadence) {
-        this.cadence = cadence;
-    }
-
-    public String getCalorie() {
-        return calorie;
-    }
-
-    public void setCalorie(String calorie) {
-        this.calorie = calorie;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getZaobo() {
-        return zaobo;
-    }
-
-    public void setZaobo(String zaobo) {
-        this.zaobo = zaobo;
-    }
-
-    public String getLoubo() {
-        return loubo;
-    }
-
-    public void setLoubo(String loubo) {
-        this.loubo = loubo;
-    }
-
-    public String getLatitude_longitude() {
-        return latitude_longitude;
-    }
-
-    public void setLatitude_longitude(String latitude_longitude) {
-        this.latitude_longitude = latitude_longitude;
+    @Override
+    public String toString() {
+        return "UploadRecord{" +
+                "fi=" + fi +
+                ", es=" + es +
+                ", pi=" + pi +
+                ", cc=" + cc +
+                ", hrvr='" + hrvr + '\'' +
+                ", hrvs='" + hrvs + '\'' +
+                ", ahr=" + ahr +
+                ", maxhr=" + maxhr +
+                ", minhr=" + minhr +
+                ", hrr='" + hrr + '\'' +
+                ", hrs='" + hrs + '\'' +
+                ", ec='" + ec + '\'' +
+                ", ecr=" + ecr +
+                ", ecs='" + ecs + '\'' +
+                ", ra=" + ra +
+                ", timestamp=" + timestamp +
+                ", datatime='" + datatime + '\'' +
+                ", hr=" + hr +
+                ", ae=" + ae +
+                ", distance=" + distance +
+                ", time=" + time +
+                ", cadence=" + cadence +
+                ", calorie=" + calorie +
+                ", state=" + state +
+                ", zaobo=" + zaobo +
+                ", loubo=" + loubo +
+                ", latitudeLongitude=" + latitudeLongitude +
+                ", uploadState=" + uploadState +
+                ", id=" + id +
+                ", localEcgFileName='" + localEcgFileName + '\'' +
+                ", inuse=" + inuse +
+                '}';
     }
 
     @Override
@@ -383,108 +197,96 @@ public class UploadRecord implements Parcelable,Cloneable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(FI);
-        dest.writeString(ES);
-        dest.writeString(PI);
-        dest.writeString(CC);
-        dest.writeString(HRVr);
-        dest.writeString(HRVs);
-        dest.writeString(AHR);
-        dest.writeString(MaxHR);
-        dest.writeString(MinHR);
-        dest.writeString(HRr);
-        dest.writeString(HRs);
-        dest.writeString(EC);
-        dest.writeString(ECr);
-        dest.writeString(ECs);
-        dest.writeString(RA);
-        dest.writeString(timestamp);
+        dest.writeInt(fi);
+        dest.writeInt(es);
+        dest.writeInt(pi);
+        dest.writeInt(cc);
+        dest.writeString(hrvr);
+        dest.writeString(hrvs);
+        dest.writeInt(ahr);
+        dest.writeInt(maxhr);
+        dest.writeInt(minhr);
+        dest.writeString(hrr);
+        dest.writeString(hrs);
+        dest.writeString(ec);
+        dest.writeInt(ecr);
+        dest.writeString(ecs);
+        dest.writeInt(ra);
+        dest.writeLong(timestamp);
         dest.writeString(datatime);
-        dest.writeString(HR);
-        dest.writeString(AE);
-        dest.writeString(distance);
-        dest.writeString(time);
-        dest.writeString(cadence);
-        dest.writeString(calorie);
-        dest.writeString(state);
-        dest.writeString(zaobo);
-        dest.writeString(loubo);
-        dest.writeString(latitude_longitude);
+        dest.writeList(hr);
+        dest.writeList(ae);
+        dest.writeDouble(distance);
+        dest.writeLong(time);
+        dest.writeList(cadence);
+        dest.writeList(calorie);
+        dest.writeInt(state);
+        dest.writeInt(zaobo);
+        dest.writeInt(loubo);
+        dest.writeTypedList(latitudeLongitude);
+        dest.writeInt(uploadState);
+        dest.writeLong(id);
+        dest.writeString(localEcgFileName);
+        dest.writeInt(inuse);
     }
 
     public static final Creator<UploadRecord> CREATOR = new Creator<UploadRecord>() {
         @Override
         public UploadRecord createFromParcel(Parcel source) {
-            return new UploadRecord(source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),
-                    source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),
-                    source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),
-                    source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),source.readString(),
-                    source.readString(),source.readString(),source.readString(),source.readString());
+            return new UploadRecord(source);
         }
 
         @Override
         public UploadRecord[] newArray(int size) {
-            return new UploadRecord[0];
+            return new UploadRecord[size];
         }
     };
 
-    @Override
-    public String toString() {
-        return "UploadRecord{" +
-                "FI='" + FI + '\'' +
-                ", ES='" + ES + '\'' +
-                ", PI='" + PI + '\'' +
-                ", CC='" + CC + '\'' +
-                ", HRVr='" + HRVr + '\'' +
-                ", HRVs='" + HRVs + '\'' +
-                ", AHR='" + AHR + '\'' +
-                ", MaxHR='" + MaxHR + '\'' +
-                ", MinHR='" + MinHR + '\'' +
-                ", HRr='" + HRr + '\'' +
-                ", HRs='" + HRs + '\'' +
-                ", EC='" + EC + '\'' +
-                ", ECr='" + ECr + '\'' +
-                ", ECs='" + ECs + '\'' +
-                ", RA='" + RA + '\'' +
-                ", timestamp='" + timestamp + '\'' +
-                ", datatime='" + datatime + '\'' +
-                ", HR='" + HR + '\'' +
-                ", AE='" + AE + '\'' +
-                ", distance='" + distance + '\'' +
-                ", time='" + time + '\'' +
-                ", cadence='" + cadence + '\'' +
-                ", calorie='" + calorie + '\'' +
-                ", state='" + state + '\'' +
-                ", zaobo='" + zaobo + '\'' +
-                ", loubo='" + loubo + '\'' +
-                ", latitude_longitude='" + latitude_longitude + '\'' +
-                ", uploadState='" + uploadState + '\'' +
-                ", id=" + id +
-                ", localEcgFileName=" + localEcgFileName +
-                '}';
-    }
 
-    public String getId() {
-        return id;
-    }
+    public UploadRecord(Parcel source) {
+        this.fi = source.readInt();
+        this.es = source.readInt();
+        this.pi = source.readInt();
+        this.cc = source.readInt();
+        this.hrvr = source.readString();
+        this.hrvs = source.readString();
+        this.ahr = source.readInt();
+        this.maxhr = source.readInt();
+        this.minhr = source.readInt();
+        this.hrr = source.readString();
+        this.hrs = source.readString();
+        this.ec = source.readString();
+        this.ecr = source.readInt();
+        this.ecs = source.readString();
+        this.ra = source.readInt();
+        this.timestamp = source.readLong();
+        this.datatime = source.readString();
 
-    public void setId(String id) {
-        this.id = id;
-    }
+        this.hr = new ArrayList<>();
+        source.readList(this.hr,null);
 
-    public String getUploadState() {
-        return uploadState;
-    }
+        this.ae = new ArrayList<>();
+        source.readList(this.ae,null);
 
-    public void setUploadState(String uploadState) {
-        this.uploadState = uploadState;
-    }
+        this.distance = source.readDouble();
+        this.time = source.readLong();
 
-    public String getLocalEcgFileName() {
-        return localEcgFileName;
-    }
+        this.cadence = new ArrayList<>();
+        source.readList(this.cadence,null);
 
-    public void setLocalEcgFileName(String localEcgFileName) {
-        this.localEcgFileName = localEcgFileName;
+        this.calorie = new ArrayList<>();
+        source.readList(this.calorie,null);
+
+        this.state = source.readInt();
+        this.zaobo = source.readInt();
+        this.loubo = source.readInt();
+
+        this.latitudeLongitude = new ArrayList<>();
+        source.readTypedList(this.latitudeLongitude,ParcelableDoubleList.CREATOR);
+
+        this.uploadState = source.readInt();
+        this.id = source.readLong();
+        this.localEcgFileName = source.readString();
+        this.inuse =  source.readInt();
     }
 }

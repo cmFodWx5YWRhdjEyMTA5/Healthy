@@ -9,11 +9,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.amsu.healthy.bean.HealthyPlan;
+import com.amsu.healthy.bean.JsonBase;
+import com.amsu.healthy.bean.ParcelableDoubleList;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.utils.database.MySqliteOpenHelper;
-import com.amsu.healthy.utils.map.PathRecord;
-import com.amsu.healthy.utils.map.Util;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.lidroid.xutils.DbUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +29,7 @@ import java.util.List;
  */
 public class OffLineDbAdapter {
 	private static final String RECORD_TABLE = "uploadreport";
-	private static final String TAG = "AppAbortDbAdapter";
+	private static final String TAG = "AppAbortDbAdapterUtil";
 
 	/*public static class DatabaseHelper extends SQLiteOpenHelper {
 		public DatabaseHelper(Context context) {
@@ -48,13 +53,17 @@ public class OffLineDbAdapter {
 
 	// constructor
 	public OffLineDbAdapter(Context ctx) {
-		Log.i(TAG,"AppAbortDbAdapter");
-		mySqliteOpenHelper = new MySqliteOpenHelper(ctx,1);
+		Log.i(TAG,"AppAbortDbAdapterUtil");
+		mySqliteOpenHelper = new MySqliteOpenHelper(ctx,2);
 	}
 
 	public OffLineDbAdapter open() throws SQLException {
 		Log.i(TAG,"open()");
-		db = mySqliteOpenHelper.getWritableDatabase();
+		try {
+			db = mySqliteOpenHelper.getWritableDatabase();
+		}catch (SQLException e){
+			Log.i(TAG,"e:"+e);
+		}
 		return this;
 	}
 
@@ -83,23 +92,23 @@ public class OffLineDbAdapter {
 		ContentValues args = new ContentValues();
         args.put("id", System.currentTimeMillis()+"");
 		args.put("localEcgFileName", localEcgFileName);
-		args.put("FI", FI);
-		args.put("ES", ES);
-		args.put("PI", PI);
-		args.put("CC", CC);
-		args.put("HRVr", HRVr);
-		args.put("HRVs", HRVs);
-		args.put("AHR", AHR);
-		args.put("MaxHR", maxHR);
-		args.put("MinHR", minHR);
-		args.put("HRr", HRr);
-		args.put("HRs", HRs);
-		args.put("EC", EC);
-		args.put("ECr", ECr);
-		args.put("ECs", ECs);
-		args.put("RA", RA);
-		args.put("HR", HR);
-		args.put("AE", AE);
+		args.put("fi", FI);
+		args.put("es", ES);
+		args.put("pi", PI);
+		args.put("cc", CC);
+		args.put("hrvr", HRVr);
+		args.put("hrvs", HRVs);
+		args.put("ahr", AHR);
+		args.put("maxhr", maxHR);
+		args.put("minhr", minHR);
+		args.put("hrr", HRr);
+		args.put("hrs", HRs);
+		args.put("ec", EC);
+		args.put("ecr", ECr);
+		args.put("ecs", ECs);
+		args.put("ra", RA);
+		args.put("hr", HR);
+		args.put("ae", AE);
 		args.put("distance", distance);
 		args.put("time", time);
 		args.put("cadence", cadence);
@@ -118,42 +127,54 @@ public class OffLineDbAdapter {
 	public long createOrUpdateUploadReportObject(UploadRecord uploadRecordCopy) {
         try {
             UploadRecord uploadRecord = (UploadRecord) uploadRecordCopy.clone();
-            uploadRecord.EC="";
+			uploadRecord.ec = "";
+			Log.i(TAG,"uploadRecord:"+uploadRecord);
+
             ContentValues args = new ContentValues();
-            if (!MyUtil.isEmpty(uploadRecord.id)){
-                args.put("id", uploadRecord.id);
+            if (uploadRecord.id>0){
+                args.put("id", uploadRecord.id+"");
             }else {
                 args.put("id", System.currentTimeMillis()+"");
             }
             args.put("localEcgFileName", uploadRecord.localEcgFileName);
-            args.put("FI", uploadRecord.FI);
-            args.put("ES", uploadRecord.ES);
-            args.put("PI", uploadRecord.PI);
-            args.put("CC", uploadRecord.CC);
-            args.put("HRVr", uploadRecord.HRVr);
-            args.put("HRVs", uploadRecord.HRVs);
-            args.put("AHR", uploadRecord.AHR);
-            args.put("MaxHR", uploadRecord.MaxHR);
-            args.put("MinHR", uploadRecord.MinHR);
-            args.put("HRr", uploadRecord.HRr);
-            args.put("HRs", uploadRecord.HRs);
-            args.put("EC", uploadRecord.EC);
-            args.put("ECr", uploadRecord.ECr);
-            args.put("ECs", uploadRecord.ECs);
-            args.put("RA", uploadRecord.RA);
-            args.put("HR", uploadRecord.HR);
-            args.put("AE", uploadRecord.AE);
-            args.put("distance", uploadRecord.distance);
-            args.put("time", uploadRecord.time);
-            args.put("cadence", uploadRecord.cadence);
-            args.put("calorie", uploadRecord.calorie);
-            args.put("state", uploadRecord.state);
-            args.put("zaobo", uploadRecord.zaobo);
-            args.put("loubo", uploadRecord.loubo);
-            args.put("latitude_longitude", uploadRecord.latitude_longitude);
-            args.put("timestamp", uploadRecord.timestamp);
-            args.put("datatime", uploadRecord.datatime);
-            args.put("uploadState", uploadRecord.uploadState);
+            args.put("fi", uploadRecord.fi+"");
+            args.put("es", uploadRecord.es+"");
+            args.put("pi", uploadRecord.pi+"");
+            args.put("cc", uploadRecord.cc);
+            args.put("hrvr", uploadRecord.hrvr+"");
+            args.put("hrvs", uploadRecord.hrvs+"");
+            args.put("ahr", uploadRecord.ahr+"");
+            args.put("maxhr", uploadRecord.maxhr+"");
+            args.put("minhr", uploadRecord.minhr+"");
+            args.put("hrr", uploadRecord.hrr+"");
+            args.put("hrs", uploadRecord.hrs+"");
+            args.put("ec", uploadRecord.ec+"");
+            args.put("ecr", uploadRecord.ecr+"");
+            args.put("ecs", uploadRecord.ecs+"");
+            args.put("ra", uploadRecord.ra+"");
+			if (uploadRecord.hr!=null){
+				args.put("hr", uploadRecord.hr.toString());
+			}
+			if (uploadRecord.ae!=null){
+				args.put("ae", uploadRecord.ae.toString());
+			}
+			if (uploadRecord.cadence!=null){
+				args.put("cadence", uploadRecord.cadence.toString());
+			}
+			if (uploadRecord.calorie!=null){
+				args.put("calorie", uploadRecord.calorie.toString());
+			}
+			if (uploadRecord.latitudeLongitude!=null){
+				args.put("latitude_longitude", uploadRecord.latitudeLongitude.toString());
+			}
+            args.put("distance", uploadRecord.distance+"");
+            args.put("time", uploadRecord.time+"");
+            args.put("state", uploadRecord.state+"");
+            args.put("zaobo", uploadRecord.zaobo+"");
+            args.put("loubo", uploadRecord.loubo+"");
+            args.put("timestamp", uploadRecord.timestamp+"");
+            args.put("datatime", uploadRecord.datatime+"");
+            args.put("uploadState", uploadRecord.uploadState+"");
 
             //return db.insert(RECORD_TABLE, null, args);
             return db.replace(RECORD_TABLE, null, args);
@@ -206,7 +227,9 @@ public class OffLineDbAdapter {
 		while (cursor.moveToNext()) {
 			UploadRecord uploadRecordByCursor = getUploadRecordByCursor(cursor);
 			Log.i(TAG,"uploadRecordByCursor:"+uploadRecordByCursor);
-			allRecord.add(uploadRecordByCursor);
+			if (uploadRecordByCursor!=null){
+				allRecord.add(uploadRecordByCursor);
+			}
 		}
 		if (allRecord.size()>1){
 			Collections.reverse(allRecord);
@@ -236,6 +259,17 @@ public class OffLineDbAdapter {
         return null;
     }
 
+	//按照timestamp查询
+	public UploadRecord queryRecordByTimestamp(String timestamp) {
+		String where = "timestamp" + "=?";
+		String[] selectionArgs = new String[] { timestamp };
+		Cursor cursor = db.query(RECORD_TABLE, getColumns(), where, selectionArgs, null, null, null);
+		if (cursor.moveToNext()) {
+			return getUploadRecordByCursor(cursor);
+		}
+		return null;
+	}
+
 	public UploadRecord getUploadRecordByCursor(Cursor cursor){
 		Log.i(TAG,"cursor: "+cursor.getCount());
 		Log.i(TAG,"cursor: "+cursor.getColumnNames().length);
@@ -244,68 +278,123 @@ public class OffLineDbAdapter {
 		}
 
 		UploadRecord uploadRecord = null;
-
 		try {
 			uploadRecord = new UploadRecord();
-			uploadRecord.setId(cursor.getString(cursor.getColumnIndex("id")));
-			uploadRecord.setLocalEcgFileName(cursor.getString(cursor.getColumnIndex("localEcgFileName")));
-			uploadRecord.setFI(cursor.getString(cursor.getColumnIndex("FI")));
-			uploadRecord.setES(cursor.getString(cursor.getColumnIndex("ES")));
-			uploadRecord.setPI(cursor.getString(cursor.getColumnIndex("PI")));
-			uploadRecord.setCC(cursor.getString(cursor.getColumnIndex("CC")));
-			uploadRecord.setHRVr(cursor.getString(cursor.getColumnIndex("HRVr")));
-			uploadRecord.setHRVs(cursor.getString(cursor.getColumnIndex("HRVs")));
-			uploadRecord.setAHR(cursor.getString(cursor.getColumnIndex("AHR")));
-			uploadRecord.setMaxHR(cursor.getString(cursor.getColumnIndex("MaxHR")));
-			uploadRecord.setMinHR(cursor.getString(cursor.getColumnIndex("MinHR")));
-			uploadRecord.setHRr(cursor.getString(cursor.getColumnIndex("HRr")));
-			uploadRecord.setHRs(cursor.getString(cursor.getColumnIndex("HRs")));
-			uploadRecord.setEC(cursor.getString(cursor.getColumnIndex("EC")));
-			uploadRecord.setECr(cursor.getString(cursor.getColumnIndex("ECr")));
-			uploadRecord.setECs(cursor.getString(cursor.getColumnIndex("ECs")));
-			uploadRecord.setRA(cursor.getString(cursor.getColumnIndex("RA")));
-			uploadRecord.setHR(cursor.getString(cursor.getColumnIndex("HR")));
-			uploadRecord.setAE(cursor.getString(cursor.getColumnIndex("AE")));
-			uploadRecord.setDistance(cursor.getString(cursor.getColumnIndex("distance")));
-			uploadRecord.setTime(cursor.getString(cursor.getColumnIndex("time")));
-			uploadRecord.setCadence(cursor.getString(cursor.getColumnIndex("cadence")));
-			uploadRecord.setCalorie(cursor.getString(cursor.getColumnIndex("calorie")));
-			uploadRecord.setState(cursor.getString(cursor.getColumnIndex("state")));
-			uploadRecord.setZaobo(cursor.getString(cursor.getColumnIndex("zaobo")));
-			uploadRecord.setLoubo(cursor.getString(cursor.getColumnIndex("loubo")));
-			uploadRecord.setLatitude_longitude(cursor.getString(cursor.getColumnIndex("latitude_longitude")));
-			uploadRecord.setTimestamp(cursor.getString(cursor.getColumnIndex("timestamp")));
-			uploadRecord.setDatatime(cursor.getString(cursor.getColumnIndex("datatime")));
-			uploadRecord.setUploadState(cursor.getString(cursor.getColumnIndex("uploadState")));
+
+			String id = cursor.getString(cursor.getColumnIndex("id"));
+			String fi = cursor.getString(cursor.getColumnIndex("fi"));
+			String es = cursor.getString(cursor.getColumnIndex("es"));
+			String pi = cursor.getString(cursor.getColumnIndex("pi"));
+			String cc = cursor.getString(cursor.getColumnIndex("cc"));
+			String hrvr = cursor.getString(cursor.getColumnIndex("hrvr"));
+			String hrvs = cursor.getString(cursor.getColumnIndex("hrvs"));
+			String ahr = cursor.getString(cursor.getColumnIndex("ahr"));
+			String maxhr = cursor.getString(cursor.getColumnIndex("maxhr"));
+			String minhr = cursor.getString(cursor.getColumnIndex("minhr"));
+			String hrr = cursor.getString(cursor.getColumnIndex("hrr"));
+			String hrs = cursor.getString(cursor.getColumnIndex("hrs"));
+			String ec = cursor.getString(cursor.getColumnIndex("ec"));
+			String ecr = cursor.getString(cursor.getColumnIndex("ecr"));
+			String ecs = cursor.getString(cursor.getColumnIndex("ecs"));
+			String ra = cursor.getString(cursor.getColumnIndex("ra"));
+			String timestamp = cursor.getString(cursor.getColumnIndex("timestamp"));
+			String datatime = cursor.getString(cursor.getColumnIndex("datatime"));
+			String hr = cursor.getString(cursor.getColumnIndex("hr"));
+			String ae = cursor.getString(cursor.getColumnIndex("ae"));
+			String distance = cursor.getString(cursor.getColumnIndex("distance"));
+			String time = cursor.getString(cursor.getColumnIndex("time"));
+			String cadence = cursor.getString(cursor.getColumnIndex("cadence"));
+			String calorie = cursor.getString(cursor.getColumnIndex("calorie"));
+			String state = cursor.getString(cursor.getColumnIndex("state"));
+			String zaobo = cursor.getString(cursor.getColumnIndex("zaobo"));
+			String loubo = cursor.getString(cursor.getColumnIndex("loubo"));
+			String latitudeLongitude = cursor.getString(cursor.getColumnIndex("latitude_longitude"));
+			String uploadState = cursor.getString(cursor.getColumnIndex("uploadState"));
+			String localEcgFileName = cursor.getString(cursor.getColumnIndex("localEcgFileName"));
+
+			Log.i(TAG,"ae:"+ae);
+			Log.i(TAG,"hr:"+hr);
+			Log.i(TAG,"cadence:"+cadence);
+
+			Gson gson = new Gson();
+
+			uploadRecord.id = Long.parseLong(id);
+			uploadRecord.fi = Integer.parseInt(fi);
+			uploadRecord.es = Integer.parseInt(es);
+			uploadRecord.pi = Integer.parseInt(pi);
+			uploadRecord.cc = Integer.parseInt(cc);
+			uploadRecord.hrvr = hrvr;
+			uploadRecord.hrvs = hrvs;
+			uploadRecord.ahr = Integer.parseInt(ahr);
+			uploadRecord.maxhr = Integer.parseInt(maxhr);
+			uploadRecord.minhr = Integer.parseInt(minhr);
+			uploadRecord.hrr = hrr;
+			uploadRecord.hrs = hrs;
+			uploadRecord.ec =ec;
+			uploadRecord.ecr =Integer.parseInt(ecr);
+			uploadRecord.ecs =ecs;
+			uploadRecord.ra =Integer.parseInt(ra);
+			uploadRecord.timestamp =Long.parseLong(timestamp);
+			uploadRecord.datatime =datatime;
+			if (!MyUtil.isEmpty(hr)){
+				uploadRecord.hr = gson.fromJson(hr,new TypeToken<List<Integer>>() {}.getType());
+			}
+			if (!MyUtil.isEmpty(ae)){
+				uploadRecord.ae =gson.fromJson(ae,new TypeToken<List<Integer>>() {}.getType());
+			}
+			if (!MyUtil.isEmpty(cadence)){
+				uploadRecord.cadence = gson.fromJson(cadence,new TypeToken<List<Integer>>() {}.getType());
+			}
+			if (!MyUtil.isEmpty(calorie)){
+				uploadRecord.calorie =gson.fromJson(calorie,new TypeToken<List<String>>() {}.getType());
+			}
+			if (!MyUtil.isEmpty(latitudeLongitude)){
+				uploadRecord.latitudeLongitude = gson.fromJson(latitudeLongitude,new TypeToken<List<ParcelableDoubleList>>() {}.getType());
+			}
+
+			uploadRecord.distance =Double.parseDouble(distance);
+			uploadRecord.time = Long.parseLong(time);
+			uploadRecord.state =Integer.parseInt(state);
+			uploadRecord.zaobo =Integer.parseInt(zaobo);
+			uploadRecord.loubo =Integer.parseInt(loubo);
+			uploadRecord.uploadState =Integer.parseInt(uploadState);
+			uploadRecord.localEcgFileName = localEcgFileName;
+
+			File file = new File(uploadRecord.localEcgFileName);
+			//如果本地缓冲文件已经被删除了，需要从网络上获取
+			if (uploadRecord.hr.size()==0 || file.exists()){  //运动数据   心电文件不存在
+				return uploadRecord;
+			}
+			else {
+				return null;
+			}
 		}catch (IllegalStateException e){
-			uploadRecord = null;
 			e.printStackTrace();
-			Log.i(TAG,"抛出异常: "+e);
+			Log.e(TAG,"抛出异常: "+e);
 		}
 		Log.i(TAG,"uploadRecord:"+uploadRecord);
-		
-		return uploadRecord;
+		return null;
 	}
 
 	private String[] getColumns() {
 		/*+ "id integer primary key autoincrement,"
-			+ "FI STRING,"
-			+ "ES STRING,"
-			+ "PI STRING,"
-			+ "CC STRING,"
-			+ "HRVr STRING,"
-			+ "HRVs STRING,"
-			+ "AHR STRING,"
-			+ "MaxHR STRING,"
-			+ "MinHR STRING,"
-			+ "HRr STRING,"
-			+ "HRs STRING,"
-			+ "EC STRING,"
-			+ "ECr STRING,"
-			+ "ECs STRING,"
-			+ "RA STRING,"
-			+ "HR STRING,"
-			+ "AE STRING,"
+			+ "fi STRING,"
+			+ "es STRING,"
+			+ "pi STRING,"
+			+ "cc STRING,"
+			+ "hrvr STRING,"
+			+ "hrvs STRING,"
+			+ "ahr STRING,"
+			+ "maxhr STRING,"
+			+ "minhr STRING,"
+			+ "hrr STRING,"
+			+ "hrs STRING,"
+			+ "ec STRING,"
+			+ "ecr STRING,"
+			+ "ecs STRING,"
+			+ "ra STRING,"
+			+ "hr STRING,"
+			+ "ae STRING,"
 			+ "distance STRING,"
 			+ "time STRING,"
 			+ "cadence STRING,"
@@ -317,7 +406,7 @@ public class OffLineDbAdapter {
 			+ "timestamp STRING,"
 			+ "datatime STRING,"
 			+ "uploadState STRING" + ");";*/
-		return new String[] { "id", "localEcgFileName","FI", "ES","PI","CC","HRVr","HRVs","AHR","MaxHR","MinHR","HRr","HRs","EC","ECr","ECs","RA",
-				"HR","AE","distance","time","cadence","calorie","state","zaobo","loubo","latitude_longitude","timestamp","datatime","uploadState"};
+		return new String[] { "id", "localEcgFileName","fi", "es","pi","cc","hrvr","hrvs","ahr","maxhr","minhr","hrr","hrs","ec","ecr","ecs","ra",
+				"hr","ae","distance","time","cadence","calorie","state","zaobo","loubo","latitude_longitude","timestamp","datatime","uploadState"};
 	}
 }

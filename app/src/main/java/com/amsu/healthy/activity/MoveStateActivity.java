@@ -22,7 +22,7 @@ public class MoveStateActivity extends BaseActivity {
 
     //静态情况
     public void staticDump(View view) {
-        startActivity(new Intent(this,HeartRateActivity.class));
+        startActivity(new Intent(this,HeartRateAnalysisActivity.class));
         finish();
     }
 

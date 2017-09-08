@@ -31,6 +31,9 @@
 
     <declare-styleable name="CircleRingView">
         <attr name="circlering_width" format="dimension" />
+        <attr name="circlering_background_color" format="color"/>
+        <attr name="circlering_start_color" format="color"/>
+        <attr name="circlering_end_color" format="color"/>
     </declare-styleable>
 
     <declare-styleable name="RadarView">
@@ -70,5 +73,9 @@
         <attr name="fillstart_color" format="color" />
         <attr name="fillend_color" format="color" />
         <attr name="curve_line_width" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="swipelistviewstyle">
+        <attr name="right_width" format="dimension"></attr>
     </declare-styleable>
 </resources>

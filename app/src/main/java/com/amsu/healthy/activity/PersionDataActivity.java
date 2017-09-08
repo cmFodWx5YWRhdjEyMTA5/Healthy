@@ -229,7 +229,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         Log.i(TAG,"upLoadbirthday:"+upLoadbirthday);
     }
 
-    class MyOnClickListener implements View.OnClickListener {
+    private class MyOnClickListener implements View.OnClickListener {
         Intent intent = new Intent(PersionDataActivity.this,ModifyPersionDataActivity.class);
         @Override
         public void onClick(View v) {
@@ -399,7 +399,6 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
     //显示，上传
     private void showImageAndUpload(String iconFilePath) {
-
         if (iconFilePath!=null){
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inPreferredConfig = Bitmap.Config.RGB_565;
@@ -440,6 +439,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                         if (ret==0){
                             MyUtil.showToask(PersionDataActivity.this,"上传成功");
                             MyUtil.putStringValueFromSP("icon",errDesc);
+                            setResult(RESULT_OK);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -698,8 +698,6 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         MyUtil.showDialog("正在上传",this);
         final String phone = MyUtil.getStringValueFromSP("phone");
 
-
-
         final User user = new User(phone,username,upLoadbirthday,upLoadSex,upLoadweightValue,upLoadheightValue,area,email);
         user.setStillRate(stillrate);
         Log.i(TAG,"user:"+user.toString());
@@ -734,6 +732,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     MyUtil.showToask(PersionDataActivity.this,errDesc);
                     if (ret==0){
                         MyUtil.saveUserToSP(user);
+                        setResult(RESULT_OK);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

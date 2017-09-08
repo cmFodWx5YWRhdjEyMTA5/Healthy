@@ -105,7 +105,7 @@ public class DashboardView extends View {
 
         float start_x,start_y;
         float end_x,end_y;
-        //偏移的角度，为 Math.PI/3+2*Math.PI/3
+        //偏移的角度，为 Math.pi/3+2*Math.pi/3
         offectDegree = (float) (15*Math.PI/18);
 
         for(int i=0;i<=80;++i){

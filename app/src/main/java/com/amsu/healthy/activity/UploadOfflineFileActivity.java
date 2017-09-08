@@ -12,27 +12,20 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.HistoryRecordAdapter;
 import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
-import com.test.objects.HeartRateResult;
-import com.test.utils.DiagnosisNDK;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.Socket;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -143,7 +136,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
         lv_history_upload = (ListView) findViewById(R.id.lv_history_upload);
 
         uploadHistoryRecords = new ArrayList<>();
-        uploadHistoryRecordAdapter = new HistoryRecordAdapter(uploadHistoryRecords,this);
+        uploadHistoryRecordAdapter = new HistoryRecordAdapter(uploadHistoryRecords,this,0);
         lv_history_upload.setAdapter(uploadHistoryRecordAdapter);
 
         mOffLineFileNameList = new ArrayList<>();
@@ -190,7 +183,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
         final String offLineFileName = mOffLineFileNameList.get(position);
         Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
 
-        final Intent intent = new Intent(UploadOfflineFileActivity.this, HeartRateActivity.class);
+        final Intent intent = new Intent(UploadOfflineFileActivity.this, HeartRateAnalysisActivity.class);
         intent.putExtra(Constant.ecgLocalFileName,ecgLocalFileName);
         Date date = new Date(Integer.parseInt(offLineFileName.substring(0,4))-1900,Integer.parseInt(offLineFileName.substring(4,6)),Integer.parseInt(offLineFileName.substring(6,8)),
                 Integer.parseInt(offLineFileName.substring(8,10)),Integer.parseInt(offLineFileName.substring(10,12)),Integer.parseInt(offLineFileName.substring(12,14)));
@@ -233,14 +226,14 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
     private void initData() {
         MyUtil.showDialog(getResources().getString(R.string.connected_check_offline_files),this);
-        if (ConnectToWifiModuleGudieActivity2.mSock!=null){
+        if (ConnectToWifiGudieActivity2.mSock!=null){
             new Thread(){
                 @Override
                 public void run() {
                     super.run();
                     try {
-                        socketWriter = ConnectToWifiModuleGudieActivity2.mSock.getOutputStream();
-                        inputStream = ConnectToWifiModuleGudieActivity2.mSock.getInputStream();
+                        socketWriter = ConnectToWifiGudieActivity2.mSock.getOutputStream();
+                        inputStream = ConnectToWifiGudieActivity2.mSock.getInputStream();
 
                         getFileList();
 
@@ -326,7 +319,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
                 /*Log.i(TAG,"异常重建socket");
                 try {
-                    Socket sock = new Socket(ConnectToWifiModuleGudieActivity2.serverAddress, 8080);
+                    Socket sock = new Socket(ConnectToWifiGudieActivity2.serverAddress, 8080);
                     socketWriter = sock.getOutputStream();
                     Log.i(TAG,"异常重建socket成功");
                     inputStream = sock.getInputStream();
@@ -491,15 +484,25 @@ public class UploadOfflineFileActivity extends BaseActivity {
         for (String s:rightOrderFileList){
             Log.i(TAG,"s:"+s);
             if (s.endsWith(".ecg")){
-                //以ecg结尾的文件在离线文件中列出来
-                String datatime = s.substring(0,4)+"-"+s.substring(4,6)+"-"+s.substring(6,8)+" "+
-                        s.substring(8,10)+":"+s.substring(10,12)+":"+s.substring(12,14);
+                if (s.length()>=14){
+                    //以ecg结尾的文件在离线文件中列出来
+                    String datatime = s.substring(0,4)+"-"+s.substring(4,6)+"-"+s.substring(6,8)+" "+
+                            s.substring(8,10)+":"+s.substring(10,12)+":"+s.substring(12,14);
             /*if (uploadHistoryRecords.size()>0){
                 if (uploadHistoryRecords.get(uploadHistoryRecords.size()-1).equals(datatime)){
                     return;
                 }
-            }*/
-                uploadHistoryRecords.add(new HistoryRecord("0",datatime,-1,HistoryRecord.analysisState_noAnalysised));
+            }*/     int year = Integer.parseInt(s.substring(0,4));
+                    int mouth = Integer.parseInt(s.substring(4,6));
+                    int date = Integer.parseInt(s.substring(6,8));
+                    int hrs = Integer.parseInt(s.substring(8,10));
+                    int min = Integer.parseInt(s.substring(10,12));
+                    int sec = Integer.parseInt(s.substring(12,14));
+
+                    Date date1 = new Date(year, mouth, date, hrs, min, sec);
+                    uploadHistoryRecords.add(new HistoryRecord("0",date1.getTime(),-1,HistoryRecord.analysisState_noAnalysised));
+                }
+
             }
         }
 
@@ -872,8 +875,8 @@ public class UploadOfflineFileActivity extends BaseActivity {
             socketWriter = null;
             Log.i(TAG,"重建socket");
             try {
-                Socket sock = new Socket(ConnectToWifiModuleGudieActivity2.serverAddress, 8080);
-                ConnectToWifiModuleGudieActivity2.mSock = sock;
+                Socket sock = new Socket(ConnectToWifiGudieActivity2.serverAddress, 8080);
+                ConnectToWifiGudieActivity2.mSock = sock;
                 socketWriter = sock.getOutputStream();
                 Log.i(TAG,"重建socket成功");
                 inputStream = sock.getInputStream();

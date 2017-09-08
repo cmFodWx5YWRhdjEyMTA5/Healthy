@@ -111,7 +111,7 @@
             android:layout_marginTop="@dimen/y18"
             android:textColor="#333333"
             android:textSize="@dimen/x40"
-            android:text="@string/data_is_insufficient"/>
+            android:text="@string/HeartRate_suggetstion_nodata"/>
 
         <!--<LinearLayout
             android:layout_width="match_parent"

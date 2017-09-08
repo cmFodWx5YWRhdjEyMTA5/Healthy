@@ -16,6 +16,7 @@ import com.amsu.healthy.view.FoldLineViewWithPoint;
 import com.amsu.healthy.view.FoldLineViewWithText;
 import com.amsu.healthy.view.FoldLineViewWithTextOne;
 
+import java.util.Date;
 import java.util.List;
 
 import static com.amsu.healthy.R.id.tv_mouth_value;
@@ -64,8 +65,8 @@ public class HRVMouthFragment extends BaseFragment {
                 String[] labels = new String[hRrep.size()];
                 int i =0;
                 for (FullReport.HRVrepBean hrVrepBean:hRrep){
-                    datas[i] = Integer.parseInt(hrVrepBean.FI);
-                    labels[i] = MyUtil.getReportDateStingForMouthAndDay(hrVrepBean.datatime);
+                    datas[i] = hrVrepBean.fi;
+                    labels[i] = MyUtil.getSpecialFormatTime("MM月dd日",new Date(hrVrepBean.timestamp));
                     i++;
                 }
                 mLineChart.setData(datas,labels);

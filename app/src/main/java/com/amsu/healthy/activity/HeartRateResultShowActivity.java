@@ -15,6 +15,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.FragmentListRateAdapter;
 import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.bean.JsonBase;
+import com.amsu.healthy.bean.ParcelableDoubleList;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.fragment.analysis.ECGFragment;
 import com.amsu.healthy.fragment.analysis.HRRFragment;
@@ -24,10 +25,9 @@ import com.amsu.healthy.fragment.analysis.SportFragment;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.OffLineDbAdapter;
-import com.google.gson.Gson;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.RequestParams;
@@ -35,12 +35,16 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-public class RateAnalysisActivity extends BaseActivity {
+public class HeartRateResultShowActivity extends BaseActivity {
 
-    private static final String TAG = "RateAnalysisActivity";
+    private static final String TAG = "HeartRateResultShowActivity";
     private ViewPager vp_analysis_content;
     private List<Fragment> fragmentList;
     private TextView tv_analysis_hrv;
@@ -53,7 +57,6 @@ public class RateAnalysisActivity extends BaseActivity {
     private FragmentListRateAdapter mAnalysisRateAdapter;
     private float mOneTableWidth;
     private int subFormAlCount = 0 ;  //当有四个fragment是为0，有5个fragment时为1
-    public static String ecgLocalFileName;
     private ImageView iv_base_myreport;
 
     @Override
@@ -67,7 +70,6 @@ public class RateAnalysisActivity extends BaseActivity {
 
     private void initView() {
         fragmentList = new ArrayList<>();
-        ecgLocalFileName = null;
         initHeadView();
         setLeftImage(R.drawable.back_icon);
         vp_analysis_content = (ViewPager) findViewById(R.id.vp_analysis_content);
@@ -99,7 +101,7 @@ public class RateAnalysisActivity extends BaseActivity {
         getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(RateAnalysisActivity.this, HistoryRecordActivity.class));
+                startActivity(new Intent(HeartRateResultShowActivity.this, HistoryRecordActivity.class));
             }
         });
 
@@ -133,7 +135,7 @@ public class RateAnalysisActivity extends BaseActivity {
         iv_base_myreport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(RateAnalysisActivity.this, MyReportActivity.class));
+                startActivity(new Intent(HeartRateResultShowActivity.this, MyReportActivity.class));
             }
         });
     }
@@ -143,149 +145,55 @@ public class RateAnalysisActivity extends BaseActivity {
         if (intent!=null){
             Bundle bundle = intent.getParcelableExtra("bundle");
             if (bundle!=null){
-                HistoryRecord historyRecord = bundle.getParcelable("historyRecord");
-                if (historyRecord!=null){
-                    /*if (historyRecord.getState()==0 && tv_analysis_sport.getVisibility()==View.VISIBLE){ //静止状态&& 可见
-                        fragmentList.remove(0);
-                        subFormAlCount = 1;
-                        tv_analysis_sport.setVisibility(View.GONE);
-                        mOneTableWidth = MyUtil.getScreeenWidth(this)/4;
-                        mAnalysisRateAdapter.notifyDataSetChanged();
-                    }*/
-
+                UploadRecord uploadRecord = bundle.getParcelable("uploadRecord");
+                if (uploadRecord==null){
+                    final HistoryRecord historyRecord = bundle.getParcelable("historyRecord");
                     Log.i(TAG,"historyRecord:"+historyRecord.toString());
 
+                    //adjustFeagmentCount(historyRecord.getState());
 
-                    adjustFeagmentCount(historyRecord.getState());
-
-                    //根据历史记录id进行网络查询
-                    String datatime = historyRecord.getDatatime();
-                    if (datatime!=null && datatime.split(" ").length==2){
-                        //setCenterText(datatime.split(" ")[0]);  // 2016-10-28 10:56:04
-                        setCenterText(datatime.substring(0,datatime.length()-3));  // 2016-10-28 10:56:04
-                    }
-                    else {
-                        setCenterText(datatime);  // 2016-10-28 10:56:04
-                    }
+                    //String datatime = historyRecord.getDatatime();
+                    String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm",new Date(historyRecord.getDatatime()));  //此处的datatime是时间戳（毫秒）
+                    setCenterText(datatime);
 
                     //奔溃缓存策略
                     //先从本地数据库中根据datatime查询数据，没有的话根据id从服务器获取
-                    OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(RateAnalysisActivity.this);
-                    offLineDbAdapter.open();
-
-                    if (offLineDbAdapter!=null){
-                        UploadRecord uploadRecord = offLineDbAdapter.queryRecordByDatatime(datatime);  // 2017-06-28 11:01:33
-                        offLineDbAdapter.close();
-
-                        if (uploadRecord!=null){
-                            //本地有数据
-                            Log.i(TAG,"本地uploadRecord:"+uploadRecord);
-                            mUploadRecord = uploadRecord;
-                            Log.i(TAG,"mUploadRecord.state:"+mUploadRecord.state);
-                            Log.i(TAG,"mUploadRecord.time:"+mUploadRecord.time);
-                            Log.i(TAG,"mUploadRecord.calorie:"+mUploadRecord.calorie);
-                            Log.i(TAG,"mUploadRecord.AE:"+mUploadRecord.AE);
-                            ecgLocalFileName = uploadRecord.localEcgFileName;
-
-                            return;
-                        }
+                    OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(HeartRateResultShowActivity.this);
+                    try {
+                        offLineDbAdapter.open();
+                    }catch (Exception ignored){
                     }
 
+                    Log.i(TAG,"historyRecord.getDatatime():"+historyRecord.getDatatime());
 
+                    uploadRecord = offLineDbAdapter.queryRecordByTimestamp(historyRecord.getDatatime()/1000);  // 2017-06-28 11:01:33
+                    Log.i(TAG,"本地数据库uploadRecord:"+uploadRecord);
+                    try {
+                        offLineDbAdapter.close();
+                    }catch (Exception ignored){
+                    }
 
-
-                    MyUtil.showDialog(getResources().getString(R.string.loading),RateAnalysisActivity.this);
-                    HttpUtils httpUtils = new HttpUtils();
-                    RequestParams params = new RequestParams();
-                    params.addBodyParameter("id",historyRecord.getID());
-                    MyUtil.addCookieForHttp(params);
-
-                    httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHistoryReportDetailURL, params, new RequestCallBack<String>() {
-                        @Override
-                        public void onSuccess(ResponseInfo<String> responseInfo) {
-                            if (isActiivtyDestroy)return;
-                            String result = responseInfo.result;
-                            Log.i(TAG,"上传onSuccess==result:"+result);
-                            Gson gson = new Gson();
-                            JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
-                            Log.i(TAG,"jsonBase:"+jsonBase);
-                            if (jsonBase.getRet()==0){
-
-                               /* UploadRecordObject uUploadRecordObject = gson.fromJson(result, UploadRecordObject.class);
-                                //mUploadRecord = uUploadRecordObject.errDesc;
-                                Log.i(TAG,"uUploadRecordObject:"+uUploadRecordObject)*/;
-
-                                try {
-                                    JSONObject object = new JSONObject(result);
-                                    JSONObject jsonObject =object.getJSONObject("errDesc");
-                                    String FI    = jsonObject.getString("FI");
-                                    String ES    = jsonObject.getString("ES");
-                                    String PI    = jsonObject.getString("PI");
-                                    String CC    = jsonObject.getString("CC");
-                                    String HRVr  = jsonObject.getString("HRVr");
-                                    String HRVs  = jsonObject.getString("HRVs");
-                                    String AHR   = jsonObject.getString("AHR");
-                                    String MaxHR = jsonObject.getString("MaxHR");
-                                    String MinHR = jsonObject.getString("MinHR");
-                                    String HRr   = jsonObject.getString("HRr");
-                                    String HRs   = jsonObject.getString("HRs");
-                                    String EC    = jsonObject.getString("EC");
-                                    String ECr   = jsonObject.getString("ECr");
-                                    String ECs   = jsonObject.getString("ECs");
-                                    String RA    = jsonObject.getString("RA");
-                                    String timestamp = jsonObject.getString("timestamp");
-                                    String datatime  = jsonObject.getString("datatime");
-                                    String HR    = jsonObject.getString("HR");
-                                    String AE    = jsonObject.getString("AE");
-                                    String distance  = jsonObject.getString("distance");
-                                    String time  = jsonObject.getString("time");
-                                    String cadence   = jsonObject.getString("cadence");
-                                    String calorie   = jsonObject.getString("calorie");
-                                    String state = jsonObject.getString("state");
-                                    String zaobo = jsonObject.getString("zaobo");
-                                    String loubo = jsonObject.getString("loubo");
-                                    String latitude_longitude = jsonObject.getString("latitude_longitude");
-
-                                    mUploadRecord = new UploadRecord(FI,ES,PI,CC,HRVr,HRVs,AHR,MaxHR,MinHR,HRr,HRs,EC,ECr,ECs,RA,timestamp,datatime,HR,
-                                            AE,distance,time,cadence,calorie,state,zaobo,loubo,latitude_longitude);
-                                    Log.i(TAG,"mUploadRecord:"+mUploadRecord);
-                                    ecgLocalFileName = MyUtil.generateECGFilePath(RateAnalysisActivity.this, System.currentTimeMillis());
-
-                                    OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(RateAnalysisActivity.this);
-                                    offLineDbAdapter.open();
-                                    mUploadRecord.datatime = mUploadRecord.datatime.replace("/", "-");  //将本地数据库时间改成和服务器一致，下次查看数据时，先从根据时间从本地查询
-                                    mUploadRecord.localEcgFileName = ecgLocalFileName;
-                                    long createOrUpdateUploadReportObject = offLineDbAdapter.createOrUpdateUploadReportObject(mUploadRecord);
-                                    Log.i(TAG,"createOrUpdateUploadReportObject:"+createOrUpdateUploadReportObject);
-                                    offLineDbAdapter.close();
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            adjustFeagmentCount(Integer.parseInt(mUploadRecord.state));
-                            MyUtil.hideDialog(RateAnalysisActivity.this);
-                        }
-
-                        @Override
-                        public void onFailure(HttpException e, String s) {
-                            if (isActiivtyDestroy)return;
-                            addFragmentList(intent.getIntExtra(Constant.sportState,-1));
-                            MyUtil.hideDialog(RateAnalysisActivity.this);
-                            MyUtil.showToask(RateAnalysisActivity.this,"数据加载失败");
-                            Log.i(TAG,"上传onFailure==s:"+s);
-                        }
-                    });
+                    if (uploadRecord!=null){
+                        mUploadRecord = uploadRecord;
+                        adjustFeagmentCount(historyRecord.getState());
+                    }
+                    else {
+                        //本地没有缓存,从服务器上取
+                        getHistoryReportDetail(historyRecord);
+                    }
                 }
                 else {
                     //当前分析结果，直接显示
-                    mUploadRecord = bundle.getParcelable("uploadRecord");
-                    Log.i(TAG,"直接显示uploadRecord:"+mUploadRecord.toString());
-                    ecgLocalFileName = intent.getStringExtra(Constant.ecgLocalFileName);
-                    String replace = mUploadRecord.getDatatime().replace("/", "-");//2016/10/24 10:56:4
-                    setCenterText(replace);
-                    Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
-                    adjustFeagmentCount(intent.getIntExtra(Constant.sportState,-1));
+                    mUploadRecord = uploadRecord;
+                    Log.i(TAG,"直接显示uploadRecord:"+uploadRecord.toString());
+                    Log.i(TAG,"mUploadRecord.ae:"+uploadRecord.ae);
+                    Log.i(TAG,"mUploadRecord.latitudeLongitude:"+uploadRecord.latitudeLongitude);
+                    //String replace = mUploadRecord.getDatatime().replace("/", "-");//2016/10/24 10:56:4
+                    String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm",new Date(uploadRecord.timestamp*1000));//此处的datatime是时间戳（秒）
+                    Log.i(TAG,"mUploadRecord.timestamp:"+mUploadRecord.timestamp);
+                    setCenterText(datatime);
+                    //Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
+                    adjustFeagmentCount(uploadRecord.state);
                 }
             }
             else {
@@ -294,7 +202,152 @@ public class RateAnalysisActivity extends BaseActivity {
         }
     }
 
+    private void getHistoryReportDetail(final HistoryRecord historyRecord) {
+        MyUtil.showDialog(getResources().getString(R.string.loading),HeartRateResultShowActivity.this);
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("id",historyRecord.getId());
+        MyUtil.addCookieForHttp(params);
+
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHistoryReportDetailURL, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                if (isActiivtyDestroy)return;
+                String result = responseInfo.result;
+                Log.i(TAG,"上传onSuccess==result:"+result);
+
+                //JsonBase<UploadRecord> jsonBase = MyUtil.commonJsonParse(result, new TypeToken<JsonBase<UploadRecord>>() {}.getType());
+                //Log.i(TAG,"jsonBase："+jsonBase);
+
+                Gson gson = new Gson();
+                JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
+                Log.i(TAG,"jsonBase:"+jsonBase);
+                if (jsonBase.getRet()==0){
+                    parseHealthData(result);
+                    adjustFeagmentCount(historyRecord.getState());
+                }
+                else {
+                    finish();
+                    MyUtil.showToask(HeartRateResultShowActivity.this,"数据加载失败");
+                }
+
+                MyUtil.hideDialog(HeartRateResultShowActivity.this);
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                if (isActiivtyDestroy)return;
+                MyUtil.hideDialog(HeartRateResultShowActivity.this);
+                MyUtil.showToask(HeartRateResultShowActivity.this,"数据加载失败");
+                Log.i(TAG,"上传onFailure==s:"+s);
+                finish();
+            }
+        });
+    }
+
+    private void parseHealthData(String result) {
+        try {
+            JSONObject object = new JSONObject(result);
+            JSONObject jsonObject =object.getJSONObject("errDesc");
+            String id    = jsonObject.getString("id");
+            String fi    = jsonObject.getString("fi");
+            String es    = jsonObject.getString("es");
+            String pi    = jsonObject.getString("pi");
+            String cc    = jsonObject.getString("cc");
+            String hrvr  = jsonObject.getString("hrvr");
+            String hrvs  = jsonObject.getString("hrvs");
+            String ahr   = jsonObject.getString("ahr");
+            String maxhr = jsonObject.getString("maxhr");
+            String minhr = jsonObject.getString("minhr");
+            String hrr   = jsonObject.getString("hrr");
+            String hrs   = jsonObject.getString("hrs");
+            String ec    = jsonObject.getString("ec");
+            String ecr   = jsonObject.getString("ecr");
+            String ecs   = jsonObject.getString("ecs");
+            String ra    = jsonObject.getString("ra");
+            String timestamp = jsonObject.getString("timestamp");
+            String datatime  = jsonObject.getString("datatime");
+            String hr    = jsonObject.getString("hr");
+            String ae    = jsonObject.getString("ae");
+            String distance  = jsonObject.getString("distance");
+            String time  = jsonObject.getString("time");
+            String cadence   = jsonObject.getString("cadence");
+            String calorie   = jsonObject.getString("calorie");
+            String state = jsonObject.getString("state");
+            String zaobo = jsonObject.getString("zaobo");
+            String loubo = jsonObject.getString("loubo");
+            String latitudeLongitude = jsonObject.getString("latitudeLongitude");
+
+            UploadRecord uploadRecord = new UploadRecord();
+            uploadRecord.id = Long.parseLong(id);
+            uploadRecord.fi = Integer.parseInt(fi);
+            uploadRecord.es = Integer.parseInt(es);
+            uploadRecord.pi = Integer.parseInt(pi);
+            uploadRecord.cc = Integer.parseInt(cc);
+            uploadRecord.hrvr = hrvr;
+            uploadRecord.hrvs = hrvs;
+            uploadRecord.ahr = Integer.parseInt(ahr);
+            uploadRecord.maxhr = Integer.parseInt(maxhr);
+            uploadRecord.minhr = Integer.parseInt(minhr);
+            uploadRecord.hrr = hrr;
+            uploadRecord.hrs = hrs;
+            uploadRecord.ec =ec;
+            uploadRecord.ecr =Integer.parseInt(ecr);
+            uploadRecord.ecs =ecs;
+            uploadRecord.ra =Integer.parseInt(ra);
+            uploadRecord.timestamp =Long.parseLong(timestamp);
+            uploadRecord.datatime =datatime;
+
+            Gson gson = new Gson();
+            if (!MyUtil.isEmpty(hr) && !hr.equals(Constant.uploadRecordDefaultString)  && !hr.equals("-1")){
+                uploadRecord.hr = gson.fromJson(hr,new TypeToken<List<Integer>>() {}.getType());
+            }
+            if (!MyUtil.isEmpty(ae) && !ae.equals(Constant.uploadRecordDefaultString)){
+                uploadRecord.ae =gson.fromJson(ae,new TypeToken<List<Integer>>() {}.getType());
+            }
+            if (!MyUtil.isEmpty(cadence) && !cadence.equals(Constant.uploadRecordDefaultString) ){
+                uploadRecord.cadence = gson.fromJson(cadence,new TypeToken<List<Integer>>() {}.getType());
+            }
+            if (!MyUtil.isEmpty(calorie) && !calorie.equals(Constant.uploadRecordDefaultString)){
+                uploadRecord.calorie =gson.fromJson(calorie,new TypeToken<List<String>>() {}.getType());
+            }
+            if (!MyUtil.isEmpty(latitudeLongitude) && !latitudeLongitude.equals(Constant.uploadRecordDefaultString)){
+                uploadRecord.latitudeLongitude = gson.fromJson(latitudeLongitude,new TypeToken<List<ParcelableDoubleList>>() {}.getType());
+            }
+
+            uploadRecord.distance =Double.parseDouble(distance);
+            uploadRecord.time = (long) Float.parseFloat(time);
+            uploadRecord.state =Integer.parseInt(state);
+            uploadRecord.zaobo =Integer.parseInt(zaobo);
+            uploadRecord.loubo =Integer.parseInt(loubo);
+
+            uploadRecord.localEcgFileName = MyUtil.generateECGFilePath(HeartRateResultShowActivity.this, System.currentTimeMillis());;
+
+
+
+            mUploadRecord = uploadRecord;
+
+            //Log.i(TAG,"mUploadRecord:"+mUploadRecord);
+            //Log.i(TAG,"mUploadRecord.ae:"+mUploadRecord.ae);
+
+            OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(HeartRateResultShowActivity.this);
+            offLineDbAdapter.open();
+            //mUploadRecord.datatime = mUploadRecord.datatime.replace("/", "-");  //将本地数据库时间改成和服务器一致，下次查看数据时，先从根据时间从本地查询
+
+
+            if (offLineDbAdapter!=null){
+                long createOrUpdateUploadReportObject = offLineDbAdapter.createOrUpdateUploadReportObject(uploadRecord);
+                Log.i(TAG,"createOrUpdateUploadReportObject:"+createOrUpdateUploadReportObject);
+                offLineDbAdapter.close();
+            }
+            Log.i(TAG,"mUploadRecord:"+mUploadRecord);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void adjustFeagmentCount(int state) {
+        fragmentList.clear();
         if (state==1){
             fragmentList.add(new SportFragment());
         }
@@ -322,22 +375,6 @@ public class RateAnalysisActivity extends BaseActivity {
             params.width = (int) (MyUtil.getScreeenWidth(this)/3);
             v_analysis_select.setLayoutParams(params);
         }
-    }
-
-    private void addFragmentList(int state) {
-        if (state==1){
-            fragmentList.add(new SportFragment());
-        }
-        else {
-
-        }
-        fragmentList.add(new HRVFragment());
-        fragmentList.add(new HeartRateFragment());
-        fragmentList.add(new ECGFragment());
-        fragmentList.add(new HRRFragment());
-
-        mAnalysisRateAdapter = new FragmentListRateAdapter(getSupportFragmentManager(), fragmentList);
-        vp_analysis_content.setAdapter(mAnalysisRateAdapter);
     }
 
     private class MyClickListener implements View.OnClickListener{
@@ -441,12 +478,13 @@ public class RateAnalysisActivity extends BaseActivity {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
         isActiivtyDestroy = true;
+        mUploadRecord  = null;
     }
 
 
     /*public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-            startActivity(new Intent(RateAnalysisActivity.this,MainActivity.class));
+            startActivity(new Intent(HeartRateResultShowActivity.this,MainActivity.class));
             finish();
         }
         return super.onKeyDown(keyCode, event);

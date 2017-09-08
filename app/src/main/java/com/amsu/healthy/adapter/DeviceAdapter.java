@@ -49,7 +49,8 @@ public class DeviceAdapter extends BaseAdapter{
         TextView tv_item_name = (TextView) inflate.findViewById(R.id.tv_item_name);
         TextView tv_item_state = (TextView) inflate.findViewById(R.id.tv_item_state);
 
-        Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
+        Device deviceFromSPCloth = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
+        Device deviceFromSPInsole = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
         String stringValueFromSP = MyUtil.getStringValueFromSP(device.getMac()); // 获取对应Mac地址对应的昵称，用户修改后，没有修改则使用 "运动衣+蓝牙名称"
         if (!MyUtil.isEmpty(stringValueFromSP)){
             tv_item_name.setText(stringValueFromSP);
@@ -68,10 +69,15 @@ public class DeviceAdapter extends BaseAdapter{
             tv_item_state.setText(R.string.connected);
             tv_item_state.setTextColor(Color.parseColor("#43CD80"));
         }
-        else if (deviceFromSP!=null && deviceFromSP.getMac().equals(device.getMac())){
+        else if (deviceFromSPCloth!=null && deviceFromSPCloth.getMac().equals(device.getMac())){
             //绑定过，没有连接成功
             tv_item_state.setText(R.string.unconnected);
             tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
+        }
+        else if (deviceFromSPInsole!=null && deviceFromSPInsole.getMac().equals(device.getMac()) && MyApplication.insoleConnectedMacAddress.size()==2){
+            //鞋垫连接成功
+            tv_item_state.setText(R.string.connected);
+            tv_item_state.setTextColor(Color.parseColor("#43CD80"));
         }
         else {
             tv_item_state.setText(device.getState());

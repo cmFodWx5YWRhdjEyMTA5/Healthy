@@ -36,9 +36,6 @@ public class FragmentListRateAdapter extends FragmentStatePagerAdapter {
     }
 
 
-
-
-
     /*public FragmentListRateAdapter(List<BasePage> fragmentList, String titleStrings[]) {
         this.basePageLista = fragmentList;
         this.titleStrings = titleStrings;

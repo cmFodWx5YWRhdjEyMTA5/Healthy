@@ -89,7 +89,7 @@ public class FoldLineView extends View {
                     y  = mGridHeight-mYIndex[i]*mGridHeight;
                     path.lineTo(x,y);
                 }
-                //canvas.drawCircle(x,y,mRadius_point,mPointPaint);
+                //canvas.drawCircle(circle_ring,y,mRadius_point,mPointPaint);
             }
             canvas.drawPath(path,mPaint);
         }

@@ -286,7 +286,7 @@ public class RadarView extends View {
                 float x = event.getX();
                 float y = event.getY();
 
-                //Log.i(TAG,"x:"+x);
+                //Log.i(TAG,"circle_ring:"+circle_ring);
                 //Log.i(TAG,"y:"+y);
 
                 for (int i=0;i<dataCount;i++){
@@ -294,7 +294,7 @@ public class RadarView extends View {
                     Point point = points.get(i);
 
                     float v1 = point.x + titlePaint.measureText(titles[i]) +xLength;
-                    //Log.i(TAG, "point_x:" + point.x + "," + v1) ;
+                    //Log.i(TAG, "point_x:" + point.circle_ring + "," + v1) ;
                     float v2 = point.y  +yLength;
                     //Log.i(TAG, "point_y:" + point.y + "," + v2);
 

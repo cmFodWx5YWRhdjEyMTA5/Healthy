@@ -1,14 +1,11 @@
 package com.amsu.healthy.fragment.analysis;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -16,9 +13,7 @@ import android.widget.TextView;
 
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.HistoryRecordActivity;
-import com.amsu.healthy.activity.MyReportActivity;
-import com.amsu.healthy.activity.RateAnalysisActivity;
+import com.amsu.healthy.activity.HeartRateResultShowActivity;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.fragment.BaseFragment;
@@ -58,16 +53,59 @@ public class HRVFragment extends BaseFragment {
 
     private void initData() {
         int progressWidth = (int) (MyUtil.getScreeenWidth(getActivity()) - 2 * getResources().getDimension(R.dimen.x12));
-        UploadRecord mUploadRecord = RateAnalysisActivity.mUploadRecord;
+        UploadRecord mUploadRecord = HeartRateResultShowActivity.mUploadRecord;
         Log.i(TAG,"mUploadRecord:"+mUploadRecord);
         if (mUploadRecord!=null){
-            if (!MyUtil.isEmpty(mUploadRecord.FI) && !MyUtil.isEmpty(mUploadRecord.PI) && !MyUtil.isEmpty(mUploadRecord.ES) && !mUploadRecord.FI.equals(Constant.uploadRecordDefaultString)){
 
-                int FI = Integer.parseInt(mUploadRecord.FI);//运动疲劳
-                int PI = Integer.parseInt(mUploadRecord.PI);//抗压指数
-                int ES = Integer.parseInt(mUploadRecord.ES);//情绪指数
+            Log.i(TAG,"fi:"+mUploadRecord.fi+",pi:"+mUploadRecord.pi+",es:"+mUploadRecord.es);
 
-                Log.i(TAG,"FI:"+FI+",PI:"+PI+",ES:"+ES);
+            if (mUploadRecord.fi>0){
+                IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(mUploadRecord.fi);
+                int FINeed = ESIndicatorAssess.getPercent();
+
+                LinearLayout.LayoutParams tiredLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_tired.getLayoutParams());
+                tiredLayoutParams.setMargins((int) ((FINeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+                iv_hrv_tired.setLayoutParams(tiredLayoutParams);
+            }
+
+            if (mUploadRecord.pi>0){
+                IndicatorAssess PIIndicatorAssess = HealthyIndexUtil.calculateSDNNPressureIndex(mUploadRecord.pi);
+                int PINeed = PIIndicatorAssess.getPercent();
+
+                LinearLayout.LayoutParams resistLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_resist.getLayoutParams());
+                resistLayoutParams.setMargins((int) ((PINeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+                iv_hrv_resist.setLayoutParams(resistLayoutParams);
+            }
+
+            if (mUploadRecord.pi>0){
+
+                IndicatorAssess FIIndicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex(mUploadRecord.es);
+                int ESNeed = FIIndicatorAssess.getPercent();
+
+                LinearLayout.LayoutParams moodLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_mood.getLayoutParams());
+                moodLayoutParams.setMargins((int) ((ESNeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+                iv_hrv_mood.setLayoutParams(moodLayoutParams);
+            }
+
+
+            if (mUploadRecord.pi>0 || mUploadRecord.es>0){
+                String HRVs = HealthyIndexUtil.getHRVSuggetstion(mUploadRecord.pi, mUploadRecord.es,getActivity());
+                Log.i(TAG,"hrvs:"+HRVs);
+                tv_hrv_suggestion.setText(HRVs);
+            }
+
+
+
+            //String hrvs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
+
+
+            /*if (!MyUtil.isEmpty(mUploadRecord.fi) && !MyUtil.isEmpty(mUploadRecord.pi) && !MyUtil.isEmpty(mUploadRecord.es) && !mUploadRecord.fi.equals(Constant.uploadRecordDefaultString)){
+
+                int FI = Integer.parseInt(mUploadRecord.fi);//运动疲劳
+                int PI = Integer.parseInt(mUploadRecord.pi);//抗压指数
+                int ES = Integer.parseInt(mUploadRecord.es);//情绪指数
+
+                Log.i(TAG,"fi:"+FI+",pi:"+PI+",es:"+ES);
 
                 IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(FI);
                 int FINeed = ESIndicatorAssess.getPercent();
@@ -89,15 +127,16 @@ public class HRVFragment extends BaseFragment {
                 moodLayoutParams.setMargins((int) ((ESNeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
                 iv_hrv_mood.setLayoutParams(moodLayoutParams);
 
-                /*String HRVs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
-                Log.i(TAG,"HRVs:"+HRVs);*/
+                //String hrvs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
+                String HRVs = HealthyIndexUtil.getHRVSuggetstion(FI, ES,getActivity());
+                Log.i(TAG,"hrvs:"+HRVs);
+                tv_hrv_suggestion.setText(HRVs);
+            }*/
 
-            }
+            /*if (!MyUtil.isEmpty( mUploadRecord.hrvs)){
+                tv_hrv_suggestion.setText(mUploadRecord.hrvs);
 
-            if (!MyUtil.isEmpty( mUploadRecord.HRVs)){
-                tv_hrv_suggestion.setText(mUploadRecord.HRVs);
-
-            }
+            }*/
         }
     }
 }

@@ -29,6 +29,9 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
+import java.util.Iterator;
+import java.util.List;
+
 public class DeviceInfoActivity extends BaseActivity {
 
     private static final String TAG = "DeviceInfoActivity";
@@ -37,6 +40,7 @@ public class DeviceInfoActivity extends BaseActivity {
     private TextView tv_device_electric;
     private ImageView iv_deviceinfo_switvh;
     private boolean mIsAutoOffline;
+    private int mDevicetype;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,7 +136,7 @@ public class DeviceInfoActivity extends BaseActivity {
         registerReceiver(mchargeReceiver, filter);
 
 
-        boolean mIsAutoOffline = MyUtil.getBooleanValueFromSP("mIsAutoOffline");
+        mIsAutoOffline = MyUtil.getBooleanValueFromSP("mIsAutoOffline");
         if (mIsAutoOffline){
             iv_deviceinfo_switvh.setImageResource(R.drawable.switch_on);
         }
@@ -141,8 +145,8 @@ public class DeviceInfoActivity extends BaseActivity {
         }
 
         Intent intent = getIntent();
-        int intExtra = intent.getIntExtra(Constant.sportState, -1);
-        if (intExtra==Constant.sportType_Insole){
+        mDevicetype = intent.getIntExtra(Constant.sportState, 1);
+        if (mDevicetype==Constant.sportType_Insole){
             rl_deviceinfo_switvh.setVisibility(View.GONE);
         }
     }
@@ -169,7 +173,7 @@ public class DeviceInfoActivity extends BaseActivity {
 
     public void changeDeviceName(View view) {
         InputTextAlertDialogUtil textAlertDialogUtil = new InputTextAlertDialogUtil(this);
-        textAlertDialogUtil.setAlertDialogText("修改设备名称","确定","取消");
+        textAlertDialogUtil.setAlertDialogText(getResources().getString(R.string.modify_device_name),getResources().getString(R.string.exit_confirm),getResources().getString(R.string.exit_cancel));
 
         textAlertDialogUtil.setOnConfirmClickListener(new InputTextAlertDialogUtil.OnConfirmClickListener() {
             @Override
@@ -184,23 +188,26 @@ public class DeviceInfoActivity extends BaseActivity {
     }
 
     public void unBindDevice(View view) {
-        Device deviceFromSP = MyUtil.getDeviceFromSP();
-
+        Device deviceFromSP = MyUtil.getDeviceFromSP(mDevicetype);
         if (deviceFromSP!=null){
             HttpUtils httpUtils = new HttpUtils();
             RequestParams params = new RequestParams();
 
-            params.addBodyParameter("deviceMAC",System.currentTimeMillis()+deviceFromSP.getLEName());
+            String url = "";
 
-            if (MyUtil.getUserFromSP()!=null){
-                params.addBodyParameter("deviceMAC",MyUtil.getUserFromSP().getPhone());
+            if (mDevicetype==Constant.sportType_Cloth){
+                params.addBodyParameter("deviceMAC",System.currentTimeMillis()+deviceFromSP.getLEName());
+                url= Constant.bindingDeviceURL;
+            }
+            else if (mDevicetype==Constant.sportType_Insole){
+                url= Constant.deleteBangdingByUserId;
             }
 
             //params.addBodyParameter("deviceMAC","");
             MyUtil.addCookieForHttp(params);
             MyUtil.showDialog("正在解绑",this);
 
-            httpUtils.send(HttpRequest.HttpMethod.POST, Constant.bindingDeviceURL, params, new RequestCallBack<String>() {
+            httpUtils.send(HttpRequest.HttpMethod.POST, url, params, new RequestCallBack<String>() {
                 @Override
                 public void onSuccess(ResponseInfo<String> responseInfo) {
                     MyUtil.hideDialog(DeviceInfoActivity.this);
@@ -218,14 +225,23 @@ public class DeviceInfoActivity extends BaseActivity {
                     if (jsonBase.getRet() == 0){
                         restult = "解绑成功";
                         //绑定成功
-                        MyUtil.saveDeviceToSP(null);
+                        MyUtil.saveDeviceToSP(null,mDevicetype);
                         Intent intent = getIntent();
                         setResult(RESULT_OK, intent);
-                        if (MyApplication.isHaveDeviceConnectted){
-                            //断开蓝牙连接
-                            CommunicateToBleService.mLeProxy.disconnect(MyApplication.clothConnectedMacAddress);
-                        }
 
+                        if (mDevicetype==Constant.sportType_Cloth){
+                            //将连接的衣服断开
+                            if (MyApplication.isHaveDeviceConnectted){
+                                //断开蓝牙连接
+                                CommunicateToBleService.mLeProxy.disconnect(MyApplication.clothConnectedMacAddress);
+                            }
+                        }
+                        else {
+                            //将连接的鞋垫断开
+                            for (String oldStr : MyApplication.insoleConnectedMacAddress) {
+                                CommunicateToBleService.mLeProxy.disconnect(oldStr);
+                            }
+                        }
                     }
                     else {
                         //设备已被其他人绑定！

@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RadialGradient;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SweepGradient;
 import android.util.AttributeSet;
@@ -23,11 +24,14 @@ import com.amsu.healthy.utils.Constant;
 public class CircleRingView extends View{
     private Paint paint = new Paint();
     //圆环颜色
-    private int[] doughnutColors = new int[]{Color.parseColor("#307ABD"), Color.parseColor("#81ADD7")};
+    private int[] doughnutColors ;
     private float currentValue = 0f;
     private int width;
     private int height;
     private float mCircleRingWidth;
+    private int circlering_background_color;
+    private int circlering_start_color;
+    private int circlering_end_color;
 
     public CircleRingView(Context context) {
         super(context);
@@ -47,7 +51,12 @@ public class CircleRingView extends View{
     void init(Context context, AttributeSet attrs){
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CircleRingView);
         float circlering_width = typedArray.getDimension(R.styleable.CircleRingView_circlering_width, 0);
+        circlering_background_color = typedArray.getColor(R.styleable.CircleRingView_circlering_background_color, Color.WHITE);
+        circlering_start_color = typedArray.getColor(R.styleable.CircleRingView_circlering_start_color, Color.WHITE);
+        circlering_end_color = typedArray.getColor(R.styleable.CircleRingView_circlering_end_color, Color.WHITE);
         mCircleRingWidth = circlering_width;
+
+        doughnutColors = new int[]{circlering_start_color, circlering_end_color};
     }
 
 
@@ -90,21 +99,27 @@ public class CircleRingView extends View{
         initPaint();
         paint.setStrokeWidth(mCircleRingWidth);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(Color.parseColor("#307ABD"));
+        paint.setColor(circlering_background_color);
         paint.setAntiAlias(true);
         RectF rectF = new RectF((width > height ? Math.abs(width - height) / 2 : 0) + mCircleRingWidth / 2, (height > width ? Math.abs(height - width) / 2 : 0) + mCircleRingWidth / 2, width - (width > height ? Math.abs(width - height) / 2 : 0) - mCircleRingWidth / 2, height - (height > width ? Math.abs(height - width) / 2 : 0) - mCircleRingWidth / 2);
         canvas.drawArc(rectF, 0, 360, false, paint);
+
 
         //画彩色圆环
         initPaint();
         paint.setStrokeWidth(mCircleRingWidth);
         paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeCap(Paint.Cap.ROUND);  //设置圆角
         if (doughnutColors.length > 1) {
-            float[] position = {0.25f,0.25f+currentValue/360};
+            //float[] position = {0.25f,0.25f+currentValue/360};
+            float[] position = {0,currentValue/360};
             paint.setShader(new SweepGradient(width / 2, height / 2, doughnutColors, position));
         } else {
             paint.setColor(doughnutColors[0]);
         }
         canvas.drawArc(rectF, 90, currentValue, false, paint);
+
+
+
     }
 }
