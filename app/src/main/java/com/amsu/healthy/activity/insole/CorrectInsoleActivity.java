@@ -42,6 +42,8 @@ public class CorrectInsoleActivity extends BaseActivity {
 
         initView();
         initData();
+        //测试
+
     }
 
     private void initView() {
