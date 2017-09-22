@@ -11,6 +11,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 
@@ -26,6 +27,7 @@ import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.WebSocketUtil;
 import com.ble.api.DataUtil;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -34,6 +36,7 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
+import org.java_websocket.client.WebSocketClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -45,7 +48,8 @@ public class PrepareRunningActivity extends BaseActivity {
 
     private static final String TAG = "PrepareRunningActivity";
     private Button bt_choose_offline;
-    //private boolean mIsOutDoor = true;
+    private WebSocketUtil mWebSocketUtil;
+    private boolean mIsOutDoor = true;
 
 
     @Override
@@ -63,6 +67,9 @@ public class PrepareRunningActivity extends BaseActivity {
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mWebSocketUtil!=null){
+                    mWebSocketUtil.closeConnectWebSocket();
+                }
                 finish();
             }
         });
@@ -91,10 +98,10 @@ public class PrepareRunningActivity extends BaseActivity {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 if (position==0){
-                    MyApplication.mIsOutDoor = true;
+                   mIsOutDoor = true;
                 }
                 else {
-                    MyApplication.mIsOutDoor = false;
+                    mIsOutDoor = false;
                 }
             }
 
@@ -119,6 +126,16 @@ public class PrepareRunningActivity extends BaseActivity {
         }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
+
+        boolean mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
+        if (mIsAutoMonitor){
+            mWebSocketUtil = new WebSocketUtil();
+            //String url = "ws://192.168.0.112:8080/SportMonitor/websocket";
+            String url = "ws://www.amsu-new.com:8081/SportMonitor/websocket";
+            mWebSocketUtil.connectWebSocket(url);
+            ((MyApplication)getApplication()).setWebSocketUtil(mWebSocketUtil);
+        }
+
     }
 
     boolean isonResumeEd ;
@@ -183,6 +200,7 @@ public class PrepareRunningActivity extends BaseActivity {
             /*intent.putExtra("mIsOutDoor",mIsOutDoor);
             intent.putExtra(Constant.sportState,MyApplication.deivceType);*/
 
+            intent.putExtra(Constant.mIsOutDoor,mIsOutDoor);
             startActivity(intent);
             finish();
         }
@@ -242,8 +260,8 @@ public class PrepareRunningActivity extends BaseActivity {
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
 
-        params.addBodyParameter("username","amtek");
-        params.addBodyParameter("password","12345");
+        params.addBodyParameter("username","7a1b77fbe02947a293196d72d8d0c869");
+        params.addBodyParameter("password","622ff39cac1f41478c534d6b08058061");
         MyUtil.addCookieForHttp(params);
 
 
@@ -282,6 +300,15 @@ public class PrepareRunningActivity extends BaseActivity {
         super.onDestroy();
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
+
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (mWebSocketUtil!=null){
+            mWebSocketUtil.closeConnectWebSocket();
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }
 

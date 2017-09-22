@@ -1,0 +1,26 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:sp="http://schemas.android.com/apk/res-auto"
+    tools:context="com.amsu.healthy.fragment.historyrecord.ClothHistoryRecordFragment">
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/sr1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/rl_base_head">
+        <com.amsu.healthy.view.SwipeListView
+            android:id="@+id/lv_history_all"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:listSelector="@drawable/list_item_background"
+            android:background="#FFFFFF"
+            android:divider="#dddbdb"
+            android:dividerHeight="1dp"
+            android:footerDividersEnabled="true"
+            sp:right_width="120dp">
+        </com.amsu.healthy.view.SwipeListView>
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+</FrameLayout>

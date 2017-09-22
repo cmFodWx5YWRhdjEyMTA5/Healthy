@@ -8,6 +8,16 @@
     android:background="#FFFFFF">
 
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/tv_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_light"
+            android:text="xxx"/>
+    </ScrollView>
 
 
     <RelativeLayout
@@ -24,7 +34,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="步幅(厘米)"
+                android:text="步数"
                 android:textColor="#6e6e6e"
                 android:textSize="@dimen/x36"
                 android:gravity="center"/>
@@ -222,13 +232,14 @@
         <TextView
             android:id="@+id/tv_run_sptop"
             android:layout_width="@dimen/x264"
-            android:layout_height="@dimen/x264"
+            android:layout_height="@dimen/y264"
             android:text="暂停"
             android:background="@drawable/bg_center_circle"
             android:textColor="#FFFFFF"
             android:textSize="@dimen/x48"
+            android:gravity="center"
             android:layout_centerHorizontal="true"
-            android:gravity="center"/>
+             />
     </RelativeLayout>
 
     <RelativeLayout
@@ -394,16 +405,33 @@
 
     </RelativeLayout>-->
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <TextView
-            android:id="@+id/tv_test"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/holo_red_light"
-            android:text="xxx"/>
-    </ScrollView>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="开始"
+        android:onClick="startCollect"
+        android:visibility="gone"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="结束"
+        android:onClick="stopCollect"
+        android:layout_marginTop="@dimen/x150"
+        android:visibility="gone"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="步频"
+        android:layout_alignParentRight="true"
+        android:onClick="testStep"
+        android:layout_marginTop="@dimen/x350"
+        android:visibility="gone"/>
+
 
 </RelativeLayout>
 

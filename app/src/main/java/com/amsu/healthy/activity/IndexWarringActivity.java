@@ -183,7 +183,7 @@ public class IndexWarringActivity extends BaseActivity {
         RequestParams params = new RequestParams();
         Date date = new Date();
         date.setMonth(date.getMonth());
-        String formatTime = MyUtil.getFormatTime(date);
+        String formatTime = MyUtil.getPaceFormatTime(date);
         params.addBodyParameter("year",year+"");
         params.addBodyParameter("week",weekOfYear+"");
         MyUtil.addCookieForHttp(params);

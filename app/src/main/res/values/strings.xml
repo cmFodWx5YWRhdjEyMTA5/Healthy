@@ -81,7 +81,7 @@
     <string name="exercise_speed">配速(分钟/公里)</string>
     <string name="exercise_calories">卡路里(Kcal)</string>
     <string name="exercise_calorie">卡路里</string>
-    <string name="exercise_cadence">步频</string>
+    <string name="exercise_cadence">步频(步/分钟)</string>
     <string name="exercise_cadence_curve">步频曲线</string>
     <string name="exercise_steps_min">步频:(步/分钟)</string>
     <string name="steps_min">步/分钟</string>
@@ -384,8 +384,14 @@
     <string name="end_the_run">结束跑步</string>
 
     <string name="modify_device_name">修改设备名称</string>
-    <string name="input_device_name">输入设备名称</string>
+    <string name="input_device_name">请输入...</string>
 
     <string name="actual_age">实际年龄</string>
     <string name="loading_more">正在加载</string>
+
+
+    <string name="collect_data">采集</string>
+    <string name="skip">跳过</string>
+
+
 </resources>

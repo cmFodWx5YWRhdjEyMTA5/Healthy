@@ -27,11 +27,9 @@ import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.HeartRateResultShowActivity;
-import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.ParcelableDoubleList;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.fragment.BaseFragment;
-import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.map.Util;
@@ -43,7 +41,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,7 +117,14 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
 
         mv_finish_map = (MyMapView) inflate.findViewById(R.id.mv_finish_map);
 
-        mIsOutDoor = MyApplication.mIsOutDoor;
+        mUploadRecord = HeartRateResultShowActivity.mUploadRecord;
+
+        if (HeartRateResultShowActivity.state==1){  // 1为室外
+            mIsOutDoor = true;
+        }
+        else {
+            mIsOutDoor = false;
+        }
         if (!mIsOutDoor){
             mv_finish_map.setVisibility(View.GONE);
         }
@@ -300,19 +304,12 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
     }
 
     private void initData() {
-        mUploadRecord = HeartRateResultShowActivity.mUploadRecord;
 
         Log.i(TAG, "mUploadRecord:" + mUploadRecord);
         if (mUploadRecord !=null) {
 
             long duration =mUploadRecord.time;
-            String myDuration;
-            if (duration>60*60) {
-                myDuration = duration/(60*60)+"h"+(duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
-            }
-            else {
-                myDuration = (duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
-            }
+            String myDuration = MyUtil.getPaceFormatTime(duration);
             tv_sport_time.setText(myDuration);
 
             //距离
@@ -324,32 +321,10 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
             //速度
             //String average = Util.getAverage((float) distance, duration);
 
-            float mapRetrurnSpeed =0;
-            if (duration>0){
-                mapRetrurnSpeed = (float) (distance / duration);
-            }
-
-            Log.i(TAG,"distance:"+distance);
-            Log.i(TAG,"duration:"+duration);
-            Log.i(TAG,"mapRetrurnSpeed:"+mapRetrurnSpeed);
-
-            String formatSpeed;
-            if (mapRetrurnSpeed==0){
-                formatSpeed = "--";
-            }
-            else {
-                float speed = (1/mapRetrurnSpeed)*1000f;
-                Log.i(TAG,"speed:"+speed);
-                if (speed>=60*60*2){
-                    formatSpeed = "--";
-                }
-                else {
-                    formatSpeed = (int)speed/60+"'"+(int)speed%60+"''";
-                }
-            }
+            String formatSpeed = MyUtil.getFormatSpeed(distance, duration);
             tv_sport_speed.setText(formatSpeed);
 
-            int time = (int) (Math.ceil(mUploadRecord.time/60));;
+            int time = (int) (Math.ceil(mUploadRecord.time/60));
 
             if (mUploadRecord.hr!=null && mUploadRecord.hr.size()>0){//心率
                 heartData = MyUtil.listToIntArray(mUploadRecord.hr);

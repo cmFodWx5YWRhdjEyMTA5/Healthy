@@ -7,6 +7,7 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.trace.TraceLocation;
+import com.amsu.healthy.bean.ParcelableDoubleList;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -118,6 +119,18 @@ public class Util {
 			}
 		}
 		return locations;
+	}
+
+	public static List<ParcelableDoubleList> getLatitude_longitudeString(PathRecord pathRecord) {
+		List<LatLng> latLngList = Util.parseLatLngList(pathRecord.getPathline());
+		List<ParcelableDoubleList> listList = new ArrayList<>();
+		for (LatLng latLng:latLngList){
+			ParcelableDoubleList doubleList = new ParcelableDoubleList();
+			doubleList.add(latLng.latitude);
+			doubleList.add(latLng.longitude);
+			listList.add(doubleList);
+		}
+		return listList;
 	}
 
     //保存数据到数据库

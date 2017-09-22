@@ -391,7 +391,8 @@
     <string name="actual_age">Actual age</string>
     <string name="loading_more">Loading more</string>
 
-
+    <string name="collect_data">Collect data</string>
+    <string name="skip">Skip</string>
 
 
 </resources>

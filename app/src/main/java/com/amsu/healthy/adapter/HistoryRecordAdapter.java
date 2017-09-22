@@ -93,17 +93,17 @@ public class HistoryRecordAdapter extends BaseAdapter {
         myHolder.tv_history_date.setText(date);
         myHolder.tv_history_time.setText(split[1]);
 
-        if (historyRecord.getState()==1){
+        //0静态，1动态室外，2动态室内
+        if (historyRecord.getState()==0){
+            myHolder.tv_history_sportstate.setText(R.string.rest);
+            myHolder.tv_history_sportstate.setBackgroundResource(R.drawable.button_lishi1);
+
+        }
+        else{
             myHolder.tv_history_sportstate.setText(R.string.active);
             myHolder.tv_history_sportstate.setBackgroundResource(R.drawable.button_lishi2);
         }
-        else  if (historyRecord.getState()==0){
-            myHolder.tv_history_sportstate.setText(R.string.rest);
-            myHolder.tv_history_sportstate.setBackgroundResource(R.drawable.button_lishi1);
-        }
-        else {
-            myHolder.tv_history_sportstate.setVisibility(View.GONE);
-        }
+
 
         if (historyRecord.getAnalysisState()==HistoryRecord.analysisState_noAnalysised){
             myHolder.tv_history_alstate.setText("未同步");

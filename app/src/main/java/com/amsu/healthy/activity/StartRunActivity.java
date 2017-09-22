@@ -44,6 +44,7 @@ import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.RunTimerTaskUtil;
+import com.amsu.healthy.utils.WebSocketUtil;
 import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
@@ -122,7 +123,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
 
     public static final int accDataLength = 1800;
-    private static final int saveDataTOLocalTimeSpanSecond = 10;  //数据持久化时间间隔 1分钟
+    private static final int saveDataTOLocalTimeSpanSecond = 60;  //数据持久化时间间隔 1分钟
     private static final int minimumLimitTimeMillis = 1000 * 10 * 1;  //最短时间限制 3分钟
     public static final String action = "jason.broadcast.action";    //发送广播，将心率值以广播的方式放松出去，在其他Activity可以接受
 
@@ -157,13 +158,13 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private DeviceOffLineFileUtil saveDeviceOffLineFileUtil;
 
     private List<Integer> mSpeedStringList;
-    private List<AMapLocation> mGpsCal8ScendSpeedList;
+    private List<AMapLocation> mOutdoorCal8ScendSpeedList;
     private List<Float> mIndoorCal8ScendSpeedList ;
     public  String mFinalFormatSpeed;
     private ImageView iv_pop_icon;
     private TextView tv_pop_text;
     private final int trackSpeedOutdoorMAX = 10;  //1s内行走的最大速度
-    private final int trackSpeedIndoorMAX = 5;  //1s内行走的最大速度
+    private final int trackSpeedIndoorMAX = 10;  //1s内行走的最大速度
     public String mFormatDistance = "0.00";
     //private List<AppAbortDataSave> abortDataListFromSP;
     private boolean isNeedRecoverAbortData;
@@ -179,6 +180,15 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private int mUserWeight;
     private int mTempStridefre;
     private MyApplication application;
+
+    //private WebSocketClient mWebSocketClient;
+    private WebSocketUtil mWebSocketUtil;
+    private boolean mIsOutDoor;
+    /*//private String address = "ws://192.168.0.108:8080/sportMonitor/websocket";
+    private String address = "ws://192.168.0.110:8080//sportMonitor/websocket";
+    private boolean isStartDataTransfer;
+    private String mCurAppClientID;
+    private String mCurBrowserClientID;*/
 
 
     @Override
@@ -265,10 +275,13 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         mAllDistance = 0;
         mSpeedStringList = new CopyOnWriteArrayList<>();
-        mGpsCal8ScendSpeedList = new ArrayList<>();
+        mOutdoorCal8ScendSpeedList = new ArrayList<>();
         mIndoorCal8ScendSpeedList = new ArrayList<>();
         mStridefreData = new ArrayList<>();
         mKcalData = new CopyOnWriteArrayList<>();
+
+        mIsOutDoor = getIntent().getBooleanExtra(Constant.mIsOutDoor, false);
+        Log.i(TAG,"mIsOutDoor:"+mIsOutDoor);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
 
@@ -287,6 +300,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         if (mAbortData!=null){
             createrecord = mAbortData.getMapTrackID();
             startTimeMillis = mAbortData.getStartTimeMillis();
+            mIsOutDoor = mAbortData.isOutDoor;
 
             List<Integer> speedStringList = mAbortData.getSpeedStringList();
                 if (speedStringList!=null && speedStringList.size()>0){
@@ -375,7 +389,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
         tv_run_distance.setText(mFormatDistance);
 
-
         //开始计时，更新时间
         MyTimeTask.startTimeRiseTimerTask(this, 1000, new MyTimeTask.OnTimeChangeAtScendListener() {
             @Override
@@ -396,27 +409,27 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             public void onTomeOut() {
                 if (mIsRunning){
                     Log.i(TAG,"1min 保存数据到本地");
+
                     if (pathRecord!=null){
                         createrecord = Util.saveOrUdateRecord(pathRecord.getPathline(),addDuration, pathRecord.getDate(), StartRunActivity.this,mStartTime,mAllDistance,createrecord);
                         Log.i(TAG,"createrecord:"+createrecord);
+                    }
 
-                        if (createrecord!=-1){
-                            if (mAbortData==null){
-                                mAbortData = new AppAbortDataSave(System.currentTimeMillis(), "", "", createrecord, 1,mSpeedStringList);
-                                saveOrUpdateAbortDatareordToSP(mAbortData,true);
-                            }
-                            else {
-                                if (mAbortData.getMapTrackID()==-1){
-                                    mAbortData.setMapTrackID(createrecord);
-                                }
-                                if (mAbortData.getStartTimeMillis()==0){
-                                    mAbortData.setStartTimeMillis(System.currentTimeMillis());
-                                }
-                                mAbortData.setSpeedStringList(mSpeedStringList);
-                                mAbortData.setKcalStringList(mKcalData);
-                                saveOrUpdateAbortDatareordToSP(mAbortData,false);
-                            }
+                    if (mAbortData==null){
+                        mAbortData = new AppAbortDataSave(System.currentTimeMillis(), "", "", createrecord, 1,mSpeedStringList);
+                        mAbortData.isOutDoor = mIsOutDoor;
+                        saveOrUpdateAbortDatareordToSP(mAbortData,true);
+                    }
+                    else {
+                        if (mAbortData.getMapTrackID()==-1){
+                            mAbortData.setMapTrackID(createrecord);
                         }
+                        if (mAbortData.getStartTimeMillis()==0){
+                            mAbortData.setStartTimeMillis(System.currentTimeMillis());
+                        }
+                        mAbortData.setSpeedStringList(mSpeedStringList);
+                        mAbortData.setKcalStringList(mKcalData);
+                        saveOrUpdateAbortDatareordToSP(mAbortData,false);
                     }
 
                 /*else if (MyUtil.isEmpty(mAbortData.getMapTrackID())){
@@ -427,6 +440,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             }
         },saveDataTOLocalTimeSpanSecond);//1min 保存数据到本地
         saveDeviceOffLineFileUtil.startTime();
+
 
         String country = Locale.getDefault().getCountry();
         Log.i(TAG,"country:"+country);Locale.CHINA.getCountry();
@@ -444,16 +458,28 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             mStartTime = System.currentTimeMillis();
             pathRecord.setDate(MyUtil.getCueMapDate(mStartTime));
         }
-
         startCalSpeedTimerStask();
+
         String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", mCurrTimeDate);
         CommunicateToBleService.setServiceForegrounByNotify(getResources().getString(R.string.running),getResources().getString(R.string.distance)+": "+mFormatDistance+"KM       "+getResources().getString(R.string.exercise_time)+": "+specialFormatTime,1);
         Log.i(TAG,"设置通知:"+specialFormatTime);
 
         boolean mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
         if (mIsAutoMonitor){
-            connectWebSocket();
+            mWebSocketUtil = ((MyApplication) getApplication()).getWebSocketUtil();
+            /*if (mWebSocketUtil!=null){
+                mWebSocketClient = mWebSocketUtil.mWebSocketClient;
+            }*/
+
+            if (mWebSocketUtil!=null){
+                Log.i(TAG,"mWebSocketClient:"+mWebSocketUtil.mWebSocketClient);
+                String sendStartRunningState = "A5,"+mWebSocketUtil.mCurAppClientID;
+                Log.i(TAG,"开始跑步："+sendStartRunningState);
+                mWebSocketUtil.sendSocketMsg(sendStartRunningState);
+            }
         }
+
+
     }
 
 
@@ -496,7 +522,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                         saveDeviceOffLineFileUtil = null;
                     }
                     deleteAbortDataRecordFomeSP();
-                    closeConnectWebSocket();
+                    //closeConnectWebSocket();
+
                     destorySportInfoTOAPP();
 
                     finish();
@@ -525,10 +552,11 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         setDeviceConnectedState(MyApplication.isHaveDeviceConnectted);
     }
 
+    //高德地图
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
         //Log.i(TAG,"onLocationChanged:"+aMapLocation.toString());
-        Log.i(TAG,"aMapLocation.getSpeed():"+aMapLocation.getSpeed());
+        //Log.i(TAG,"aMapLocation.getSpeed():"+aMapLocation.getSpeed());
         calculateSpeed(aMapLocation);
         calculateDistance(aMapLocation);
 
@@ -713,7 +741,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         currentGroupIndex++;
     }
 
-
     Handler mHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -772,9 +799,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         }
 
-        if (!MyUtil.isEmpty(mCurAppClientID)) {
-            String heartkcalData = "A3," + mCurAppClientID + "," + mCurrentHeartRate + "," + (int) mAllKcal;
-            sendSocketMsg(heartkcalData);
+        if (mWebSocketUtil!=null && !MyUtil.isEmpty(mWebSocketUtil.mCurAppClientID)) {
+            String heartkcalData = "A3," + mWebSocketUtil.mCurAppClientID + "," + mCurrentHeartRate + "," + (int) mAllKcal;
+            //sendSocketMsg(heartkcalData);
+            mWebSocketUtil.sendSocketMsg(heartkcalData);
         }
 
         // A4,速度,距离,时间,有氧无氧,心率,步频,卡路里,
@@ -896,7 +924,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         if (!mIsRunning)return;
         ECGUtil.geIntEcgaArr(hexData, " ", 3, accOneGroupLength, accOneGroupDataInts); //一次的数据，12位
 
-        writeAccDataToBinaryFile(accOneGroupDataInts);
+        if (mIsRunning) {
+            writeAccDataToBinaryFile(accOneGroupDataInts);
+        }
 
         if (accCalcuDataIndex<accDataLength){
             for (int i: accOneGroupDataInts){
@@ -1009,15 +1039,24 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         //Log.i(TAG,"aMapLocation.getAccuracy():"+aMapLocation.getAccuracy());
 
         //float speed = aMapLocation.getSpeed()*3.6f;
-        if (aMapLocation.getLocationType()==AMapLocation.LOCATION_TYPE_GPS){
-            mGpsCal8ScendSpeedList.add(aMapLocation);
+        /*if (aMapLocation.getLocationType()==AMapLocation.LOCATION_TYPE_GPS){
+            mOutdoorCal8ScendSpeedList.add(aMapLocation);
+        }
+        else {
+            mIndoorCal8ScendSpeedList.add(aMapLocation.getSpeed());
+        }*/
+
+        Log.i(TAG,"mIsOutDoor:"+mIsOutDoor);
+
+        if (mIsOutDoor){
+            mOutdoorCal8ScendSpeedList.add(aMapLocation);
         }
         else {
             mIndoorCal8ScendSpeedList.add(aMapLocation.getSpeed());
         }
 
         /*if (aMapLocation.getSpeed()<=trackSpeedOutdoorMAX){
-            mGpsCal8ScendSpeedList.add(aMapLocation);
+            mOutdoorCal8ScendSpeedList.add(aMapLocation);
         }*/
 
         /*if (tempSpeedList.size()>6){
@@ -1071,7 +1110,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         if (pathRecord.getPathline().size()<5){
             pathRecord.addpoint(aMapLocation);
             float distance = Util.getDistance(pathRecord.getPathline());
-            if (distance>50){
+            if (distance>100){
                 pathRecord.getPathline().clear();
             }
             if (pathRecord.getPathline().size()==5){
@@ -1080,25 +1119,20 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             return;
         }
 
-        //有GPS则归为室外定位
-        if(aMapLocation.getLocationType()==AMapLocation.LOCATION_TYPE_GPS){
-            mHaveOutSideGpsLocation = true;
+        if (mCurrentTimeMillis==0) {
+            mCurrentTimeMillis = System.currentTimeMillis();
         }
 
         double tempDistance;
-        if (mCurrentTimeMillis==0) {
-            mCurrentTimeMillis = System.currentTimeMillis();
-        }else {
-            if (mHaveOutSideGpsLocation){
-                AMapLocation lastAMapLocation = pathRecord.getPathline().get(pathRecord.getPathline().size() - 1);
-                tempDistance = getTwoPointDistance(lastAMapLocation, aMapLocation);
-                //Log.i(TAG,"tempDistance:"+tempDistance);
-
-                if (tempDistance<=trackSpeedOutdoorMAX*((System.currentTimeMillis() - mCurrentTimeMillis) / 1000f) && aMapLocation.getSpeed()<=15){
-                    pathRecord.addpoint(aMapLocation);
-                    mAllDistance = Util.getDistance(pathRecord.getPathline())+mAddDistance-mPreOutDoorDistance;
-                    mCurrentTimeMillis = System.currentTimeMillis();
-                }
+        if (mIsOutDoor){
+            AMapLocation lastAMapLocation = pathRecord.getPathline().get(pathRecord.getPathline().size() - 1);
+            tempDistance = getTwoPointDistance(lastAMapLocation, aMapLocation);
+            //Log.i(TAG,"tempDistance:"+tempDistance);
+            if (tempDistance<=trackSpeedOutdoorMAX*((System.currentTimeMillis() - mCurrentTimeMillis) / 1000f) && aMapLocation.getSpeed()<=15 && aMapLocation.getAccuracy()<70){
+                pathRecord.addpoint(aMapLocation);
+                mAllDistance = Util.getDistance(pathRecord.getPathline())+mAddDistance-mPreOutDoorDistance;
+                mCurrentTimeMillis = System.currentTimeMillis();
+            }
 
             /*if (tempDistance<=locationInAccurateCount*trackSpeedOutdoorMAX){   //2个点之间距离小于20m为正常定位情况，否则为噪声去除(正常)
                 pathRecord.addpoint(aMapLocation);
@@ -1110,24 +1144,28 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             else {
                 locationInAccurateCount++;
             }*/
-            }
-            else {
-                //没有室外GPS定位，默认是在室内跑步
-                if (aMapLocation.getSpeed()<trackSpeedIndoorMAX){
-                    tempDistance = aMapLocation.getSpeed() * ((System.currentTimeMillis() - mCurrentTimeMillis) / 1000f); //s=vt,单位:m
-                    mAddDistance += tempDistance;
-                    mAllDistance = mAddDistance;
-                }
-                mCurrentTimeMillis = System.currentTimeMillis();
-            }
         }
 
-        //Log.i(TAG,"mAllDistance:"+mAllDistance);
+        else {
+            //在室内跑步
+            if (aMapLocation.getSpeed()<trackSpeedIndoorMAX){
+                tempDistance = aMapLocation.getSpeed() * ((System.currentTimeMillis() - mCurrentTimeMillis) / 1000f); //s=vt,单位:m
+                mAddDistance += tempDistance;
+                mAllDistance = mAddDistance;
+            }
+            mCurrentTimeMillis = System.currentTimeMillis();
+        }
+
         mFormatDistance = MyUtil.getFormatDistance(mAllDistance);
         if(application!=null){
             application.setRunningFormatDistance(mFormatDistance);
         }
         tv_run_distance.setText(mFormatDistance);
+        Log.i(TAG,"mAllDistance:"+mAllDistance);
+
+
+        //Log.i(TAG,"mAllDistance:"+mAllDistance);
+
 
     }
 
@@ -1265,103 +1303,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     }
 
 
-    private WebSocketClient mWebSocketClient;
-    //private String address = "ws://192.168.0.108:8080/sportMonitor/websocket";
-    private String address = "ws://119.29.201.120:8081/sportMonitor/websocket";
-    private boolean isStartDataTransfer;
-    private String mCurAppClientID;
-    private String mCurBrowserClientID;
-
-    /** 初始化WebSocketClient
-     *
-     * @throws URISyntaxException
-     */
-    private void initSocketClient() throws URISyntaxException {
-        if(mWebSocketClient == null) {
-            mWebSocketClient = new WebSocketClient(new URI(address)) {
-                @Override
-                public void onOpen(ServerHandshake serverHandshake) {
-                    //连接成功
-                    Log.i(TAG,"opened connection");
-
-                    User userFromSP = MyUtil.getUserFromSP();
-                    String testIconUrl = userFromSP.getIcon();
-                    String username = userFromSP.getUsername();
-                    String area = userFromSP.getArea();
-                    String sex = userFromSP.getSex();
-                    int mUserAge = HealthyIndexUtil.getUserAge();
-
-                    /*OnlineUser onlineUser = new OnlineUser(testIconUrl,userFromSP.getUsername(),1);
-                    Gson gson = new Gson();
-                    JsonBase jsonBase = new JsonBase();
-                    jsonBase.setRet(0);
-                    jsonBase.setErrDesc(onlineUser);
-
-                    String msg = gson.toJson(jsonBase);*/
-                    //F1,http://119.29.201.120:83/usericons/f81241db11c869f3c8e57ff96538abbc.png,1,天空之城
-                    String sexString;
-                    if (sex.equals("1")){
-                        sexString = "男";
-                    }
-                    else {
-                        sexString = "女";
-                    }
-                    String msg = "A2,"+testIconUrl+",1,"+username+","+area+","+sexString+","+mUserAge+"岁";
-
-                    sendSocketMsg(msg);
-                }
-
-                @Override
-                public void onMessage(String s) {
-                    //服务端消息
-                    Log.i(TAG,"received:" + s);
-                    //F1,服务器正常
-
-                    /*Gson gson = new Gson();
-                    JsonBase jsonBase = gson.fromJson(s, JsonBase.class);
-                    Log.i(TAG,"jsonBase："+jsonBase.toString());
-                    if (jsonBase.getRet()==1){
-                        //开始实时数据传输
-                        isStartDataTransfer = true;
-
-                    }*/
-
-                    String[] split = s.split(",");
-
-                    if (split.length > 0 && split[0].equals("F1")){
-                        //开始实时数据传输
-                        isStartDataTransfer = true;
-                        mCurBrowserClientID = split[1];
-                    }
-                    else if (split.length > 0 &&split[0].equals("F2")){
-                        //给app返回当前app所在列表索引
-                        if (split.length==2){
-                            mCurAppClientID = split[1];
-                        }
-
-                    }
-                    else if (split.length > 0 &&split[0].equals("F5")){
-                        //关闭实时数据传输
-                        isStartDataTransfer = false;
-                    }
-                }
-
-                @Override
-                public void onClose(int i, String s, boolean remote) {
-                    //连接断开，remote判定是客户端断开还是服务端断开
-                    Log.i(TAG,"Connection closed by " + ( remote ? "remote peer" : "us" ) + ", info=" + s);
-                    //
-                    //closeConnect();
-                }
-
-
-                @Override
-                public void onError(Exception e) {
-                    Log.i(TAG,"error:" + e);
-                }
-            };
-        }
-    }
 
     JsonBase jsonBase = new JsonBase();
     Gson gson = new Gson();
@@ -1369,8 +1310,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     //webSocket实施数据传输
     private void startRealTimeDataTrasmit(int [] ints) {
-        if (isStartDataTransfer){
-            intString = "A1,"+mCurBrowserClientID+",";
+        if (mWebSocketUtil!=null && mWebSocketUtil.isStartDataTransfer){
+            intString = "A1,"+mWebSocketUtil.mCurBrowserClientID+",";
             for (int i:ints){
                 intString+=i+",";
             }
@@ -1378,54 +1319,16 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             jsonBase.setErrDesc(intString.substring(0,intString.length()-1));
             sendSocketMsg(gson.toJson(jsonBase));*/
             //F0,28,18,6,-2,-3,0,3,5,1,-1
-            sendSocketMsg(intString);
+            //sendSocketMsg(intString);
+            mWebSocketUtil.sendSocketMsg(intString);
         }
     }
 
     //上传用户实时运动数据
     private void startUserSportDataTrasmit(String userSportData) {
-        if (isStartDataTransfer){
-            sendSocketMsg(userSportData);
-        }
-    }
-
-    private void sendSocketMsg(String msg) {
-        if (mWebSocketClient!=null && mWebSocketClient.isOpen()){
-            mWebSocketClient.send(msg);
-            Log.i(TAG,"msg:"+msg);
-        }
-    }
-
-    //连接
-    private void connectWebSocket() {
-        try {
-            initSocketClient();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        new Thread(){
-            @Override
-            public void run() {
-                mWebSocketClient.connect();
-            }
-        }.start();
-    }
-
-
-    //断开连接
-    private void closeConnectWebSocket() {
-        try {
-            if(mWebSocketClient!=null){
-                mWebSocketClient.close();
-                mWebSocketClient = null;
-            }
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        finally {
-            mWebSocketClient = null;
-            isStartDataTransfer = false;
+        if (mWebSocketUtil!=null && mWebSocketUtil.isStartDataTransfer){
+            //sendSocketMsg(userSportData);
+            mWebSocketUtil.sendSocketMsg(userSportData);
         }
     }
 
@@ -1449,11 +1352,11 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private void startCal8ScendSpeed() {
         String formatSpeed = "--";
         float forOneKMSecond = 0;
-        Log.i(TAG,"mGpsCal8ScendSpeedList.size():"+ mGpsCal8ScendSpeedList.size());
+        Log.i(TAG,"mOutdoorCal8ScendSpeedList.size():"+ mOutdoorCal8ScendSpeedList.size());
         Log.i(TAG,"mIndoorCal8ScendSpeedList.size():"+ mIndoorCal8ScendSpeedList.size());
 
         float for8SecondAverageSpeed = 0;
-        if (mGpsCal8ScendSpeedList.size() <= mIndoorCal8ScendSpeedList.size()){
+        /*if (mOutdoorCal8ScendSpeedList.size() <= mIndoorCal8ScendSpeedList.size()){
             if (mIndoorCal8ScendSpeedList.size()>0){
                 float sum = 0;
                 for (float i: mIndoorCal8ScendSpeedList){
@@ -1463,9 +1366,25 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             }
         }
         else {
-            float distance = Util.getDistance(mGpsCal8ScendSpeedList);
+            float distance = Util.getDistance(mOutdoorCal8ScendSpeedList);
+            for8SecondAverageSpeed = distance / 8f;
+        }*/
+
+        if(mIsOutDoor){
+            float distance = Util.getDistance(mOutdoorCal8ScendSpeedList);
             for8SecondAverageSpeed = distance / 8f;
         }
+        else {
+            if (mIndoorCal8ScendSpeedList.size()>0){
+                float sum = 0;
+                for (float i: mIndoorCal8ScendSpeedList){
+                    sum += i;
+                }
+                for8SecondAverageSpeed = sum/ mIndoorCal8ScendSpeedList.size();
+            }
+        }
+
+        Log.i(TAG,"for8SecondAverageSpeed:"+for8SecondAverageSpeed);
 
         if (for8SecondAverageSpeed>0){
             if (preForOneKMSecond==-1){
@@ -1476,12 +1395,19 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 preForOneKMSecond = forOneKMSecond;
             }
 
-            if (forOneKMSecond>30*60){
+            Log.i(TAG,"forOneKMSecond:"+forOneKMSecond);
+
+            if (forOneKMSecond>30*60 && forOneKMSecond<50*60){ //配速范围：2~30(分钟/公里)  在30~50之间归为30，小于2归为2，大于50归为0.
                 forOneKMSecond = 30*60;
             }
-            else if(forOneKMSecond<2*60){
+            else if(forOneKMSecond>0 && forOneKMSecond<2*60){
                 forOneKMSecond = 2*60;
             }
+            else if(forOneKMSecond>50*60){
+                forOneKMSecond = 0;
+            }
+
+            Log.i(TAG,"forOneKMSecond:"+forOneKMSecond);
 
             if (forOneKMSecond==0){
                 formatSpeed = "--";
@@ -1497,7 +1423,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
 
         mIndoorCal8ScendSpeedList.clear();
-        mGpsCal8ScendSpeedList.clear();
+        mOutdoorCal8ScendSpeedList.clear();
         mFinalFormatSpeed = formatSpeed;
         if (application!=null){
             application.setRunningFinalFormatSpeed(mFinalFormatSpeed);
@@ -1514,7 +1440,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         if (mLocationOption==null){
             mLocationOption = new AMapLocationClientOption();
             mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-            mLocationOption.setInterval(500);
+            mLocationOption.setInterval(1500);
             mLocationOption.setGpsFirst(true);
             mLocationOption.setSensorEnable(true);
 
@@ -1524,8 +1450,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             mlocationClient.startLocation();
         }
     }
-
-
 
     private class MyOnClickListener implements View.OnClickListener{
 
@@ -1567,13 +1491,19 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(this);
         if (isThreeMinute){
             if (isHaveDataTransfer){
-                chooseAlertDialogUtil.setAlertDialogText(getResources().getString(R.string.necessary_to_collect_recovery),getResources().getString(R.string.exit_confirm),getResources().getString(R.string.exit_cancel));
+                chooseAlertDialogUtil.setAlertDialogText(getResources().getString(R.string.necessary_to_collect_recovery),getResources().getString(R.string.collect_data),getResources().getString(R.string.skip));
                 chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
                     @Override
                     public void onConfirmClick() {
                         saveSportRecord(createrecord);
                         Intent intent = new Intent(StartRunActivity.this, CalculateHRRProcessActivity.class);
-                        intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
+                        if (mIsOutDoor){
+                            intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
+                        }
+                        else {
+                            intent.putExtra(Constant.sportState,Constant.SPORTSTATE_INDOOR);
+                        }
+
                         if (!MyUtil.isEmpty(ecgLocalFileName)){
                             intent.putExtra(Constant.ecgLocalFileName,ecgLocalFileName);
                         }
@@ -1582,8 +1512,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                         }
                         if (heartRateDates.size()>0){
                             intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
-                            intent.putExtra(Constant.startTimeMillis,startTimeMillis);
                         }
+                        intent.putExtra(Constant.startTimeMillis,startTimeMillis);
                         if (mKcalData.size()>0){
                             ArrayList<String> tempList = new ArrayList<>();
                             tempList.addAll(mKcalData);
@@ -1610,7 +1540,12 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                     public void onCancelClick() {
                         saveSportRecord(createrecord);
                         Intent intent = new Intent(StartRunActivity.this, HeartRateAnalysisActivity.class);
-                        intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
+                        if (mIsOutDoor){
+                            intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
+                        }
+                        else {
+                            intent.putExtra(Constant.sportState,Constant.SPORTSTATE_INDOOR);
+                        }
                         if (!MyUtil.isEmpty(ecgLocalFileName)){
                             intent.putExtra(Constant.ecgLocalFileName,ecgLocalFileName);
                         }
@@ -1619,8 +1554,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                         }
                         if (heartRateDates.size()>0){
                             intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
-                            intent.putExtra(Constant.startTimeMillis,startTimeMillis);
                         }
+                        intent.putExtra(Constant.startTimeMillis,startTimeMillis);
                         if (mKcalData.size()>0){
                             ArrayList<String> tempList = new ArrayList<>();
                             tempList.addAll(mKcalData);
@@ -1641,7 +1576,12 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             }else {
                 saveSportRecord(createrecord);
                 Intent intent = new Intent(StartRunActivity.this, HeartRateAnalysisActivity.class);
-                intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
+                if (mIsOutDoor){
+                    intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
+                }
+                else {
+                    intent.putExtra(Constant.sportState,Constant.SPORTSTATE_INDOOR);
+                }
                 if (!MyUtil.isEmpty(ecgLocalFileName)){
                     intent.putExtra(Constant.ecgLocalFileName,ecgLocalFileName);
                 }
@@ -1650,8 +1590,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 }
                 if (heartRateDates.size()>0){
                     intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
-                    intent.putExtra(Constant.startTimeMillis,startTimeMillis);
                 }
+                intent.putExtra(Constant.startTimeMillis,startTimeMillis);
                 if (mKcalData.size()>0){
                     ArrayList<String> tempList = new ArrayList<>();
                     tempList.addAll(mKcalData);
@@ -1677,7 +1617,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 @Override
                 public void onCancelClick() {
                     mlocationClient.stopLocation();
-
                     deleteAbortDataRecordFomeSP();
                     finish();
                 }
@@ -1688,9 +1627,13 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     //记录运动休信息（和地图有关的）
     private void saveSportRecord(long createrecord) {
         Log.i(TAG,"createrecord:"+createrecord);
+        mIsRunning = false;
         destorySportInfoTOAPP();
-        createrecord = Util.saveOrUdateRecord(pathRecord.getPathline(),addDuration, pathRecord.getDate(), this,mStartTime,mAllDistance,createrecord);
-        Log.i(TAG,"createrecord:"+createrecord);
+        if (pathRecord!=null && createrecord!=-1){
+            createrecord = Util.saveOrUdateRecord(pathRecord.getPathline(),addDuration, pathRecord.getDate(), this,mStartTime,mAllDistance,createrecord);
+            Log.i(TAG,"createrecord:"+createrecord);
+        }
+
         if (mlocationClient!=null){
             mlocationClient.stopLocation();
             mlocationClient.onDestroy();
@@ -1712,7 +1655,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         deleteAbortDataRecordFomeSP();
         CommunicateToBleService.detoryServiceForegrounByNotify();
 
-        closeConnectWebSocket();
+        /*if (mWebSocketUtil!=null){
+            mWebSocketUtil.closeConnectWebSocket();
+        }*/
+
     }
 
 
@@ -1786,10 +1732,12 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     }
 
     AMapLocation mATempMapLocation;
+
+    //谷歌地图
     @Override
     public void onLocationChanged(Location location) {
         //实时位置信息
-        Log.i(TAG,"onLocationChanged:"+location.toString());
+        //Log.i(TAG,"onLocationChanged:"+location.toString());
         //mTvAddress.setText(mTvAddress.getText().toString()+"\n"+ location.toString());
         mATempMapLocation = new AMapLocation(location);
 
@@ -1821,12 +1769,14 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     }
 
     private void destorySportInfoTOAPP(){
-        application.setRunningCurrTimeDate(null);
-        application.setRunningFinalFormatSpeed(null);
-        application.setRunningIsRunning(false);
-        application.setRunningFormatDistance(null);
-        application.setRunningmCurrentHeartRate(0);
-        application = null;
+        if(application!=null){
+            application.setRunningCurrTimeDate(null);
+            application.setRunningFinalFormatSpeed(null);
+            application.setRunningIsRunning(false);
+            application.setRunningFormatDistance(null);
+            application.setRunningmCurrentHeartRate(0);
+            application = null;
+        }
     }
 
 }

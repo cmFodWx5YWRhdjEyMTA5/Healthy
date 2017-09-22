@@ -4,19 +4,12 @@ import android.annotation.TargetApi;
 import android.app.Service;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.IBinder;
-import android.os.PowerManager;
 import android.util.Log;
 
-import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.WakeLockUtil;
-import com.ble.ble.BleService;
-
-import java.util.Date;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class MyTestService2 extends JobService {

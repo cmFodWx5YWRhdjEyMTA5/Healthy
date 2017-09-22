@@ -23,7 +23,7 @@ public class QuestionnaireActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText(getResources().getString(R.string.querying));
+        setCenterText(getResources().getString(R.string.survey));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override

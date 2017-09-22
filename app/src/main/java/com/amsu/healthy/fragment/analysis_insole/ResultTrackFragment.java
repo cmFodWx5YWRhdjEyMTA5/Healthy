@@ -21,11 +21,10 @@ import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.Polyline;
 import com.amap.api.maps.model.PolylineOptions;
 import com.amsu.healthy.R;
+import com.amsu.healthy.activity.insole.InsoleAnalyticFinshResultActivity;
 import com.amsu.healthy.appication.MyApplication;
-import com.amsu.healthy.bean.ParcelableDoubleList;
-import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.bean.InsoleUploadRecord;
 import com.amsu.healthy.fragment.BaseFragment;
-import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.map.Util;
 import com.amsu.healthy.view.MyMapView;
@@ -52,7 +51,12 @@ public class ResultTrackFragment extends BaseFragment implements AMap.OnMapLoade
     private boolean isGoogleMap;
     private boolean mIsOutDoor;
     private Polyline mOriginPolyline;
-    private UploadRecord mUploadRecord;
+    private InsoleUploadRecord mInsoleUploadRecord;
+    private TextView tv_finish_mileage;
+    private TextView tv_finish_time;
+    private TextView tv_finish_speed;
+    private TextView tv_finish_consume;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -72,10 +76,10 @@ public class ResultTrackFragment extends BaseFragment implements AMap.OnMapLoade
     private void initView(Bundle savedInstanceState) {
         Log.i(TAG,"initView");
 
-        TextView tv_finish_mileage = (TextView) inflate.findViewById(R.id.tv_finish_mileage);
-        TextView tv_finish_time = (TextView) inflate.findViewById(R.id.tv_finish_time);
-        TextView tv_finish_speed = (TextView) inflate.findViewById(R.id.tv_finish_speed);
-        TextView tv_finish_consume = (TextView) inflate.findViewById(R.id.tv_finish_consume);
+        tv_finish_mileage = (TextView) inflate.findViewById(R.id.tv_finish_mileage);
+        tv_finish_time = (TextView) inflate.findViewById(R.id.tv_finish_time);
+        tv_finish_speed = (TextView) inflate.findViewById(R.id.tv_finish_speed);
+        tv_finish_consume = (TextView) inflate.findViewById(R.id.tv_finish_consume);
 
         mv_finish_googlemap = (MapView) inflate.findViewById(R.id.mv_finishinsole_googlemap);
         mv_finish_map = (MyMapView) inflate.findViewById(R.id.mv_finishinsole_map);
@@ -111,7 +115,23 @@ public class ResultTrackFragment extends BaseFragment implements AMap.OnMapLoade
 
     }
 
+    private void initData() {
+        mInsoleUploadRecord = InsoleAnalyticFinshResultActivity.mInsoleUploadRecord;
+        if (mInsoleUploadRecord !=null){
+            String formatDistance = MyUtil.getFormatDistance(mInsoleUploadRecord.errDesc.ShoepadData.distance);
+            tv_finish_mileage.setText(formatDistance);
 
+            String myDuration = MyUtil.getPaceFormatTime(mInsoleUploadRecord.errDesc.ShoepadData.duration);
+            tv_finish_time.setText(myDuration);
+
+            String formatSpeed = MyUtil.getFormatSpeed(mInsoleUploadRecord.errDesc.ShoepadData.distance, mInsoleUploadRecord.errDesc.ShoepadData.duration);
+            tv_finish_speed.setText(formatSpeed);
+
+            tv_finish_consume.setText((int) mInsoleUploadRecord.errDesc.ShoepadData.calorie+"");
+
+        }
+
+    }
 
     private class TogetherItem{
         int iconID;
@@ -173,9 +193,7 @@ public class ResultTrackFragment extends BaseFragment implements AMap.OnMapLoade
         });
     }
 
-    private void initData() {
 
-    }
 
     /**
      * 地图上添加原始轨迹线路及起终点、轨迹动画小人
@@ -281,10 +299,12 @@ public class ResultTrackFragment extends BaseFragment implements AMap.OnMapLoade
         if (isGoogleMap) {
             mGoogleMap = map;
             // A geodesic polyline that goes around the world.
-            if (mUploadRecord!=null){
+            if (mInsoleUploadRecord!=null){
                 com.google.android.gms.maps.model.PolylineOptions polylineOptions = new com.google.android.gms.maps.model.PolylineOptions();
                 Gson gson = new Gson();
-                List<ParcelableDoubleList> fromJson = mUploadRecord.latitudeLongitude;
+                List<List<Double>> fromJson = gson.fromJson(mInsoleUploadRecord.errDesc.ShoepadData.trajectory,new TypeToken<List<List<Double>>>() {
+                }.getType());
+
                 Log.i(TAG,"fromJson:"+fromJson);
                 if (fromJson!=null && fromJson.size()>0){
                     com.google.android.gms.maps.model.LatLng startLatLng =
@@ -365,7 +385,10 @@ public class ResultTrackFragment extends BaseFragment implements AMap.OnMapLoade
         /*if (StartRunActivity.createrecord!=-1){
             setupRecord(StartRunActivity.createrecord);
         }*/
-        List<ParcelableDoubleList> fromJson = mUploadRecord.latitudeLongitude;
+        Gson gson = new Gson();
+        List<List<Double>> fromJson = gson.fromJson(mInsoleUploadRecord.errDesc.ShoepadData.trajectory,new TypeToken<List<List<Double>>>() {
+        }.getType());
+
         if (fromJson!=null && fromJson.size()>0){ //经纬度
            /* Gson gson = new Gson();
             List<List<Double>> fromJson = gson.fromJson(mUploadRecord.latitude_longitude,new TypeToken<List<List<Double>>>() {

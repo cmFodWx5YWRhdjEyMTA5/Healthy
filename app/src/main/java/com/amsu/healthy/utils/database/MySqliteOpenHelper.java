@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class MySqliteOpenHelper extends SQLiteOpenHelper {
     static final String DATABASE_PATH = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/recordPath";
-    static final String DATABASE_NAME = DATABASE_PATH + "/" + "Ldb.db";
+    static final String DATABASE_NAME = DATABASE_PATH + "/" + "db20170918_2.db";
     static final String tableName = "uploadreport";
     private static final String TAG = "MySqliteOpenHelper";
 
@@ -35,6 +35,10 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.i(TAG,"onUpgrade is calles");
+
+        if(newVersion>oldVersion) {
+            //db.execSQL("ALTER TABLE uploadreport ADD lf1 TEXT;");
+        }
     }
 
     private String getCreateTableSql(String tableName){
@@ -65,13 +69,27 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper {
                 + "state STRING,"
                 + "zaobo STRING,"
                 + "loubo STRING,"
-                + "latitude_longitude STRING,"
+                + "latitude_longitude TEXT,"
                 + "timestamp STRING,"
                 + "datatime STRING,"
+                + "inuse STRING,"
+                + "lf1 STRING,"
+                + "lf2 STRING,"
+                + "hf1 STRING,"
+                + "hf2 STRING,"
+                + "hf STRING,"
+                + "lf STRING,"
+                + "chaosPlotPoint STRING,"
+                + "frequencyDomainDiagramPoint STRING,"
+                + "chaosPlotMajorAxis STRING,"
+                + "chaosPlotMinorAxis STRING,"
+                + "sdnn1 STRING,"
+                + "sdnn2 STRING,"
                 + "uploadState STRING" + ");";
 
         return OFFLINE_RECORD_CREATE;
     }
+
 
     //app异常中断
     private static final String APPABORT_RECORD_CREATE = "create table if not exists appabort("

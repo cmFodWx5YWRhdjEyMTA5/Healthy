@@ -96,25 +96,29 @@
         android:max="100"/>-->
 
     <ListView
-        android:id="@+id/lv_speed_speedlist"
+        android:id="@+id/lv_speed_pacelist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_speed_t1"
         android:layout_marginLeft="@dimen/x36"
         android:layout_marginRight="@dimen/x36"
+        android:layout_marginTop="@dimen/x24"
         android:divider="@null">
     </ListView>
 
-    <TextView
+
+    <!--<TextView
         android:id="@+id/tv_speed_lastspeed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/lv_speed_speedlist"
+        android:layout_below="@+id/lv_speed_pacelist"
         android:text="最后一公里"
         android:layout_marginLeft="@dimen/x36"
         android:layout_marginTop="@dimen/x20"
         android:textColor="#999999"
-        android:textSize="@dimen/x36"/>
+        android:textSize="@dimen/x36"/>-->
+
+
 
     <!--<TextView
         android:id="@+id/tv_speed_lastspeed"

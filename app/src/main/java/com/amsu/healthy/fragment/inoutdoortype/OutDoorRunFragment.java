@@ -136,7 +136,7 @@ public class OutDoorRunFragment extends Fragment implements LocationSource,
             if (amapLocation != null && amapLocation.getErrorCode() == 0) {
                 mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
                 LatLng mylocation = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
-                mAMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mylocation,18));
+                mAMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mylocation,16));
                 /*if (isFirtst){
                     mAMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mylocation,18));
                     isFirtst = false;

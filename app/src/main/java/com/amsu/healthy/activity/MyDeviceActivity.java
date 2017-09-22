@@ -45,6 +45,7 @@ public class MyDeviceActivity extends BaseActivity {
     private DeviceAdapter deviceAdapter;
     private ListView lv_device_devicelist;
     private int mBndDevicePostion = 0;
+    private int mCurClickPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +133,7 @@ public class MyDeviceActivity extends BaseActivity {
         lv_device_devicelist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                mCurClickPosition = position;
                 final Device device = deviceList.get(position);
                 Log.i(TAG,"device:"+device);
 
@@ -474,10 +476,11 @@ public class MyDeviceActivity extends BaseActivity {
             tv_item_state.setText(getResources().getString(R.string.click_bind));
             tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));*/
 
-            deviceList.clear();
-            deviceAdapter.notifyDataSetChanged();
+            if (mCurClickPosition<deviceList.size()){
+                deviceList.remove(mCurClickPosition);
+                deviceAdapter.notifyDataSetChanged();
+            }
         }
-
     }
 
     private class RssiComparator implements Comparator<Device>{

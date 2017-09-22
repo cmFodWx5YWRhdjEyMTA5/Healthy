@@ -176,7 +176,6 @@ public class ECGFragment extends BaseFragment {
                             }
 
                             if (file.exists()){
-
                                 fileInputStream = new FileInputStream(eCGFilePath);
                                 DataInputStream dataInputStream = new DataInputStream(fileInputStream); //读取二进制文件
 

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.amsu.healthy.activity.ConfirmScanLoginActivity"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <ImageView
+        android:layout_width="@dimen/x272"
+        android:layout_height="@dimen/x272"
+        android:src="@drawable/sys_logo"
+        android:layout_marginTop="@dimen/x124"
+        android:layout_gravity="center_horizontal"/>
+    <View
+        android:layout_width="@dimen/x900"
+        android:layout_height="@dimen/x1"
+        android:background="#d8d8d8"
+        android:layout_marginTop="@dimen/x124"
+        android:layout_gravity="center_horizontal"></View>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="即将登陆倾听体语手表端，请确认是本人操作"
+        android:textSize="@dimen/x48"
+        android:textColor="#383838"
+        android:layout_marginTop="@dimen/x32"
+        android:layout_gravity="center_horizontal"/>
+
+    <Button
+        android:layout_width="@dimen/x908"
+        android:layout_height="@dimen/x120"
+        android:text="确认"
+        android:layout_marginTop="@dimen/x280"
+        android:textSize="@dimen/x48"
+        android:textColor="#FFFFFF"
+        android:onClick="confirm"
+        android:background="@drawable/bg_bt_rec_roundangle"
+        android:layout_gravity="center_horizontal"/>
+
+    <Button
+        android:layout_width="@dimen/x908"
+        android:layout_height="@dimen/x120"
+        android:text="取消"
+        android:layout_marginTop="@dimen/x48"
+        android:textSize="@dimen/x48"
+        android:onClick="cancel"
+        android:textColor="#212121"
+        android:background="@drawable/bg_bt_rec_roundangle_gray"
+        android:layout_gravity="center_horizontal"/>
+
+</LinearLayout>

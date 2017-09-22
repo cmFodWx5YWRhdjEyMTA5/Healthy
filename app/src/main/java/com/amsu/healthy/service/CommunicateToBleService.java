@@ -301,7 +301,7 @@ public class CommunicateToBleService extends Service {
                     Log.i(TAG,"mIsConnectted:"+ mIsConnectted);
                     Log.i(TAG,"mIsConnectting:"+ mIsConnectting);
 
-                    //配对成功
+                    //配对成功`
                     clothDeviceConnecedMac = device.getAddress();
                     if (!mIsConnectted && !mIsConnectting){
                         //没有链接上，并且没有正在链接
@@ -454,7 +454,7 @@ public class CommunicateToBleService extends Service {
             dealwithDeviceInfo(hexData);
 
         }
-        else if (hexData.startsWith("AA")){
+        /*else if (hexData.startsWith("AA")){
             if (mIsJumpTOCorrected)return;
             Log.i(TAG,"address:"+address+",mInsole_connecMac1:"+mInsole_connecMac1+",mInsole_connecMac2:"+mInsole_connecMac2);
             Log.i(TAG,"mInsole_connecMac1_needCorrect:"+mInsole_connecMac1_needCorrect+",mInsole_connecMac2_needCorrect:"+mInsole_connecMac2_needCorrect);
@@ -487,7 +487,7 @@ public class CommunicateToBleService extends Service {
                 startActivity(intent);
                 mIsJumpTOCorrected = true;
             }
-        }
+        }*/
         else if (hexData.length() > 40) {
             if (!mIsDataStart){
                 mIsDataStart = true;
@@ -576,6 +576,7 @@ public class CommunicateToBleService extends Service {
                             sendLookEleInfoOrder();
                         }
 
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -1206,6 +1207,9 @@ public class CommunicateToBleService extends Service {
                 MyApplication.insoleConnectedMacAddress.remove(address);
             }
 
+            if (address==null){
+                MyApplication.insoleConnectedMacAddress.clear();
+            }
         }
     }
 

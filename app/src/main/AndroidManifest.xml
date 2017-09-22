@@ -57,6 +57,8 @@
     -->
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".appication.MyApplication"
@@ -80,8 +82,12 @@
             android:name=".activity.MainActivity"
             android:screenOrientation="portrait" />
 
-        <meta-data android:name="Mob-AppKey" android:value="1976143c3c888"/>
-        <meta-data android:name="Mob-AppSecret" android:value="0c1784d4bf495891bf142767b314651c"/>
+        <meta-data
+            android:name="Mob-AppKey"
+            android:value="1976143c3c888" />
+        <meta-data
+            android:name="Mob-AppSecret"
+            android:value="0c1784d4bf495891bf142767b314651c" />
 
         <!-- 高德地图 -->
         <meta-data
@@ -125,9 +131,7 @@
         <activity
             android:name=".activity.HeartRateAnalysisActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.HeartRateResultShowActivity"
-            android:screenOrientation="portrait" />
+        <activity android:name=".activity.HeartRateResultShowActivity" />
         <activity
             android:name=".activity.SupplyPersionDataActivity"
             android:screenOrientation="portrait" />
@@ -375,13 +379,15 @@
         </activity>
         <activity android:name=".activity.RunTimeCountdownActivity" />
         <activity android:name=".activity.insole.InsoleRunningActivity" />
-        <activity android:name=".activity.insole.AnalyticFinshResultActivity">
+        <activity android:name=".activity.insole.InsoleAnalyticFinshResultActivity">
 
-            <!--<intent-filter>
+            <!--
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
+            </intent-filter>
+            -->
         </activity>
         <activity android:name=".activity.insole.CorrectInsoleActivity" />
         <activity android:name=".activity.RunTrailMapGoogleActivity">
@@ -394,7 +400,10 @@
             </intent-filter>
             -->
         </activity>
-        <activity android:name=".activity.QRCodeActivity"></activity>
+        <activity android:name=".utils.scancode.activity.CaptureActivity" />
+        <activity android:name=".activity.ConfirmScanLoginActivity" />
+        <activity android:name=".activity.insole.InsoleAnalysisActivity" />
+        <activity android:name=".activity.HistoryRecordAllActivity"></activity>
     </application>
 
 </manifest>

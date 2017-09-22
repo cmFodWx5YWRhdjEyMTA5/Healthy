@@ -12,7 +12,7 @@ import java.util.List;
 
 public class UploadRecord implements Parcelable,Cloneable {
     public int fi;                      //疲劳指数(Fatigue deviceType)
-    public int es;                      //	情绪状态(emotional state)
+    public double es;                      //	情绪状态(emotional state)
     public int pi;         //压力指数(Pressure deviceType)
     public int cc;       //抗压能力(Compressive capacity)
     public String hrvr;       //hrv分析结果(hrv result)
@@ -30,7 +30,7 @@ public class UploadRecord implements Parcelable,Cloneable {
     public String datatime;       //
     public List<Integer> hr;                        //
     public List<Integer> ae;                        //
-    public double distance;       //
+    public float distance;       //
     public long time;                        //
     public List<Integer> cadence;       //
     public List<String> calorie;       //
@@ -42,6 +42,20 @@ public class UploadRecord implements Parcelable,Cloneable {
     public long id;
     public String localEcgFileName;
     public int inuse ;
+    public long sportCreateRecordID ;
+    /*public boolean isOutDoor;*/
+    public int sdnn1;
+    public int sdnn2;
+    public double  lf1;
+    public double  lf2;
+    public double  hf1;
+    public double  hf2;
+    public double  hf;
+    public double  lf;
+    public List<Integer> chaosPlotPoint;
+    public List<Double> frequencyDomainDiagramPoint;
+    public int chaosPlotMajorAxis;
+    public int chaosPlotMinorAxis;
 
     @Override
     public Object clone() throws CloneNotSupportedException {
@@ -71,10 +85,10 @@ public class UploadRecord implements Parcelable,Cloneable {
         this.ecs = "";
         this.ra = 0;
         this.timestamp = 0;
-        this.datatime = "";
+        this.datatime = "2000/08/11 12:11:00";
         this.hr = new ArrayList<>();
         this.ae = new ArrayList<>();
-        this.distance = 0.0;
+        this.distance = 0.0f;
         this.time = 0;
         this.cadence = new ArrayList<>();
         this.calorie = new ArrayList<>();
@@ -86,6 +100,12 @@ public class UploadRecord implements Parcelable,Cloneable {
         this.id = 0;
         this.localEcgFileName = "";
         this.inuse =  0;
+        this.sportCreateRecordID =  0;
+        chaosPlotPoint = new ArrayList<>();
+        frequencyDomainDiagramPoint = new ArrayList<>();
+
+
+
     }
 
     /*public UploadRecord(Context context) {
@@ -118,7 +138,7 @@ public class UploadRecord implements Parcelable,Cloneable {
         latitude_longitude = Constant.uploadRecordDefaultString;
     }*/
 
-    public UploadRecord(int fi, int es, int pi, int cc, String hrvr, String hrvs, int ahr, int maxhr, int minhr, String hrr, String hrs, String ec, int ecr, String ecs, int ra, long timestamp, String datatime, List<Integer> hr, List<Integer> ae, double distance, long time, List<Integer> cadence, List<String> calorie, int state, int zaobo, int loubo, List<ParcelableDoubleList> latitudeLongitude, int uploadState, long id, String localEcgFileName, int inuse) {
+    public UploadRecord(int fi, int es, int pi, int cc, String hrvr, String hrvs, int ahr, int maxhr, int minhr, String hrr, String hrs, String ec, int ecr, String ecs, int ra, long timestamp, String datatime, List<Integer> hr, List<Integer> ae, float distance, long time, List<Integer> cadence, List<String> calorie, int state, int zaobo, int loubo, List<ParcelableDoubleList> latitudeLongitude, int uploadState, long id, String localEcgFileName, int inuse) {
         this.fi = fi;
         this.es = es;
         this.pi = pi;
@@ -151,7 +171,6 @@ public class UploadRecord implements Parcelable,Cloneable {
         this.localEcgFileName = localEcgFileName;
         this.inuse = inuse;
     }
-
 
     @Override
     public String toString() {
@@ -187,6 +206,19 @@ public class UploadRecord implements Parcelable,Cloneable {
                 ", id=" + id +
                 ", localEcgFileName='" + localEcgFileName + '\'' +
                 ", inuse=" + inuse +
+                ", sportCreateRecordID=" + sportCreateRecordID +
+                ", sdnn1=" + sdnn1 +
+                ", sdnn2=" + sdnn2 +
+                ", lf1=" + lf1 +
+                ", lf2=" + lf2 +
+                ", hf1=" + hf1 +
+                ", hf2=" + hf2 +
+                ", hf=" + hf +
+                ", lf=" + lf +
+                ", chaosPlotPoint=" + chaosPlotPoint +
+                ", frequencyDomainDiagramPoint=" + frequencyDomainDiagramPoint +
+                ", chaosPlotMajorAxis=" + chaosPlotMajorAxis +
+                ", chaosPlotMinorAxis=" + chaosPlotMinorAxis +
                 '}';
     }
 
@@ -198,7 +230,7 @@ public class UploadRecord implements Parcelable,Cloneable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(fi);
-        dest.writeInt(es);
+        dest.writeDouble(es);
         dest.writeInt(pi);
         dest.writeInt(cc);
         dest.writeString(hrvr);
@@ -216,7 +248,7 @@ public class UploadRecord implements Parcelable,Cloneable {
         dest.writeString(datatime);
         dest.writeList(hr);
         dest.writeList(ae);
-        dest.writeDouble(distance);
+        dest.writeFloat(distance);
         dest.writeLong(time);
         dest.writeList(cadence);
         dest.writeList(calorie);
@@ -228,7 +260,23 @@ public class UploadRecord implements Parcelable,Cloneable {
         dest.writeLong(id);
         dest.writeString(localEcgFileName);
         dest.writeInt(inuse);
+        dest.writeLong(sportCreateRecordID);
+        //dest.writeByte((byte) (isOutDoor ? 1 : 0));     //if myBoolean == true, byte == 1
+        dest.writeInt(sdnn1);
+        dest.writeInt(sdnn2);
+        dest.writeDouble(lf1);
+        dest.writeDouble(lf2);
+        dest.writeDouble(hf1);
+        dest.writeDouble(hf2);
+        dest.writeDouble(hf);
+        dest.writeDouble(lf);
+        dest.writeList(chaosPlotPoint);
+        dest.writeList(frequencyDomainDiagramPoint);
+        dest.writeInt(chaosPlotMajorAxis);
+        dest.writeInt(chaosPlotMinorAxis);
     }
+
+
 
     public static final Creator<UploadRecord> CREATOR = new Creator<UploadRecord>() {
         @Override
@@ -245,7 +293,7 @@ public class UploadRecord implements Parcelable,Cloneable {
 
     public UploadRecord(Parcel source) {
         this.fi = source.readInt();
-        this.es = source.readInt();
+        this.es = source.readDouble();
         this.pi = source.readInt();
         this.cc = source.readInt();
         this.hrvr = source.readString();
@@ -268,7 +316,7 @@ public class UploadRecord implements Parcelable,Cloneable {
         this.ae = new ArrayList<>();
         source.readList(this.ae,null);
 
-        this.distance = source.readDouble();
+        this.distance = source.readFloat();
         this.time = source.readLong();
 
         this.cadence = new ArrayList<>();
@@ -288,5 +336,25 @@ public class UploadRecord implements Parcelable,Cloneable {
         this.id = source.readLong();
         this.localEcgFileName = source.readString();
         this.inuse =  source.readInt();
+        this.sportCreateRecordID = source.readLong();
+
+        //this.isOutDoor = source.readByte() != 0;     //myBoolean == true if byte != 0
+        this.sdnn1 = source.readInt();
+        this.sdnn2 = source.readInt();
+        this.lf1 = source.readDouble();
+        this.lf2 = source.readDouble();
+        this.hf1 = source.readDouble();
+        this.hf2 = source.readDouble();
+        this.hf = source.readDouble();
+        this.lf = source.readDouble();
+
+        this.chaosPlotPoint = new ArrayList<>();
+        source.readList(this.chaosPlotPoint,null);
+
+        this.frequencyDomainDiagramPoint = new ArrayList<>();
+        source.readList(this.frequencyDomainDiagramPoint,null);
+
+        this.chaosPlotMajorAxis = source.readInt();
+        this.chaosPlotMinorAxis = source.readInt();
     }
 }

@@ -6,10 +6,15 @@
     android:layout_height="match_parent"
     tools:context="com.amsu.healthy.activity.insole.CorrectInsoleActivity">
 
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
     <TextView
         android:id="@+id/text2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/rl_base_head"
         android:text="静态校准"
         android:textColor="#3d3d3d"
         android:textSize="@dimen/x64"
@@ -71,7 +76,7 @@
         android:onClick="startCorrect"
         android:layout_centerHorizontal="true"/>
 
-    <TextView
+   <!-- <TextView
         android:id="@+id/tv_correct_startnow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -83,7 +88,7 @@
         android:layout_marginTop="@dimen/y492"
         android:padding="@dimen/x40"
         android:onClick="startNow"
-        android:layout_alignParentRight="true"/>
+        android:layout_alignParentRight="true"/>-->
 
 
 </RelativeLayout>

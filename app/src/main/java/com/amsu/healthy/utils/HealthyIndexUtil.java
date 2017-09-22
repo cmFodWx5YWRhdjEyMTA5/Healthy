@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.IndicatorAssess;
+import com.amsu.healthy.fragment.analysis.HRVFragment;
 import com.test.objects.HeartRateResult;
 
 import java.util.Date;
@@ -936,7 +937,7 @@ public class HealthyIndexUtil {
     }
 
     //情绪指数（精神紧张或放松状态）LF/HF   SDNN:80-200
-    public static IndicatorAssess calculateLFHFMoodIndex(int LF_HF){
+    public static IndicatorAssess calculateLFHFMoodIndex(double LF_HF){
         int state = 0;
         String suggestion = "";
         if (LF_HF>150){
@@ -969,7 +970,7 @@ public class HealthyIndexUtil {
         }
         state = (int) (100*(1-LF_HF/60.0));*/
 
-        IndicatorAssess indicatorAssess = new IndicatorAssess(LF_HF,state,"情绪指数",suggestion,"");
+        IndicatorAssess indicatorAssess = new IndicatorAssess((int)LF_HF,state,"情绪指数",suggestion,"");
         return indicatorAssess;
     }
 
@@ -1131,17 +1132,17 @@ public class HealthyIndexUtil {
         return suggestion;
     }
 
-    public static String  getHRVSuggetstion(int sdnn, int lf, Context context){
+    public static String  getHRVSuggetstion(int sdnn, double lf, Context context){
         String defaultSuggetstion = context.getResources().getString(R.string.HeartRate_suggetstion_nodata);
         if (sdnn >=280 || lf<2) {
             return context.getResources().getString(R.string.hrv_suggetstion_lev1);
         }else if ((sdnn >=200 && sdnn<280) ||(lf>=2 && lf<=5)){
             return context.getResources().getString(R.string.hrv_suggetstion_lev2);
-        }else if ((sdnn>=120 && sdnn<200 )||(lf>=6 && lf<=30)){
+        }else if ((sdnn>=120 && sdnn<200 )||(lf>5 && lf<=30)){
             return context.getResources().getString(R.string.hrv_suggetstion_lev3);
-        }else if((sdnn >=60 &&sdnn<120) ||(lf<60 && lf>30)){
+        }else if((sdnn >=60 &&sdnn<120) ||(lf>5 && lf<=30)){
             return context.getResources().getString(R.string.hrv_suggetstion_lev4);
-        }else if (sdnn <60 || lf>= 60){
+        }else if (sdnn <60 || lf> 30){
             return context.getResources().getString(R.string.hrv_suggetstion_lev5);
         }
         else {
@@ -1149,6 +1150,153 @@ public class HealthyIndexUtil {
         }
     }
 
+
+    public static int judgeHRVMentalFatigueData(HeartRateResult heartRateResultPre5Min, HeartRateResult heartRateResultLater5Min,HeartRateResult heartRateResult) {
+        /*1、	不疲劳
+        SDNN1<120	&	SDNN2<120	&	-0.5<(SDNN2-SDNN1)/5<0.5
+        2、	有点疲劳
+        0.5<(SDNN2-SDNN1)/5<1	||	(140>SDNN2>120	&	HF/LF2>HF/LF1)
+        3、	比较疲劳
+                (SDNN2-SDNN1)/5>1	||
+                (160>SDNN2>140	&	（HF/LF2-HF/LF1）/HF/LF1>0.05)
+        4、	极度疲劳
+        SDNN2>160	&
+                -0.5<(SDNN2-SDNN1)/5<0.5		&
+                -0.05<(HF/LF2-HF/LF1)/HF/LF1<0.05
+        5、	保持上一次判断结果
+                除符合以上四点的其他情况*/
+        int state;
+
+        if (heartRateResultPre5Min.RR_SDNN<120 && heartRateResultLater5Min.RR_SDNN<120 && (heartRateResultLater5Min.RR_SDNN-heartRateResultPre5Min.RR_SDNN)/5<0.5 &&
+                (heartRateResultLater5Min.RR_SDNN-heartRateResultPre5Min.RR_SDNN)/5>-0.5){
+            state = 1;
+        }
+        else if (((heartRateResultLater5Min.RR_SDNN-heartRateResultPre5Min.RR_SDNN)/5<1 && (heartRateResultLater5Min.RR_SDNN-heartRateResultPre5Min.RR_SDNN)/5>0.5) ||
+                ((heartRateResultLater5Min.RR_SDNN<140 && heartRateResultLater5Min.RR_SDNN>120) && heartRateResult.HF/heartRateResultLater5Min.LF>heartRateResult.HF/heartRateResultPre5Min.HF)){
+            state = 2;
+        }
+        else if ((heartRateResultLater5Min.RR_SDNN-heartRateResultPre5Min.RR_SDNN)/5>1 || ((heartRateResultLater5Min.RR_SDNN>140 && heartRateResultLater5Min.RR_SDNN<160)
+                && (heartRateResult.HF/heartRateResultLater5Min.LF-heartRateResult.HF/heartRateResultPre5Min.HF)/heartRateResult.HF/heartRateResultPre5Min.LF>0.05)){
+            state = 3;
+        }
+        else if (heartRateResultLater5Min.RR_SDNN>160 && (heartRateResultLater5Min.RR_SDNN-heartRateResultPre5Min.RR_SDNN)/5<0.5 &&
+                (heartRateResultLater5Min.RR_SDNN-heartRateResultPre5Min.RR_SDNN)/5>-0.5
+                && (heartRateResult.HF/heartRateResultLater5Min.LF-heartRateResult.HF/heartRateResultPre5Min.HF)/heartRateResult.HF/heartRateResultPre5Min.LF<0.05
+                && (heartRateResult.HF/heartRateResultLater5Min.LF-heartRateResult.HF/heartRateResultPre5Min.HF)/heartRateResult.HF/heartRateResultPre5Min.LF>-0.05){
+            state = 4;
+        }
+        else {
+            state = 5;
+        }
+        return state;
+    }
+
+    //精神疲劳度
+    public static HRVFragment.HRVResult judgeHRVMentalFatigueData(double HF, double LF, double HF1, double LF1, int SDNN1, double HF2, double LF2, int SDNN2) {
+        Log.i(TAG,",HF:"+HF+",LF:"+LF+",HF1:"+HF1+",LF1:"+LF1+",SDNN1:"+SDNN1+",HF2:"+HF2+",LF2:"+LF2+",SDNN2:"+SDNN2);
+        int state;
+        String suggestion;
+        /*1、	不疲劳
+        SDNN1<120	&	SDNN2<120	&	-0.5<(SDNN2-SDNN1)/5<0.5
+        2、	有点疲劳
+        0.5<(SDNN2-SDNN1)/5<1	||	(140>SDNN2>120	&	HF/LF2>HF/LF1)
+        3、	比较疲劳
+                (SDNN2-SDNN1)/5>1	||
+                (160>SDNN2>140	&	（HF/LF2-HF/LF1）/HF/LF1>0.05)
+        4、	极度疲劳
+        SDNN2>160	&
+                -0.5<(SDNN2-SDNN1)/5<0.5		&
+                -0.05<(HF/LF2-HF/LF1)/HF/LF1<0.05
+        5、	保持上一次判断结果
+                除符合以上四点的其他情况
+*/
+        if ( SDNN1<120	&&	SDNN2<120	&&	(SDNN2-SDNN1)/5>-0.5&&(SDNN2-SDNN1)/5<0.5){
+            state  = 1;
+            suggestion = "您现在精神满满，正是发挥您聪明才智的好机会，想一想自己还有那些没有解决的问题吧，可能灵感就在眼前。";
+        }
+        else if (((SDNN2-SDNN1)/5>0.5&&(SDNN2-SDNN1)/5<1) || (SDNN2<140 && SDNN2>120 && HF/LF2>HF/LF1)){
+            state  = 2;
+            suggestion = "您现在精神状态良好，您可以继续保持当前状态进行脑力活动。";
+        }
+        else if ((SDNN2-SDNN1)/5>1	|| (SDNN2<160 && SDNN2>140 &&(HF/LF2-HF/LF1)/HF/LF1>0.05)){
+            state  = 3;
+            suggestion = "您现在精神较为疲劳，试着放下手中的工作休息一下，缓解疲劳吧。";
+        }
+        else if ( SDNN2>160	& (SDNN2-SDNN1)/5>-0.5&&(SDNN2-SDNN1)/5<0.5 && (HF/LF2-HF/LF1)/HF/LF1>-0.05 && (HF/LF2-HF/LF1)/HF/LF1<0.05){
+            state  = 4;
+            suggestion = "您现在精神非常疲惫，这将影响您的工作效率，建议您适当减轻脑力劳动，离开办公桌释放一下自己吧!";
+        }
+        else {
+            state = 0;
+            suggestion = "";
+        }
+
+        return new HRVFragment.HRVResult(state,suggestion);
+
+    }
+
+    //身体疲劳度 静态
+    public static HRVFragment.HRVResult judgeHRVPhysicalFatigueStatic(double HF, double LF, double HF3, double LF3, int SDNN3, double HF4, double LF4, int SDNN4) {
+        int state;
+        String suggestion;
+        //静态
+        /*1、	非运动状态,不疲劳
+        SDNN4>120	||
+                ((SDNN4-SDNN3)/SDNN3>0.05	&	(LF/HF4-LF/HF3)/LF/HF3>0.05	&	SDNN3>70)
+        2、	非运动状态,比较疲劳
+                (50<SDNN4<70	&	-0.05<(LF/HF4-LF/HF3)/LF/HF3<0.05)	||	0.1>(LF/HF4-LF/HF3)/LF/HF3>0.05
+        3、	非运动状态,非常疲劳
+        SDNN4<50	&	-0.05<(LF/HF4-LF/HF3)/LF/HF3<0.05)	||	 ((LF/HF4-LF/HF3)/LF/HF3>0.1	&	SDNN4<70)*/
+
+        if (SDNN4>120 || ((SDNN4-SDNN3)/SDNN3>0.05 && (LF/HF4-LF/HF3)/LF/HF3>0.05 && SDNN3>70)){
+            state = 1;
+            suggestion = "您现在体能充沛，现在进行体育锻炼将能取得良好的效果，快去进行一些运动吧。";
+        }
+        else if ((SDNN4>50&&SDNN4<70 && ((LF/HF4-LF/HF3)/LF/HF3>-0.05 && (LF/HF4-LF/HF3)/LF/HF3<0.05)) || (LF/HF4-LF/HF3)/LF/HF3<0.1&&(LF/HF4-LF/HF3)/LF/HF3>0.05){
+            state = 2;
+            suggestion = "您现在体力消耗较多，建议您现在不要进行体力运动，适当进行休息吧。";
+        }
+        else if ((SDNN4 <50 && (LF/HF4-LF/HF3)/LF/HF3>-0.05 && (LF/HF4-LF/HF3)/LF/HF3<0.05) || ((LF/HF4-LF/HF3)/LF/HF3>0.1&&SDNN4<70)){
+            state = 3;
+            suggestion = "您的体力似乎已经消耗殆尽，请不要过度透支自己的体力，放松下自己的疲惫的身体吧！";
+        }
+        else {
+            state = 0;
+            suggestion = "";
+        }
+        return new HRVFragment.HRVResult(state,suggestion);
+    }
+
+    //身体疲劳度 动态
+    public static HRVFragment.HRVResult judgeHRVPhysicalFatigueSport(double HF, double LF, double HF1, double LF1, int SDNN1, double HF2, double LF2, int SDNN2) {
+        int state;
+        String suggestion;
+        //动态
+        /*(SDNN2-SDNN1)/SDNN1<0.2	&	SDNN1>70	||	(LF/HF2-LF/HF1)/LF/HF1<5
+        5、	运动状态,比较疲劳
+        0.2<(SDNN2-SDNN1)/SDNN1<0.5	||	5<(LF/HF2-LF/HF1)/LF/HF1<10
+        6、	运动状态,非常疲劳
+        0.5<(SDNN2-SDNN1)/SDNN1	||	（10<(LF/HF2-LF/HF1)/LF/HF1	&	SDNN2<50）*/
+
+
+        if ((SDNN2-SDNN1)/SDNN1<0.2	&&	SDNN1>70	||	(LF/HF2-LF/HF1)/LF/HF1<5){
+            state = 1;
+            suggestion = "您刚才的运动量较少，体能还较为充足，还可以继续进行适度的体育锻炼达到更好的锻炼效果。";
+        }
+        else if (((SDNN2-SDNN1)/SDNN1>0.2 && (SDNN2-SDNN1)/SDNN1<0.5) || ((LF/HF2-LF/HF1)/LF/HF1>5&&(LF/HF2-LF/HF1)/LF/HF1<10)){
+            state = 2;
+            suggestion = "您的体能消耗较大，建议您适当休息，劳逸结合才能达到最佳的锻炼效果。";
+        }
+        else if (0.5<(SDNN2-SDNN1)/SDNN1 || (10<(LF/HF2-LF/HF1)/LF/HF1	&& SDNN2<50)){
+            state = 3;
+            suggestion = "您的体力已经耗尽了，注意不要过度透支自己的体能，停下运动休息一下吧。";
+        }
+        else {
+            state = 0;
+            suggestion = "";
+        }
+        return new HRVFragment.HRVResult(state,suggestion);
+    }
 
 
 }

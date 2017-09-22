@@ -165,6 +165,8 @@ public class HeartRateResult {
 				", RR_HRVI=" + RR_HRVI +
 				", LF=" + LF +
 				", HF=" + HF +
+				", SD1=" + SD1 +
+				", SD2=" + SD2 +
 				'}';
 	}
 }

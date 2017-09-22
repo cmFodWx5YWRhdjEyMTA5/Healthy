@@ -54,7 +54,7 @@ public class HeartRateFragment extends BaseFragment {
 
             if (mUploadRecord.maxhr>0){
                 tv_rate_max.setText("最大:"+mUploadRecord.maxhr +"");
-                tv_rate_average.setText("平均:"+mUploadRecord.maxhr +"");
+                tv_rate_average.setText("平均:"+mUploadRecord.ahr +"");
             }
 
             List<Integer> heartDatas = mUploadRecord.hr;

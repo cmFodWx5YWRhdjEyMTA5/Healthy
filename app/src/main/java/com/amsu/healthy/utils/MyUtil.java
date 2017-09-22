@@ -111,10 +111,14 @@ public class MyUtil {
 
     public static void hideDialog(Activity context) {
         if (context == null || context.isFinishing() || context.isDestroyed()) return;
-        if (dialog != null && dialog.isShowing()){
-            dialog.dismiss();
-            Log.i(TAG,"hideDialog:"+dialog.isShowing());
-            dialog = null;
+        try{
+            if (dialog != null && dialog.isShowing()){
+                dialog.dismiss();
+                Log.i(TAG,"hideDialog:"+dialog.isShowing());
+                dialog = null;
+            }
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
         }
     }
 
@@ -394,7 +398,7 @@ public class MyUtil {
         }
     }
 
-    public static String getFormatTime(Date date){
+    public static String getPaceFormatTime(Date date){
         //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd H:m:s");
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);  //07-12 15:10
         return format.format(date);
@@ -519,21 +523,21 @@ public class MyUtil {
     public static String fileToBase64(File file) {
         String base64 = null;
         InputStream in = null;
-        try {
-            in = new FileInputStream(file);
-            byte[] bytes = new byte[in.available()];
-            int length = in.read(bytes);
-            base64 = Base64.encodeToString(bytes, 0, length, Base64.DEFAULT);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (in!=null){
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+        if(file.exists()){
+            try {
+                in = new FileInputStream(file);
+                byte[] bytes = new byte[in.available()];
+                int length = in.read(bytes);
+                base64 = Base64.encodeToString(bytes, 0, length, Base64.DEFAULT);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (in!=null){
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -1116,12 +1120,66 @@ public class MyUtil {
     }
 
     private static DecimalFormat mDecimalFormat;
+
     public static String getFormatDistance(double distance) {
         //构造方法的字符格式这里如果小数不足2位,会以0补足.
         if (mDecimalFormat==null){
             mDecimalFormat = new DecimalFormat("0.00");
         }
         return mDecimalFormat.format(distance/1000);
+    }
+
+    public static String getFormatFloatValue(double value,String format) {
+        //构造方法的字符格式这里如果小数不足2位,会以0补足.
+        return new DecimalFormat(format).format(value);
+    }
+
+    public static String getPaceFormatTime(long duration) {
+        //构造方法的字符格式这里如果小数不足2位,会以0补足.
+        String myDuration;
+        if (duration>60*60) {
+            myDuration = duration/(60*60)+"h"+(duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
+        }
+        else {
+            myDuration = (duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
+        }
+        return myDuration;
+    }
+
+    public static String getFormatSpeed(double distance,long duration) {
+        float mapRetrurnSpeed =0;
+        if (duration>0){
+            mapRetrurnSpeed = (float) (distance / duration);
+        }
+
+        Log.i(TAG,"distance:"+distance);
+        Log.i(TAG,"duration:"+duration);
+        Log.i(TAG,"mapRetrurnSpeed:"+mapRetrurnSpeed);
+
+        String formatSpeed;
+        if (mapRetrurnSpeed==0){
+            formatSpeed = "--";
+        }
+        else {
+            float speed = (1/mapRetrurnSpeed)*1000f;
+            Log.i(TAG,"speed:"+speed);
+            if (speed>=60*60*2){
+                formatSpeed = "--";
+            }
+            else {
+                formatSpeed = (int)speed/60+"'"+(int)speed%60+"''";
+            }
+        }
+        return formatSpeed;
+    }
+
+    public static String getDurationFormTime(long durationTimeteamp){  //duration位毫秒
+        Date date = new Date();
+        date.setHours(0);
+        date.setMinutes(0);
+        date.setSeconds(0);
+        date = new Date(date.getTime()+durationTimeteamp);
+        return getSpecialFormatTime("HH:mm:ss", date);
     }
 }
 

@@ -26,6 +26,9 @@ import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.OffLineDbAdapter;
 
+import com.amsu.healthy.utils.map.DbAdapter;
+import com.amsu.healthy.utils.map.PathRecord;
+import com.amsu.healthy.utils.map.Util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
@@ -58,11 +61,17 @@ public class HeartRateResultShowActivity extends BaseActivity {
     private float mOneTableWidth;
     private int subFormAlCount = 0 ;  //当有四个fragment是为0，有5个fragment时为1
     private ImageView iv_base_myreport;
+    public static int state;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rate_analysis);
+
+
+
+
+
         Log.i(TAG,"onCreate");
         initView();
         initData();
@@ -146,47 +155,58 @@ public class HeartRateResultShowActivity extends BaseActivity {
             Bundle bundle = intent.getParcelableExtra("bundle");
             if (bundle!=null){
                 UploadRecord uploadRecord = bundle.getParcelable("uploadRecord");
+                Log.i(TAG,"uploadRecord:"+uploadRecord);
                 if (uploadRecord==null){
                     final HistoryRecord historyRecord = bundle.getParcelable("historyRecord");
-                    Log.i(TAG,"historyRecord:"+historyRecord.toString());
+                    if (historyRecord!=null){
+                        Log.i(TAG,"historyRecord:"+historyRecord.toString());
+                        String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm",new Date(historyRecord.getDatatime()));  //此处的datatime是时间戳（毫秒）
+                        setCenterText(datatime);
 
-                    //adjustFeagmentCount(historyRecord.getState());
+                        state = historyRecord.getState();
 
-                    //String datatime = historyRecord.getDatatime();
-                    String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm",new Date(historyRecord.getDatatime()));  //此处的datatime是时间戳（毫秒）
-                    setCenterText(datatime);
+                        //奔溃缓存策略
+                        //先从本地数据库中根据datatime查询数据，没有的话根据id从服务器获取
+                        OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(HeartRateResultShowActivity.this);
+                        try {
+                            offLineDbAdapter.open();
+                        }catch (Exception ignored){
+                        }
 
-                    //奔溃缓存策略
-                    //先从本地数据库中根据datatime查询数据，没有的话根据id从服务器获取
-                    OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(HeartRateResultShowActivity.this);
-                    try {
-                        offLineDbAdapter.open();
-                    }catch (Exception ignored){
-                    }
+                        Log.i(TAG,"historyRecord.getDatatime():"+historyRecord.getDatatime());
 
-                    Log.i(TAG,"historyRecord.getDatatime():"+historyRecord.getDatatime());
+                        uploadRecord = offLineDbAdapter.queryRecordByTimestamp(historyRecord.getDatatime()/1000);  // 2017-06-28 11:01:33
+                        Log.i(TAG,"本地数据库uploadRecord:"+uploadRecord);
+                        try {
+                            offLineDbAdapter.close();
+                        }catch (Exception ignored){
+                        }
 
-                    uploadRecord = offLineDbAdapter.queryRecordByTimestamp(historyRecord.getDatatime()/1000);  // 2017-06-28 11:01:33
-                    Log.i(TAG,"本地数据库uploadRecord:"+uploadRecord);
-                    try {
-                        offLineDbAdapter.close();
-                    }catch (Exception ignored){
-                    }
-
-                    if (uploadRecord!=null){
-                        mUploadRecord = uploadRecord;
-                        adjustFeagmentCount(historyRecord.getState());
-                    }
-                    else {
-                        //本地没有缓存,从服务器上取
-                        getHistoryReportDetail(historyRecord);
+                        if (uploadRecord!=null){
+                            mUploadRecord = uploadRecord;
+                            adjustFeagmentCount(historyRecord.getState());
+                        }
+                        else {
+                            //本地没有缓存,从服务器上取
+                            getHistoryReportDetail(historyRecord);
+                        }
                     }
                 }
                 else {
+                    state = uploadRecord.state;
                     //当前分析结果，直接显示
+                    if (uploadRecord.state==1 && uploadRecord.sportCreateRecordID>0){
+                        DbAdapter dbAdapter = new DbAdapter(this);
+                        dbAdapter.open();
+                        PathRecord pathRecord = dbAdapter.queryRecordById((int) uploadRecord.sportCreateRecordID);
+                        dbAdapter.close();
+                        uploadRecord.latitudeLongitude = Util.getLatitude_longitudeString(pathRecord);
+                    }
+
                     mUploadRecord = uploadRecord;
                     Log.i(TAG,"直接显示uploadRecord:"+uploadRecord.toString());
                     Log.i(TAG,"mUploadRecord.ae:"+uploadRecord.ae);
+
                     Log.i(TAG,"mUploadRecord.latitudeLongitude:"+uploadRecord.latitudeLongitude);
                     //String replace = mUploadRecord.getDatatime().replace("/", "-");//2016/10/24 10:56:4
                     String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm",new Date(uploadRecord.timestamp*1000));//此处的datatime是时间戳（秒）
@@ -278,6 +298,21 @@ public class HeartRateResultShowActivity extends BaseActivity {
             String loubo = jsonObject.getString("loubo");
             String latitudeLongitude = jsonObject.getString("latitudeLongitude");
 
+            //后加字段
+            String sdnn1 = jsonObject.getString("sdnn1");
+            String sdnn2 = jsonObject.getString("sdnn2");
+            String lf1 = jsonObject.getString("lf1");
+            String lf2 = jsonObject.getString("lf2");
+            String hf1 = jsonObject.getString("hf1");
+            String hf2 = jsonObject.getString("hf2");
+            String hf = jsonObject.getString("hf");
+            String lf = jsonObject.getString("lf");
+            String chaosPlotPoint = jsonObject.getString("chaosPlotPoint");
+            String frequencyDomainDiagramPoint = jsonObject.getString("frequencyDomainDiagramPoint");
+            String chaosPlotMajorAxis = jsonObject.getString("chaosPlotMajorAxis");
+            String chaosPlotMinorAxis = jsonObject.getString("chaosPlotMinorAxis");
+
+
             UploadRecord uploadRecord = new UploadRecord();
             uploadRecord.id = Long.parseLong(id);
             uploadRecord.fi = Integer.parseInt(fi);
@@ -315,15 +350,54 @@ public class HeartRateResultShowActivity extends BaseActivity {
                 uploadRecord.latitudeLongitude = gson.fromJson(latitudeLongitude,new TypeToken<List<ParcelableDoubleList>>() {}.getType());
             }
 
-            uploadRecord.distance =Double.parseDouble(distance);
+            uploadRecord.distance = Float.parseFloat(distance);
             uploadRecord.time = (long) Float.parseFloat(time);
             uploadRecord.state =Integer.parseInt(state);
             uploadRecord.zaobo =Integer.parseInt(zaobo);
             uploadRecord.loubo =Integer.parseInt(loubo);
 
-            uploadRecord.localEcgFileName = MyUtil.generateECGFilePath(HeartRateResultShowActivity.this, System.currentTimeMillis());;
+            uploadRecord.localEcgFileName = MyUtil.generateECGFilePath(HeartRateResultShowActivity.this, System.currentTimeMillis());
 
+            if (!MyUtil.isEmpty(sdnn1) && !sdnn1.equals("null")){
+                uploadRecord.sdnn1 = Integer.parseInt(sdnn1);
+            }
+            if (!MyUtil.isEmpty(sdnn2) && !sdnn2.equals("null")){
+                uploadRecord.sdnn2 = Integer.parseInt(sdnn2);
+            }
 
+            if (!MyUtil.isEmpty(lf1) && !lf1.equals("null")){
+                uploadRecord.lf1 = Double.parseDouble(lf1);
+            }
+            if (!MyUtil.isEmpty(lf2) && !lf2.equals("null")){
+                uploadRecord.lf2 = Double.parseDouble(lf2);
+            }
+            if (!MyUtil.isEmpty(hf1) && !hf1.equals("null")){
+                uploadRecord.hf1 = Double.parseDouble(hf1);
+            }
+            if (!MyUtil.isEmpty(hf2) && !hf2.equals("null")){
+                uploadRecord.hf2 = Double.parseDouble(hf2);
+            }
+            if (!MyUtil.isEmpty(hf) && !hf.equals("null")){
+                uploadRecord.hf = Double.parseDouble(hf);
+            }
+            if (!MyUtil.isEmpty(lf) && !lf.equals("null")){
+                uploadRecord.lf = Double.parseDouble(lf);
+            }
+
+            if (!MyUtil.isEmpty(chaosPlotPoint) && !chaosPlotPoint.equals(Constant.uploadRecordDefaultString) ){
+                uploadRecord.chaosPlotPoint = gson.fromJson(chaosPlotPoint,new TypeToken<List<Integer>>() {}.getType());
+            }
+
+            if (!MyUtil.isEmpty(frequencyDomainDiagramPoint) && !frequencyDomainDiagramPoint.equals(Constant.uploadRecordDefaultString) ){
+                uploadRecord.frequencyDomainDiagramPoint = gson.fromJson(frequencyDomainDiagramPoint,new TypeToken<List<Double>>() {}.getType());
+            }
+
+            if (!MyUtil.isEmpty(chaosPlotMajorAxis) && !chaosPlotMajorAxis.equals("null")){
+                uploadRecord.chaosPlotMajorAxis = Integer.parseInt(chaosPlotMajorAxis);
+            }
+            if (!MyUtil.isEmpty(chaosPlotMinorAxis) && !chaosPlotMinorAxis.equals("null")){
+                uploadRecord.chaosPlotMinorAxis = Integer.parseInt(chaosPlotMinorAxis);
+            }
 
             mUploadRecord = uploadRecord;
 
@@ -341,20 +415,24 @@ public class HeartRateResultShowActivity extends BaseActivity {
                 offLineDbAdapter.close();
             }
             Log.i(TAG,"mUploadRecord:"+mUploadRecord);
+            Log.i(TAG,"latitudeLongitude:"+latitudeLongitude);
+            Log.i(TAG,"mUploadRecord.latitudeLongitude:"+mUploadRecord.latitudeLongitude);
         } catch (JSONException e) {
+            e.printStackTrace();
+        }catch (NumberFormatException e){
             e.printStackTrace();
         }
     }
 
     private void adjustFeagmentCount(int state) {
         fragmentList.clear();
-        if (state==1){
+        if (state!=0){
             fragmentList.add(new SportFragment());
         }
         fragmentList.add(new HRVFragment());
         fragmentList.add(new HeartRateFragment());
         fragmentList.add(new ECGFragment());
-        if (state==1){
+        if (state!=0){
             fragmentList.add(new HRRFragment());
         }
 

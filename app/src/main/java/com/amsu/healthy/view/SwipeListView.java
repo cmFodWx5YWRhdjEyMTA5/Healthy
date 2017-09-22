@@ -48,6 +48,7 @@ public class SwipeListView extends ListView {
     private boolean isFootNeedLoadMore;
     private boolean isFootNeedLoadMoring;
     private boolean isAllowLoadMore = true;
+    private boolean isLoadMoreOpened = true;
 
     public SwipeListView(Context context) {
         this(context,null);
@@ -193,7 +194,7 @@ public class SwipeListView extends ListView {
                 if (downY-startY>20){
                     //下拉
                     if (getLastVisiblePosition()==getCount()-1 ){
-                        if (!isFootNeedLoadMore && isAllowLoadMore){
+                        if (!isFootNeedLoadMore && isAllowLoadMore && isLoadMoreOpened){
                             //可见最后一个是最后一条,需要加载更多
                             iv_chatt_refresh.setAnimation(circleAnimation);
                             circleAnimation.start();
@@ -234,7 +235,7 @@ public class SwipeListView extends ListView {
                     }
 
                     // can't move beyond boundary
-                    if (dx < 0 && dx > -mRightViewWidth) {
+                    if (dx < 0 && dx > -mRightViewWidth && mCurrentItemView!=null) {
                         mCurrentItemView.scrollTo((int)(-dx), 0);
                     }
 
@@ -256,11 +257,16 @@ public class SwipeListView extends ListView {
                 break;
 
             case MotionEvent.ACTION_UP:
-                if (isFootNeedLoadMore && !isFootNeedLoadMoring && isAllowLoadMore){
-                    refreshDataListener.loadMore();
-                    isFootNeedLoadMore = false;
-                    isFootNeedLoadMoring = true;
+                if (isLoadMoreOpened){
+                    if (isFootNeedLoadMore && !isFootNeedLoadMoring && isAllowLoadMore ){
+                        if (refreshDataListener!=null){
+                            refreshDataListener.loadMore();
+                            isFootNeedLoadMore = false;
+                            isFootNeedLoadMoring = true;
+                        }
+                    }
                 }
+
             case MotionEvent.ACTION_CANCEL:
                 System.out.println("============ACTION_UP");
                 clearPressedState();
@@ -428,5 +434,7 @@ LoadMoreListView.LoadMoreDataListener refreshDataListener;
         isAllowLoadMore = allowLoadMore;
     }
 
-
+    public void setLoadMoreOpened(boolean loadMoreOpened) {
+        isLoadMoreOpened = loadMoreOpened;
+    }
 }

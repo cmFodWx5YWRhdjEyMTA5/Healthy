@@ -1,29 +1,17 @@
 package com.amsu.healthy.appication;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
-import android.app.Notification;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.amsu.healthy.activity.BaseActivity;
-import com.amsu.healthy.fragment.inoutdoortype.OutDoorRunFragment;
-import com.amsu.healthy.fragment.inoutdoortype.OutDoorRunGoogleFragment;
-import com.amsu.healthy.service.CommunicateToBleService;
-import com.amsu.healthy.service.LocalGuardService;
-import com.amsu.healthy.service.MyTestService2;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.WebSocketUtil;
 import com.mob.MobSDK;
 import com.tencent.bugly.crashreport.CrashReport;
 
@@ -32,7 +20,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 
@@ -71,6 +58,8 @@ public class MyApplication extends Application{
     public Date runningCurrTimeDate;
     public boolean runningIsRunning;
     public int runningmCurrentHeartRate;
+    public WebSocketUtil webSocketUtil;
+
 
     @Override
     public void onCreate() {
@@ -173,5 +162,13 @@ public class MyApplication extends Application{
 
     public void setRunningmCurrentHeartRate(int runningmCurrentHeartRate) {
         this.runningmCurrentHeartRate = runningmCurrentHeartRate;
+    }
+
+    public WebSocketUtil getWebSocketUtil() {
+        return webSocketUtil;
+    }
+
+    public void setWebSocketUtil(WebSocketUtil webSocketUtil) {
+        this.webSocketUtil = webSocketUtil;
     }
 }

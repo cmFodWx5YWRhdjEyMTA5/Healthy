@@ -54,6 +54,7 @@ public class HeightCurveView extends View {
     private float mYTextsMaxValue = 0;
     private float mAnotherYTextsMaxValue = 0;
     private float line_width;
+    private boolean isDrawTopLine;
 
     public HeightCurveView(Context context) {
         super(context);
@@ -177,10 +178,15 @@ public class HeightCurveView extends View {
                 }
             }
             if (i==0){
-                curvePath.moveTo(0,mHeight);  //坐标原点
+                /*curvePath.moveTo(0,mHeight);  //坐标原点
                 curvePath.lineTo(x,y);   //第一个点
 
                 shadePath.moveTo(0,mHeight);
+                shadePath.lineTo(x,y);*/
+                curvePath.moveTo(mCoordinateAnixWidth,y);  //坐标原点
+                curvePath.lineTo(x,y);   //第一个点
+
+                shadePath.moveTo(mCoordinateAnixWidth,mHeight-mMarginBotom);
                 shadePath.lineTo(x,y);
             }
             else {
@@ -188,9 +194,9 @@ public class HeightCurveView extends View {
                 curvePath.lineTo(x,y);
             }
         }
-       // curvePath.lineTo(mWidth,y);
+        curvePath.lineTo(mWidth,y);
 
-        //shadePath.lineTo(mWidth,y);
+        shadePath.lineTo(mWidth,y);
         shadePath.lineTo(x,mHeight-mMarginBotom-3*mCoordinateAnixWidth);
         shadePath.lineTo(x,mHeight-mMarginBotom-3*mCoordinateAnixWidth);
 
@@ -201,6 +207,11 @@ public class HeightCurveView extends View {
         mCurveLinePaint.setStyle(Paint.Style.FILL);
         canvas.drawPath(shadePath,mCurveLinePaint);   //画渐变范围
 
+        if (isDrawTopLine){
+            mCurveLinePaint.setStyle(Paint.Style.STROKE);
+            mCurveLinePaint.setShader(null);
+            canvas.drawPath(curvePath,mCurveLinePaint);
+        }
         /*mCurveLinePaint.setStyle(Paint.Style.STROKE);
         mCurveLinePaint.setShader(null);
         canvas.drawPath(curvePath,mCurveLinePaint);  //画曲线*/
@@ -240,12 +251,14 @@ public class HeightCurveView extends View {
             for (int i=0;i<4;i++){
                 yTexts[i] = (int)ceil*(i+1)+"";
             }
+            mYTextsMaxValue =  Float.parseFloat(yTexts[3]);
         }
         else {
             double ceil = Math.ceil(mYTextsMaxValue / 4f);
             for (int i=0;i<4;i++){
                 yTexts[i] = (int)ceil*(i+1)+"";
             }
+            //mYTextsMaxValue =  Float.parseFloat(yTexts[3]);
         }
 
         //纵坐标数值
@@ -418,7 +431,6 @@ public class HeightCurveView extends View {
     }
 
     public void setData(int[] data, int time){
-
         if (data!=null && data.length>0){
             this.timeLong = time;
             float[] dataTemp = new float[data.length];
@@ -427,6 +439,40 @@ public class HeightCurveView extends View {
                     mYTextsMaxValue = data[i];
                 }
                 dataTemp[i] = data[i];
+            }
+            this.data = dataTemp;
+            invalidate();
+        }
+    }
+
+    //鞋垫double型数组
+    public void setData(double[] data, int time,boolean isDrawTopLine){
+        if (data!=null && data.length>0){
+            this.isDrawTopLine = isDrawTopLine;
+            this.timeLong = time;
+            float[] dataTemp = new float[data.length];
+            for (int i=0;i<data.length;i++){
+                if (data[i]>mYTextsMaxValue){
+                    mYTextsMaxValue = (float) data[i];
+                }
+                dataTemp[i] = (float) data[i];
+            }
+            this.data = dataTemp;
+            invalidate();
+        }
+    }
+
+    //鞋垫int型数组
+    public void setData(int[] data, int time,boolean isDrawTopLine){
+        if (data!=null && data.length>0){
+            this.isDrawTopLine = isDrawTopLine;
+            this.timeLong = time;
+            float[] dataTemp = new float[data.length];
+            for (int i=0;i<data.length;i++){
+                if (data[i]>mYTextsMaxValue){
+                    mYTextsMaxValue = (float) data[i];
+                }
+                dataTemp[i] = (float) data[i];
             }
             this.data = dataTemp;
             invalidate();

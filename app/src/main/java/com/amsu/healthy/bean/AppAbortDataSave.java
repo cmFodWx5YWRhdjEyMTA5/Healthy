@@ -19,6 +19,7 @@ public class AppAbortDataSave implements Cloneable {
     public int state;
     public List<Integer> speedStringList;
     public List<String> kcalStringList;
+    public boolean isOutDoor;
 
     public AppAbortDataSave() {
     }
@@ -123,7 +124,6 @@ public class AppAbortDataSave implements Cloneable {
         this.kcalStringList = kcalStringList;
     }
 
-
     @Override
     public String toString() {
         return "AppAbortDataSave{" +
@@ -135,6 +135,7 @@ public class AppAbortDataSave implements Cloneable {
                 ", state=" + state +
                 ", speedStringList=" + speedStringList +
                 ", kcalStringList=" + kcalStringList +
+                ", isOutDoor=" + isOutDoor +
                 '}';
     }
 }

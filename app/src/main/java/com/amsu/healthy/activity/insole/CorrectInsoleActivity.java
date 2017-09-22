@@ -14,16 +14,18 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.activity.BaseActivity;
 import com.amsu.healthy.activity.MyDeviceActivity;
 import com.amsu.healthy.activity.RunTimeCountdownActivity;
 import com.amsu.healthy.service.CommunicateToBleService;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
 import com.ble.api.DataUtil;
 
 import java.util.UUID;
 
-public class CorrectInsoleActivity extends Activity {
+public class CorrectInsoleActivity extends BaseActivity {
 
     private static final String TAG = "CorrectInsoleActivity";
     private String insole_connecMac1;
@@ -31,6 +33,7 @@ public class CorrectInsoleActivity extends Activity {
     private TextView tv_correct_insole1;
     private TextView tv_correct_insole2;
     private int mCorrectedSuccessedCount;
+    private boolean isStartAnotherActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +45,28 @@ public class CorrectInsoleActivity extends Activity {
     }
 
     private void initView() {
+        initHeadView();
+        setCenterText("静态校准");
+        setLeftImage(R.drawable.back_icon);
+        getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        setRightText("跳过");
+        getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CorrectInsoleActivity.this, InsoleRunningActivity.class);
+                boolean booleanExtra = getIntent().getBooleanExtra(Constant.mIsOutDoor, false);
+                Log.i(TAG,"booleanExtra:"+booleanExtra);
+                intent.putExtra(Constant.mIsOutDoor,booleanExtra);
+                startActivity(intent);
+                finish();
+            }
+        });
+
         tv_correct_insole1 = (TextView) findViewById(R.id.tv_correct_insole1);
         tv_correct_insole2 = (TextView) findViewById(R.id.tv_correct_insole2);
 
@@ -121,9 +146,35 @@ public class CorrectInsoleActivity extends Activity {
                         });
                     }
                 }.start();*/
-                MyUtil.showToask(this,"校准成功，开始跑步");
-                startActivity(new Intent(CorrectInsoleActivity.this,InsoleRunningActivity.class));
-                finish();
+                if (!isStartAnotherActivity){
+                    isStartAnotherActivity = true;
+                    MyUtil.showToask(this,"校准成功，开始跑步");
+                    final Intent intent = new Intent(CorrectInsoleActivity.this, InsoleRunningActivity.class);
+                    boolean booleanExtra = getIntent().getBooleanExtra(Constant.mIsOutDoor, false);
+                    Log.i(TAG,"booleanExtra:"+booleanExtra);
+                    intent.putExtra(Constant.mIsOutDoor,booleanExtra);
+
+
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            });
+                            super.run();
+                        }
+                    }.start();
+                }
+
             }
         }
         else if ((hexData.length()==8)){ //校准失败： 45 52 52
@@ -200,7 +251,11 @@ public class CorrectInsoleActivity extends Activity {
     }
 
     public void startNow(View view) {
-        startActivity(new Intent(CorrectInsoleActivity.this,InsoleRunningActivity.class));
+        Intent intent = new Intent(CorrectInsoleActivity.this, InsoleRunningActivity.class);
+        boolean booleanExtra = getIntent().getBooleanExtra(Constant.mIsOutDoor, false);
+        Log.i(TAG,"booleanExtra:"+booleanExtra);
+        intent.putExtra(Constant.mIsOutDoor,booleanExtra);
+        startActivity(intent);
         finish();
     }
 }

@@ -49,6 +49,7 @@ public class Constant {
     public static String getHistoryReportListURL = "http://www.amsu-new.com:8081/intellingence-web/getReportList.do";
     //public static String getHistoryReportDetailURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/getDetail";
     public static String getHistoryReportDetailURL = "http://www.amsu-new.com:8081/intellingence-web/getDetail.do";
+    public static String getShoepaddetailsURL = "http://www.amsu-new.com:8081/intellingence-web/getShoepaddetails.do";
     //public static String downloadWeekReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadWeekReport";
     //public static String downloadWeekReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadWeekReport.do";
     public static String downloadWeekReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadWeekReport.do";
@@ -65,6 +66,7 @@ public class Constant {
     public static String Questionnaire2URL = "https://wj.qq.com/s/1338652/a851";
     public static String getInsoleTokenURL = "http://www.amsu-new.com:8081/intellingence-web/getToken.do";
     public static String get30ScendInsoleAlanyDataURL = "http://www.amsu-new.com:8081/intellingence-web/getShoepadDatas30seconds.do";
+    public static String getALLShoepadDatasURL = "http://www.amsu-new.com:8081/intellingence-web/getShoepadDatas.do";
     public static String ServerHostName = "http://www.amsu-new.com:8081/";
     //public static String ServerHostName = "http://192.168.0.117:8080/";
     public static String bindDeviceInsoleUrl = ServerHostName+"intellingence-web/bangdingshoepad.do";
@@ -77,6 +79,7 @@ public class Constant {
     public static String sportState = "sportState";
     public static String isLookupECGDataFromSport = "isLookupECGDataFromSport";
     public static String heartDataList_static = "heartDataListstatic";
+    public static String paceList = "paceList";
     public static String heartDataList_athletic = "heartDataList_athletic";
     public static String mKcalData = "mKcalData";
     public static String mStridefreData = "mStridefreData";
@@ -84,6 +87,7 @@ public class Constant {
     public static String sportCreateRecordID = "sportCreateRecordID";
     public static int SPORTSTATE_STATIC = 0;
     public static int SPORTSTATE_ATHLETIC = 1;
+    public static int SPORTSTATE_INDOOR = 2;
     public static String hrr = "hrr";
     public static String ecgFiletimeMillis = "ecgFiletimeMillis";
     public static String startTimeMillis = "startTimeMillis";
@@ -117,6 +121,14 @@ public class Constant {
     public static String deleteBangdingByUserId = "http://www.amsu-new.com:8081/intellingence-web/deleteBangdingByUserid.do";
 
 
+    public static final String leftInsoleFileAbsolutePath = "leftInsoleFileAbsolutePath";
+    public static final String rightInsoleFileAbsolutePath = "rightInsoleFileAbsolutePath";
+
+    public static final String insoleAllKcal = "insoleAllKcal";
+    public static final String maxSpeedKM_Hour = "maxSpeedKM_Hour";
+    public static final String stridefreList = "stridefreList";
+    public static final String getShoepadList = "http://www.amsu-new.com:8081/intellingence-web/getShoepadList.do";
+    public static final String deleteShoepadDataById = "http://192.168.0.116:8080/intellingence-web/deleteShoepadDataById.do";
 
 
 

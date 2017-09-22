@@ -73,8 +73,11 @@ public class PopupWindowUtil {
 
                         if (activity.isFinishing() || activity.isDestroyed() || activity != MyApplication.mCurrApplicationActivity) return;
                         if (!mPopupWindow.isShowing()) {
-                            mPopupWindow.showAtLocation(activity.getTv_base_rightText(), Gravity.TOP, 0, 0);
-                            Log.i(TAG, "PopupWindow.showAtLocation:");
+                            TextView tv_base_rightText = activity.getTv_base_rightText();
+                            if (tv_base_rightText!=null){
+                                mPopupWindow.showAtLocation(tv_base_rightText, Gravity.TOP, 0, 0);
+                                Log.i(TAG, "PopupWindow.showAtLocation:");
+                            }
                         }
                     }
                 });
@@ -106,5 +109,4 @@ public class PopupWindowUtil {
             }
         }.start();
     }
-
 }

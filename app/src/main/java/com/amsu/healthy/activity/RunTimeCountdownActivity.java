@@ -58,6 +58,8 @@ public class RunTimeCountdownActivity extends Activity {
                         else if (intExtra==Constant.sportType_Insole){
                             intent.setClass(RunTimeCountdownActivity.this,InsoleRunningActivity.class);
                         }
+                        boolean booleanExtra = getIntent().getBooleanExtra(Constant.mIsOutDoor, false);
+                        intent.putExtra(Constant.mIsOutDoor,booleanExtra);
                         startActivity(intent);
                         finish();
                     }

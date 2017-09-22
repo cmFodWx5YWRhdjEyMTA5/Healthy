@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.amsu.healthy.activity.insole.AnalyticFinshResultActivity">
+    tools:context="com.amsu.healthy.activity.insole.InsoleAnalyticFinshResultActivity">
 
     <include layout="@layout/page_head"
         android:id="@+id/rl_base_head">

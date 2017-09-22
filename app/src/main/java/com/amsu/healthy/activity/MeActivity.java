@@ -20,6 +20,7 @@ import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.scancode.activity.CaptureActivity;
 import com.amsu.healthy.view.CircleImageView;
 import com.lidroid.xutils.BitmapUtils;
 import com.lidroid.xutils.HttpUtils;
@@ -28,7 +29,8 @@ import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
-import com.xys.libzxing.zxing.activity.CaptureActivity;
+
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -174,7 +176,7 @@ public class MeActivity extends BaseActivity {
                     dumpToPersionData();
                     break;
                 case R.id.rl_me_historyrecord:
-                    startActivity(new Intent(MeActivity.this,HistoryRecordActivity.class));
+                    startActivity(new Intent(MeActivity.this,HistoryRecordAllActivity.class));
                     break;
                 case R.id.rl_me_report:
                     startActivity(new Intent(MeActivity.this,MyReportActivity.class));
@@ -214,15 +216,11 @@ public class MeActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode==RESULT_OK && requestCode==0){
-            final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-            alertDialog.setPositiveButton("确定", null);
-
             //alertDialog.setCanceledOnTouchOutside(false);
 
             Bundle bundle = data.getExtras();
             if (bundle != null) {
                 String result=bundle.getString("result");
-
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     String key = (String) jsonObject.get("key");
@@ -231,44 +229,17 @@ public class MeActivity extends BaseActivity {
                     Log.i(TAG,"url:"+url);
 
                     if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(url)){
-                        MyUtil.showDialog("正在进行服务器验证",MeActivity.this);
+                        Intent intent = new Intent(MeActivity.this,ConfirmScanLoginActivity.class);
+                        intent.putExtra("key",key);
+                        intent.putExtra("url",url);
+                        startActivity(intent);
 
-                        final HttpUtils httpUtils = new HttpUtils();
-                        RequestParams params = new RequestParams();
-                        params.addBodyParameter("passToken",key);
-                        MyUtil.addCookieForHttp(params);
-
-                        httpUtils.send(HttpRequest.HttpMethod.POST, url, params, new RequestCallBack<String>() {
-                            @Override
-                            public void onSuccess(ResponseInfo<String> responseInfo) {
-                                String result = responseInfo.result;
-                                Log.i(TAG,"onSuccess==result:"+result);
-                                MyUtil.hideDialog(MeActivity.this);
-
-                                alertDialog.setTitle("手机验证成功");
-                                alertDialog.create();
-                                alertDialog.show();
-
-                            }
-
-                            @Override
-                            public void onFailure(HttpException e, String s) {
-                                Log.i(TAG,"onFailure:"+e);
-                                MyUtil.hideDialog(MeActivity.this);
-
-                                alertDialog.setTitle("手机验证失败，请检查网络后重试");
-                                alertDialog.create();
-                                alertDialog.show();
-                            }
-                        });
+                        MyUtil.showToask(MeActivity.this,"扫描成功");
                     }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-
-                    alertDialog.setTitle("验证失败，请对准手表上的二维码");
-                    alertDialog.create();
-                    alertDialog.show();
+                    MyUtil.showToask(MeActivity.this,"扫描失败，请对准手表上的二维码");
                 }
             }
         }

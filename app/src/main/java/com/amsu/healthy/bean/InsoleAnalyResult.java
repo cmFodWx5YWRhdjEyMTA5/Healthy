@@ -1,5 +1,11 @@
 package com.amsu.healthy.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @anthor haijun
  * @project name: Healthy
@@ -7,160 +13,184 @@ package com.amsu.healthy.bean;
  * @time 8/1/2017 7:36 PM
  * @describe
  */
-public class InsoleAnalyResult {
-    /*{
-    "header": {
-        "uuid": "a3b51bed-4fa8-4d0c-87d5-c5454f24c568",
-        "creationTime": 100000,
-        "type": "walking",
-        "description": null,
-        "comment": null,
-        "version": "V1-20170221"
-    },
-    "customer": {
-        "name": "haijun",
-        "gender": "male",
-        "age": 24,
-        "height": 165,
-        "weight": 52,
-        "phone": "18689463192"
-    },
-    "general": {
-        "dataQuality": "good",
-        "duration": 42.58000000000004,
-        "stepCount": 36,
-        "stepRate": 59.14972273567461,
-        "strideLength": 10.815709236154412,
-        "symmetry": 0.8436741301156385,
-        "variability": 0.34099146209623155
-    },
-    "left": {
-        "swingWidthMean": 1.3025415271426037,
-        "stepHeightMean": 11.324873189693207,
-        "stanceDurationMean": 1.0275000000000176,
-        "inversion": true,
-        "eversion": false,
-        "landingPosition": {
-            "sagital": "heel",
-            "frontal": "outside"
-        },
-        "supportStabilityMean": 0.012690105455593601
-    },
-    "right": {
-        "swingWidthMean": -1.302541527142604,
-        "stepHeightMean": 11.324873189693207,
-        "stanceDurationMean": 1.0275000000000176,
-        "inversion": true,
-        "eversion": false,
-        "landingPosition": {
-            "sagital": "heel",
-            "frontal": "inside"
-        },
-        "supportStabilityMean": 0.012690105455593601
-    }
-}*/
+public class InsoleAnalyResult{
     public Header header;
-    public Customer customer;
+    public Testee testee;
     public General general;
-    public LeftAndRight left;
-    public LeftAndRight right;
-
+    public List<LeftAndRight> left;
+    public List<LeftAndRight> right;
 
     public class Header{
-        public String uuid;
+        public String id;
         public long creationTime;
-        public String type;
         public String description;
         public String comment;
         public String version;
         @Override
         public String toString() {
-            return "Header [uuid=" + uuid + ", creationTime=" + creationTime
-                    + ", type=" + type + ", description=" + description
+            return "Header [uuid=" + id + ", creationTime=" + creationTime
+                    + ", description=" + description
                     + ", comment=" + comment + ", version=" + version + "]";
         }
-
-
     }
 
-    public class Customer{
+    public class Testee{
         public String name;
         public String gender;
         public int age;
         public int height;
         public int weight;
         public String phone;
+
         @Override
         public String toString() {
             return "Customer [name=" + name + ", gender=" + gender + ", age="
                     + age + ", height=" + height + ", weight=" + weight
                     + ", phone=" + phone + "]";
         }
-
-
     }
 
-
     public class General{
-        public String dataQuality;
-        public float duration;
-        public int stepCount;
-        public float stepRate;
-        public float strideLength;
-        public float symmetry;
-        public float variability;
-        @Override
-        public String toString() {
-            return "General [dataQuality=" + dataQuality + ", duration="
-                    + duration + ", stepCount=" + stepCount + ", stepRate="
-                    + stepRate + ", strideLength=" + strideLength
-                    + ", symmetry=" + symmetry + ", variability=" + variability
-                    + "]";
+        public double symmetry;
+        public String variability;
+        public String stepRate;
+        public String strideLength;
+        public GeneralLeft left;
+        public GeneralLeft right;
+
+        public General() {
+            this.symmetry = 0;
+            this.variability = "";
+            this.stepRate = "";
+            this.strideLength = "";
+            this.left = new GeneralLeft();
+            this.right = new GeneralLeft();
         }
 
+        public class GeneralLeft{
+            public double supportStability;
+            public LandingPosition landingPosition;
+            public boolean inversion;
+
+
+            public GeneralLeft() {
+                this.supportStability = 0;
+                this.landingPosition = new LandingPosition();
+                this.inversion = false;
+            }
+
+            public class LandingPosition{
+                public String sagital;
+                public String frontal;
+
+                public LandingPosition() {
+                    this.sagital = "";
+                    this.frontal = "";
+                }
+
+                @Override
+                public String toString() {
+                    return "LandingPosition [sagital=" + sagital + ", frontal="
+                            + frontal + "]";
+                }
+            }
+
+            @Override
+            public String toString() {
+                return "GeneralLeft{" +
+                        "supportStability=" + supportStability +
+                        ", landingPosition=" + landingPosition +
+                        ", inversion=" + inversion +
+                        '}';
+            }
+        };
 
 
     }
 
     public class LeftAndRight{
-        public float swingWidthMean;
-        public float stepHeightMean;
-        public float stanceDurationMean;
-        public boolean inversion;
-        public boolean eversion;
-        public LandingPosition landingPosition;
-        public float supportStabilityMean;
+        public double duration;
+        public int stepCount;
+        public int validStepCount;
+        public int heelLoadingCount;
+        public int toeLoadingCount;
+
+        public double cycleDurationMean;
+        public double cycleDurationCv;
+        public double swingDurationMean;
+        public double swingDurationCv;
+        public double stanceDurationMean;
+        public double stanceDurationCv;
+        public double loadingDurationMean;
+        public double loadingDurationCv;
+        public double flatfootDurationMeanan;
+        public double flatfootDurationCv;
+        public double pushingDurationMean;
+        public double pushingDurationCv;
+        public double loadingImpactMean;
+        public double loadingImpactCv;
+        public double stepHeightMean;
+        public double stepHeightCv;
+        public double swingWidthMean;
+        public double swingWidthCv;
+        public double strideLengthMean;
+        public double strideLengthCv;
+        public double supportStabilityMean;
+        public double supportStabilityCv;
+
+
+
         @Override
         public String toString() {
-            return "LeftAndRight [swingWidthMean=" + swingWidthMean
-                    + ", stepHeightMean=" + stepHeightMean
-                    + ", stanceDurationMean=" + stanceDurationMean
-                    + ", inversion=" + inversion + ", eversion=" + eversion
-                    + ", landingPosition=" + landingPosition
-                    + ", supportStabilityMean=" + supportStabilityMean + "]";
+            return "LeftAndRight{" +
+                    "duration=" + duration +
+                    ", stepCount=" + stepCount +
+                    ", validStepCount=" + validStepCount +
+                    ", heelLoadingCount=" + heelLoadingCount +
+                    ", toeLoadingCount=" + toeLoadingCount +
+                    ", cycleDurationMean=" + cycleDurationMean +
+                    ", cycleDurationCv=" + cycleDurationCv +
+                    ", swingDurationMean=" + swingDurationMean +
+                    ", swingDurationCv=" + swingDurationCv +
+                    ", stanceDurationMean=" + stanceDurationMean +
+                    ", stanceDurationCv=" + stanceDurationCv +
+                    ", loadingDurationMean=" + loadingDurationMean +
+                    ", loadingDurationCv=" + loadingDurationCv +
+                    ", flatfootDurationMeanan=" + flatfootDurationMeanan +
+                    ", flatfootDurationCv=" + flatfootDurationCv +
+                    ", pushingDurationMean=" + pushingDurationMean +
+                    ", pushingDurationCv=" + pushingDurationCv +
+                    ", loadingImpactMean=" + loadingImpactMean +
+                    ", loadingImpactCv=" + loadingImpactCv +
+                    ", stepHeightMean=" + stepHeightMean +
+                    ", stepHeightCv=" + stepHeightCv +
+                    ", swingWidthMean=" + swingWidthMean +
+                    ", swingWidthCv=" + swingWidthCv +
+                    ", strideLengthMean=" + strideLengthMean +
+                    ", strideLengthCv=" + strideLengthCv +
+                    ", supportStabilityMean=" + supportStabilityMean +
+                    ", supportStabilityCv=" + supportStabilityCv +
+                    '}';
         }
-
-
-    }
-
-    public class LandingPosition{
-        public String sagital;
-        public String frontal;
-        @Override
-        public String toString() {
-            return "LandingPosition [sagital=" + sagital + ", frontal="
-                    + frontal + "]";
-        }
-
-
     }
 
     @Override
     public String toString() {
-        return "InsoleAnalyResult [header=" + header + ", customer=" + customer
-                + ", general=" + general + ", left=" + left + ", right="
-                + right + "]";
+        return "InsoleAnalyResult{" +
+                "header=" + header +
+                ", testee=" + testee +
+                ", general=" + general +
+                ", left=" + left +
+                ", right=" + right +
+                '}';
     }
 
 
+    public InsoleAnalyResult() {
+        this.header = new Header();
+        this.testee = new Testee();
+        this.general = new General();
+        this.left = new ArrayList<>();
+        this.right = new ArrayList<>();
+    }
 }

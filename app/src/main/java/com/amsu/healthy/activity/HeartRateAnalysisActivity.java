@@ -3,6 +3,7 @@ package com.amsu.healthy.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -13,16 +14,21 @@ import android.widget.ImageView;
 
 import com.amap.api.maps.model.LatLng;
 import com.amsu.healthy.R;
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.ParcelableDoubleList;
+import com.amsu.healthy.bean.ScoreInfo;
 import com.amsu.healthy.bean.UploadRecord;
+import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.EcgFilterUtil;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.OffLineDbAdapter;
+import com.amsu.healthy.utils.WebSocketUtil;
 import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
+import com.amsu.healthy.view.HeightCurveView;
 import com.google.gson.Gson;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -33,6 +39,8 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import com.test.objects.HeartRateResult;
 import com.test.utils.DiagnosisNDK;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.entity.StringEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,7 +49,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -91,6 +101,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
 
         //分析过程有可能耗时，在子线程中进行
         final String ecgLocalFileName = intent.getStringExtra(Constant.ecgLocalFileName); ///storage/emulated/0
+        //final String ecgLocalFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth/20170917183346.ecg"; ///storage/emulated/0
         Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
         Log.i(TAG,"integerArrayListExtra: "+integerArrayListExtra);
         if (!MyUtil.isEmpty(ecgLocalFileName)) {
@@ -125,7 +136,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                             //计算心率数组
                             int[] calcuEcgRate = new int[HealthyDataActivity.calGroupCalcuLength *HealthyDataActivity.oneGroupLength];
                             int heartCount = ecgDataList.size() / calcuEcgRate.length;
-
 
                             for (int j=0;j<heartCount;j++){
                                 for (int i=0;i<calcuEcgRate.length;i++){
@@ -225,7 +235,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         return stridefreData;
     }
 
-    private void uploadDataAndJumpToShowPage(UploadRecord uploadRecord) {
+    private void uploadDataAndJumpToShowPage(UploadRecord uploadRecord,long sportCreateRecordID) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -233,8 +243,18 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             }
         });
 
+        /*//测试
+        List<ParcelableDoubleList> parcelableDoubleLists = new ArrayList<>();
+        ParcelableDoubleList doubles = new ParcelableDoubleList();
+        doubles.add(22.596084);
+        doubles.add(113.990938);
+        for (int i=0;i<75*60*10;i++){
+            parcelableDoubleLists.add(doubles);
+        }
+        uploadRecord.latitudeLongitude = parcelableDoubleLists;*/
+
         if (uploadRecord!=null){
-            UploadRecord uploadRecordCopy = null;
+            UploadRecord uploadRecordCopy;
             try {
                 uploadRecordCopy = (UploadRecord) uploadRecord.clone();   //后面会有对对象的重新改变值，所以获取该对象的克隆，以后对此对象的改变将不会影响克隆对象
                 uploadRecordDataToServer(uploadRecordCopy,HeartRateAnalysisActivity.this,false);
@@ -246,6 +266,10 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         if (uploadRecord!=null){
             Bundle bundle = new Bundle();
             uploadRecord.ec = "";
+            if (uploadRecord.latitudeLongitude.size()>0){
+                uploadRecord.latitudeLongitude = new ArrayList<>();
+                uploadRecord.sportCreateRecordID = sportCreateRecordID;
+            }
             bundle.putParcelable("uploadRecord",uploadRecord);
             intentToRateAnalysis.putExtra("bundle",bundle);
             Log.i(TAG,"uploadRecord: putParcelable  "+uploadRecord);
@@ -292,15 +316,14 @@ public class HeartRateAnalysisActivity extends BaseActivity {
 
     //生成上传数据，分为心电数据和运动数据
     private void generateUploadData(final List<Integer> ecgDataList, final String fileBase64, final ArrayList<Integer> heartDataList,
-                                    final int sportState, long sportCreateRecordID, final int hrr,
-                                    long startTimeMillis, Intent intent, final String ecgLocalFileName, List<Integer> stridefreData, List<String> calData) {
+                                    final int sportState, long sportCreateRecordID, final int hrr, long startTimeMillis, Intent intent,
+                                    final String ecgLocalFileName, List<Integer> stridefreData, List<String> calData) {
         final UploadRecord uploadRecord = new UploadRecord();
 
         long timestamp;
         String datatime ;
         if (startTimeMillis>0){
             timestamp = startTimeMillis/1000;
-            //timestamp ="1501551888";
             datatime = MyUtil.getSpecialFormatTime("yyyy/MM/dd HH:mm:ss", new Date(startTimeMillis));
         }
         else {
@@ -353,7 +376,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             for (int i=0;i<ecgDataList.size();i++ ){
                 calcuData[i] = ecgDataList.get(i);
             }
-            int ES = 0;
+            double ES = 0;
             int PI ;
             int FI ;
             int zaobo ;
@@ -363,16 +386,16 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             String HRVs = getResources().getString(R.string.HeartRate_suggetstion_nodata);
             String ECs = getResources().getString(R.string.HeartRate_suggetstion_nodata);
 
-            Log.i(TAG,"DiagnosisNDK.AnalysisEcg: =====================");
+            Log.i(TAG,"DiagnosisNDK.AnalysisEcg: 总分析");
             HeartRateResult heartRateResult = DiagnosisNDK.AnalysisEcg(calcuData, calcuData.length, Constant.oneSecondFrame);
-            Log.i(TAG,"heartRateResult:"+heartRateResult.toString());
+            Log.i(TAG,"总分析heartRateResult:"+heartRateResult.toString());
 
             int allTimeAtSecond = (int) (ecgDataList.size()/(Constant.oneSecondFrame*1f));
             Log.i(TAG,"allTimeAtSecond:"+allTimeAtSecond);
             uploadRecord.time = allTimeAtSecond;
 
             if (heartRateResult.HF>0){
-                ES = (int)(heartRateResult.LF / heartRateResult.HF);
+                ES = (heartRateResult.LF / heartRateResult.HF);
             }
 
             PI = heartRateResult.RR_SDNN;
@@ -383,9 +406,65 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 Log.i(TAG,"hrvs:"+HRVs);
             }
 
+
+            int timeCount = 150*60*5;
+            if (calcuData.length>timeCount*2){   //大于4分钟则进行后2次分析
+                final int[] calcuData3  = new int[timeCount];
+                final int[] calcuData4  = new int[timeCount];
+               /* final int[] calcuData3  = new int[timeCount];
+                final int[] calcuData4  = new int[timeCount];*/
+                /*for (int i=0;i<timeCount;i++){
+                    calcuData1[i] = calcuData[i];
+                }
+                for (int i=0;i<timeCount;i++){
+                    calcuData2[i] = calcuData[timeCount+i];
+                }*/
+                for (int i=0;i<timeCount;i++){
+                    calcuData3[timeCount-1-i] = calcuData[calcuData.length-1-timeCount-i];
+                }
+                for (int i=0;i<timeCount;i++){
+                    calcuData4[timeCount-1-i] = calcuData[calcuData.length-1-i];
+                }
+
+                HeartRateResult heartRateResult1 = DiagnosisNDK.AnalysisEcg(calcuData3, calcuData3.length, Constant.oneSecondFrame);
+                Log.i(TAG,"heartRateResult1:"+heartRateResult1.toString());
+
+                HeartRateResult heartRateResult2 = DiagnosisNDK.AnalysisEcg(calcuData4, calcuData4.length, Constant.oneSecondFrame);
+                Log.i(TAG,"heartRateResult1:"+heartRateResult2.toString());
+
+                uploadRecord.sdnn1 = heartRateResult1.RR_SDNN;
+                uploadRecord.sdnn2 = heartRateResult2.RR_SDNN;
+                uploadRecord. lf1 = heartRateResult1.LF;
+                uploadRecord. lf2 = heartRateResult2.LF;
+                uploadRecord.hf1 = heartRateResult1.HF;
+                uploadRecord.hf2 = heartRateResult2.HF;
+                uploadRecord.lf = heartRateResult.LF;
+                uploadRecord.hf = heartRateResult.HF;
+
+               /* HeartRateResult heartRateResult3 = DiagnosisNDK.AnalysisEcg(calcuData3, calcuData3.length, Constant.oneSecondFrame);
+                Log.i(TAG,"heartRateResult3:"+heartRateResult3.toString());
+
+                HeartRateResult heartRateResult4 = DiagnosisNDK.AnalysisEcg(calcuData4, calcuData4.length, Constant.oneSecondFrame);
+                Log.i(TAG,"heartRateResult4:"+heartRateResult4.toString());*/
+
+                /*int r = HealthyIndexUtil.judgeHRVMentalFatigueData(heartRateResult.HF,heartRateResult.LF,heartRateResult1.HF,heartRateResult1.LF,heartRateResult1.RR_SDNN,
+                        heartRateResult2.HF,heartRateResult2.LF,heartRateResult2.RR_SDNN);
+
+
+                if (sportState==0){
+                    //静态
+                    HealthyIndexUtil.judgeHRVPhysicalFatigueStatic(heartRateResult.HF,heartRateResult.LF,heartRateResult1.HF,heartRateResult1.LF,heartRateResult1.RR_SDNN,
+                            heartRateResult2.HF,heartRateResult2.LF,heartRateResult2.RR_SDNN);
+                }
+                HealthyIndexUtil.judgeHRVPhysicalFatigueStatic(heartRateResult.HF,heartRateResult.LF,heartRateResult1.HF,heartRateResult1.LF,heartRateResult1.RR_SDNN,
+                        heartRateResult2.HF,heartRateResult2.LF,heartRateResult2.RR_SDNN);*/
+
+            }
+
+
+
             zaobo = heartRateResult.RR_Apb + heartRateResult.RR_Pvc;
             loubo = heartRateResult.RR_Boleakage;
-
 
             if (zaobo>0){
                 ECs = getResources().getString(R.string.premature_beat_times)+zaobo+getResources().getString(R.string.premature_beat_times_decrible);
@@ -432,7 +511,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
 
         //设置跑步数据
         if (sportCreateRecordID!=-1){
-            double distance = 0;
+            float distance = 0;
             long time = 0;
             List<ParcelableDoubleList> latitude_longitude;  //经纬度
 
@@ -448,10 +527,10 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 Log.i(TAG,"pathRecord:"+pathRecord.toString());
 
                 if (!MyUtil.isEmpty(pathRecord.getDistance())){
-                    distance = Double.parseDouble(pathRecord.getDistance());
+                    distance = Float.parseFloat(pathRecord.getDistance());
                 }
                 time = Long.parseLong(pathRecord.getDuration())/1000;
-                latitude_longitude = getLatitude_longitudeString(pathRecord);
+                latitude_longitude = Util.getLatitude_longitudeString(pathRecord);
 
                 uploadRecord.ae = mSpeedStringListData;
                 uploadRecord.distance = distance;
@@ -467,22 +546,16 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         }
 
         Log.i(TAG,"uploadRecord:"+uploadRecord);
-        uploadDataAndJumpToShowPage(uploadRecord);
+        uploadDataAndJumpToShowPage(uploadRecord,sportCreateRecordID);
 
-
-    }
-
-    private List<ParcelableDoubleList> getLatitude_longitudeString(PathRecord pathRecord) {
-        List<LatLng> latLngList = Util.parseLatLngList(pathRecord.getPathline());
-        List<ParcelableDoubleList> listList = new ArrayList<>();
-        for (LatLng latLng:latLngList){
-            ParcelableDoubleList doubleList = new ParcelableDoubleList();
-            doubleList.add(latLng.latitude);
-            doubleList.add(latLng.longitude);
-            listList.add(doubleList);
+        boolean mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
+        if (mIsAutoMonitor){
+            uploadAnlysisREsultToSocket(uploadRecord);
         }
-        return listList;
+
     }
+
+
 
     //从文件中读取心电数据
     private List<Integer> readIntArrayDataFromFile(File file) {
@@ -491,7 +564,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             fileInputStream = new FileInputStream(file);
             DataInputStream dataInputStream = new DataInputStream(fileInputStream); //读取二进制文件
 
-            byte[] bytes = new byte[1024*1024];
+            byte[] bytes = new byte[1024];
             Log.i(TAG,"dataInputStream.available():"+dataInputStream.available());
             Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
 
@@ -522,30 +595,35 @@ public class HeartRateAnalysisActivity extends BaseActivity {
     }
 
     /**
-     * @param uploadRecord
+     * @param
      * @param context
      * @param isSynLocalData
      */
     //上传分析结果
-    public static void uploadRecordDataToServer(final UploadRecord uploadRecord, final Context context, boolean isSynLocalData) {
+    public static void uploadRecordDataToServer(final UploadRecord uploadRecord, final Context context, final boolean isSynLocalData) {
         if (uploadRecord!=null){
             Log.i(TAG,"uploadRecordDataToServer uploadRecord:"+uploadRecord);
-
             Log.i(TAG,"uploadRecord.localEcgFileName:"+uploadRecord.localEcgFileName);
 
             if (isSynLocalData){
                 //同步本地文件
                 if (!MyUtil.isEmpty(uploadRecord.localEcgFileName) && uploadRecord.localEcgFileName.endsWith("ecg")){
-                    uploadRecord.ec = MyUtil.fileToBase64(new File(uploadRecord.localEcgFileName));
+                    String s = MyUtil.fileToBase64(new File(uploadRecord.localEcgFileName));
+                    if (s!=null){
+                        uploadRecord.ec = s;
+                    }
                     Log.i(TAG,"uploadRecord.ec:"+uploadRecord.ec);
                 }else {
                     //return;
                 }
             }
 
+            //final UploadRecord uploadRecord = new UploadRecord();
+
             HttpUtils httpUtils = new HttpUtils();
             RequestParams params = new RequestParams();
             MyUtil.addCookieForHttp(params);
+
 
         /*params.addBodyParameter("fi",uploadRecord.fi);
         params.addBodyParameter("es",uploadRecord.es);
@@ -579,30 +657,27 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         params.addBodyParameter("latitude_longitude",uploadRecord.getLatitude_longitude());*/
 
             params.addBodyParameter("fi",uploadRecord.fi+"");
-            params.addBodyParameter("es",uploadRecord.es+"");
+            params.addBodyParameter("es",(int)uploadRecord.es+"");
             params.addBodyParameter("pi",uploadRecord.pi+"");
             params.addBodyParameter("cc",uploadRecord.cc+"");
-            params.addBodyParameter("hrvr",uploadRecord.hrvr);
-            params.addBodyParameter("hrvs",uploadRecord.hrvs);
+            params.addBodyParameter("hrvr",uploadRecord.hrvr+"");
+            params.addBodyParameter("hrvs",uploadRecord.hrvs+"");
             params.addBodyParameter("ahr",uploadRecord.ahr+"");
             params.addBodyParameter("maxhr",uploadRecord.maxhr+"");
             params.addBodyParameter("minhr",uploadRecord.minhr+"");
-            params.addBodyParameter("hrr",uploadRecord.hrr);
-            params.addBodyParameter("hrs",uploadRecord.hrs);
-            params.addBodyParameter("ec",uploadRecord.ec);
+            params.addBodyParameter("hrr",uploadRecord.hrr+"");
+            params.addBodyParameter("hrs",uploadRecord.hrs+"");
+            params.addBodyParameter("ec",uploadRecord.ec+"");
             params.addBodyParameter("ecr",uploadRecord.ecr+"");
-            params.addBodyParameter("ecs",uploadRecord.ecs);
+            params.addBodyParameter("ecs",uploadRecord.ecs+"");
             params.addBodyParameter("ra",uploadRecord.ra+"");
             params.addBodyParameter("timestamp",uploadRecord.timestamp+"");
-            params.addBodyParameter("datatime",uploadRecord.datatime);
+            params.addBodyParameter("datatime",uploadRecord.datatime+"");
 
             String hr = "";
             if (uploadRecord.hr!=null){
                 hr = uploadRecord.hr.toString();
             }
-
-            params.addBodyParameter("hr",hr);
-
             String ae = "";
             if (uploadRecord.ae!=null){
                 ae = uploadRecord.ae.toString();
@@ -620,17 +695,32 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 latitudeLongitude = uploadRecord.latitudeLongitude.toString();
             }
 
-            params.addBodyParameter("ae",ae);
-            params.addBodyParameter("cadence",cadence);
-            params.addBodyParameter("calorie",calorie);
-            params.addBodyParameter("latitudeLongitude",latitudeLongitude);
+            params.addBodyParameter("hr",hr+"");
+            params.addBodyParameter("ae",ae+"");
+            params.addBodyParameter("cadence",cadence+"");
+            params.addBodyParameter("calorie",calorie+"");
+            params.addBodyParameter("latitudeLongitude",latitudeLongitude+"");
 
             params.addBodyParameter("time",uploadRecord.time+"");
-            params.addBodyParameter("distance",uploadRecord.distance+"");
+            params.addBodyParameter("distance",(int)uploadRecord.distance+"");
             params.addBodyParameter("state",uploadRecord.state+"");
             params.addBodyParameter("zaobo",uploadRecord.zaobo+"");
             params.addBodyParameter("loubo",uploadRecord.loubo+"");
             params.addBodyParameter("inuse",uploadRecord.inuse+"");
+
+            params.addBodyParameter("chaosPlotPoint","[]");
+            params.addBodyParameter("frequencyDomainDiagramPoint","[]");
+            params.addBodyParameter("sdnn1",uploadRecord.sdnn1+"");
+            params.addBodyParameter("sdnn2",uploadRecord.sdnn2+"");
+            params.addBodyParameter("hf1",(int)uploadRecord.hf1+"");
+            params.addBodyParameter("hf2",(int)uploadRecord.hf2+"");
+            params.addBodyParameter("lf1",(int)uploadRecord.lf1+"");
+            params.addBodyParameter("lf2",(int)uploadRecord.lf2+"");
+            params.addBodyParameter("lf",(int)uploadRecord.lf+"");
+            params.addBodyParameter("hf",(int)uploadRecord.hf+"");
+            params.addBodyParameter("chaosPlotMajorAxis","0");
+            params.addBodyParameter("chaosPlotMinorAxis","0");
+
 
             httpUtils.send(HttpRequest.HttpMethod.POST, Constant.uploadReportURL, params, new RequestCallBack<String>() {
                 @Override
@@ -638,9 +728,10 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                     String result = responseInfo.result;
                     Log.i(TAG,"onSuccess==result:"+result);
 
-                /*List<UploadRecord> uploadRecords = offLineDbAdapter.queryRecordAll();
 
-                Log.i(TAG,"uploadRecords:"+uploadRecords);*/
+                //List<UploadRecord> uploadRecords = offLineDbAdapter.queryRecordAll();
+
+                //Log.i(TAG,"uploadRecords:"+uploadRecords);
 
                     /*{
                          {
@@ -654,8 +745,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                         offLineDbAdapter.open();
                     }catch (Exception ignored){
                     }
-                    //uploadRecord.datatime = uploadRecord.datatime.replace("/", "-");  //将本地数据库时间改成和服务器一致，下次查看数据时，先从根据时间从本地查询
-
                     JSONObject jsonObject = null;
                     try {
                         jsonObject = new JSONObject(result);
@@ -663,6 +752,9 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                         String errDesc = jsonObject.getString("errDesc");
                         if (ret==0){
                             uploadRecord.uploadState = 1;  //上传成功后，将状态改为已上传
+                            if (!isSynLocalData){
+                                MyUtil.showToask(context,"数据上传成功");
+                            }
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -671,21 +763,21 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                     long orUpdateUploadReportObject = offLineDbAdapter.createOrUpdateUploadReportObject(uploadRecord);
                     Log.i(TAG,"orUpdateUploadReportObject:"+orUpdateUploadReportObject);
 
-                /*List<UploadRecord> uploadRecordsState = offLineDbAdapter.queryRecordByUploadState("0");
-                Log.i(TAG,"uploadRecordsState:"+uploadRecordsState);*/
+                    List<UploadRecord> uploadRecords = offLineDbAdapter.queryRecordAll();
+                    Log.i(TAG,"uploadRecords:"+uploadRecords);
 
                     try {
                         offLineDbAdapter.close();
                     }catch (Exception e1){
                     }
-
-
-
                 }
 
                 @Override
                 public void onFailure(HttpException e, String s) {
-                    Log.i(TAG,"onFailure==s:"+s);
+                    Log.i(TAG,"onFailure==s:"+s+"    e:"+e);
+                    if (!isSynLocalData){
+                        MyUtil.showToask(context,"数据上传失败，稍后有网络会自动上传");
+                    }
 
                     OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(context);
                     try {
@@ -710,6 +802,148 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 }
             });
         }
+
+    }
+
+    private String iconUrl;
+    private String username;
+    private String province;
+    private String sex;
+    private String age;
+    private String prematureCount;
+    private String missCount;
+    private String overScore;
+
+    private String averageHeart;
+    private String averageHeartScore;
+    private String maxHeart;
+    private String maxHeartScore;
+    private String kcal;
+    private String kcalScore;
+    private String allscore;
+    private String rank;
+
+    private void uploadAnlysisREsultToSocket(UploadRecord uploadRecord) {
+        //A6,1
+
+        User userFromSP = MyUtil.getUserFromSP();
+        String testIconUrl = userFromSP.getIcon();
+        String username = userFromSP.getUsername();
+        String area = userFromSP.getArea();
+        String sex = userFromSP.getSex();
+        int mUserAge = HealthyIndexUtil.getUserAge();
+
+        String sexString;
+        if (sex.equals("1")){
+            sexString = "男";
+        }
+        else {
+            sexString = "女";
+        }
+
+        int prematureCount = uploadRecord.zaobo;
+        int missCount = uploadRecord.loubo;
+        int overScore = calOverScore(uploadRecord.zaobo,uploadRecord.loubo);
+
+        int averageHeart = uploadRecord.ahr;
+        int averageHeartScore = calAverageHeartScore(uploadRecord.ahr);;
+        int maxHeart = uploadRecord.maxhr;;
+        int maxHeartScore = calMaxHeart(uploadRecord.maxhr);
+
+        int kcal = 0;
+        if (uploadRecord.calorie!=null && uploadRecord.calorie.size()>0){ //卡路里
+            float allcalorie = 0 ;
+            for (String i: uploadRecord.calorie){
+                allcalorie+=Float.parseFloat(i);
+            }
+            kcal = (int) allcalorie;
+        }
+
+        int kcalScore = 3;
+        int allscore = overScore+averageHeartScore+maxHeartScore+kcalScore;
+
+        ScoreInfo scoreInfo = new ScoreInfo(testIconUrl,username,area,sexString,mUserAge,prematureCount,missCount,overScore,averageHeart,averageHeartScore,
+                maxHeart,maxHeartScore,kcal,kcalScore,allscore,0);
+
+        Gson gson = new Gson();
+
+        //A6,{"iconUrl":"url","username":"天空之城","province":"深圳","sex":"男","age":25,"prematureCount":2,"missCount":3,"overScore":3,"averageHeart":100,"averageHeartScore":4,"maxHeart":121,"maxHeartScore":4,"kcal":45,"kcalScore":2,"allscore":23,"rank":2}
+
+
+        String msg = "A6,"+gson.toJson(scoreInfo);
+
+        Log.i(TAG,"msg:"+msg);
+
+
+        WebSocketUtil webSocketUtil = ((MyApplication) getApplication()).getWebSocketUtil();
+        if (webSocketUtil!=null){
+            webSocketUtil.sendSocketMsg(msg,true);
+        }
+
+    }
+
+    private int calOverScore(int zaobo,int loubo){
+        int sum = zaobo+loubo;
+        int score ;
+        if (sum==0){
+            score = 5;
+        }
+        else if (sum>0 && sum<=3){
+            score = 4;
+        }
+        else if (sum>3 && sum<=7){
+            score = 3;
+        }
+        else if (sum>7 && sum<=10){
+            score = 2;
+        }
+        else {
+            score = 1;
+        }
+        return score;
+    }
+
+    private int calAverageHeartScore(int averageHeartScore){
+
+        int score ;
+        if (averageHeartScore<=100){
+            score = 5;
+        }
+        else if (averageHeartScore>100 && averageHeartScore<=115){
+            score = 4;
+        }
+        else if (averageHeartScore>115 && averageHeartScore<=130){
+            score = 3;
+        }
+        else if (averageHeartScore>130 && averageHeartScore<=145){
+            score = 2;
+        }
+        else {
+            score = 1;
+        }
+        return score;
+
+    }
+
+    private int calMaxHeart(int value){
+
+        int score ;
+        if (value<=120){
+            score = 5;
+        }
+        else if (value>120 && value<=135){
+            score = 4;
+        }
+        else if (value>135 && value<=150){
+            score = 3;
+        }
+        else if (value>150 && value<=165){
+            score = 2;
+        }
+        else {
+            score = 1;
+        }
+        return score;
 
     }
 

@@ -1,8 +1,6 @@
 package com.amsu.healthy.activity;
 
 import android.content.Intent;
-import android.os.Parcelable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -68,7 +66,7 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
         tv_addplan_time = (TextView) findViewById(R.id.tv_addplan_time);
         dateTimeDialogOnlyYMD = new DateTimeDialogOnlyYMD(this, this, true, true, true);
 
-        tv_addplan_time.setText(MyUtil.getFormatTime(new Date()));
+        tv_addplan_time.setText(MyUtil.getPaceFormatTime(new Date()));
         tv_addplan_time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,7 +75,7 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
         });
 
 
-        time = MyUtil.getFormatTime(new Date());
+        time = MyUtil.getPaceFormatTime(new Date());
 
         getTv_base_rightText().setOnClickListener(new View.OnClickListener() {
             @Override

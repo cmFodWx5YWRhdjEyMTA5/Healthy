@@ -18,6 +18,7 @@ import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.ApkUtil;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.InputTextAlertDialogUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.umeng.analytics.MobclickAgent;
 
@@ -234,9 +235,24 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
 
     public void switchMonitorState(View view) {
         if (!mIsAutoMonitor){
-            iv_persiondata_switvh.setImageResource(R.drawable.switch_on);
-            mIsAutoMonitor = true;
-            MyUtil.putBooleanValueFromSP("mIsAutoMonitor",true);
+            InputTextAlertDialogUtil textAlertDialogUtil = new InputTextAlertDialogUtil(this);
+            textAlertDialogUtil.setAlertDialogText("输入密码",getResources().getString(R.string.exit_confirm),getResources().getString(R.string.exit_cancel));
+
+            textAlertDialogUtil.setOnConfirmClickListener(new InputTextAlertDialogUtil.OnConfirmClickListener() {
+                @Override
+                public void onConfirmClick(String inputText) {
+                    Log.i(TAG,"inputText:"+inputText);
+                    if (inputText.equals("000")){
+                        iv_persiondata_switvh.setImageResource(R.drawable.switch_on);
+                        mIsAutoMonitor = true;
+                        MyUtil.putBooleanValueFromSP("mIsAutoMonitor",true);
+                        MyUtil.showToask(SystemSettingActivity.this,"开启成功");
+                    }
+                    else {
+                        MyUtil.showToask(SystemSettingActivity.this,"输入错误，无法开启");
+                    }
+                }
+            });
         }
         else {
             iv_persiondata_switvh.setImageResource(R.drawable.switch_of);

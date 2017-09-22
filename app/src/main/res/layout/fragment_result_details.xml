@@ -29,7 +29,7 @@
             android:text="km"
             android:textColor="#1f1f1f"
             android:textSize="@dimen/x40"/>
-        <TextView
+        <!--<TextView
             android:id="@+id/tv_detail_time"
             android:layout_width="@dimen/x600"
             android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
             android:text="用时 : 00:00:00"
             android:textColor="#1f1f1f"
             android:textSize="@dimen/x52"
-            />
+            />-->
     </RelativeLayout>
 
     <LinearLayout
@@ -63,12 +63,12 @@
                 android:gravity="center"/>
 
             <TextView
-                android:id="@+id/tv_detail_avespeed"
+                android:id="@+id/tv_detail_time"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="--"
+                android:text="00:00:00"
                 android:textColor="#1f1f1f"
                 android:textSize="@dimen/x92" />
 
@@ -99,7 +99,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="均速：km/h"
+                android:text="时间"
                 android:textColor="#666666"
                 android:textSize="@dimen/x36"
                 android:gravity="center"/>
@@ -136,7 +136,7 @@
                 android:gravity="center"/>
 
             <TextView
-                android:id="@+id/tv_detail_minspeed"
+                android:id="@+id/tv_detail_avespeed"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
@@ -171,7 +171,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="最慢：km/h"
+                android:text="均速：km/h"
                 android:textColor="#666666"
                 android:textSize="@dimen/x36"
                 android:gravity="center"/>
@@ -203,7 +203,7 @@
                     android:layout_height="wrap_content"
                     android:text="--"
                     android:textColor="#1f1f1f"
-                    android:textSize="@dimen/x92"
+                    android:textSize="@dimen/x62"
                     android:gravity="center"/>
 
                 <TextView
@@ -213,7 +213,7 @@
                     android:layout_height="wrap_content"
                     android:text="--"
                     android:textColor="#1f1f1f"
-                    android:textSize="@dimen/x92"
+                    android:textSize="@dimen/x62"
                     android:gravity="center"/>
                 <TextView
                     android:id="@+id/tv_detail_singlestable"
@@ -222,7 +222,7 @@
                     android:layout_height="wrap_content"
                     android:text="--"
                     android:textColor="#1f1f1f"
-                    android:textSize="@dimen/x92"
+                    android:textSize="@dimen/x62"
                     android:gravity="center"/>
             </LinearLayout>
 
@@ -234,7 +234,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="着地方式"
+                    android:text="着地方式(左/右)"
                     android:textColor="#666666"
                     android:textSize="@dimen/x36"
                     android:gravity="center"/>
@@ -242,7 +242,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="足内外翻"
+                    android:text="足内外翻(左/右)"
                     android:textColor="#666666"
                     android:textSize="@dimen/x36"
                     android:gravity="center"/>
@@ -250,7 +250,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="单腿支撑稳定性"
+                    android:text="支撑稳定性(左/右)"
                     android:textColor="#666666"
                     android:textSize="@dimen/x36"
                     android:gravity="center"/>

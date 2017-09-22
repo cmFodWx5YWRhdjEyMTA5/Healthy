@@ -148,7 +148,7 @@ public class SplashActivity extends Activity {
             try {
                 offLineDbAdapter.close();
             }catch (Exception e1){
-                Log.i(TAG,"e1:"+e1);
+                Log.e(TAG,"e1:"+e1);
             }
             Log.i(TAG,"uploadRecordsState:"+uploadRecordsState);
             Log.i(TAG,"uploadRecordsState.size():"+uploadRecordsState.size());
