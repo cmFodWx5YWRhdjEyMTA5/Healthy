@@ -201,7 +201,7 @@ public class InsoleHistoryRecordFragment extends Fragment {
                     pageCount++;
                 }
                 else {
-                    MyUtil.showToask(getActivity(),"没有查询到运动记录");
+                    //MyUtil.showToask(getActivity(),"没有查询到运动记录");
                 }
             }
 

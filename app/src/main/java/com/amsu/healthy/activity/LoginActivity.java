@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MD5Util;
@@ -352,6 +353,8 @@ public class LoginActivity extends BaseActivity {
                         MyUtil.putStringValueFromSP("phone",phone);
 
                         saveCookieToSP(httpUtils);
+                        
+                        getUserBindInsole();
 
                         HttpUtils httpUtils1 = new HttpUtils();
                         RequestParams params = new RequestParams();
@@ -465,6 +468,47 @@ public class LoginActivity extends BaseActivity {
             }
         });
         
+    }
+
+    private void getUserBindInsole() {
+        HttpUtils httpUtils1 = new HttpUtils();
+        RequestParams params = new RequestParams();
+        MyUtil.addCookieForHttp(params);
+
+        httpUtils1.send(HttpRequest.HttpMethod.POST, Constant.getBangdingDetails,params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                Log.i(TAG,"result:"+result);
+
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    int ret = jsonObject.getInt("ret");
+                    String errDesc = jsonObject.getString("errDesc");
+                    if (ret==0){
+                        JSONObject jsonObject1 = new JSONObject(errDesc);
+                        String leftDeviceMAC = jsonObject1.getString("leftdevicemac");
+                        String rightDeviceMAC = jsonObject1.getString("rightdevicemac");
+                        Device device = new Device();
+                        device.setMac(leftDeviceMAC+","+rightDeviceMAC);
+                        device.setLEName("：鞋垫1("+leftDeviceMAC.substring(leftDeviceMAC.length()-2)+
+                                ")+鞋垫2("+rightDeviceMAC.substring(rightDeviceMAC.length()-2)+")");
+                        device.setName("鞋垫");
+                        device.setDeviceType(Constant.sportType_Insole);
+                        MyUtil.saveDeviceToSP(device,Constant.sportType_Insole);
+                        Log.i(TAG,"device:"+device);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                Log.i(TAG,"onFailure:"+s);
+            }
+        });
     }
 
     private void saveCookieToSP(HttpUtils httpUtils) {

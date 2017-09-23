@@ -128,7 +128,8 @@ public class Constant {
     public static final String maxSpeedKM_Hour = "maxSpeedKM_Hour";
     public static final String stridefreList = "stridefreList";
     public static final String getShoepadList = "http://www.amsu-new.com:8081/intellingence-web/getShoepadList.do";
-    public static final String deleteShoepadDataById = "http://192.168.0.116:8080/intellingence-web/deleteShoepadDataById.do";
+    public static final String deleteShoepadDataById = "http://www.amsu-new.com:8081/intellingence-web/deleteShoepadDataById.do";
+    public static final String getBangdingDetails = "http://www.amsu-new.com:8081/intellingence-web/getBangdingDetails.do";
 
 
 
