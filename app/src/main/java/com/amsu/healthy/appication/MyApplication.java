@@ -59,6 +59,7 @@ public class MyApplication extends Application{
     public boolean runningIsRunning;
     public int runningmCurrentHeartRate;
     public WebSocketUtil webSocketUtil;
+    public static int IndexWarringHeartIconType = -1;
 
 
     @Override

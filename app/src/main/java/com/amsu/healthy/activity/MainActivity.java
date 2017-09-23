@@ -86,6 +86,7 @@ public class MainActivity extends BaseActivity {
     private TextView tv_base_charge;
     public static final String ACTION_CHARGE_CHANGE = "ACTION_CHARGE_CHANGE";
     private MyOnClickListener myOnClickListener;
+    private ImageView iv_main_warring;
 
 
     @Override
@@ -381,6 +382,8 @@ public class MainActivity extends BaseActivity {
         cv_mian_index = (CircleRingView) findViewById(R.id.cv_mian_index);
         cv_mian_warring = (CircleRingView) findViewById(R.id.cv_mian_warring);
 
+
+
         RelativeLayout rl_mian_start = (RelativeLayout) findViewById(R.id.rl_mian_start);
         RelativeLayout rl_main_healthydata = (RelativeLayout) findViewById(R.id.rl_main_healthydata);
         RelativeLayout rl_main_sportcheck = (RelativeLayout) findViewById(R.id.rl_main_sportcheck);
@@ -393,7 +396,7 @@ public class MainActivity extends BaseActivity {
         tv_main_age = (TextView) findViewById(R.id.tv_main_age);
         tv_main_indexvalue = (TextView) findViewById(R.id.tv_main_indexvalue);
         tv_base_charge = (TextView) findViewById(R.id.tv_base_charge);
-
+        iv_main_warring = (ImageView) findViewById(R.id.iv_main_warring);
 
         myOnClickListener = new MyOnClickListener();
 
@@ -425,6 +428,19 @@ public class MainActivity extends BaseActivity {
 
         MyApplication.isNeedSynMsgToDevice = true;
 
+        int indexWarringHeartIconType = MyUtil.getIntValueFromSP("IndexWarringHeartIconType");
+        if (indexWarringHeartIconType==1){
+            iv_main_warring.setImageResource(R.drawable.healthy_green);
+        }
+        else if (indexWarringHeartIconType==2){
+            iv_main_warring.setImageResource(R.drawable.healthy_yellow);
+        }
+        else if (indexWarringHeartIconType==3){
+            iv_main_warring.setImageResource(R.drawable.healthy_orange);
+        }
+        else if (indexWarringHeartIconType==4){
+            iv_main_warring.setImageResource(R.drawable.healthy_red);
+        }
         //showUploadOffLineData();
 
 
@@ -650,6 +666,22 @@ public class MainActivity extends BaseActivity {
             cv_mian_warring.setValue(230);
             if (scoreALL >0){
                 dv_main_compass.setAgeData(physicalAge-10);
+            }
+        }
+
+        if (MyApplication.IndexWarringHeartIconType!=-1){
+            int indexWarringHeartIconType = MyApplication.IndexWarringHeartIconType;
+            if (indexWarringHeartIconType==1){
+                iv_main_warring.setImageResource(R.drawable.healthy_green);
+            }
+            else if (indexWarringHeartIconType==2){
+                iv_main_warring.setImageResource(R.drawable.healthy_yellow);
+            }
+            else if (indexWarringHeartIconType==3){
+                iv_main_warring.setImageResource(R.drawable.healthy_orange);
+            }
+            else if (indexWarringHeartIconType==4){
+                iv_main_warring.setImageResource(R.drawable.healthy_red);
             }
         }
     }

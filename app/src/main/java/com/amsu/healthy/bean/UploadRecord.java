@@ -104,8 +104,6 @@ public class UploadRecord implements Parcelable,Cloneable {
         chaosPlotPoint = new ArrayList<>();
         frequencyDomainDiagramPoint = new ArrayList<>();
 
-
-
     }
 
     /*public UploadRecord(Context context) {

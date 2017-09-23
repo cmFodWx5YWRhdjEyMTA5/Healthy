@@ -76,24 +76,13 @@ public class HRVFragment extends BaseFragment {
                 Log.i(TAG,"allSuggestion:"+allSuggestion);
             }
 
-            if (mUploadRecord.sdnn1==0 && mUploadRecord.sdnn2==0 && mUploadRecord.lf1==0 && mUploadRecord.hf==0){
-                //这四个同时为0，表示是老版本，没有上传这些数据，用之前的计算方式
-                Log.i(TAG,"fi:"+mUploadRecord.fi+",pi:"+mUploadRecord.pi+",es:"+mUploadRecord.es);
-                if (mUploadRecord.fi>0){
-                    IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(mUploadRecord.fi);
-                    int FINeed = ESIndicatorAssess.getPercent();
-                    tiredLayoutParams.setMargins((int) ((FINeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
-                    iv_hrv_tired.setLayoutParams(tiredLayoutParams);
-                }
+            Log.i(TAG,"mUploadRecord.sdnn1:"+mUploadRecord.sdnn1);
+            Log.i(TAG,"mUploadRecord.sdnn2:"+mUploadRecord.sdnn2);
+            Log.i(TAG,"mUploadRecord.lf1:"+mUploadRecord.lf1);
+            Log.i(TAG,"mUploadRecord.hf:"+mUploadRecord.hf);
 
-                if (mUploadRecord.pi>0){
-                    IndicatorAssess PIIndicatorAssess = HealthyIndexUtil.calculateSDNNPressureIndex(mUploadRecord.pi);
-                    int PINeed = PIIndicatorAssess.getPercent();
-                    resistLayoutParams.setMargins((int) ((PINeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
-                    iv_hrv_resist.setLayoutParams(resistLayoutParams);
-                }
-            }
-            else {
+            //这四个同时为0，表示是老版本，没有上传这些数据，用之前的计算方式
+            if (mUploadRecord.pi==-2 || (mUploadRecord.sdnn1!=0 || mUploadRecord.sdnn2!=0 || mUploadRecord.lf1!=0 || mUploadRecord.hf!=0)){
                 //新的计算方式
                 //精神疲劳度
                 HRVResult mentalFatigueNumber = HealthyIndexUtil.judgeHRVMentalFatigueData(mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.hf1, mUploadRecord.lf1, mUploadRecord.sdnn1,
@@ -101,7 +90,7 @@ public class HRVFragment extends BaseFragment {
 
                 if (mentalFatigueNumber.state>0){
                     tiredLayoutParams.setMargins((int) ((mentalFatigueNumber.state*24/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
-                    iv_hrv_tired.setLayoutParams(tiredLayoutParams);
+                    iv_hrv_resist.setLayoutParams(tiredLayoutParams);
                 }
 
                 HRVResult physicalFatigueNumber;
@@ -114,24 +103,49 @@ public class HRVFragment extends BaseFragment {
                     physicalFatigueNumber = HealthyIndexUtil.judgeHRVPhysicalFatigueSport(mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.sdnn1,
                             mUploadRecord.hf2, mUploadRecord.lf2, mUploadRecord.sdnn2);
                 }
+
                 if (physicalFatigueNumber.state>0){
                     resistLayoutParams.setMargins((int) ((physicalFatigueNumber.state*32/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
-                    iv_hrv_resist.setLayoutParams(resistLayoutParams);
+                    iv_hrv_tired.setLayoutParams(resistLayoutParams);
                 }
 
                 Log.i(TAG,"mentalFatigueNumber:"+mentalFatigueNumber);
                 Log.i(TAG,"physicalFatigueNumber:"+physicalFatigueNumber);
 
-                String suggestion1 = mentalFatigueNumber.suggestion;
-                String suggestion2 = physicalFatigueNumber.suggestion;
+                String mentalSuggestion = mentalFatigueNumber.suggestion;
+                String physicalSuggestion = physicalFatigueNumber.suggestion;
 
-                if (!MyUtil.isEmpty(suggestion1) && !MyUtil.isEmpty(suggestion2)){
-                    allSuggestion = suggestion1+suggestion2;
+                if (!MyUtil.isEmpty(mentalSuggestion) || !MyUtil.isEmpty(physicalSuggestion)){
+                    allSuggestion = physicalSuggestion+mentalSuggestion;
+                }
+
+                if (MyUtil.isEmpty(mentalSuggestion) && MyUtil.isEmpty(physicalSuggestion)){
+                    allSuggestion = "无法得出分析结果，采样时间不够四分钟或设备连接脱落";
+                }
+
+            }
+            else if (mUploadRecord.pi==-1){
+                allSuggestion = "无法得出分析结果，采样时间不够四分钟或设备连接脱落";
+            }
+            else {
+                Log.i(TAG,"fi:"+mUploadRecord.fi+",pi:"+mUploadRecord.pi+",es:"+mUploadRecord.es);
+                if (mUploadRecord.fi>0){
+                    IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(mUploadRecord.fi);
+                    int FINeed = ESIndicatorAssess.getPercent();
+                    tiredLayoutParams.setMargins((int) ((FINeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+                    iv_hrv_tired.setLayoutParams(tiredLayoutParams);
+                }
+
+                if (mUploadRecord.fi>0){
+                    IndicatorAssess PIIndicatorAssess = HealthyIndexUtil.calculateSDNNPressureIndex(mUploadRecord.fi);
+                    int PINeed = PIIndicatorAssess.getPercent();
+                    resistLayoutParams.setMargins((int) ((PINeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+                    iv_hrv_resist.setLayoutParams(resistLayoutParams);
                 }
             }
 
-            tv_hrv_suggestion.setText(allSuggestion);
 
+            tv_hrv_suggestion.setText(allSuggestion);
 
 
             //String hrvs = ESIndicatorAssess.getSuggestion()+PIIndicatorAssess.getSuggestion()+FIIndicatorAssess.getSuggestion();
@@ -184,6 +198,14 @@ public class HRVFragment extends BaseFragment {
         public HRVResult(int state, String suggestion) {
             this.state = state;
             this.suggestion = suggestion;
+        }
+
+        @Override
+        public String toString() {
+            return "HRVResult{" +
+                    "state=" + state +
+                    ", suggestion='" + suggestion + '\'' +
+                    '}';
         }
     }
 }

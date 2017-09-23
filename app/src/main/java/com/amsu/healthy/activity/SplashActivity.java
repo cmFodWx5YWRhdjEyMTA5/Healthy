@@ -208,7 +208,7 @@ public class SplashActivity extends Activity {
     }
 
     public static void setIndicatorData(WeekReport weekReport, Activity activity){
-        if (weekReport!=null){
+        if (weekReport!=null && weekReport.errDesc!=null && weekReport.errDesc.guosuguohuan!=null){
             //BMI
             IndicatorAssess scoreBMI = HealthyIndexUtil.calculateScoreBMI(MyApplication.appContext);
             //储备心率
@@ -218,7 +218,7 @@ public class SplashActivity extends Activity {
             int sum = 0;
             int count = 0;
             for (String s:huifuxinlv){
-                if (Integer.parseInt(s)>0){
+                if (!MyUtil.isEmpty(s)&& !s.equals("null") && Integer.parseInt(s)>0){
                     sum += Integer.parseInt(s);
                     count++;
                 }
@@ -237,7 +237,7 @@ public class SplashActivity extends Activity {
             sum = 0;
             count = 0;
             for (String s:kangpilaozhishu){
-                if (Integer.parseInt(s)>0){
+                if (!MyUtil.isEmpty(s)&& !s.equals("null") && Integer.parseInt(s)>0){
                     sum += Integer.parseInt(s);
                     count++;
                 }
@@ -256,22 +256,30 @@ public class SplashActivity extends Activity {
             sum = 0;
             count = 0;
             for (String s:guosuguohuan){
-                if (Integer.parseInt(s)>0){
+                if (!MyUtil.isEmpty(s) && !s.equals("null") && Integer.parseInt(s)>0){
                     count++;
                     sum += Integer.parseInt(s);
                 }
             }
             IndicatorAssess scoreOver_slow = null;
+            IndicatorAssess scoreSlow = null;  //过缓
+            IndicatorAssess scoreOver = null;  //过速
+
             if(count>0){
                 int over_slow = sum/count;
                 Log.i(TAG,"over_slow:"+over_slow);
                 //过缓/过速(心电分析算法得出)
                 scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(over_slow,MyApplication.appContext);
+
+                scoreSlow = HealthyIndexUtil.calculateTypeSlow(over_slow,MyApplication.appContext);
+                scoreOver = HealthyIndexUtil.calculateTypeOver(over_slow,MyApplication.appContext);
             }
             else {
                 scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(0,MyApplication.appContext);
             }
 
+            IndicatorAssess zaoboIndicatorAssess = null;
+            IndicatorAssess louboIndicatorAssess = null;
             IndicatorAssess scoreBeat = null;
             List<WeekReport.WeekReportResult.Zaoboloubo> zaoboloubo = weekReport.errDesc.zaoboloubo;
             if (zaoboloubo!=null && zaoboloubo.size()>0){
@@ -286,11 +294,13 @@ public class SplashActivity extends Activity {
                 //早搏 包括房早搏APB和室早搏VPB，两者都记为早搏(心电分析算法得出)
                 scoreBeat = HealthyIndexUtil.calculateScoreBeat(zaobo,loubo,MyApplication.appContext);
 
-                IndicatorAssess zaoboIndicatorAssess = HealthyIndexUtil.calculateTypeBeforeBeat(zaobo,MyApplication.appContext);
-                IndicatorAssess louboIndicatorAssess = HealthyIndexUtil.calculateTypeMissBeat(loubo,MyApplication.appContext);
+                zaoboIndicatorAssess = HealthyIndexUtil.calculateTypeBeforeBeat(zaobo,MyApplication.appContext);
+                louboIndicatorAssess = HealthyIndexUtil.calculateTypeMissBeat(loubo,MyApplication.appContext);
                 MyUtil.putIntValueFromSP("zaoboIndicatorAssess",zaoboIndicatorAssess.getPercent());
                 MyUtil.putIntValueFromSP("louboIndicatorAssess",louboIndicatorAssess.getPercent());
             }
+
+            HealthyIndexUtil.calcuIndexWarringHeartIcon(scoreSlow,scoreOver,zaoboIndicatorAssess,louboIndicatorAssess);
 
             // 健康储备(按训练时间计算)
             IndicatorAssess scoreReserveHealth = HealthyIndexUtil.calculateScoreReserveHealth();
@@ -315,6 +325,8 @@ public class SplashActivity extends Activity {
 
         }
     }
+
+
 }
 
 

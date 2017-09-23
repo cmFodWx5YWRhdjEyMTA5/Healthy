@@ -18,6 +18,7 @@
     <string name="following">Following</string>
     <string name="emergency_help">Emergency help</string>
     <string name="settings">Settings</string>
+    <string name="nodata">no data</string>
 
     <string name="login">Login</string>
     <string name="verification_Code">Verification Code</string>
@@ -286,7 +287,7 @@
 
     <string name="HeartRate_suggetstion_fast">Heart rate too fast: for a healthy individual,stress and other factor could lead to fast heart rate. Please have enough rest, keep a happy mood, and consult to your doctor when it gets worse. </string>
     <string name="HeartRate_suggetstion_slow">Heart rate too slow: it is normal for a healthy individual, but consult to your doctor if it gets worse. </string>
-    <string name="HeartRate_suggetstion_nodata">Time is less than three minutes or bad connection with the device</string>
+    <string name="HeartRate_suggetstion_nodata">Time is less than four minutes or bad connection with the device</string>
     <string name="HeartRate_suggetstion_normal">normal heart rate</string>
 
     <string name="premature_beat_times">Premature beat </string>

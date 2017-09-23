@@ -276,10 +276,10 @@
                 dashboardview:circlering_start_color="#307ABD"
                 dashboardview:circlering_end_color="#81ADD7"/>
             <ImageView
-                android:id="@+id/tv_main_warring"
+                android:id="@+id/iv_main_warring"
                 android:layout_width="@dimen/x72"
                 android:layout_height="@dimen/x72"
-                android:src="@drawable/home_xin"
+                android:src="@drawable/healthy_green"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/x60"
                 />
@@ -288,7 +288,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/warning"
                 android:textColor="#FEFEFE"
-                android:layout_below="@+id/tv_main_warring"
+                android:layout_below="@+id/iv_main_warring"
                 android:layout_centerHorizontal="true"
                 android:textSize="@dimen/x28"
                 android:layout_marginTop="@dimen/x12"/>

@@ -47,7 +47,7 @@
                 android:layout_height="35dp"
                 android:text="步态"
                 android:gravity="center"
-                android:textColor="#000"
+                android:textColor="#FFFFFF"
                 android:background="@drawable/bg_care_switch_rightoff"/>
         </LinearLayout>
 

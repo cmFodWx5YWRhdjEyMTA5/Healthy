@@ -204,7 +204,8 @@ public class IndexWarringActivity extends BaseActivity {
     }
 
     public void setIndicatorData(WeekReport weekReport) {
-        List<String> guosuguohuan = weekReport.errDesc.guosuguohuan;
+        if (weekReport.errDesc!=null && weekReport.errDesc.guosuguohuan!=null){
+            List<String> guosuguohuan = weekReport.errDesc.guosuguohuan;
 
         /*for (int i=0;i<guosuguohuan.size();i++){
             IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateTypeSlow(Integer.parseInt(guosuguohuan.get(i)));
@@ -227,33 +228,33 @@ public class IndexWarringActivity extends BaseActivity {
 
 
 
-        IndicatorAssess scoreBeforeBeat = null;
-        IndicatorAssess scoreMissBeat = null;
-        List<WeekReport.WeekReportResult.Zaoboloubo> zaoboloubo = weekReport.errDesc.zaoboloubo;
-        if (zaoboloubo!=null && zaoboloubo.size()>0){
-            int zaobo  = zaoboloubo.get(0).zaoboTimes;
-            int loubo  = zaoboloubo.get(0).louboTimes;
-            if (zaobo<0){
-                zaobo = 0;
+            IndicatorAssess scoreBeforeBeat = null;
+            IndicatorAssess scoreMissBeat = null;
+            List<WeekReport.WeekReportResult.Zaoboloubo> zaoboloubo = weekReport.errDesc.zaoboloubo;
+            if (zaoboloubo!=null && zaoboloubo.size()>0){
+                int zaobo  = zaoboloubo.get(0).zaoboTimes;
+                int loubo  = zaoboloubo.get(0).louboTimes;
+                if (zaobo<0){
+                    zaobo = 0;
+                }
+                if (loubo<0){
+                    loubo = 0;
+                }
+                //早搏 包括房早搏APB和室早搏VPB，两者都记为早搏(心电分析算法得出)
+                scoreBeforeBeat = HealthyIndexUtil.calculateTypeBeforeBeat(zaobo,this);
+                scoreMissBeat = HealthyIndexUtil.calculateTypeMissBeat(loubo,this);
             }
-            if (loubo<0){
-                loubo = 0;
-            }
-            //早搏 包括房早搏APB和室早搏VPB，两者都记为早搏(心电分析算法得出)
-            scoreBeforeBeat = HealthyIndexUtil.calculateTypeBeforeBeat(zaobo,this);
-            scoreMissBeat = HealthyIndexUtil.calculateTypeMissBeat(loubo,this);
-        }
 
-        //过缓/过速(心电分析算法得出)
-        IndicatorAssess scoreSlow = null;  //过缓
-        IndicatorAssess scoreOver = null;  //过速
-        int scoreSlowCount = 0;
-        int scoreOverCount = 0;
+            //过缓/过速(心电分析算法得出)
+            IndicatorAssess scoreSlow = null;  //过缓
+            IndicatorAssess scoreOver = null;  //过速
+            int scoreSlowCount = 0;
+            int scoreOverCount = 0;
 
-        boolean isFirst =true;
-        weekAllHistoryRecords = weekReport.errDesc.list;
+            boolean isFirst =true;
+            weekAllHistoryRecords = weekReport.errDesc.list;
 
-        Collections.reverse(weekAllHistoryRecords);
+            Collections.reverse(weekAllHistoryRecords);
 
         for (WeekReport.WeekReportResult.HistoryRecordItem historyRecordItem:weekAllHistoryRecords){
             Log.i(TAG,"historyRecordItem:"+historyRecordItem.toString());
@@ -261,31 +262,8 @@ public class IndexWarringActivity extends BaseActivity {
 
         for (int i=0;i<weekAllHistoryRecords.size();i++){
             WeekReport.WeekReportResult.HistoryRecordItem historyRecord = weekAllHistoryRecords.get(i);
-
-            /*if (Integer.parseInt(historyRecord.state)==0){
-                staticStateHistoryRecords.add(historyRecord);
-
-                IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateTypeSlow(Integer.parseInt(guosuguohuan.get(i)));
-                IndicatorAssess indicatorAssess2 = HealthyIndexUtil.calculateTypeOver(Integer.parseInt(guosuguohuan.get(i)));
-                if (isFirst){
-                    scoreSlow = indicatorAssess1;
-                    scoreOver = indicatorAssess2;
-                    isFirst = false;
-                }
-                else{
-                    if (indicatorAssess1.getPercent()!=0){
-                        scoreSlow = indicatorAssess1;
-                        scoreSlowCount ++;
-                    }
-                    if (indicatorAssess2.getPercent()!=0){
-                        scoreOver = indicatorAssess2;
-                        scoreOverCount++;
-                    }
-                }
-            }*/
             staticStateHistoryRecords.add(historyRecord);
-
-            IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateTypeSlow(Integer.parseInt(guosuguohuan.get(i)),this);
+            /*IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateTypeSlow(Integer.parseInt(guosuguohuan.get(i)),this);
             IndicatorAssess indicatorAssess2 = HealthyIndexUtil.calculateTypeOver(Integer.parseInt(guosuguohuan.get(i)),this);
             if (isFirst){
                 scoreSlow = indicatorAssess1;
@@ -301,49 +279,70 @@ public class IndexWarringActivity extends BaseActivity {
                     scoreOver = indicatorAssess2;
                     scoreOverCount++;
                 }
+            }*/
+        }
+
+            int sum = 0;
+            int count = 0;
+            for (String s:guosuguohuan){
+                if (!MyUtil.isEmpty(s)&& !s.equals("null") && Integer.parseInt(s)>0){
+                    count++;
+                    sum += Integer.parseInt(s);
+                }
             }
+
+            if(count>0){
+                int over_slow = sum/count;
+                Log.i(TAG,"over_slow:"+over_slow);
+                //过缓/过速(心电分析算法得出)
+                scoreSlow = HealthyIndexUtil.calculateTypeSlow(over_slow,this);
+                scoreOver = HealthyIndexUtil.calculateTypeOver(over_slow,this);
+            }
+
+            if (guosuguohuan!=null&& guosuguohuan.size()==0){
+                return;
+            }
+
+            myListViewAdapter.notifyDataSetChanged();
+
+
+            for (WeekReport.WeekReportResult.HistoryRecordItem historyRecordItem:staticStateHistoryRecords){
+                Log.i(TAG,"staticStateHistory:"+historyRecordItem.toString());
+            }
+
+            Log.i(TAG,"mSuggestion:"+mSuggestion);
+
+            if (scoreSlow!=null){
+                indicatorAssesses.add(scoreSlow);
+                setState(scoreSlow.getPercent(),scoreSlowCount,pb_hrv_ratelow,tv_warring_state_slow);
+                mSuggestion += scoreSlow.getSuggestion();
+            }
+            if (scoreOver!=null){
+                indicatorAssesses.add(scoreOver);
+                setState(scoreOver.getPercent(),scoreOverCount,pb_hrv_rateover,tv_warring_state_over);
+                mSuggestion += scoreOver.getSuggestion();
+            }
+
+            if (scoreBeforeBeat!=null){
+                indicatorAssesses.add(scoreBeforeBeat);
+                setState(scoreBeforeBeat.getPercent(),6,pb_hrv_morningrate,tv_warring_state_morningrate);
+                mSuggestion += scoreBeforeBeat.getSuggestion();
+            }
+            if (scoreMissBeat!=null){
+                indicatorAssesses.add(scoreMissBeat);
+                setState(scoreMissBeat.getPercent(),12,pb_hrv_leaverate,tv_warring_state_leaverate);
+                mSuggestion += scoreMissBeat.getSuggestion();
+            }
+            tv_hrv_suggestion.setText(mSuggestion);
+
+            Log.i(TAG,"mSuggestion:"+mSuggestion);
+            for (IndicatorAssess indicatorAssess:indicatorAssesses){
+                Log.i(TAG,"indicatorAssess:"+indicatorAssess);
+            }
+
+            HealthyIndexUtil.calcuIndexWarringHeartIcon(scoreSlow,scoreOver,scoreBeforeBeat,scoreMissBeat);
         }
 
-        if (guosuguohuan!=null&& guosuguohuan.size()==0 && zaoboloubo!=null && zaoboloubo.size()==0){
-            return;
-        }
-
-        myListViewAdapter.notifyDataSetChanged();
-
-
-        for (WeekReport.WeekReportResult.HistoryRecordItem historyRecordItem:staticStateHistoryRecords){
-            Log.i(TAG,"staticStateHistory:"+historyRecordItem.toString());
-        }
-
-        Log.i(TAG,"mSuggestion:"+mSuggestion);
-
-        if (scoreSlow!=null){
-            indicatorAssesses.add(scoreSlow);
-            setState(scoreSlow.getPercent(),scoreSlowCount,pb_hrv_ratelow,tv_warring_state_slow);
-            mSuggestion += scoreSlow.getSuggestion();
-        }
-        if (scoreOver!=null){
-            indicatorAssesses.add(scoreOver);
-            setState(scoreOver.getPercent(),scoreOverCount,pb_hrv_rateover,tv_warring_state_over);
-            mSuggestion += scoreOver.getSuggestion();
-        }
-
-        if (scoreBeforeBeat!=null){
-            indicatorAssesses.add(scoreBeforeBeat);
-            setState(scoreBeforeBeat.getPercent(),6,pb_hrv_morningrate,tv_warring_state_morningrate);
-            mSuggestion += scoreBeforeBeat.getSuggestion();
-        }
-        if (scoreMissBeat!=null){
-            indicatorAssesses.add(scoreMissBeat);
-            setState(scoreMissBeat.getPercent(),12,pb_hrv_leaverate,tv_warring_state_leaverate);
-            mSuggestion += scoreMissBeat.getSuggestion();
-        }
-        tv_hrv_suggestion.setText(mSuggestion);
-
-        Log.i(TAG,"mSuggestion:"+mSuggestion);
-        for (IndicatorAssess indicatorAssess:indicatorAssesses){
-            Log.i(TAG,"indicatorAssess:"+indicatorAssess);
-        }
     }
 
     private void setState(int score,int count, ProgressBar progressBar,TextView textView) {
@@ -353,11 +352,13 @@ public class IndexWarringActivity extends BaseActivity {
                 textView.setText(getResources().getString(R.string.normal));
                 break;
             case 1:
-                progressBar.setProgress(mProgressYellow+count*5);
+                //progressBar.setProgress(mProgressYellow+count*5);
+                progressBar.setProgress(50);
                 textView.setText(getResources().getString(R.string.yellow_warning));
                 break;
             case 2:
-                progressBar.setProgress(mProgressRed+count*5);
+                //progressBar.setProgress(mProgressRed+count*5);
+                progressBar.setProgress(90);
                 textView.setText(getResources().getString(R.string.red_warning));
                 break;
         }

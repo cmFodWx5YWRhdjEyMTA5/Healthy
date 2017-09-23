@@ -314,7 +314,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             int sum = 0;
             int count = 0;
             for (String s:huifuxinlv){
-                if (Integer.parseInt(s)>0){
+                if (!MyUtil.isEmpty(s)&& !s.equals("null") && Integer.parseInt(s)>0){
                     sum += Integer.parseInt(s);
                     count++;
                 }
@@ -334,7 +334,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             sum = 0;
             count = 0;
             for (String s:kangpilaozhishu){
-                if (Integer.parseInt(s)>0){
+                if (!MyUtil.isEmpty(s)&& !s.equals("null") && Integer.parseInt(s)>0){
                     sum += Integer.parseInt(s);
                     count++;
                 }
@@ -354,7 +354,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
             sum = 0;
             count = 0;
             for (String s:guosuguohuan){
-                if (Integer.parseInt(s)>0){
+                if (!MyUtil.isEmpty(s)&& !s.equals("null") && Integer.parseInt(s)>0){
                     count++;
                     sum += Integer.parseInt(s);
                 }

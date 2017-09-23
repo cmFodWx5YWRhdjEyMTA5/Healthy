@@ -99,7 +99,7 @@ public class HistoryRecordAllActivity extends BaseActivity {
             case 0:
                 tv_consult_cloth.setTextColor(Color.parseColor("#FFFFFF"));
                 tv_consult_cloth.setBackgroundResource(R.drawable.bg_care_switch_lefton);
-                tv_consult_insole.setTextColor(Color.parseColor("#000000"));
+                tv_consult_insole.setTextColor(Color.parseColor("#FFFFFF"));
                 tv_consult_insole.setBackgroundResource(R.drawable.bg_care_switch_rightoff);
 
                 fragmentTransaction.hide(insoleHistoryRecordFragment);
@@ -108,7 +108,7 @@ public class HistoryRecordAllActivity extends BaseActivity {
                 break;
 
             case 1:
-                tv_consult_cloth.setTextColor(Color.parseColor("#000000"));
+                tv_consult_cloth.setTextColor(Color.parseColor("#FFFFFF"));
                 tv_consult_cloth.setBackgroundResource(R.drawable.bg_care_switch_leftoff);
                 tv_consult_insole.setTextColor(Color.parseColor("#FFFFFF"));
                 tv_consult_insole.setBackgroundResource(R.drawable.bg_care_switch_righton);

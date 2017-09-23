@@ -101,7 +101,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
 
         //分析过程有可能耗时，在子线程中进行
         final String ecgLocalFileName = intent.getStringExtra(Constant.ecgLocalFileName); ///storage/emulated/0
-        //final String ecgLocalFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth/20170917183346.ecg"; ///storage/emulated/0
+        //final String ecgLocalFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth/20170920184950.ecg"; ///storage/emulated/0
         Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
         Log.i(TAG,"integerArrayListExtra: "+integerArrayListExtra);
         if (!MyUtil.isEmpty(ecgLocalFileName)) {
@@ -398,7 +398,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 ES = (heartRateResult.LF / heartRateResult.HF);
             }
 
-            PI = heartRateResult.RR_SDNN;
+            PI = -1;   //新版本计算时PI=-1，为标识新旧版本
             FI = heartRateResult.RR_SDNN;
 
             if (PI>0 || ES>0){
@@ -406,8 +406,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 Log.i(TAG,"hrvs:"+HRVs);
             }
 
-
-            int timeCount = 150*60*5;
+            int timeCount = 150*60*2;
             if (calcuData.length>timeCount*2){   //大于4分钟则进行后2次分析
                 final int[] calcuData3  = new int[timeCount];
                 final int[] calcuData4  = new int[timeCount];
@@ -441,6 +440,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 uploadRecord.lf = heartRateResult.LF;
                 uploadRecord.hf = heartRateResult.HF;
 
+                PI = -2;
                /* HeartRateResult heartRateResult3 = DiagnosisNDK.AnalysisEcg(calcuData3, calcuData3.length, Constant.oneSecondFrame);
                 Log.i(TAG,"heartRateResult3:"+heartRateResult3.toString());
 
@@ -463,7 +463,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
 
 
 
-            zaobo = heartRateResult.RR_Apb + heartRateResult.RR_Pvc;
+            zaobo = heartRateResult.RR_Pvc;
             loubo = heartRateResult.RR_Boleakage;
 
             if (zaobo>0){
