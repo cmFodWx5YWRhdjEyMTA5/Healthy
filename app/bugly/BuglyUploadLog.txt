@@ -285,3 +285,24 @@ appChannel=tencent
 appPackage=com.amsu.healthy
 appVersion=1.4.2
 
+file=C:\Users\hai\AndroidStudioProjects\Healthy\app\build\outputs\mapping\appinner\release\mapping.txt
+sha1=9fa3a25e6977c86ff785070d34ab58a779cd5b84
+appId=d139ea916b
+appChannel=appinner
+appPackage=com.amsu.healthy
+appVersion=1.4.3
+
+file=C:\Users\hai\AndroidStudioProjects\Healthy\app\build\outputs\mapping\c360\release\mapping.txt
+sha1=9fa3a25e6977c86ff785070d34ab58a779cd5b84
+appId=d139ea916b
+appChannel=c360
+appPackage=com.amsu.healthy
+appVersion=1.4.3
+
+file=C:\Users\hai\AndroidStudioProjects\Healthy\app\build\outputs\mapping\tencent\release\mapping.txt
+sha1=9fa3a25e6977c86ff785070d34ab58a779cd5b84
+appId=d139ea916b
+appChannel=tencent
+appPackage=com.amsu.healthy
+appVersion=1.4.3
+

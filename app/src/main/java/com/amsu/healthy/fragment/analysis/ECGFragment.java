@@ -339,7 +339,8 @@ public class ECGFragment extends BaseFragment {
             if (loubo>0){
                 suggestion += getResources().getString(R.string.missed_beat_times)+loubo+getResources().getString(R.string.missed_beat_times_decrible);
             }
-            else {
+
+            if(zaobo==0 && loubo==0){
                 if (mUploadRecord.ahr>0){
                     suggestion = getResources().getString(R.string.abnormal_ecg);
                 }
