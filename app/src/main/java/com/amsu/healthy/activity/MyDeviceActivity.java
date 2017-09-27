@@ -46,6 +46,7 @@ public class MyDeviceActivity extends BaseActivity {
     private ListView lv_device_devicelist;
     private int mBndDevicePostion = 0;
     private int mCurClickPosition;
+    public LeProxy mLeProxy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +83,8 @@ public class MyDeviceActivity extends BaseActivity {
         DeviceList tempDeviceList = new DeviceList();
         tempDeviceList.setDeviceList(this.deviceList);
         MyUtil.putDeviceListToSP(tempDeviceList);*/
+
+        mLeProxy = LeProxy.getInstance();
 
         Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
         Device deviceClothFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
@@ -122,7 +125,7 @@ public class MyDeviceActivity extends BaseActivity {
                 }
                 if (MyApplication.insoleConnectedMacAddress.size()==1){
                     for (String oldStr : MyApplication.insoleConnectedMacAddress) {
-                        CommunicateToBleService.mLeProxy.disconnect(oldStr);
+                        mLeProxy.disconnect(oldStr);
                     }
                 }
                 Intent intent = new Intent(MyDeviceActivity.this,SearchDevicehActivity.class);
@@ -174,7 +177,7 @@ public class MyDeviceActivity extends BaseActivity {
                             public void run() {
                                 super.run();
                                 while (MyApplication.clothCurrBatteryPowerPercent ==-1){
-                                    CommunicateToBleService.sendLookEleInfoOrder();
+                                    CommunicateToBleService.sendLookEleInfoOrder(mLeProxy);
                                     try {
                                         Thread.sleep(500);
                                     } catch (InterruptedException e) {
@@ -341,7 +344,7 @@ public class MyDeviceActivity extends BaseActivity {
                         if (iSNeedUnbind){
                             if (MyApplication.isHaveDeviceConnectted){
                                 //断开蓝牙连接
-                                CommunicateToBleService.mLeProxy.disconnect(MyApplication.clothConnectedMacAddress);
+                                mLeProxy.disconnect(MyApplication.clothConnectedMacAddress);
 
                                 deviceList.get(mBndDevicePostion).setState(getResources().getString(R.string.click_bind));
                                 TextView tv_item_state1 = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);

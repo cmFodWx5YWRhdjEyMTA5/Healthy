@@ -160,9 +160,9 @@ public class InsoleHistoryRecordFragment extends Fragment {
     }
 
     private void loadData(int page, final boolean isRefresh) {
-        if (!isRefresh){
+        /*if (!isRefresh){
             MyUtil.showDialog(getResources().getString(R.string.loading),getActivity());
-        }
+        }*/
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
         /*params.addBodyParameter("record_number","50");
@@ -170,8 +170,6 @@ public class InsoleHistoryRecordFragment extends Fragment {
         MyUtil.addCookieForHttp(params);
 
         Log.i(TAG,"page:"+page);
-
-
 
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getShoepadList, params, new RequestCallBack<String>() {
             @Override

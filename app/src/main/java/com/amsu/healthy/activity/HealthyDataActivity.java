@@ -531,23 +531,12 @@ public class HealthyDataActivity extends BaseActivity {
         try {
             if (fileOutputStream==null){
                 startTimeMillis = System.currentTimeMillis();
-                //String filePath = MyUtil.generateECGFilePath(HealthyDataActivity.this, startTimeMillis); //随机生成一个ecg格式文件
-                //String filePath = getCacheDir()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";  //随机生成一个文件
-                String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth";
-                File file = new File(filePath);
-                if (!file.exists()) {
-                    boolean mkdirs = file.mkdirs();
-                    Log.i(TAG,"mkdirs:"+mkdirs);
-                }
-                String fileAbsolutePath = filePath+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";
-                Log.i(TAG,"fileAbsolutePath:"+fileAbsolutePath);
-                fileOutputStream = new FileOutputStream(fileAbsolutePath,true);
-                //MyUtil.putStringValueFromSP("cacheFileName",fileAbsolutePath);
-                ecgLocalFileName = fileAbsolutePath;
+                ecgLocalFileName = MyUtil.getClolthLocalFileName(1,new Date());;
+                Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
+                fileOutputStream = new FileOutputStream(ecgLocalFileName,true);
                 dataOutputStream = new DataOutputStream(fileOutputStream);
                 byteBuffer = ByteBuffer.allocate(2);
                 heartRateDates.clear();
-
             }
             for (int anInt : ints) {
                 byteBuffer.clear();

@@ -53,6 +53,7 @@ public class Constant {
     //public static String downloadWeekReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadWeekReport";
     //public static String downloadWeekReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadWeekReport.do";
     public static String downloadWeekReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadWeekReport.do";
+    public static String downloadLatelyWeekReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadLatelyWeekReport.do";
     public static String addSosContact = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/addContacts";
     public static String getAllContacts = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/getContactsAndMessage";
     public static String setSosMessage = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/setMessage";
@@ -130,9 +131,6 @@ public class Constant {
     public static final String getShoepadList = "http://www.amsu-new.com:8081/intellingence-web/getShoepadList.do";
     public static final String deleteShoepadDataById = "http://www.amsu-new.com:8081/intellingence-web/deleteShoepadDataById.do";
     public static final String getBangdingDetails = "http://www.amsu-new.com:8081/intellingence-web/getBangdingDetails.do";
-
-
-
 
 
 }

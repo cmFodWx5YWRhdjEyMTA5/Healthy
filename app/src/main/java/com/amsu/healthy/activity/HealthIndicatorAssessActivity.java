@@ -63,6 +63,8 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
     private MyViewPageAdapter myViewPageAdapter;
     private TextView tv_assess_compare;
     private float[] thisWeekdata;
+    private TextView tv_assess_thisweek;
+    private String mCompareWeek = "上周";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +88,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
 
         TextView tv_hrv_value = (TextView) findViewById(R.id.tv_hrv_value);
         tv_assess_compare = (TextView) findViewById(R.id.tv_assess_compare);
+        tv_assess_thisweek = (TextView) findViewById(R.id.tv_assess_thisweek);
         Intent intent = getIntent();
         int scoreALL = intent.getIntExtra("scoreALL", 0);
         if (scoreALL!=0){
@@ -207,7 +210,9 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
     }
 
     private void downlaodWeekRepore(final int year, final int weekOfYear, final boolean isThisWeek) {
-        MyUtil.showDialog(getResources().getString(R.string.loading),this);
+        if (isThisWeek){
+            MyUtil.showDialog(getResources().getString(R.string.loading),this);
+        }
         Log.i(TAG,"downlaodWeekRepore=======year:"+year+"  weekOfYear:"+weekOfYear);
 
         HttpUtils httpUtils = new HttpUtils();
@@ -218,7 +223,15 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
 
         MyUtil.addCookieForHttp(params);
 
-        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadWeekReportURL, params, new RequestCallBack<String>() {
+        String url;
+        if (isThisWeek){
+            url = Constant.downloadLatelyWeekReportURL;
+        }
+        else {
+            url = Constant.downloadWeekReportURL;
+        }
+
+        httpUtils.send(HttpRequest.HttpMethod.POST, url, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 MyUtil.hideDialog(HealthIndicatorAssessActivity.this);
@@ -235,6 +248,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                         thisWeekReport = gson.fromJson(result, WeekReport.class);
                         Log.i(TAG,"thisWeekReport:"+ thisWeekReport.toString());
 
+
                     }
                     else {
                         lastWeekReport = gson.fromJson(result, WeekReport.class);
@@ -242,7 +256,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                     }
                     setIndicatorData();
                 }
-                else if (jsonBase.getRet()==-10001){
+                /*else if (jsonBase.getRet()==-10001){
                     String toaskText = tv_assess_compare.getText()+getResources().getString(R.string.no_data);
                     if (weekOfYear==-1){
                         toaskText = getResources().getString(R.string.no_data_this_week);
@@ -250,7 +264,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                     MyUtil.showToask(HealthIndicatorAssessActivity.this,toaskText);
                     float[] data1 = {0, 0, 0, 0, 0,0,0};
                     rc_assess_radar.setDatas(thisWeekdata,data1,null);
-                }
+                }*/
             }
 
             @Override
@@ -262,20 +276,75 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
     }
 
     private void setIndicatorData(){
-        if(thisWeekReport!=null && !"-10001".equals(thisWeekReport.ret) && lastWeekReport==null ){
+        tv_assess_thisweek.setText("近七天");
+        tv_assess_compare.setText(mCompareWeek);
+
+        boolean isThisWeekHaveData = false;
+        boolean isLastWeekHaveData = false;
+        float[] lastWeekdata = new float[7];;
+        if (thisWeekReport!=null && thisWeekReport.errDesc!=null && thisWeekReport.errDesc.guosuguohuan!=null && thisWeekReport.errDesc.guosuguohuan.size()>0){
+            isThisWeekHaveData = true;
             thisWeekdata = dealWithWeekData(thisWeekReport,true);
+        }
+        if (lastWeekReport!=null && lastWeekReport.errDesc!=null && lastWeekReport.errDesc.guosuguohuan!=null && lastWeekReport.errDesc.guosuguohuan.size()>0){
+            isLastWeekHaveData = true;
+            lastWeekdata = dealWithWeekData(lastWeekReport,false);
+        }
+
+        Log.i(TAG,"isThisWeekHaveData:"+isThisWeekHaveData+",isLastWeekHaveData:"+isLastWeekHaveData);
+
+        if (isThisWeekHaveData && !isLastWeekHaveData){
+            //本周有数据
             rc_assess_radar.setDatas(thisWeekdata,null,null);
+            tv_assess_compare.setText(tv_assess_compare.getText().toString()+"无数据");
         }
-        else if(lastWeekReport!=null && !"-10001".equals(lastWeekReport.ret) && thisWeekReport==null ){
-            float[] lastWeekdata = dealWithWeekData(lastWeekReport,false);
+        else if (!isThisWeekHaveData && isLastWeekHaveData){
+            //上周有数据
             rc_assess_radar.setDatas(null,lastWeekdata,null);
+            tv_assess_thisweek.setText("近7天无数据");
         }
-        else if (thisWeekReport!=null && !"-10001".equals(thisWeekReport.ret) && lastWeekReport!=null && !"-10001".equals(lastWeekReport.ret)){
-            //2周数据都不为空时
-            thisWeekdata = dealWithWeekData(thisWeekReport,true);
-            float[] lastWeekdata = dealWithWeekData(lastWeekReport,false);
+        else if (isThisWeekHaveData && isLastWeekHaveData){
+            //都有
             rc_assess_radar.setDatas(thisWeekdata,lastWeekdata,null);
         }
+        else if (!isThisWeekHaveData && !isLastWeekHaveData){
+            //都没有
+            rc_assess_radar.setDatas(null,null,null);
+            tv_assess_thisweek.setText("近7天无数据");
+            tv_assess_compare.setText(tv_assess_compare.getText().toString()+"无数据");
+        }
+
+       /* if(thisWeekReport!=null &&  lastWeekReport==null ){
+
+            if (thisWeekReport.errDesc!=null && thisWeekReport.errDesc.guosuguohuan!=null && thisWeekReport.errDesc.guosuguohuan.size()>0){  //数量大于0
+                thisWeekdata = dealWithWeekData(thisWeekReport,true);
+                rc_assess_radar.setDatas(thisWeekdata,null,null);
+            }
+            else {
+                rc_assess_radar.setDatas(null,null,null);
+            }
+        }
+        else if(lastWeekReport!=null && thisWeekReport==null ){
+            tv_assess_thiweek.setText("近7天无数据");
+            MyUtil.showToask(HealthIndicatorAssessActivity.this,"近7天无数据");
+            if (lastWeekReport.errDesc!=null && lastWeekReport.errDesc.guosuguohuan!=null && lastWeekReport.errDesc.guosuguohuan.size()>0){
+                float[] lastWeekdata = dealWithWeekData(lastWeekReport,false);
+                rc_assess_radar.setDatas(null,lastWeekdata,null);
+            }
+            else {
+                rc_assess_radar.setDatas(null,null,null);
+            }
+        }
+        else if (thisWeekReport!=null && lastWeekReport!=null ){
+            //2周数据都不为空时
+            if (thisWeekReport.errDesc!=null && thisWeekReport.errDesc.guosuguohuan!=null && thisWeekReport.errDesc.guosuguohuan.size()>0 &&
+                    lastWeekReport.errDesc!=null && lastWeekReport.errDesc.guosuguohuan!=null && lastWeekReport.errDesc.guosuguohuan.size()>0){  //数量大于0
+                thisWeekdata = dealWithWeekData(thisWeekReport,true);
+                float[] lastWeekdata = dealWithWeekData(lastWeekReport,false);
+                rc_assess_radar.setDatas(thisWeekdata,lastWeekdata,null);
+            }
+        }*/
+
 
         if (myViewPageAdapter!=null){
             myViewPageAdapter.notifyDataSetChanged();
@@ -290,6 +359,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                 int year = data.getIntExtra("year",-1);
                 int currWeekOfYear = data.getIntExtra("currWeekOfYear",-1);
                 String mChoosedweek = data.getStringExtra("mChoosedweek");
+                mCompareWeek = mChoosedweek;
 
                 Log.i(TAG,"year:"+year+", currWeekOfYear:"+currWeekOfYear+",mChoosedweek:"+mChoosedweek);
 

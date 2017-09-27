@@ -20,6 +20,7 @@ import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.InputTextAlertDialogUtil;
+import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
@@ -41,6 +42,7 @@ public class DeviceInfoActivity extends BaseActivity {
     private ImageView iv_deviceinfo_switvh;
     private boolean mIsAutoOffline;
     private int mDevicetype;
+    public LeProxy mLeProxy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +76,8 @@ public class DeviceInfoActivity extends BaseActivity {
             MainActivity.mLeService.send(MainActivity.clothDeviceConnecedMac, Constant.readDeviceIDOrder,true);
             Log.i(TAG,"MainActivity.mLeService.send");
         }*/
+
+        mLeProxy = LeProxy.getInstance();
 
         deviceFromSP = MyUtil.getDeviceFromSP();
         if (deviceFromSP!=null){
@@ -233,13 +237,13 @@ public class DeviceInfoActivity extends BaseActivity {
                             //将连接的衣服断开
                             if (MyApplication.isHaveDeviceConnectted){
                                 //断开蓝牙连接
-                                CommunicateToBleService.mLeProxy.disconnect(MyApplication.clothConnectedMacAddress);
+                                mLeProxy.disconnect(MyApplication.clothConnectedMacAddress);
                             }
                         }
                         else {
                             //将连接的鞋垫断开
                             for (String oldStr : MyApplication.insoleConnectedMacAddress) {
-                                CommunicateToBleService.mLeProxy.disconnect(oldStr);
+                                mLeProxy.disconnect(oldStr);
                             }
                         }
                     }

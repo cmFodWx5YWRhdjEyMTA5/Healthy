@@ -125,7 +125,7 @@ public class IndexWarringActivity extends BaseActivity {
                 Intent intent = new Intent(IndexWarringActivity.this, HeartRateResultShowActivity.class);
                 Bundle bundle = new Bundle();
                 //String cueMapDate = MyUtil.getCueMapDate(Long.parseLong(historyRecordItem.timestamp) * 1000);
-                HistoryRecord historyRecord = new HistoryRecord(historyRecordItem.ID,historyRecordItem.timestamp,historyRecordItem.state);
+                HistoryRecord historyRecord = new HistoryRecord(historyRecordItem.id,historyRecordItem.timestamp*1000,historyRecordItem.state);
                 bundle.putParcelable("historyRecord",historyRecord);
                 intent.putExtra("bundle",bundle);
                 startActivity(intent);
@@ -152,7 +152,7 @@ public class IndexWarringActivity extends BaseActivity {
 
         MyUtil.addCookieForHttp(params);
 
-        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadWeekReportURL, params, new RequestCallBack<String>() {
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadLatelyWeekReportURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 MyUtil.hideDialog(IndexWarringActivity.this);
@@ -372,7 +372,7 @@ public class IndexWarringActivity extends BaseActivity {
             for (WeekReport.WeekReportResult.HistoryRecordItem historyRecordItem:staticStateHistoryRecords){
                 //String cueMapDate = MyUtil.getCueMapDate(Long.parseLong(historyRecordItem.timestamp)*1000);
                 //Log.i(TAG,"cueMapDate:"+cueMapDate);
-                historyRecords.add(new HistoryRecord(historyRecordItem.ID,historyRecordItem.timestamp*1000,historyRecordItem.state));
+                historyRecords.add(new HistoryRecord(historyRecordItem.id,historyRecordItem.timestamp*1000,historyRecordItem.state));
             }
             intent.putParcelableArrayListExtra("staticStateHistoryRecords",historyRecords);
         }
@@ -569,12 +569,15 @@ public class IndexWarringActivity extends BaseActivity {
                 tv_wring_type.setText(R.string.rest);
             }
 
-            Date date = new Date(historyRecord.timestamp*1000);
+            String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm:ss",new Date(historyRecord.timestamp*1000));
+
+           /* Date date = new Date(historyRecord.timestamp*1000);
             int year = date.getYear()+1900;
             int month = date.getMonth()+1;
-            int day = date.getDate();
-            tv_wring_year.setText(year+"");
-            tv_wring_day.setText(month+"."+day);
+            int day = date.getDate();*/
+            String[] split = datatime.split(" ");
+            tv_wring_year.setText(split[0]);
+            tv_wring_day.setText(split[1]);
             return inflate;
         }
     }

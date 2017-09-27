@@ -84,9 +84,10 @@
                     android:src="@drawable/bg_rec_radar1"
                     android:layout_centerVertical="true"/>
                 <TextView
+                    android:id="@+id/tv_assess_thisweek"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/this_week"
+                    android:text="近七天"
                     android:layout_toRightOf="@+id/iv_image1"
                     android:layout_marginLeft="3dp"
                     android:layout_centerVertical="true"/>

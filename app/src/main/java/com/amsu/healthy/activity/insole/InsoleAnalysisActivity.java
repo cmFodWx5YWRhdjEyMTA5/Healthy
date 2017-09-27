@@ -32,8 +32,14 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class InsoleAnalysisActivity extends BaseActivity {
@@ -91,6 +97,7 @@ public class InsoleAnalysisActivity extends BaseActivity {
         insoleUploadRecord.errDesc.ShoepadData.creationtime = startTimeMillis;
         insoleUploadRecord.errDesc.ShoepadData.maxspeed = maxSpeedKM_Hour;
 
+        Log.i(TAG,"sportCreateRecordID:"+sportCreateRecordID);
 
         if (sportCreateRecordID!=-1){
             DbAdapter dbAdapter = new DbAdapter(this);
@@ -134,125 +141,126 @@ public class InsoleAnalysisActivity extends BaseActivity {
         //rightFilePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/insole/20170921162420.rg"; ///storage/emulated/0
 
         if ((!MyUtil.isEmpty(leftFilePath) && new File(leftFilePath).exists())|| (!MyUtil.isEmpty(rightFilePath) && new File(rightFilePath).exists())){
-            //Log.i(TAG,"leftFilePath:"+new File(leftFilePath).exists());
-            //Log.i(TAG,"rightFilePath:"+new File(rightFilePath).exists());
 
-            User userFromSP = MyUtil.getUserFromSP();
-            HttpUtils httpUtils = new HttpUtils();
-            RequestParams params = new RequestParams();
-
-            if (!MyUtil.isEmpty(MyApplication.insoleAccessToken)){
-                params.addBodyParameter("access_token",MyApplication.insoleAccessToken);
-            }
-            else {
-                return;
-            }
-            //params.addBodyParameter("userId","9");
-            params.addBodyParameter("creationtime",insoleUploadRecord.errDesc.ShoepadData.creationtime+"");
-            params.addBodyParameter("name",userFromSP.getPhone());
-            String sex;
-            if (userFromSP.getSex().equals("1")){
-                //1=男 2=女
-                sex = "male";
-            }
-            else {
-                sex = "female";
-            }
-
-            params.addBodyParameter("gender",sex);
-            params.addBodyParameter("age", HealthyIndexUtil.getUserAge()+"");
-            params.addBodyParameter("height",userFromSP.getHeight());
-            params.addBodyParameter("weight",userFromSP.getWeight());
-            params.addBodyParameter("phone",userFromSP.getPhone());
-            params.addBodyParameter("tag","鞋垫");
-
-
-
-            if(MyUtil.isEmpty(leftFilePath) &&!MyUtil.isEmpty(rightFilePath)){
-                params.addBodyParameter("rightFile",new File(rightFilePath));
-                params.addBodyParameter("leftFile",new File(rightFilePath));
-
-                String leftFileMd5Message = MD5Util.getFileMd5Message(rightFilePath);
-                params.addBodyParameter("leftchecksum",leftFileMd5Message);
-                params.addBodyParameter("rightchecksum",leftFileMd5Message);
-            }
-            else if(!MyUtil.isEmpty(leftFilePath) && MyUtil.isEmpty(rightFilePath)){
-                params.addBodyParameter("rightFile",new File(leftFilePath));
-                params.addBodyParameter("leftFile",new File(leftFilePath));
-
-                String leftFileMd5Message = MD5Util.getFileMd5Message(leftFilePath);
-                params.addBodyParameter("leftchecksum",leftFileMd5Message);
-                params.addBodyParameter("rightchecksum",leftFileMd5Message);
-            }
-            else if(!MyUtil.isEmpty(leftFilePath) && !MyUtil.isEmpty(rightFilePath)){
-                params.addBodyParameter("rightFile",new File(rightFilePath));
-                params.addBodyParameter("leftFile",new File(leftFilePath));
-
-                String leftFileMd5Message = MD5Util.getFileMd5Message(leftFilePath);
-                String rightFileMd5Message = MD5Util.getFileMd5Message(rightFilePath);
-                params.addBodyParameter("leftchecksum",leftFileMd5Message);
-                params.addBodyParameter("rightchecksum",rightFileMd5Message);
-            }
-
-            params.addBodyParameter("distance",insoleUploadRecord.errDesc.ShoepadData.distance+"");
-            params.addBodyParameter("duration",insoleUploadRecord.errDesc.ShoepadData.duration+"");
-            params.addBodyParameter("maxspeed","0");
-            params.addBodyParameter("averagespeed",insoleUploadRecord.errDesc.ShoepadData.averagespeed+"");
-            params.addBodyParameter("speedallocationarray",insoleUploadRecord.errDesc.ShoepadData.speedallocationarray+"");
-            params.addBodyParameter("calorie",insoleUploadRecord.errDesc.ShoepadData.calorie+"");
-            params.addBodyParameter("stridelengtharray","0");
-            params.addBodyParameter("stepratearray",insoleUploadRecord.errDesc.ShoepadData.stepratearray+"");
-            params.addBodyParameter("stepheigh",insoleUploadRecord.errDesc.ShoepadData.stepheigh+"");
-            params.addBodyParameter("swingwidth","0");
-            params.addBodyParameter("stanceduration","0");
-            params.addBodyParameter("landingcrash","0");
-            params.addBodyParameter("trajectory",insoleUploadRecord.errDesc.ShoepadData.trajectory+"");
-            params.addBodyParameter("analysisresult","0");
-            params.addBodyParameter("type","running");
-            params.addBodyParameter("window","60");
-
-            int intervalTime = calcuIntervalTime(insoleUploadRecord.errDesc.ShoepadData.duration);
-            params.addBodyParameter("interval",intervalTime+"");
-
-            //2、上传数据接口增加window和interval两个参数，单位都是秒    这两个参数  window是表示单个窗口的时长，interval是表示 两个窗口直接的间隔吗？
-
-
-            MyUtil.addCookieForHttp(params);
-
-            Log.i(TAG,"上传到服务器分析");
-            //String testUrl = "http://192.168.0.116:8080/intellingence-web/getShoepadDatas.do";
-            httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getALLShoepadDatasURL, params, new RequestCallBack<String>() {
-                @Override
-                public void onSuccess(ResponseInfo<String> responseInfo) {
-                    MyUtil.hideDialog(InsoleAnalysisActivity.this);
-                    String result = responseInfo.result;
-                    Log.i(TAG,"上传onSuccess==result:"+result);
-
-                    Gson gson = new Gson();
-                    InsoleAnalyResult fromJson = gson.fromJson(result, InsoleAnalyResult.class);
-                    Log.i(TAG,"fromJson:"+fromJson);
-
-                    if (fromJson==null){
-                        fromJson = new InsoleAnalyResult();
-                    }
-                    insoleUploadRecord.errDesc.ShoepadResult = fromJson;
-                    Log.i(TAG,"fromJson:"+fromJson);
-                    showResultData(insoleUploadRecord);
-                }
-
-                @Override
-                public void onFailure(HttpException e, String s) {
-                    Log.i(TAG,"上传onFailure==result:"+e);
-                    MyUtil.hideDialog(InsoleAnalysisActivity.this);
-                    showResultData(null);
-                }
-            });
         }
         else {
-            MyUtil.showToask(this,"本地鞋垫文件数据不存在，取消上传");
-            finish();
+            String testInsoleLocalFile = getTestInsoleLocalFile();
+            Log.i(TAG,"testInsoleLocalFile:"+testInsoleLocalFile);
+            leftFilePath = rightFilePath = testInsoleLocalFile;
+        }
+        //Log.i(TAG,"leftFilePath:"+new File(leftFilePath).exists());
+        //Log.i(TAG,"rightFilePath:"+new File(rightFilePath).exists());
+
+        User userFromSP = MyUtil.getUserFromSP();
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+
+        if (!MyUtil.isEmpty(MyApplication.insoleAccessToken)){
+            params.addBodyParameter("access_token",MyApplication.insoleAccessToken);
+        }
+        else {
+            return;
+        }
+        //params.addBodyParameter("userId","9");
+        params.addBodyParameter("creationtime",insoleUploadRecord.errDesc.ShoepadData.creationtime+"");
+        params.addBodyParameter("name",userFromSP.getPhone());
+        String sex;
+        if (userFromSP.getSex().equals("1")){
+            //1=男 2=女
+            sex = "male";
+        }
+        else {
+            sex = "female";
         }
 
+        params.addBodyParameter("gender",sex);
+        params.addBodyParameter("age", HealthyIndexUtil.getUserAge()+"");
+        params.addBodyParameter("height",userFromSP.getHeight());
+        params.addBodyParameter("weight",userFromSP.getWeight());
+        params.addBodyParameter("phone",userFromSP.getPhone());
+        params.addBodyParameter("tag","鞋垫");
+
+
+
+        if(MyUtil.isEmpty(leftFilePath) &&!MyUtil.isEmpty(rightFilePath)){
+            params.addBodyParameter("rightFile",new File(rightFilePath));
+            params.addBodyParameter("leftFile",new File(rightFilePath));
+
+            String leftFileMd5Message = MD5Util.getFileMd5Message(rightFilePath);
+            params.addBodyParameter("leftchecksum",leftFileMd5Message);
+            params.addBodyParameter("rightchecksum",leftFileMd5Message);
+        }
+        else if(!MyUtil.isEmpty(leftFilePath) && MyUtil.isEmpty(rightFilePath)){
+            params.addBodyParameter("rightFile",new File(leftFilePath));
+            params.addBodyParameter("leftFile",new File(leftFilePath));
+
+            String leftFileMd5Message = MD5Util.getFileMd5Message(leftFilePath);
+            params.addBodyParameter("leftchecksum",leftFileMd5Message);
+            params.addBodyParameter("rightchecksum",leftFileMd5Message);
+        }
+        else if(!MyUtil.isEmpty(leftFilePath) && !MyUtil.isEmpty(rightFilePath)){
+            params.addBodyParameter("rightFile",new File(rightFilePath));
+            params.addBodyParameter("leftFile",new File(leftFilePath));
+
+            String leftFileMd5Message = MD5Util.getFileMd5Message(leftFilePath);
+            String rightFileMd5Message = MD5Util.getFileMd5Message(rightFilePath);
+            params.addBodyParameter("leftchecksum",leftFileMd5Message);
+            params.addBodyParameter("rightchecksum",rightFileMd5Message);
+        }
+
+        params.addBodyParameter("distance",insoleUploadRecord.errDesc.ShoepadData.distance+"");
+        params.addBodyParameter("duration",insoleUploadRecord.errDesc.ShoepadData.duration+"");
+        params.addBodyParameter("maxspeed","0");
+        params.addBodyParameter("averagespeed",insoleUploadRecord.errDesc.ShoepadData.averagespeed+"");
+        params.addBodyParameter("speedallocationarray",insoleUploadRecord.errDesc.ShoepadData.speedallocationarray+"");
+        params.addBodyParameter("calorie",insoleUploadRecord.errDesc.ShoepadData.calorie+"");
+        params.addBodyParameter("stridelengtharray","0");
+        params.addBodyParameter("stepratearray",insoleUploadRecord.errDesc.ShoepadData.stepratearray+"");
+        params.addBodyParameter("stepheigh",insoleUploadRecord.errDesc.ShoepadData.stepheigh+"");
+        params.addBodyParameter("swingwidth","0");
+        params.addBodyParameter("stanceduration","0");
+        params.addBodyParameter("landingcrash","0");
+        params.addBodyParameter("trajectory",insoleUploadRecord.errDesc.ShoepadData.trajectory+"");
+        params.addBodyParameter("analysisresult","0");
+        params.addBodyParameter("type","running");
+        params.addBodyParameter("window","60");
+
+        int intervalTime = calcuIntervalTime(insoleUploadRecord.errDesc.ShoepadData.duration);
+        params.addBodyParameter("interval",intervalTime+"");
+
+        //2、上传数据接口增加window和interval两个参数，单位都是秒    这两个参数  window是表示单个窗口的时长，interval是表示 两个窗口直接的间隔吗？
+
+
+        MyUtil.addCookieForHttp(params);
+
+        Log.i(TAG,"上传到服务器分析");
+        //String testUrl = "http://192.168.0.116:8080/intellingence-web/getShoepadDatas.do";
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getALLShoepadDatasURL, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                MyUtil.hideDialog(InsoleAnalysisActivity.this);
+                String result = responseInfo.result;
+                Log.i(TAG,"上传onSuccess==result:"+result);
+
+                Gson gson = new Gson();
+                InsoleAnalyResult fromJson = gson.fromJson(result, InsoleAnalyResult.class);
+                Log.i(TAG,"fromJson:"+fromJson);
+
+                if (fromJson==null){
+                    fromJson = new InsoleAnalyResult();
+                }
+                insoleUploadRecord.errDesc.ShoepadResult = fromJson;
+                Log.i(TAG,"fromJson:"+fromJson);
+                showResultData(insoleUploadRecord);
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                Log.i(TAG,"上传onFailure==result:"+e);
+                MyUtil.hideDialog(InsoleAnalysisActivity.this);
+                showResultData(null);
+            }
+        });
 
     }
 
@@ -290,6 +298,53 @@ public class InsoleAnalysisActivity extends BaseActivity {
 
         startActivity(toNextIntent);
         finish();
+    }
+
+
+    //当处于鞋垫没有连接状态，生成测试文件
+    public String getTestInsoleLocalFile(){
+        String filePath = MyUtil.getInsoleLocalFileName(1,new Date(0));
+        if (!new File(filePath).exists()){
+            for (short i = 0; i < 1000; i++) {
+                writeEcgDataToBinaryFile_16(1,i,i,i,i,i,i,filePath);
+            }
+        }
+        return filePath;
+    }
+
+    private DataOutputStream leftDataOutputStream;
+    private ByteBuffer leftByteBuffer;
+
+    private void writeEcgDataToBinaryFile_16(int time,short gyrX,short gyrY,short gyrZ,short accX ,short accY,short accZ,String filePath) {
+        try {
+            if (leftDataOutputStream==null){
+                leftDataOutputStream = new DataOutputStream(new FileOutputStream(filePath,false));
+                leftByteBuffer = ByteBuffer.allocate(1);
+                leftByteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+                String head="0xc1";
+                leftByteBuffer.put(Integer.valueOf(Integer.decode(head)).byteValue());
+
+                leftByteBuffer.flip();
+                leftDataOutputStream.write(leftByteBuffer.array());
+                leftByteBuffer.clear();
+
+                leftByteBuffer = ByteBuffer.allocate(4+2*6);
+                leftByteBuffer.order(ByteOrder.LITTLE_ENDIAN);  //小端模式写入数据
+            }
+            leftByteBuffer.putInt(time);
+            leftByteBuffer.putShort(gyrX);
+            leftByteBuffer.putShort(gyrY);
+            leftByteBuffer.putShort(gyrZ);
+            leftByteBuffer.putShort(accX);
+            leftByteBuffer.putShort(accY);
+            leftByteBuffer.putShort(accZ);
+
+            leftByteBuffer.flip();
+            leftDataOutputStream.write(leftByteBuffer.array());
+            leftByteBuffer.clear();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 

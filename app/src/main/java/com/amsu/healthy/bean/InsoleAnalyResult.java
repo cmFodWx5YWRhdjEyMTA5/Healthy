@@ -68,13 +68,13 @@ public class InsoleAnalyResult{
         }
 
         public class GeneralLeft{
-            public double supportStability;
+            public String supportStability;
             public LandingPosition landingPosition;
             public boolean inversion;
 
 
             public GeneralLeft() {
-                this.supportStability = 0;
+                this.supportStability = "";
                 this.landingPosition = new LandingPosition();
                 this.inversion = false;
             }
@@ -103,9 +103,19 @@ public class InsoleAnalyResult{
                         ", inversion=" + inversion +
                         '}';
             }
-        };
+        }
 
-
+        @Override
+        public String toString() {
+            return "General{" +
+                    "symmetry=" + symmetry +
+                    ", variability='" + variability + '\'' +
+                    ", stepRate='" + stepRate + '\'' +
+                    ", strideLength='" + strideLength + '\'' +
+                    ", left=" + left +
+                    ", right=" + right +
+                    '}';
+        }
     }
 
     public class LeftAndRight{

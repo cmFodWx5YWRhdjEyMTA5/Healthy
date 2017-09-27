@@ -81,17 +81,18 @@ public class HistoryRecordAdapter extends BaseAdapter {
         //"datatime": "2016-10-28 10:56:04"
         String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm:ss",new Date(historyRecord.getDatatime()));
         String[] split = datatime.split(" ");
-        String[] dateSplits = split[0].split("-");
-        String date = "";
-        if (MyApplication.languageType==MyApplication.language_ch){
-            date = dateSplits[0]+"年"+dateSplits[1]+"月"+dateSplits[2]+"日";
+        if (split.length==2){
+            String[] dateSplits = split[0].split("-");
+            String date = "";
+            if (MyApplication.languageType==MyApplication.language_ch){
+                date = dateSplits[0]+"年"+dateSplits[1]+"月"+dateSplits[2]+"日";
+            }
+            else if (MyApplication.languageType==MyApplication.language_en){
+                date = dateSplits[0]+"-"+dateSplits[1]+"-"+dateSplits[2];
+            }
+            myHolder.tv_history_date.setText(date);
+            myHolder.tv_history_time.setText(split[1]);
         }
-        else if (MyApplication.languageType==MyApplication.language_en){
-            date = dateSplits[0]+"-"+dateSplits[1]+"-"+dateSplits[2];
-        }
-
-        myHolder.tv_history_date.setText(date);
-        myHolder.tv_history_time.setText(split[1]);
 
         //0静态，1动态室外，2动态室内
         if (historyRecord.getState()==0){

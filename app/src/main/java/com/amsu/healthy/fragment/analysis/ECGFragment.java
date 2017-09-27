@@ -329,7 +329,7 @@ public class ECGFragment extends BaseFragment {
             }
             tv_rate_suggestion.setText(suggestion);*/
 
-            String suggestion =getResources().getString(R.string.HeartRate_suggetstion_nodata);
+            String suggestion ="";
 
             int zaobo = mUploadRecord.zaobo;
             int loubo = mUploadRecord.loubo;
@@ -343,6 +343,9 @@ public class ECGFragment extends BaseFragment {
             if(zaobo==0 && loubo==0){
                 if (mUploadRecord.ahr>0){
                     suggestion = getResources().getString(R.string.abnormal_ecg);
+                }
+                else {
+                    suggestion =getResources().getString(R.string.HeartRate_suggetstion_nodata);
                 }
             }
             tv_rate_suggestion.setText(suggestion);

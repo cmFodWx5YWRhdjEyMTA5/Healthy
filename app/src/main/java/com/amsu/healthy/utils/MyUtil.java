@@ -90,11 +90,10 @@ public class MyUtil {
 
     public static void showDialog(String message,Activity context){
         try {
-            if (dialog == null) {
-                dialog = new ProgressDialog(context);
-                dialog.setCanceledOnTouchOutside(false);
+
+            dialog = new ProgressDialog(context);
+            dialog.setCanceledOnTouchOutside(false);
                 //dialog.setProgressStyle(R.style.progresStyle);
-            }
             dialog.setMessage(message);
             dialog.show();
             Log.i(TAG,"dialog.show();");
@@ -405,9 +404,11 @@ public class MyUtil {
     }
 
     public static String getSpecialFormatTime(String stringFormat,Date date){
-        //SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd H:m:s");
-        SimpleDateFormat format = new SimpleDateFormat(stringFormat, Locale.CHINA);  //07-12 15:10
-        return format.format(date);
+        if (date!=null){
+            SimpleDateFormat format = new SimpleDateFormat(stringFormat, Locale.CHINA);  //07-12 15:10
+            return format.format(date);
+        }
+        return "";
     }
 
 
@@ -1181,5 +1182,40 @@ public class MyUtil {
         date = new Date(date.getTime()+durationTimeteamp);
         return getSpecialFormatTime("HH:mm:ss", date);
     }
+
+    //left_right哪只脚 1：左脚，2：右脚
+    public static String getInsoleLocalFileName(int left_right,Date date){
+        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/insole";
+        File file = new File(filePath);
+        if (!file.exists()) {
+            boolean mkdirs = file.mkdirs();
+            Log.i(TAG,"mkdirs:"+mkdirs);
+        }
+        filePath += "/"+ MyUtil.getECGFileNameDependFormatTime(date);
+        if (left_right==1){
+            return filePath+".lf";
+        }
+        else {
+            return filePath+".rg";
+        }
+    }
+
+    //ecg_acc是心电还是加速度 1：ecg，2：acc
+    public static String getClolthLocalFileName(int ecg_acc,Date date){
+        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth";
+        File file = new File(filePath);
+        if (!file.exists()) {
+            boolean mkdirs = file.mkdirs();
+            Log.i(TAG,"mkdirs:"+mkdirs);
+        }
+        filePath += "/"+ MyUtil.getECGFileNameDependFormatTime(date);
+        if (ecg_acc==1){
+            return filePath+".ecg";
+        }
+        else {
+            return filePath+".acc";
+        }
+    }
+
 }
 

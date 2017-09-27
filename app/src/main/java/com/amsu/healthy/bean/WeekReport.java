@@ -22,14 +22,14 @@ public  class WeekReport{
         public List<HistoryRecordItem> list;
 
         public class HistoryRecordItem {
-            public String ID;
+            public String id;
             public long timestamp;
             public int state;
 
             @Override
             public String toString() {
                 return "HistoryRecordItem{" +
-                        "ID=" + ID +
+                        "ID=" + id +
                         ", timestamp=" + timestamp +
                         ", state=" + state +
                         '}';

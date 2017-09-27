@@ -481,9 +481,9 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                         mLeftStepCount = tempStepCount-mPreLeftStepCount;
                         mLeftAllStep += mLeftStepCount;
 
-                        //testText += "步数左脚：总数"+tempStepCount+"，上次"+mPreLeftStepCount+",这次"+mLeftStepCount+"\n";
+                        testText += "步数左脚：总数"+tempStepCount+"，上次"+mPreLeftStepCount+",这次"+mLeftStepCount+"\n";
                         mPreLeftStepCount = tempStepCount;
-                        //tv_test.setText(testText);
+                        tv_test.setText(testText);
 
                         if (mLeftNoReceiveCount>0){
                             mLeftStepCount = mLeftStepCount/mLeftNoReceiveCount;
@@ -509,9 +509,9 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                         mRightStepCount = tempStepCount-mPreRightStepCount;
                         mRightAllStep += mRightStepCount;
 
-                        //testText += "步数右脚：总数"+tempStepCount+"，上次"+mPreRightStepCount+",这次"+mRightStepCount+"\n";
+                        testText += "步数右脚：总数"+tempStepCount+"，上次"+mPreRightStepCount+",这次"+mRightStepCount+"\n";
                         mPreRightStepCount = tempStepCount;
-                        //tv_test.setText(testText);
+                        tv_test.setText(testText);
 
                         if (mRightNoReceiveCount>0){
                             mRightStepCount = mRightStepCount/mRightNoReceiveCount;
@@ -754,13 +754,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             }
             try {
                 if (leftDataOutputStream==null){
-                    String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/insole";
-                    File file = new File(filePath);
-                    if (!file.exists()) {
-                        boolean mkdirs = file.mkdirs();
-                        Log.i(TAG,"mkdirs:"+mkdirs);
-                    }
-                    mLeftInsole30SencendFileAbsolutePath = filePath+"/"+ MyUtil.getECGFileNameDependFormatTime(new Date())+".lf";
+                    mLeftInsole30SencendFileAbsolutePath = MyUtil.getInsoleLocalFileName(insoleType,new Date());
                     Log.i(TAG,"mLeftInsole30SencendFileAbsolutePath:"+ mLeftInsole30SencendFileAbsolutePath);
                     leftDataOutputStream = new DataOutputStream(new FileOutputStream(mLeftInsole30SencendFileAbsolutePath,true));
 
@@ -803,13 +797,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
             try {
                 if (rightDataOutputStream==null){
-                    String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/insole";
-                    File file = new File(filePath);
-                    if (!file.exists()) {
-                        boolean mkdirs = file.mkdirs();
-                        Log.i(TAG,"mkdirs:"+mkdirs);
-                    }
-                    mRightInsole30SencendFileAbsolutePath = filePath+"/"+ MyUtil.getECGFileNameDependFormatTime(new Date())+".rg";
+                    mRightInsole30SencendFileAbsolutePath = MyUtil.getInsoleLocalFileName(insoleType,new Date());
                     Log.i(TAG,"mRightInsole30SencendFileAbsolutePath:"+ mRightInsole30SencendFileAbsolutePath);
                     rightDataOutputStream = new DataOutputStream(new FileOutputStream(mRightInsole30SencendFileAbsolutePath,true));
 
@@ -985,7 +973,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                         if (sportCreateRecordID!=-1){
                             if (mAbortData==null){
                                 mAbortData = new AppAbortDataSave(System.currentTimeMillis(), "", "", sportCreateRecordID, 1,mSpeedStringList);
-                                saveOrUpdateAbortDatareordToSP(mAbortData,true);
+                                saveOrUpdateAbortDatareordToSP(mAbortData);
                             }
                             else {
                                 if (mAbortData.getMapTrackID()==-1){
@@ -996,7 +984,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                                 }
                                 mAbortData.setSpeedStringList(mSpeedStringList);
 
-                                saveOrUpdateAbortDatareordToSP(mAbortData,false);
+                                saveOrUpdateAbortDatareordToSP(mAbortData);
                             }
                         }
                     }
@@ -1038,19 +1026,10 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     /**
      *  @describe 异常中断时数据保存在本地
      *  @param abortData:异常数据对象
-     *  @param isSave：保存还是修改 true为保存，false为修改时
      *  @return
      */
-    private void saveOrUpdateAbortDatareordToSP(AppAbortDataSave abortData,boolean isSave) {
-        /*if (abortDataListFromSP==null){
-            abortDataListFromSP = AppAbortDbAdapterUtil.getAbortDataListFromSP();
-        }
-
-        if (!isSave && abortDataListFromSP.size()>0){
-            abortDataListFromSP.remove(abortDataListFromSP.size()-1);
-        }
-        abortDataListFromSP.add(abortData);*/
-        AppAbortDbAdapterUtil.putAbortDataToSP(abortData);
+    private void saveOrUpdateAbortDatareordToSP(AppAbortDataSave abortData) {
+       // AppAbortDbAdapterUtil.putAbortDataToSP(abortData);
     }
 
     private void backJudge() {
@@ -1560,11 +1539,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             }
             rightDataOutputStream = null;
         }
-
-
-
     }
-
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -1671,7 +1646,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     }
 
     private void stopRunning() {
-        MyUtil.showToask(this,"结束");
+        //MyUtil.showToask(this,"结束");
         Log.i(TAG,"mLeftReceivePackageCount:"+mLeftReceivePackageCount);
         Log.i(TAG,"mRightReceivePackageCount:"+mRightReceivePackageCount);
 

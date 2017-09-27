@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.amsu.healthy.appication.MyApplication;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
 import com.ble.ble.BleService;
@@ -49,6 +50,7 @@ public class LeProxy {
     public static final String EXTRA_REG_DATA = ".LeProxy.EXTRA_REG_DATA";
     public static final String EXTRA_REG_FLAG = ".LeProxy.EXTRA_REG_FLAG";
     public static final String EXTRA_RSSI = ".LeProxy.EXTRA_RSSI";
+
 
     private static LeProxy mInstance;
 
@@ -249,7 +251,7 @@ public class LeProxy {
         @Override
         public void onCharacteristicChanged(String address, BluetoothGattCharacteristic characteristic) {
             Log.i(TAG, "onCharacteristicChanged() - " + address + " uuid=" + characteristic.getUuid().toString()
-                    + "\n len=" + characteristic.getValue().length
+                    + "   len=" + characteristic.getValue().length
                     + " [" + DataUtil.byteArrayToHex(characteristic.getValue()) + ']');
 
             updateBroadcast(address, characteristic);
@@ -335,29 +337,48 @@ public class LeProxy {
         public void run() {
             switch (i) {
                 case 0:
-                    //打开模组默认的数据接收通道【0x1002】，这一步成功才能保证APP收到数据
-                    boolean success = enableNotification(address, BleUUIDS.PRIMARY_SERVICE, BleUUIDS.CHARACTERS[1]);
-                    Log.i(TAG, "Enable 0x1002 notification: " + success);
+                    if (MyApplication.deivceType==Constant.sportType_Cloth){
+                        //衣服
+                        //打开模组默认的数据接收通道【0x1002】，这一步成功才能保证APP收到数据
+                        boolean success = enableNotification(address, BleUUIDS.PRIMARY_SERVICE, BleUUIDS.CHARACTERS[1]);
+                        Log.i(TAG, "Enable 0x1002 notification: " + success);
+                    }
+                    else if(MyApplication.deivceType==Constant.sportType_Insole){
+                        UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+                        UUID charUuid_order = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
+                        UUID charUuid_data = UUID.fromString("6e400004-b5a3-f393-e0a9-e50e24dcca9e");
 
-                    UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-                    UUID charUuid_order = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
-                    UUID charUuid_data = UUID.fromString("6e400004-b5a3-f393-e0a9-e50e24dcca9e");
+                        try {
+                            while (true){
+                                Thread.sleep(1000);
+                                boolean success_order = enableNotification(address, serUuid, charUuid_order);
+                                Log.i(TAG, "success_order: " + success_order);
+                                if (success_order){
+                                    break;
+                                }
+                            }
 
-                    try {
-                        Thread.sleep(1000);
-                        boolean success_order = enableNotification(address, serUuid, charUuid_order);
-                        Log.i(TAG, "success_order: " + success_order);
-
-                        Thread.sleep(1000);
-                        boolean success_data = enableNotification(address, serUuid, charUuid_data);
-                        Log.i(TAG, "success_data: " + success_data);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                            while (true){
+                                Thread.sleep(1000);
+                                boolean success_data = enableNotification(address, serUuid, charUuid_data);
+                                Log.i(TAG, "success_data: " + success_data);
+                                if (success_data){
+                                    break;
+                                }
+                            }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
 
                     break;
 
 //                case 1:
+
+
+
+
+
 //                    //适配CC2541透传模块与部分手机的连接问题（就是连线后不走onServicesDiscovered()方法，一段时间后自动断开），
 //                    //初次成功需要重启模块，2.6以下版本还要重启手机蓝牙或者断线时调用mBleService.refresh()，
 //                    //不过mBleService.refresh()会清除手机缓存的uuid，影响再次连接的速度
@@ -399,4 +420,6 @@ public class LeProxy {
             }
         }
     };
+
+
 }

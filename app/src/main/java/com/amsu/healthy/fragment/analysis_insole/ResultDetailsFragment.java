@@ -150,37 +150,31 @@ public class ResultDetailsFragment extends Fragment {
                 tv_detail_outturnver.setText(allinversionString);
 
 
-
-                if (left_frontal.equals(right_frontal)){
-
-
-                }
-
                 String left_sagital = mInsoleUploadRecord.errDesc.ShoepadResult.general.left.landingPosition.sagital;
                 String right_sagital = mInsoleUploadRecord.errDesc.ShoepadResult.general.right.landingPosition.sagital;
 
                 String allSagitalString = "";
                 //前后方向，heel足跟，flatfoot足中，toe足尖
-                if (left_sagital.equals("heel")){
+                if ("heel".equals(left_sagital)){
                     allSagitalString = "足跟/";
                 }
-                else if (left_sagital.equals("flatfoot")){
+                else if ("flatfoot".equals(left_sagital)){
                     allSagitalString = "足跟/";
                 }
-                else if (left_sagital.equals("toe")){
+                else if ("toe".equals(left_sagital)){
                     allSagitalString = "足跟/";
                 }
                 else {
                     allSagitalString = "--/";
                 }
 
-                if (right_sagital.equals("heel")){
+                if ("heel".equals(right_sagital)){
                     allSagitalString += "足跟";
                 }
-                else if (right_sagital.equals("flatfoot")){
+                else if ("flatfoot".equals(right_sagital)){
                     allSagitalString += "足跟";
                 }
-                else if (right_sagital.equals("toe")){
+                else if ("toe".equals(right_sagital)){
                     allSagitalString += "足跟";
                 }
                 else {
@@ -189,11 +183,14 @@ public class ResultDetailsFragment extends Fragment {
 
                 tv_detail_reachway.setText(allSagitalString);
 
-
-                double left_supportStability = mInsoleUploadRecord.errDesc.ShoepadResult.general.left.supportStability;
-                double right_supportStability = mInsoleUploadRecord.errDesc.ShoepadResult.general.right.supportStability;
-                String allStabilityString = MyUtil.getFormatFloatValue(left_supportStability,"0.0")+"/"+MyUtil.getFormatFloatValue(right_supportStability,"0.0");
-                tv_detail_singlestable.setText(allStabilityString);
+                try {
+                    double left_supportStability = Double.parseDouble(mInsoleUploadRecord.errDesc.ShoepadResult.general.left.supportStability);
+                    double right_supportStability = Double.parseDouble(mInsoleUploadRecord.errDesc.ShoepadResult.general.right.supportStability);
+                    String allStabilityString = MyUtil.getFormatFloatValue(left_supportStability,"0.0")+"/"+MyUtil.getFormatFloatValue(right_supportStability,"0.0");
+                    tv_detail_singlestable.setText(allStabilityString);
+                }catch (NumberFormatException e){
+                    e.printStackTrace();
+                }
 
                 if (!MyUtil.isEmpty(mInsoleUploadRecord.errDesc.ShoepadResult.general.strideLength)){
                     double v = Double.parseDouble(mInsoleUploadRecord.errDesc.ShoepadResult.general.strideLength)*100/2;

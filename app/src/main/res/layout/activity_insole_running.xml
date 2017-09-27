@@ -429,8 +429,7 @@
         android:text="步频"
         android:layout_alignParentRight="true"
         android:onClick="testStep"
-        android:layout_marginTop="@dimen/x350"
-        android:visibility="gone"/>
+        android:layout_marginTop="@dimen/x350"/>
 
 
 </RelativeLayout>

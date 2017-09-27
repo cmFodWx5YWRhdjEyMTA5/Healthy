@@ -66,7 +66,7 @@ public class CommunicateToBleService extends Service {
     private boolean mIsConnectting =false;
     private DeviceOffLineFileUtil deviceOffLineFileUtil;
     private BluetoothAdapter mBluetoothAdapter;
-    public static LeProxy mLeProxy;
+    public LeProxy mLeProxy;
     private Handler mHandler = new Handler();
     private static final long SCAN_PERIOD = 5000;
     private Intent calCuelectricVPercentIntent;
@@ -114,6 +114,7 @@ public class CommunicateToBleService extends Service {
                 final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
                 mBluetoothAdapter = bluetoothManager.getAdapter();
                 mLeProxy = LeProxy.getInstance();
+                Log.i(TAG,"mBluetoothAdapter.getState():"+mBluetoothAdapter.getState());
             }
 
             stratListenScrrenBroadCast();
@@ -228,9 +229,11 @@ public class CommunicateToBleService extends Service {
     }
 
     private void dealwithPhoneBleOpen() {
-        if (mBluetoothAdapter!=null) {
-            scanLeDevice(true);
-        }
+        scanLeDevice(true);
+    }
+
+    private void dealwithPhoneBleClose() {
+        scanLeDevice(false);
     }
 
 
@@ -241,16 +244,16 @@ public class CommunicateToBleService extends Service {
             @Override
             public void onTomeOut() {
                 Log.i(TAG,"onTomeOut 查看电量");
-                sendLookEleInfoOrder();
+                sendLookEleInfoOrder(mLeProxy);
             }
         },60*5);//5分钟读一次电量
     }
 
     //发送查询设备配置信息指令
-    public static void sendLookEleInfoOrder() {
+    public static void sendLookEleInfoOrder(LeProxy leProxy) {
         if (mIsConnectted){
             if ( !MyUtil.isEmpty(clothDeviceConnecedMac)){
-                mLeProxy.send(clothDeviceConnecedMac, DataUtil.hexToByteArray(Constant.readDeviceIDOrder),true);
+                leProxy.send(clothDeviceConnecedMac, DataUtil.hexToByteArray(Constant.readDeviceIDOrder),true);
                 Log.i(TAG,"MainActivity.mLeService.send");
             }
         }
@@ -573,7 +576,7 @@ public class CommunicateToBleService extends Service {
 
                         if (MyApplication.clothCurrBatteryPowerPercent==-1){
                             Log.i(TAG, "查询设备信息");
-                            sendLookEleInfoOrder();
+                            sendLookEleInfoOrder(mLeProxy);
                         }
 
                         Thread.sleep(1000);
@@ -597,7 +600,7 @@ public class CommunicateToBleService extends Service {
                         try {
                             Thread.sleep(80);
                             Log.i(TAG, "查询设备信息");
-                            sendLookEleInfoOrder();
+                            sendLookEleInfoOrder(mLeProxy);
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -1233,6 +1236,7 @@ public class CommunicateToBleService extends Service {
                             break;
                         case BluetoothAdapter.STATE_TURNING_OFF:
                             dealwithBelDisconnected(null);
+                            dealwithPhoneBleClose();
                             Log.i(TAG,"STATE_TURNING_OFF");
                             break;
                         case BluetoothAdapter.STATE_OFF:

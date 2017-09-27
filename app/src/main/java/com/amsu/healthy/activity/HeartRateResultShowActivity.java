@@ -30,6 +30,7 @@ import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -399,6 +400,8 @@ public class HeartRateResultShowActivity extends BaseActivity {
                 uploadRecord.chaosPlotMinorAxis = Integer.parseInt(chaosPlotMinorAxis);
             }
 
+            uploadRecord.uploadState = 1;
+
             mUploadRecord = uploadRecord;
 
             //Log.i(TAG,"mUploadRecord:"+mUploadRecord);
@@ -420,6 +423,8 @@ public class HeartRateResultShowActivity extends BaseActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }catch (NumberFormatException e){
+            e.printStackTrace();
+        }catch (JsonSyntaxException e){
             e.printStackTrace();
         }
     }

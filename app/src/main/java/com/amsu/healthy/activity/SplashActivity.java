@@ -129,13 +129,7 @@ public class SplashActivity extends Activity {
         boolean networkConnected = MyUtil.isNetworkConnected(MyApplication.appContext);
         if (networkConnected){
             //有网络连接
-            new Thread(){
-                @Override
-                public void run() {
-                    startUploadOffLineData(MyApplication.appContext);
-                }
-            }.start();
-
+            startUploadOffLineData(MyApplication.appContext);
         }
     }
 

@@ -31,7 +31,10 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class InsoleAnalyticFinshResultActivity extends BaseActivity implements View.OnClickListener{
 
@@ -50,6 +53,7 @@ public class InsoleAnalyticFinshResultActivity extends BaseActivity implements V
     private float mOneTableWidth;
     private int mViewMarginTop;
     public static InsoleUploadRecord mInsoleUploadRecord;
+    private Map<Integer,Integer> viewIDToViewPageIndex;   //第一个Integer为view的id，第二个为ViewPage所在索引
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +63,6 @@ public class InsoleAnalyticFinshResultActivity extends BaseActivity implements V
         initView();
         initData();
     }
-
-
 
     private void initView() {
         initHeadView();
@@ -87,6 +89,7 @@ public class InsoleAnalyticFinshResultActivity extends BaseActivity implements V
         tv_report_stride.setOnClickListener(this);
 
         fragmentList = new ArrayList<>();
+        viewIDToViewPageIndex = new HashMap<>();
 
         //每一个小格的宽度
         mOneTableWidth = MyUtil.getScreeenWidth(this)/4;
@@ -107,7 +110,8 @@ public class InsoleAnalyticFinshResultActivity extends BaseActivity implements V
             @Override
             public void onPageSelected(int position) {
                 Log.i(TAG,"onPageSelected===position:"+position);
-                ///setViewPageTextColor(position+subFormAlCount);
+                int myWebSocketByIntegerValue = getMyWebSocketByIntegerValue(viewIDToViewPageIndex, position);
+                setViewPageTextColor(myWebSocketByIntegerValue);
                 //setViewPageTextColor(position);
             }
 
@@ -116,8 +120,6 @@ public class InsoleAnalyticFinshResultActivity extends BaseActivity implements V
                 // Log.i(TAG,"onPageScrollStateChanged===state:"+state);
             }
         });
-
-
 
     }
 
@@ -245,19 +247,24 @@ public class InsoleAnalyticFinshResultActivity extends BaseActivity implements V
     }
 
     private void adjustFeagmentCount(int state,boolean isHavePace) {
+        int curIndex = 0;
         if (state==1){
             fragmentList.add(new ResultTrackFragment());
+            viewIDToViewPageIndex.put(R.id.tv_report_track,curIndex);
+            curIndex++;
         }
         fragmentList.add(new ResultDetailsFragment());
+        viewIDToViewPageIndex.put(R.id.tv_report_details,curIndex);
+        curIndex++;
         if(isHavePace){
             fragmentList.add(new ResultSpeedFragment());
+            viewIDToViewPageIndex.put(R.id.tv_report_speed,curIndex);
+            curIndex++;
         }
-
         fragmentList.add(new ResultStrideFragment());
-
+        viewIDToViewPageIndex.put(R.id.tv_report_stride,curIndex);
 
         mAnalysisRateAdapter = new FragmentListRateAdapter(getSupportFragmentManager(), fragmentList);
-
         vp_insoleresult_content.setAdapter(mAnalysisRateAdapter);
 
         Log.i(TAG,"adjustFeagmentCount");
@@ -289,10 +296,9 @@ public class InsoleAnalyticFinshResultActivity extends BaseActivity implements V
 
     //点击时设置选中条目
     public void setViewPageItem(int viewPageItem,int currentItem) {
-        /*viewPageItem = viewPageItem-subFormAlCount;
         if (currentItem==viewPageItem){
             return;
-        }*/
+        }
         vp_insoleresult_content.setCurrentItem(viewPageItem);
         /*RelativeLayout.LayoutParams layoutParams =   (RelativeLayout.LayoutParams) v_analysis_select.getLayoutParams();
         int floatWidth= (int) (mOneTableWidth*viewPageItem);  //view向左的偏移量
@@ -304,7 +310,7 @@ public class InsoleAnalyticFinshResultActivity extends BaseActivity implements V
 
     }
 
-    //设置文本颜色
+    /*//设置文本颜色
     private void setViewPageTextColor(int viewPageItem) {
         switch (viewPageItem){
             case 0:
@@ -332,6 +338,36 @@ public class InsoleAnalyticFinshResultActivity extends BaseActivity implements V
                 tv_report_stride.setTextColor(Color.parseColor("#0c64b5"));
                 break;
         }
+    }*/
+
+    //设置文本颜色
+    private void setViewPageTextColor(int id) {
+        switch (id){
+            case R.id.tv_report_track:
+                tv_report_track.setTextColor(Color.parseColor("#0c64b5"));
+                tv_report_details.setTextColor(Color.parseColor("#FFFFFF"));
+                tv_report_speed.setTextColor(Color.parseColor("#FFFFFF"));
+                tv_report_stride.setTextColor(Color.parseColor("#FFFFFF"));
+                break;
+            case R.id.tv_report_details:
+                tv_report_track.setTextColor(Color.parseColor("#FFFFFF"));
+                tv_report_details.setTextColor(Color.parseColor("#0c64b5"));
+                tv_report_speed.setTextColor(Color.parseColor("#FFFFFF"));
+                tv_report_stride.setTextColor(Color.parseColor("#FFFFFF"));
+                break;
+            case R.id.tv_report_speed:
+                tv_report_track.setTextColor(Color.parseColor("#FFFFFF"));
+                tv_report_details.setTextColor(Color.parseColor("#FFFFFF"));
+                tv_report_speed.setTextColor(Color.parseColor("#0c64b5"));
+                tv_report_stride.setTextColor(Color.parseColor("#FFFFFF"));
+                break;
+            case R.id.tv_report_stride:
+                tv_report_track.setTextColor(Color.parseColor("#FFFFFF"));
+                tv_report_details.setTextColor(Color.parseColor("#FFFFFF"));
+                tv_report_speed.setTextColor(Color.parseColor("#FFFFFF"));
+                tv_report_stride.setTextColor(Color.parseColor("#0c64b5"));
+                break;
+        }
     }
 
     @Override
@@ -340,23 +376,21 @@ public class InsoleAnalyticFinshResultActivity extends BaseActivity implements V
         tv_report_details.setTextColor(Color.parseColor("#FFFFFF"));
         tv_report_speed.setTextColor(Color.parseColor("#FFFFFF"));
         tv_report_stride.setTextColor(Color.parseColor("#FFFFFF"));
+        int viewPageIndex = viewIDToViewPageIndex.get(v.getId());
+        setViewPageItem(viewPageIndex,vp_insoleresult_content.getCurrentItem());
 
         switch (v.getId()){
             case R.id.tv_report_track:
                 tv_report_track.setTextColor(Color.parseColor("#0c64b5"));
-                setViewPageItem(0,vp_insoleresult_content.getCurrentItem());
                 break;
             case R.id.tv_report_details:
                 tv_report_details.setTextColor(Color.parseColor("#0c64b5"));
-                setViewPageItem(1,vp_insoleresult_content.getCurrentItem());
                 break;
             case R.id.tv_report_speed:
                 tv_report_speed.setTextColor(Color.parseColor("#0c64b5"));
-                setViewPageItem(2,vp_insoleresult_content.getCurrentItem());
                 break;
             case R.id.tv_report_stride:
                 tv_report_stride.setTextColor(Color.parseColor("#0c64b5"));
-                setViewPageItem(3,vp_insoleresult_content.getCurrentItem());
                 break;
         }
     }
@@ -370,6 +404,18 @@ public class InsoleAnalyticFinshResultActivity extends BaseActivity implements V
         Log.i(TAG,"onDestroy");
         isActiivtyDestroy = true;
         mInsoleUploadRecord = null;
+    }
+
+    //根据值获取key
+    private Integer getMyWebSocketByIntegerValue(Map<Integer, Integer> onlineUserKey,int value) {
+        Set<Integer> webSockets=onlineUserKey.keySet();
+        for(Integer myWebSocket:webSockets){
+            if(value==onlineUserKey.get(myWebSocket)){
+                System.out.println(myWebSocket);
+                return myWebSocket;
+            }
+        }
+        return null;
     }
 
 

@@ -71,11 +71,6 @@ public class HRVFragment extends BaseFragment {
                 iv_hrv_mood.setLayoutParams(moodLayoutParams);
             }
 
-            if (mUploadRecord.pi>0 || mUploadRecord.es>0){
-                allSuggestion = HealthyIndexUtil.getHRVSuggetstion(mUploadRecord.pi, mUploadRecord.es,getActivity());
-                Log.i(TAG,"allSuggestion:"+allSuggestion);
-            }
-
             Log.i(TAG,"mUploadRecord.sdnn1:"+mUploadRecord.sdnn1);
             Log.i(TAG,"mUploadRecord.sdnn2:"+mUploadRecord.sdnn2);
             Log.i(TAG,"mUploadRecord.lf1:"+mUploadRecord.lf1);
@@ -141,6 +136,11 @@ public class HRVFragment extends BaseFragment {
                     int PINeed = PIIndicatorAssess.getPercent();
                     resistLayoutParams.setMargins((int) ((PINeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
                     iv_hrv_resist.setLayoutParams(resistLayoutParams);
+                }
+
+                if (mUploadRecord.pi>0 || mUploadRecord.es>0){
+                    allSuggestion = HealthyIndexUtil.getHRVSuggetstion(mUploadRecord.pi, mUploadRecord.es,getActivity());
+                    Log.i(TAG,"allSuggestion:"+allSuggestion);
                 }
             }
 

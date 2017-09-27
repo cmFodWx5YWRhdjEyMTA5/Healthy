@@ -828,19 +828,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private void writeEcgDataToBinaryFile(int[] ints) {
         try {
             if (ecgDataOutputStream==null){
-                //String filePath = MyUtil.generateECGFilePath(HealthyDataActivity.this, startTimeMillis); //随机生成一个ecg格式文件
-                //String filePath = getCacheDir()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";  //随机生成一个文件
-                String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth";
-                File file = new File(filePath);
-                if (!file.exists()) {
-                    boolean mkdirs = file.mkdirs();
-                    Log.i(TAG,"mkdirs:"+mkdirs);
-                }
-                String fileAbsolutePath = filePath+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";
-                ecgLocalFileName = fileAbsolutePath;
-                Log.i(TAG,"fileAbsolutePath:"+fileAbsolutePath);
+                ecgLocalFileName = MyUtil.getClolthLocalFileName(1,new Date());;
+                Log.i(TAG,"fileAbsolutePath:"+ecgLocalFileName);
                 //MyUtil.putStringValueFromSP("cacheFileName",fileAbsolutePath);
-                ecgDataOutputStream = new DataOutputStream(new FileOutputStream(fileAbsolutePath,true));
+                ecgDataOutputStream = new DataOutputStream(new FileOutputStream(ecgLocalFileName,true));
                 ecgByteBuffer = ByteBuffer.allocate(2);
                 if (mAbortData!=null){
                     mAbortData.setEcgFileName(ecgLocalFileName);
@@ -967,19 +958,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         try {
             if (accDataOutputStream==null){
                 long accFiletimeMillis = System.currentTimeMillis();
-                //String filePath = MyUtil.generateECGFilePath(HealthyDataActivity.this, startTimeMillis); //随机生成一个ecg格式文件
-                //String filePath = getCacheDir()+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".ecg";  //随机生成一个文件
-                String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth";
-                File file = new File(filePath);
-                if (!file.exists()) {
-                    boolean mkdirs = file.mkdirs();
-                    Log.i(TAG,"mkdirs:"+mkdirs);
-                }
-                String fileAbsolutePath = filePath+"/"+MyUtil.getECGFileNameDependFormatTime(new Date())+".acc";
-                String accLocalFileName = fileAbsolutePath;
-                Log.i(TAG,"fileAbsolutePath:"+fileAbsolutePath);
+                String accLocalFileName = MyUtil.getClolthLocalFileName(2,new Date());
+                Log.i(TAG,"accLocalFileName:"+accLocalFileName);
                 //MyUtil.putStringValueFromSP("cacheFileName",fileAbsolutePath);
-                accDataOutputStream = new DataOutputStream(new FileOutputStream(fileAbsolutePath,true));
+                accDataOutputStream = new DataOutputStream(new FileOutputStream(accLocalFileName,true));
                 accByteBuffer = ByteBuffer.allocate(2);
                 if (mAbortData!=null){
                     mAbortData.setAccFileName(accLocalFileName);
