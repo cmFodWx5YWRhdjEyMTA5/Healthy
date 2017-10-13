@@ -17,9 +17,11 @@ import com.tencent.bugly.crashreport.CrashReport;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -56,10 +58,28 @@ public class MyApplication extends Application{
     public String runningFormatDistance;
     public String runningFinalFormatSpeed;
     public Date runningCurrTimeDate;
-    public boolean runningIsRunning;
+
     public int runningmCurrentHeartRate;
+    public int runningmCurrentStepCount;
+    public String runningmCurrentAvespeed;
+
+    public int runningRecoverType = -1;
+
+    public String getRunningmCurrentAvespeed() {
+        return runningmCurrentAvespeed;
+    }
+
+    public void setRunningmCurrentAvespeed(String runningmCurrentAvespeed) {
+        this.runningmCurrentAvespeed = runningmCurrentAvespeed;
+    }
+
     public WebSocketUtil webSocketUtil;
     public static int IndexWarringHeartIconType = -1;
+
+    private int insoleLeftCurrBatteryPowerPercent = -1;
+    private int insoleRightCurrBatteryPowerPercent = -1;
+
+    private Map<String,Integer> insoleDeviceBatteryInfos = new HashMap<>();
 
 
     @Override
@@ -149,13 +169,7 @@ public class MyApplication extends Application{
         this.runningFinalFormatSpeed = runningFinalFormatSpeed;
     }
 
-    public boolean isRunningIsRunning() {
-        return runningIsRunning;
-    }
 
-    public void setRunningIsRunning(boolean runningIsRunning) {
-        this.runningIsRunning = runningIsRunning;
-    }
 
     public int getRunningmCurrentHeartRate() {
         return runningmCurrentHeartRate;
@@ -171,5 +185,48 @@ public class MyApplication extends Application{
 
     public void setWebSocketUtil(WebSocketUtil webSocketUtil) {
         this.webSocketUtil = webSocketUtil;
+    }
+
+    public int getInsoleLeftCurrBatteryPowerPercent() {
+        return insoleLeftCurrBatteryPowerPercent;
+    }
+
+    public void setInsoleLeftCurrBatteryPowerPercent(int insoleLeftCurrBatteryPowerPercent) {
+        this.insoleLeftCurrBatteryPowerPercent = insoleLeftCurrBatteryPowerPercent;
+    }
+
+    public int getInsoleRightCurrBatteryPowerPercent() {
+        return insoleRightCurrBatteryPowerPercent;
+    }
+
+    public void setInsoleRightCurrBatteryPowerPercent(int insoleRightCurrBatteryPowerPercent) {
+        this.insoleRightCurrBatteryPowerPercent = insoleRightCurrBatteryPowerPercent;
+    }
+
+    public Map<String, Integer> getInsoleDeviceBatteryInfos() {
+        return insoleDeviceBatteryInfos;
+    }
+
+    public void setInsoleDeviceBatteryInfos(Map<String, Integer> insoleDeviceBatteryInfos) {
+        this.insoleDeviceBatteryInfos = insoleDeviceBatteryInfos;
+    }
+
+
+    public int getRunningmCurrentStepCount() {
+        return runningmCurrentStepCount;
+    }
+
+    public void setRunningmCurrentStepCount(int runningmCurrentStepCount) {
+        this.runningmCurrentStepCount = runningmCurrentStepCount;
+    }
+
+
+
+    public int getRunningRecoverType() {
+        return runningRecoverType;
+    }
+
+    public void setRunningRecoverType(int runningRecoverType) {
+        this.runningRecoverType = runningRecoverType;
     }
 }

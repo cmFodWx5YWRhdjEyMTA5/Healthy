@@ -197,6 +197,7 @@ public class LeProxy {
     }
 
     public boolean readCharacteristic(String address, UUID serUuid, UUID charUuid){
+        Log.i(TAG,"mBleService:"+mBleService);
         if (mBleService != null) {
             BluetoothGatt gatt = mBleService.getBluetoothGatt(address);
             BluetoothGattCharacteristic c = GattUtil.getGattCharacteristic(gatt, serUuid, charUuid);

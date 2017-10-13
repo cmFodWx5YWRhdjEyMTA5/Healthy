@@ -33,8 +33,8 @@ public class HeightCurveView extends View {
     float[] data ;
     float[] anotherData;
     //private float mCoordinateWidth = getResources().getDimension(R.dimen.y1008);  //x轴长度
-    private float mYCoordinateHight = getResources().getDimension(R.dimen.y400)-getResources().getDimension(R.dimen.y28);  //y轴长度
-    private float mYOneSpanHeight = mYCoordinateHight/4;  //y轴方向刻度长度
+    private float mYCoordinateHight = getResources().getDimension(R.dimen.y400)-getResources().getDimension(R.dimen.y30);  //y轴长度
+    private float mYOneSpanHeight;  //y轴方向刻度长度
     float mMarginBotom = getResources().getDimension(R.dimen.y48); //坐标线与底部距离
     //float mMarginleft ; //坐标线与左侧距离
     private float mOneGridWidth ;  //相邻两个数值之间x方向上的偏移量
@@ -77,6 +77,13 @@ public class HeightCurveView extends View {
         fillend_color = typedArray.getColor(R.styleable.HeightCurve_fillend_color, Color.WHITE);
         int line_color = typedArray.getColor(R.styleable.HeightCurve_curve_line_color, Color.WHITE);
         line_width = typedArray.getDimension(R.styleable.HeightCurve_curve_line_width, 0);
+        float curve_ycoordinateHight = typedArray.getDimension(R.styleable.HeightCurve_curve_ycoordinateHight, 0);
+
+        if (curve_ycoordinateHight>0){
+            mYCoordinateHight = curve_ycoordinateHight-getResources().getDimension(R.dimen.x35);
+        }
+
+        mYOneSpanHeight = mYCoordinateHight/4;
 
         mCoordinatePaint = new Paint();
         mCoordinatePaint.setColor(Color.parseColor("#d2d2d2"));
@@ -90,6 +97,7 @@ public class HeightCurveView extends View {
         float textWidth = getResources().getDimension(R.dimen.x28);
         mLablePaint.setTextSize(textWidth);
         mLablePaint.setAntiAlias(true);
+
 
         mCurveLinePaint = new Paint();
         mCurveLinePaint.setColor(line_color);
@@ -270,7 +278,7 @@ public class HeightCurveView extends View {
             //canvas.drawLine(circle_ring,y,circle_ring+divideWidth,y,mCoordinatePaint);
 
             x = 0;
-            y += getResources().getDimension(R.dimen.x14);
+            y += getResources().getDimension(R.dimen.x28);
             canvas.drawText(String.valueOf(yText),x,y,mLablePaint);
         }
 

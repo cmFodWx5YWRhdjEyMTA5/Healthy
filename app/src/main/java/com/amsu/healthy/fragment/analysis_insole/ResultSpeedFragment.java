@@ -95,7 +95,7 @@ public class ResultSpeedFragment extends Fragment {
                         maxLongTimeSpeed = 10*60;
                     }
                     for (int i=0;i<paceList.size()-1;i++){
-                        speedListInt[i] = (int) ((float)i/maxLongTimeSpeed*100);
+                        speedListInt[i] = (int) ((float)paceList.get(i)/maxLongTimeSpeed*100);
                         paceStringList[i] = MyUtil.getPaceFormatTime(paceList.get(i));
                     }
                     int lastSpeedTime = paceList.get(paceList.size() - 1);
@@ -112,8 +112,8 @@ public class ResultSpeedFragment extends Fragment {
                     tv_speed_average.setText(formatSpeed);
 
                     for (int i=0;i<speedListInt.length;i++){
-                        Log.i(TAG,"speedListInt +"+i+", "+speedListInt[i]);
-                        Log.i(TAG,"paceStringList +"+i+", "+paceStringList[i]);
+                        Log.i(TAG,"speedListInt "+i+", "+speedListInt[i]);
+                        Log.i(TAG,"paceStringList "+i+", "+paceStringList[i]);
                     }
                 }
             }

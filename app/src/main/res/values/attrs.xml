@@ -73,6 +73,7 @@
         <attr name="fillstart_color" format="color" />
         <attr name="fillend_color" format="color" />
         <attr name="curve_line_width" format="dimension"/>
+        <attr name="curve_ycoordinateHight" format="dimension"/>
     </declare-styleable>
 
     <declare-styleable name="swipelistviewstyle">

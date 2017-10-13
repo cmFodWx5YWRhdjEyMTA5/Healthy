@@ -175,9 +175,11 @@ public class InsoleAnalyticFinshResultActivity extends BaseActivity implements V
         else {
             final Intent intent = getIntent();
             Bundle bundle = intent.getParcelableExtra("bundle");
-            InsoleHistoryRecord insoleHistoryRecord = bundle.getParcelable("insoleHistoryRecord");
-            Log.i(TAG,"insoleHistoryRecord:"+insoleHistoryRecord);
-            getHistoryReportDetail(insoleHistoryRecord);
+            if (bundle!=null){
+                InsoleHistoryRecord insoleHistoryRecord = bundle.getParcelable("insoleHistoryRecord");
+                Log.i(TAG,"insoleHistoryRecord:"+insoleHistoryRecord);
+                getHistoryReportDetail(insoleHistoryRecord);
+            }
         }
 
     }

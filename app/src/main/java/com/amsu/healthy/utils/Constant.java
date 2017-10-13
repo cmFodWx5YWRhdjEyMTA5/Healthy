@@ -92,13 +92,15 @@ public class Constant {
     public static String hrr = "hrr";
     public static String ecgFiletimeMillis = "ecgFiletimeMillis";
     public static String startTimeMillis = "startTimeMillis";
-    public static String restingHR = "restingHR";
+    public static String restingHR = "stillRate";
     public static String sosinfo = "sosinfo";
     public static String sosNumberList = "sosNumberList";
     public static String ecgLocalFileName = "ecgLocalFileName";
     public static String accLocalFileName = "accLocalFileName";
     public static String hardWareVersion = "hardWareVersion";
     public static String softWareVersion = "softWareVersion";
+    public static String hardWareVersion_insole = "hardWareVersion_insole";
+    public static String softWareVersion_insole = "softWareVersion_insole";
     public static String myDeceiveName = "myDeceiveName";
     public static String isNeedRecoverAbortData = "isNeedRecoverAbortData";
     public static String sportType = "sportType";
@@ -132,6 +134,15 @@ public class Constant {
     public static final String deleteShoepadDataById = "http://www.amsu-new.com:8081/intellingence-web/deleteShoepadDataById.do";
     public static final String getBangdingDetails = "http://www.amsu-new.com:8081/intellingence-web/getBangdingDetails.do";
 
+    public static final String readInsoleBatterySerUuid = "0000180f-0000-1000-8000-00805f9b34fb";   //0x180F
+    public static final String readInsoleBatteryCharUuid = "00002a19-0000-1000-8000-00805f9b34fb";  //0x2A19
+
+    public static final String readInsoleDeviceInfoSerUuid = "0000180a-0000-1000-8000-00805f9b34fb";  //0x180A
+    public static final String readInsoleDeviceInfoHardwareRevisionCharUuid = "00002a27-0000-1000-8000-00805f9b34fb";  //Hardware Revision 0x2A27
+    public static final String readInsoleDeviceInfoSoftwareRevisionCharUuid = "00002a28-0000-1000-8000-00805f9b34fb";  //Software Revision 0x2A28
+
+
+    public static final int saveDataTOLocalTimeSpanSecond = 10;  //数据持久化时间间隔 1分钟
 
 }
 

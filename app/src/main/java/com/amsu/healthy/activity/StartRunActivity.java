@@ -123,7 +123,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
 
     public static final int accDataLength = 1800;
-    private static final int saveDataTOLocalTimeSpanSecond = 60;  //数据持久化时间间隔 1分钟
+    private static final int saveDataTOLocalTimeSpanSecond = Constant.saveDataTOLocalTimeSpanSecond;  //数据持久化时间间隔 1分钟
     private static final int minimumLimitTimeMillis = 1000 * 10 * 1;  //最短时间限制 3分钟
     public static final String action = "jason.broadcast.action";    //发送广播，将心率值以广播的方式放松出去，在其他Activity可以接受
 
@@ -295,7 +295,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     }
 
     private void restoreLastRecord() {
-        mAbortData = AppAbortDbAdapterUtil.getAbortDataFromSP();
+        mAbortData = AppAbortDbAdapterUtil.getAbortDataFromSP(Constant.sportType_Cloth);
         Log.i(TAG,"mAbortData:"+mAbortData);
         if (mAbortData!=null){
             createrecord = mAbortData.getMapTrackID();
@@ -303,7 +303,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             mIsOutDoor = mAbortData.isOutDoor;
 
             List<Integer> speedStringList = mAbortData.getSpeedStringList();
-                if (speedStringList!=null && speedStringList.size()>0){
+            if (speedStringList!=null && speedStringList.size()>0){
                 mSpeedStringList.addAll(speedStringList);
             }
             if (createrecord>0){
@@ -367,7 +367,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         application = (MyApplication) getApplication();
 
-        application.setRunningIsRunning( mIsRunning  =true);
+        application.setRunningRecoverType(Constant.sportType_Cloth);
+        mIsRunning  =true;
         application.setRunningCurrTimeDate(mCurrTimeDate = new Date(0,0,0));
 
         if (startTimeMillis==-1){
@@ -416,12 +417,12 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                     }
 
                     if (mAbortData==null){
-                        mAbortData = new AppAbortDataSave(System.currentTimeMillis(), "", "", createrecord, 1,mSpeedStringList);
+                        mAbortData = new AppAbortDataSave(startTimeMillis, "", "", createrecord, 1,mSpeedStringList);
                         mAbortData.isOutDoor = mIsOutDoor;
                         saveOrUpdateAbortDatareordToSP(mAbortData,true);
                     }
                     else {
-                        if (mAbortData.getMapTrackID()==-1){
+                        if (mAbortData.getMapTrackID()==0){
                             mAbortData.setMapTrackID(createrecord);
                         }
                         if (mAbortData.getStartTimeMillis()==0){
@@ -1754,7 +1755,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         if(application!=null){
             application.setRunningCurrTimeDate(null);
             application.setRunningFinalFormatSpeed(null);
-            application.setRunningIsRunning(false);
+            application.setRunningRecoverType(-1);
             application.setRunningFormatDistance(null);
             application.setRunningmCurrentHeartRate(0);
             application = null;

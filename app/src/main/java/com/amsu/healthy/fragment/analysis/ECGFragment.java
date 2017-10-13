@@ -56,7 +56,6 @@ public class ECGFragment extends BaseFragment {
 
         initView();
         return inflate;
-
     }
 
     private void initView() {

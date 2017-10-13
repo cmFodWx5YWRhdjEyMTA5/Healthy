@@ -103,7 +103,7 @@ public class HealthyIndexUtil {
         int age = getUserAge();
         if (age!=0){
             int hrReserve;
-            int restingHR = MyUtil.getIntValueFromSP(Constant.restingHR);
+            int restingHR = Integer.parseInt(MyUtil.getStringValueFromSP(Constant.restingHR));
             if (restingHR !=0){
                 hrReserve = 220-age-restingHR;
                 Log.i(TAG,"hrReserveeserve:"+hrReserve);

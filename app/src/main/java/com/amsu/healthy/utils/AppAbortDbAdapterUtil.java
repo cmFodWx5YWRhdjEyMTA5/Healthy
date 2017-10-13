@@ -3,9 +3,11 @@ package com.amsu.healthy.utils;
 import android.util.Log;
 
 import com.amsu.healthy.bean.AppAbortDataSave;
+import com.amsu.healthy.bean.AppAbortDataSaveInsole;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -138,18 +140,42 @@ public class AppAbortDbAdapterUtil {
         Gson gson = new Gson();
         String  listString = gson.toJson(abortData);
         Log.i(TAG,"listString:"+listString);
-        MyUtil.putStringValueFromSP("abortDatas",listString);
+        MyUtil.putStringValueFromSP("abortDatas",Constant.sportType_Cloth+"&&"+listString);
     }
 
-    public static AppAbortDataSave getAbortDataFromSP(){
+    public static void putAbortDataToSP(AppAbortDataSaveInsole abortData){
+        Gson gson = new Gson();
+        String  listString = gson.toJson(abortData);
+        Log.i(TAG,"listString:"+listString);
+        MyUtil.putStringValueFromSP("abortDatas",Constant.sportType_Insole+"&&"+listString);
+    }
+
+    public static <T> T getAbortDataFromSP(int sportType){
         String stringValueFromSP = MyUtil.getStringValueFromSP("abortDatas");
         Log.i(TAG,"stringValueFromSP:"+stringValueFromSP);
-        Gson gson = new Gson();
-        if (!MyUtil.isEmpty(stringValueFromSP)){
-            AppAbortDataSave abortDatasTemp =  gson.fromJson(stringValueFromSP, new TypeToken<AppAbortDataSave>() {
-            }.getType());
-            if (abortDatasTemp!=null){
-                return abortDatasTemp;
+        if (!MyUtil.isEmpty(stringValueFromSP) ){
+            String[] split = stringValueFromSP.split("&&");
+            if (split.length==2 && !MyUtil.isEmpty(split[0])){
+                Gson gson = new Gson();
+                Type type = null;
+                if (sportType==Constant.sportType_Cloth){
+                    type = new TypeToken<AppAbortDataSave>() {}.getType();
+                }
+                else if (sportType==Constant.sportType_Insole){
+                    type = new TypeToken<AppAbortDataSaveInsole>() {}.getType();
+                }
+
+                if (type!=null){
+                    try {
+                        T abortDatasTemp =  gson.fromJson(split[1], type);
+                        if (abortDatasTemp!=null){
+                            return abortDatasTemp;
+                        }
+                    } catch (Exception e) {
+                        // TODO: handle exception
+                        e.printStackTrace();
+                    }
+                }
             }
         }
         return null;

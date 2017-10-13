@@ -9,6 +9,7 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
@@ -130,6 +131,8 @@ public class InsoleAnalysisActivity extends BaseActivity {
 
         Log.i(TAG,"mInsoleUploadRecord:"+insoleUploadRecord);
 
+        showResultData(insoleUploadRecord);
+
         commitToServerAnaly(leftInsoleFileAbsolutePath,rightInsoleFileAbsolutePath,insoleUploadRecord);
     }
 
@@ -141,15 +144,15 @@ public class InsoleAnalysisActivity extends BaseActivity {
         //rightFilePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/insole/20170921162420.rg"; ///storage/emulated/0
 
         if ((!MyUtil.isEmpty(leftFilePath) && new File(leftFilePath).exists())|| (!MyUtil.isEmpty(rightFilePath) && new File(rightFilePath).exists())){
-
+            Log.i(TAG,"有文件");
         }
         else {
             String testInsoleLocalFile = getTestInsoleLocalFile();
             Log.i(TAG,"testInsoleLocalFile:"+testInsoleLocalFile);
             leftFilePath = rightFilePath = testInsoleLocalFile;
         }
-        //Log.i(TAG,"leftFilePath:"+new File(leftFilePath).exists());
-        //Log.i(TAG,"rightFilePath:"+new File(rightFilePath).exists());
+        Log.i(TAG,"leftFilePath:"+new File(leftFilePath).exists());
+        Log.i(TAG,"rightFilePath:"+new File(rightFilePath).exists());
 
         User userFromSP = MyUtil.getUserFromSP();
         HttpUtils httpUtils = new HttpUtils();
@@ -159,6 +162,8 @@ public class InsoleAnalysisActivity extends BaseActivity {
             params.addBodyParameter("access_token",MyApplication.insoleAccessToken);
         }
         else {
+            MyUtil.showToask(this,"access_token无效，请求access_token无效失败或联系管理员", Toast.LENGTH_LONG);
+            finish();
             return;
         }
         //params.addBodyParameter("userId","9");
@@ -178,7 +183,7 @@ public class InsoleAnalysisActivity extends BaseActivity {
         params.addBodyParameter("height",userFromSP.getHeight());
         params.addBodyParameter("weight",userFromSP.getWeight());
         params.addBodyParameter("phone",userFromSP.getPhone());
-        params.addBodyParameter("tag","鞋垫");
+        params.addBodyParameter("tag","鞋垫 android");
 
 
 
@@ -210,7 +215,7 @@ public class InsoleAnalysisActivity extends BaseActivity {
 
         params.addBodyParameter("distance",insoleUploadRecord.errDesc.ShoepadData.distance+"");
         params.addBodyParameter("duration",insoleUploadRecord.errDesc.ShoepadData.duration+"");
-        params.addBodyParameter("maxspeed","0");
+        params.addBodyParameter("maxspeed",insoleUploadRecord.errDesc.ShoepadData.maxspeed+"");
         params.addBodyParameter("averagespeed",insoleUploadRecord.errDesc.ShoepadData.averagespeed+"");
         params.addBodyParameter("speedallocationarray",insoleUploadRecord.errDesc.ShoepadData.speedallocationarray+"");
         params.addBodyParameter("calorie",insoleUploadRecord.errDesc.ShoepadData.calorie+"");
@@ -252,13 +257,20 @@ public class InsoleAnalysisActivity extends BaseActivity {
                 insoleUploadRecord.errDesc.ShoepadResult = fromJson;
                 Log.i(TAG,"fromJson:"+fromJson);
                 showResultData(insoleUploadRecord);
+
+                Intent toNextIntent = new Intent(InsoleAnalysisActivity.this,InsoleAnalyticFinshResultActivity.class);
+                startActivity(toNextIntent);
+                finish();
             }
 
             @Override
             public void onFailure(HttpException e, String s) {
                 Log.i(TAG,"上传onFailure==result:"+e);
                 MyUtil.hideDialog(InsoleAnalysisActivity.this);
-                showResultData(null);
+
+                Intent toNextIntent = new Intent(InsoleAnalysisActivity.this,InsoleAnalyticFinshResultActivity.class);
+                startActivity(toNextIntent);
+                finish();
             }
         });
 
@@ -286,7 +298,7 @@ public class InsoleAnalysisActivity extends BaseActivity {
         long startTimeMillis = intent.getLongExtra(Constant.startTimeMillis, -1);
         int insoleAllKcal = intent.getIntExtra(Constant.insoleAllKcal, 0);*/
 
-        Intent toNextIntent = new Intent(this,InsoleAnalyticFinshResultActivity.class);
+
 
         /*toNextIntent.putExtra(Constant.sportState,sportState);
         toNextIntent.putExtra(Constant.sportCreateRecordID,sportCreateRecordID);
@@ -296,8 +308,7 @@ public class InsoleAnalysisActivity extends BaseActivity {
         intent.putExtra(Constant.startTimeMillis,startTimeMillis);
         intent.putExtra(Constant.insoleAllKcal,insoleAllKcal);*/
 
-        startActivity(toNextIntent);
-        finish();
+
     }
 
 

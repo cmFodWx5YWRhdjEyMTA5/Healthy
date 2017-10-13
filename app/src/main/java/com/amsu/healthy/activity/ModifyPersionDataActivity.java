@@ -128,6 +128,22 @@ public class ModifyPersionDataActivity extends BaseActivity {
                 modifyValue = "女";
             }
         }
+        else if (modifyType==Constant.MODIFY_STILLRATE){
+            modifyValue= et_modify_value.getText().toString();
+            if(!MyUtil.isEmpty(modifyValue)){
+                float floatValue = Float.parseFloat(modifyValue);
+                int intValue = (int) floatValue;
+                if (floatValue!=intValue){
+                    MyUtil.showToask(this,"静息心率必须是整数，请重新输入");
+                    return;
+                }
+            }
+            else {
+                MyUtil.showToask(this,"请输入静息心率");
+                return;
+            }
+
+        }
         else {
             modifyValue= et_modify_value.getText().toString();
         }

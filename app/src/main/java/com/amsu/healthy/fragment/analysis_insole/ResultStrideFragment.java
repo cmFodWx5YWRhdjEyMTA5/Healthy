@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.insole.InsoleAnalyticFinshResultActivity;
+import com.amsu.healthy.bean.InsoleAnalyResult;
 import com.amsu.healthy.bean.InsoleUploadRecord;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.CircleRingView;
@@ -102,8 +103,11 @@ public class ResultStrideFragment extends Fragment {
             tv_home_smmetry_value.setText(mSymmetry+"");
             tv_home_variability_value.setText(mVariability+"");
 
-            int leftWindowCount = mInsoleUploadRecord.errDesc.ShoepadResult.left.size();
-            int rightWindowCount = mInsoleUploadRecord.errDesc.ShoepadResult.right.size();
+            List<InsoleAnalyResult.LeftAndRight> left = mInsoleUploadRecord.errDesc.ShoepadResult.left;
+            List<InsoleAnalyResult.LeftAndRight> right = mInsoleUploadRecord.errDesc.ShoepadResult.right;
+
+            int leftWindowCount = left.size();
+            int rightWindowCount = right.size();
             int maxWindowCount = leftWindowCount>=rightWindowCount?leftWindowCount:rightWindowCount;
 
             Log.i(TAG,"leftWindowCount:"+leftWindowCount);
@@ -117,40 +121,83 @@ public class ResultStrideFragment extends Fragment {
             double[] loadingImpactMean = new double[maxWindowCount];
 
 
+            
             if (leftWindowCount<=rightWindowCount){
                 //右侧数据多
                 //1、从左侧数量开始，和右脚数据去平均值
                 for (int i=0;i<leftWindowCount;i++){
-                    strideLengthMean[i] = (mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).strideLengthMean + mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).strideLengthMean)/4;
-                    stepHeightMean[i] = (mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).stepHeightMean + mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).stepHeightMean)/2;
-                    swingWidthMean[i] = Math.abs(mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).swingWidthMean) +  Math.abs(mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).swingWidthMean)/2*100;
-                    stanceDurationMean[i] = (mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).stanceDurationMean + mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).stanceDurationMean)/2*1000;
-                    loadingImpactMean[i] = (mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).loadingImpactMean + mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).loadingImpactMean)/2;
+
+                    Log.i(TAG,"left.get(i).strideLengthMean:"+left.get(i).strideLengthMean);
+                    Log.i(TAG,"right.get(i).strideLengthMean:"+right.get(i).strideLengthMean);
+
+                    if (left.get(i).strideLengthMean==0){
+                        left.get(i).strideLengthMean = right.get(i).strideLengthMean;
+                    }
+                    if (right.get(i).strideLengthMean==0){
+                        right.get(i).strideLengthMean = left.get(i).strideLengthMean;
+                    }
+
+                    Log.i(TAG,"strideLengthMean[i]:"+strideLengthMean[i]);
+
+                    if (left.get(i).stepHeightMean==0){
+                        left.get(i).stepHeightMean = right.get(i).stepHeightMean;
+                    }
+                    if (right.get(i).stepHeightMean==0){
+                        right.get(i).stepHeightMean = left.get(i).stepHeightMean;
+                    }
+
+                    if (left.get(i).swingWidthMean==0){
+                        left.get(i).swingWidthMean = right.get(i).swingWidthMean;
+                    }
+                    if (right.get(i).swingWidthMean==0){
+                        right.get(i).swingWidthMean = left.get(i).swingWidthMean;
+                    }
+
+                    if (left.get(i).stanceDurationMean==0){
+                        left.get(i).stanceDurationMean = right.get(i).stanceDurationMean;
+                    }
+                    if (right.get(i).stanceDurationMean==0){
+                        right.get(i).stanceDurationMean = left.get(i).stanceDurationMean;
+                    }
+
+                    if (left.get(i).loadingImpactMean==0){
+                        left.get(i).loadingImpactMean = right.get(i).loadingImpactMean;
+                    }
+                    if (right.get(i).loadingImpactMean==0){
+                        right.get(i).loadingImpactMean = left.get(i).loadingImpactMean;
+                    }
+
+
+                    strideLengthMean[i] = (left.get(i).strideLengthMean + right.get(i).strideLengthMean)/4*100;
+                    stepHeightMean[i] = (left.get(i).stepHeightMean + right.get(i).stepHeightMean)/2;
+                    swingWidthMean[i] = Math.abs(left.get(i).swingWidthMean) +  Math.abs(right.get(i).swingWidthMean)/2*100;
+                    stanceDurationMean[i] = (left.get(i).stanceDurationMean + right.get(i).stanceDurationMean)/2*1000;
+                    loadingImpactMean[i] = (left.get(i).loadingImpactMean + right.get(i).loadingImpactMean)/2;
                 }
 
                 for (int i=leftWindowCount;i<maxWindowCount;i++){
-                    strideLengthMean[i] = mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).strideLengthMean/2;
-                    stepHeightMean[i] = mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).stepHeightMean;
-                    swingWidthMean[i] = Math.abs(mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).swingWidthMean*100);
-                    stanceDurationMean[i] = mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).stanceDurationMean*1000;
-                    loadingImpactMean[i] = mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).loadingImpactMean;
+                    strideLengthMean[i] = right.get(i).strideLengthMean/2*100;
+                    stepHeightMean[i] = right.get(i).stepHeightMean;
+                    swingWidthMean[i] = Math.abs(right.get(i).swingWidthMean*100);
+                    stanceDurationMean[i] = right.get(i).stanceDurationMean*1000;
+                    loadingImpactMean[i] = right.get(i).loadingImpactMean;
                 }
             }
             else {
                 for (int i=0;i<rightWindowCount;i++){
-                    strideLengthMean[i] = (mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).strideLengthMean+mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).strideLengthMean)/4;  //strideLengthMean需要除以2，才为一步的
-                    stepHeightMean[i] = (mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).stepHeightMean+ mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).stepHeightMean)/2;
-                    swingWidthMean[i] = (Math.abs(mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).swingWidthMean)+ Math.abs(mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).swingWidthMean)/2*100);
-                    stanceDurationMean[i] = (mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).stanceDurationMean+mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).stanceDurationMean)/2*1000;
-                    loadingImpactMean[i] = (mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).loadingImpactMean+mInsoleUploadRecord.errDesc.ShoepadResult.right.get(i).loadingImpactMean)/2;
+                    strideLengthMean[i] = (left.get(i).strideLengthMean+right.get(i).strideLengthMean)/4*100;  //strideLengthMean需要除以2，才为一步的
+                    stepHeightMean[i] = (left.get(i).stepHeightMean+ right.get(i).stepHeightMean)/2;
+                    swingWidthMean[i] = (Math.abs(left.get(i).swingWidthMean)+ Math.abs(right.get(i).swingWidthMean)/2*100);
+                    stanceDurationMean[i] = (left.get(i).stanceDurationMean+right.get(i).stanceDurationMean)/2*1000;
+                    loadingImpactMean[i] = (left.get(i).loadingImpactMean+right.get(i).loadingImpactMean)/2;
                 }
 
                 for (int i=rightWindowCount;i<maxWindowCount;i++){
-                    strideLengthMean[i] = mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).strideLengthMean/2;
-                    stepHeightMean[i] = mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).stepHeightMean;
-                    swingWidthMean[i] = Math.abs(mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).swingWidthMean*100);
-                    stanceDurationMean[i] = mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).stanceDurationMean*1000;
-                    loadingImpactMean[i] = mInsoleUploadRecord.errDesc.ShoepadResult.left.get(i).loadingImpactMean;
+                    strideLengthMean[i] = left.get(i).strideLengthMean/2*100;
+                    stepHeightMean[i] = left.get(i).stepHeightMean;
+                    swingWidthMean[i] = Math.abs(left.get(i).swingWidthMean*100);
+                    stanceDurationMean[i] = left.get(i).stanceDurationMean*1000;
+                    loadingImpactMean[i] = left.get(i).loadingImpactMean;
                 }
             }
 

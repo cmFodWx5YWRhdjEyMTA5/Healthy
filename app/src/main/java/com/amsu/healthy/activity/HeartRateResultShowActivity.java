@@ -267,6 +267,8 @@ public class HeartRateResultShowActivity extends BaseActivity {
     }
 
     private void parseHealthData(String result) {
+
+        String iosDefaultString = "\"0\"";
         try {
             JSONObject object = new JSONObject(result);
             JSONObject jsonObject =object.getJSONObject("errDesc");
@@ -347,7 +349,9 @@ public class HeartRateResultShowActivity extends BaseActivity {
             if (!MyUtil.isEmpty(calorie) && !calorie.equals(Constant.uploadRecordDefaultString)){
                 uploadRecord.calorie =gson.fromJson(calorie,new TypeToken<List<String>>() {}.getType());
             }
-            if (!MyUtil.isEmpty(latitudeLongitude) && !latitudeLongitude.equals(Constant.uploadRecordDefaultString)){
+            Log.i(TAG,"latitudeLongitude:"+latitudeLongitude);
+            Log.i(TAG,"latitudeLongitude:"+latitudeLongitude.length());
+            if (!MyUtil.isEmpty(latitudeLongitude) && !latitudeLongitude.equals(Constant.uploadRecordDefaultString) && latitudeLongitude.length()>5){
                 uploadRecord.latitudeLongitude = gson.fromJson(latitudeLongitude,new TypeToken<List<ParcelableDoubleList>>() {}.getType());
             }
 
@@ -360,10 +364,10 @@ public class HeartRateResultShowActivity extends BaseActivity {
             uploadRecord.localEcgFileName = MyUtil.generateECGFilePath(HeartRateResultShowActivity.this, System.currentTimeMillis());
 
             if (!MyUtil.isEmpty(sdnn1) && !sdnn1.equals("null")){
-                uploadRecord.sdnn1 = Integer.parseInt(sdnn1);
+                uploadRecord.sdnn1 = (int) Float.parseFloat(sdnn1);
             }
             if (!MyUtil.isEmpty(sdnn2) && !sdnn2.equals("null")){
-                uploadRecord.sdnn2 = Integer.parseInt(sdnn2);
+                uploadRecord.sdnn2 = (int) Float.parseFloat(sdnn2);
             }
 
             if (!MyUtil.isEmpty(lf1) && !lf1.equals("null")){
@@ -393,11 +397,11 @@ public class HeartRateResultShowActivity extends BaseActivity {
                 uploadRecord.frequencyDomainDiagramPoint = gson.fromJson(frequencyDomainDiagramPoint,new TypeToken<List<Double>>() {}.getType());
             }
 
-            if (!MyUtil.isEmpty(chaosPlotMajorAxis) && !chaosPlotMajorAxis.equals("null")){
-                uploadRecord.chaosPlotMajorAxis = Integer.parseInt(chaosPlotMajorAxis);
+            if (!MyUtil.isEmpty(chaosPlotMajorAxis) && !chaosPlotMajorAxis.equals("null") && !chaosPlotMajorAxis.equals(iosDefaultString)){
+                uploadRecord.chaosPlotMajorAxis =  (int) Float.parseFloat(chaosPlotMajorAxis);
             }
-            if (!MyUtil.isEmpty(chaosPlotMinorAxis) && !chaosPlotMinorAxis.equals("null")){
-                uploadRecord.chaosPlotMinorAxis = Integer.parseInt(chaosPlotMinorAxis);
+            if (!MyUtil.isEmpty(chaosPlotMinorAxis) && !chaosPlotMinorAxis.equals("null") && !chaosPlotMajorAxis.equals(iosDefaultString)){
+                uploadRecord.chaosPlotMinorAxis =  (int) Float.parseFloat(chaosPlotMinorAxis);
             }
 
             uploadRecord.uploadState = 1;
@@ -424,8 +428,10 @@ public class HeartRateResultShowActivity extends BaseActivity {
             e.printStackTrace();
         }catch (NumberFormatException e){
             e.printStackTrace();
+            Log.e(TAG,"e:"+e);
         }catch (JsonSyntaxException e){
             e.printStackTrace();
+            Log.e(TAG,"e1:"+e);
         }
     }
 
@@ -497,7 +503,6 @@ public class HeartRateResultShowActivity extends BaseActivity {
         v_analysis_select.setLayoutParams(layoutParams);
 
         setViewPageTextColor(viewPageItem+subFormAlCount);
-
     }
 
     //设置文本颜色

@@ -201,6 +201,7 @@
                 android:layout_above="@+id/tv_dec1"
                 HeightCurve:fillstart_color="#FFF"
                 HeightCurve:fillend_color="#665babe6"
+                HeightCurve:curve_ycoordinateHight="@dimen/x528"
                 HeightCurve:curve_line_color="#5babe6"/>
 
         </RelativeLayout>
@@ -252,6 +253,7 @@
                 android:layout_above="@+id/tv_dec3"
                 HeightCurve:curve_line_width="@dimen/x6"
                 HeightCurve:fillstart_color="#FFF"
+                HeightCurve:curve_ycoordinateHight="@dimen/x528"
                 HeightCurve:fillend_color="#66bc8ccf"
                 HeightCurve:curve_line_color="#bc8ccf"/>
 
@@ -305,6 +307,7 @@
                 android:layout_marginBottom="@dimen/x56"
                 android:layout_above="@+id/tv_dec4"
                 HeightCurve:curve_line_width="@dimen/x6"
+                HeightCurve:curve_ycoordinateHight="@dimen/x528"
                 HeightCurve:fillstart_color="#FFF"
                 HeightCurve:fillend_color="#66f3c500"
                 HeightCurve:curve_line_color="#f3c500"/>
@@ -358,6 +361,7 @@
                 android:layout_marginBottom="@dimen/x56"
                 android:layout_above="@+id/tv_dec2"
                 HeightCurve:curve_line_width="@dimen/x6"
+                HeightCurve:curve_ycoordinateHight="@dimen/x528"
                 HeightCurve:fillstart_color="#FFF"
                 HeightCurve:fillend_color="#66e87e04"
                 HeightCurve:curve_line_color="#e87e04"/>
@@ -411,6 +415,7 @@
                 android:layout_marginBottom="@dimen/x56"
                 android:layout_above="@+id/tv_dec5"
                 HeightCurve:curve_line_width="@dimen/x6"
+                HeightCurve:curve_ycoordinateHight="@dimen/x528"
                 HeightCurve:fillstart_color="#FFF"
                 HeightCurve:fillend_color="#66ea4b35"
                 HeightCurve:curve_line_color="#ea4b35"/>
@@ -464,6 +469,7 @@
                 android:layout_above="@+id/tv_dec6"
                 HeightCurve:curve_line_width="@dimen/x6"
                 HeightCurve:fillstart_color="#FFF"
+                HeightCurve:curve_ycoordinateHight="@dimen/x528"
                 HeightCurve:fillend_color="#66334960"
                 HeightCurve:curve_line_color="#334960"/>
 

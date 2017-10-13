@@ -308,8 +308,8 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         if (graterZeroCount>0){
             AHR = sum / graterZeroCount;
         }
-        if (AHR>30  && AHR<150){
-            MyUtil.putIntValueFromSP(Constant.restingHR,AHR);
+        if (AHR>40  && AHR<120){
+            MyUtil.putStringValueFromSP(Constant.restingHR,AHR+"");
         }
         return new int[]{MaxHR,MinHR,AHR};
     }

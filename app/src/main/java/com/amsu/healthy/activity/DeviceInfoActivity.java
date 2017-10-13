@@ -89,7 +89,7 @@ public class DeviceInfoActivity extends BaseActivity {
             else {
                 //String username = MyUtil.getStringValueFromSP("username");
                 if (!MyUtil.isEmpty(deviceFromSP.getLEName())){
-                    tv_device_devicename.setText(deviceFromSP.getLEName());
+                    tv_device_devicename.setText(deviceFromSP.getName()+deviceFromSP.getLEName());
                 }
             }
         }

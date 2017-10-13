@@ -531,7 +531,7 @@ public class HealthyDataActivity extends BaseActivity {
         try {
             if (fileOutputStream==null){
                 startTimeMillis = System.currentTimeMillis();
-                ecgLocalFileName = MyUtil.getClolthLocalFileName(1,new Date());;
+                ecgLocalFileName = MyUtil.getClolthLocalFileName(1,new Date());
                 Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
                 fileOutputStream = new FileOutputStream(ecgLocalFileName,true);
                 dataOutputStream = new DataOutputStream(fileOutputStream);

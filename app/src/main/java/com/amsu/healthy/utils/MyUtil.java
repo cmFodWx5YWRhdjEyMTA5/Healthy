@@ -152,6 +152,12 @@ public class MyUtil {
         }
     }
 
+    public static void showToask(Context context ,String text,int  time){
+        if (context instanceof Activity) {
+            Toast.makeText(context,text,time).show();
+        }
+    }
+
     public static void saveUserToSP(User user) {
         //将登陆用户信息保存在MyApplication类的sharedPreferences
         SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
@@ -954,6 +960,9 @@ public class MyUtil {
     }
 
     public static void startServices(Context context) {
+        Log.i(TAG,"startServices");
+        Log.i(TAG,"Build.VERSION.SDK_INT:"+Build.VERSION.SDK_INT);
+
         /*if(!MyUtil.isServiceWorked(context, "com.ble.ble.BleService")) {
             Intent service = new Intent(context, BleService.class);
             context.startService(service);
@@ -992,6 +1001,7 @@ public class MyUtil {
             context.startService(service);
             Log.i(TAG, "Start CommunicateToBleService");
         }
+
     }
 
     public static void stopServices(Context context) {
@@ -1001,10 +1011,18 @@ public class MyUtil {
             Log.i(TAG, "Start BleService");
         }*/
 
-        if(MyUtil.isServiceWorked(context, "com.amsu.healthy.service.LocalGuardService")) {
-            Intent service = new Intent(context, LocalGuardService.class);
-            context.stopService(service);
-            Log.i(TAG, "stop LocalGuardService");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if(MyUtil.isServiceWorked(context, "com.amsu.healthy.service.LocalGuardService")) {
+                Intent service = new Intent(context, LocalGuardService.class);
+                context.stopService(service);
+                Log.i(TAG, "stop LocalGuardService");
+            }
+
+            if(MyUtil.isServiceWorked(context, "com.amsu.healthy.service.RemoteGuardService")) {
+                Intent service = new Intent(context, RemoteGuardService.class);
+                context.stopService(service);
+                Log.i(TAG, "stop RemoteGuardService");
+            }
         }
 
        /* if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService2")) {
@@ -1013,11 +1031,7 @@ public class MyUtil {
             Log.i(TAG, "Start MyTestService2");
         }*/
 
-        if(MyUtil.isServiceWorked(context, "com.amsu.healthy.service.RemoteGuardService")) {
-            Intent service = new Intent(context, RemoteGuardService.class);
-            context.stopService(service);
-            Log.i(TAG, "stop RemoteGuardService");
-        }
+
 
         /*if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService4")) {
             Intent service = new Intent(context, com.amsu.healthy.service.MyTestService4.class);
@@ -1139,10 +1153,10 @@ public class MyUtil {
         //构造方法的字符格式这里如果小数不足2位,会以0补足.
         String myDuration;
         if (duration>60*60) {
-            myDuration = duration/(60*60)+"h"+(duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
+            myDuration = duration/(60*60)+"h"+getFormatFloatValue((duration%(60*60))/60,"00")+"'"+getFormatFloatValue((duration%(60*60))%60,"00")+"''";
         }
         else {
-            myDuration = (duration%(60*60))/60+"'"+(duration%(60*60))%60+"''";
+            myDuration = getFormatFloatValue((duration%(60*60))/60,"00")+"'"+getFormatFloatValue((duration%(60*60))%60,"00")+"''";
         }
         return myDuration;
     }
@@ -1168,7 +1182,7 @@ public class MyUtil {
                 formatSpeed = "--";
             }
             else {
-                formatSpeed = (int)speed/60+"'"+(int)speed%60+"''";
+                formatSpeed = getFormatFloatValue(speed/60,"00")+"'"+getFormatFloatValue(speed%60,"00")+"''";
             }
         }
         return formatSpeed;
@@ -1215,6 +1229,76 @@ public class MyUtil {
         else {
             return filePath+".acc";
         }
+    }
+
+    public static byte[] hexStringToBytes(String hexString) {
+        if (hexString == null || hexString.equals("")) {
+            return null;
+        }
+        hexString = hexString.toUpperCase();
+        int length = hexString.length() / 2;
+        char[] hexChars = hexString.toCharArray();
+        byte[] d = new byte[length];
+        for (int i = 0; i < length; i++) {
+            int pos = i * 2;
+            d[i] = (byte) (charToByte(hexChars[pos]) << 4 | charToByte(hexChars[pos + 1]));
+
+        }
+        return d;
+    }
+
+    private static byte charToByte(char c) {
+        return (byte) "0123456789ABCDEF".indexOf(c);
+    }
+
+    public static String bytesToHexString(byte[] src){
+        StringBuilder stringBuilder = new StringBuilder("");
+        if (src == null || src.length <= 0) {
+            return null;
+        }
+        for (int i = 0; i < src.length; i++) {
+            int v = src[i] & 0xFF;
+            String hv = Integer.toHexString(v);
+            if (hv.length() < 2) {
+                stringBuilder.append(0);
+            }
+            stringBuilder.append(hv);
+        }
+        return stringBuilder.toString();
+    }
+
+
+    public static String convertStringToHex(String str){
+
+        char[] chars = str.toCharArray();
+
+        StringBuffer hex = new StringBuffer();
+        for(int i = 0; i < chars.length; i++){
+            hex.append(Integer.toHexString((int)chars[i])+" ");
+        }
+
+        return hex.toString();
+    }
+
+    public static String convertHexToString(String hex){
+
+        StringBuilder sb = new StringBuilder();
+        StringBuilder temp = new StringBuilder();
+
+        //49204c6f7665204a617661 split into two characters 49, 20, 4c...
+        for( int i=0; i<hex.length()-1; i+=3 ){
+
+            //grab the hex in pairs
+            String output = hex.substring(i, (i + 2));
+            //convert hex to decimal
+            int decimal = Integer.parseInt(output, 16);
+            //convert the decimal to character
+            sb.append((char)decimal);
+
+            temp.append(decimal);
+        }
+
+        return sb.toString();
     }
 
 }

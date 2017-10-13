@@ -31,6 +31,7 @@ import com.amsu.healthy.activity.RunTrailMapActivity;
 import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.AppAbortDataSave;
+import com.amsu.healthy.bean.AppAbortDataSaveInsole;
 import com.amsu.healthy.bean.InsoleAnalyResult;
 import com.amsu.healthy.bean.User;
 import com.amsu.healthy.service.CommunicateToBleService;
@@ -79,7 +80,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 
 
 public class InsoleRunningActivity extends Activity implements View.OnClickListener,AMapLocationListener,
@@ -137,19 +137,18 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
 
     public static final int accDataLength = 1800;
-    private static final int saveDataTOLocalTimeSpanSecond = 60;  //数据持久化时间间隔 1分钟
+    private static final int saveDataTOLocalTimeSpanSecond = Constant.saveDataTOLocalTimeSpanSecond;  //数据持久化时间间隔 1分钟
     private static final int minimumLimitTimeMillis = 1000 * 1 * 1;  //最短时间限制 3分钟
     public static final String action = "jason.broadcast.action";    //发送广播，将心率值以广播的方式放松出去，在其他Activity可以接受
 
     private float mAllKcal;
 
     private DeviceOffLineFileUtil deviceOffLineFileUtil;
-    private AppAbortDataSave mAbortData;
+    private AppAbortDataSaveInsole appAbortDataSaveInsole;
     private DeviceOffLineFileUtil saveDeviceOffLineFileUtil;
 
     private List<AMapLocation> mOutdoorCal8ScendSpeedList;
     private List<Float> mIndoorCal8ScendSpeedList ;
-    private List<Integer> mSpeedStringList ;
     public String mFinalFormatSpeed;
     private ImageView iv_pop_icon;
     private TextView tv_pop_text;
@@ -186,6 +185,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
     private ArrayList<Integer> paceList;
     private long startTimeMillis =-1;
+    private int mPrestepCount;
 
 
     @Override
@@ -239,7 +239,6 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             }
         });
 
-        mSpeedStringList = new CopyOnWriteArrayList<>();
         mOutdoorCal8ScendSpeedList = new ArrayList<>();
         mIndoorCal8ScendSpeedList = new ArrayList<>();
         stridefreList = new ArrayList<>();
@@ -459,12 +458,12 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
         }*/
 
 
-        else if (hexData.length()==5){  //42 38
+        else if (hexData.length()==14 && hexData.startsWith("42 37 2B")){  //42 37 2B 00 00
             Log.i(TAG,"步数："+hexData);
             //鞋垫步数
             String[] split = hexData.split(" ");
-            if (split.length==2){
-                String stepCountString = split[0]+split[1];
+            if (split.length==5){
+                String stepCountString = split[3]+split[4];
 
                 //Log.i("30ScendCount","步数 hexData:"+hexData);
                 int tempStepCount = Integer.parseInt(stepCountString, 16);
@@ -481,9 +480,9 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                         mLeftStepCount = tempStepCount-mPreLeftStepCount;
                         mLeftAllStep += mLeftStepCount;
 
-                        testText += "步数左脚：总数"+tempStepCount+"，上次"+mPreLeftStepCount+",这次"+mLeftStepCount+"\n";
+                        //testText += "步数左脚：总数"+tempStepCount+"，上次"+mPreLeftStepCount+",这次"+mLeftStepCount+"\n";
                         mPreLeftStepCount = tempStepCount;
-                        tv_test.setText(testText);
+                        //tv_test.setText(testText);
 
                         if (mLeftNoReceiveCount>0){
                             mLeftStepCount = mLeftStepCount/mLeftNoReceiveCount;
@@ -509,9 +508,9 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                         mRightStepCount = tempStepCount-mPreRightStepCount;
                         mRightAllStep += mRightStepCount;
 
-                        testText += "步数右脚：总数"+tempStepCount+"，上次"+mPreRightStepCount+",这次"+mRightStepCount+"\n";
+                        //testText += "步数右脚：总数"+tempStepCount+"，上次"+mPreRightStepCount+",这次"+mRightStepCount+"\n";
                         mPreRightStepCount = tempStepCount;
-                        tv_test.setText(testText);
+                        //tv_test.setText(testText);
 
                         if (mRightNoReceiveCount>0){
                             mRightStepCount = mRightStepCount/mRightNoReceiveCount;
@@ -558,7 +557,11 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 }
 
                 if (mAllStep>0){
-                    tv_run_stride.setText(mAllStep+"");
+                    tv_run_stride.setText((mAllStep+mPrestepCount)+"");
+
+                    if(application !=null){
+                        application.setRunningmCurrentStepCount(mAllStep);
+                    }
                 }
             }
 
@@ -647,13 +650,13 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             //L 左脚
 
             writeEcgDataToBinaryFile(time,gyrX,gyrY,gyrZ,accX,accY,accZ,insole_left);
-            Log.i(TAG,"time:"+time+", 左脚 角速度："+gyrX+","+gyrY+","+gyrZ+",  加速度:"+accX+","+accY+","+accZ);
+            //Log.i(TAG,"time:"+time+", 左脚 角速度："+gyrX+","+gyrY+","+gyrZ+",  加速度:"+accX+","+accY+","+accZ);
         }
         else if (left_right==insole_right) {
             //R 右脚
 
             writeEcgDataToBinaryFile(time,gyrX,gyrY,gyrZ,accX,accY,accZ,insole_right);
-            Log.i(TAG,"time:"+time+", 右脚 角速度："+gyrX+","+gyrY+","+gyrZ+",  加速度:"+accX+","+accY+","+accZ);
+            //Log.i(TAG,"time:"+time+", 右脚 角速度："+gyrX+","+gyrY+","+gyrZ+",  加速度:"+accX+","+accY+","+accZ);
         }
     }
 
@@ -750,8 +753,9 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 mLeftTime = time;
             }
             else {
-                time += mLeftTime;
+                mLeftTime += time;
             }
+
             try {
                 if (leftDataOutputStream==null){
                     mLeftInsole30SencendFileAbsolutePath = MyUtil.getInsoleLocalFileName(insoleType,new Date());
@@ -768,6 +772,16 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
                     leftByteBuffer = ByteBuffer.allocate(4+2*6);
                     leftByteBuffer.order(ByteOrder.LITTLE_ENDIAN);  //小端模式写入数据
+
+
+
+                    if (appAbortDataSaveInsole==null){
+                        appAbortDataSaveInsole = new AppAbortDataSaveInsole();
+                        appAbortDataSaveInsole.setStartTimeMillis(startTimeMillis);
+                        appAbortDataSaveInsole.setOutDoor(mIsOutDoor);
+                    }
+
+                    appAbortDataSaveInsole.setmLeftInsoleFileAbsolutePath(mLeftInsole30SencendFileAbsolutePath);
                 }
                 leftByteBuffer.putInt(time);
                 leftByteBuffer.putShort(gyrX);
@@ -792,7 +806,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 mRightTime = time;
             }
             else {
-                time += mRightTime;
+                mRightTime += time;
             }
 
             try {
@@ -811,6 +825,14 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
                     rightByteBuffer = ByteBuffer.allocate(4+2*6);
                     rightByteBuffer.order(ByteOrder.LITTLE_ENDIAN);  //小端模式写入数据
+
+                    if (appAbortDataSaveInsole==null){
+                        appAbortDataSaveInsole = new AppAbortDataSaveInsole();
+                        appAbortDataSaveInsole.setStartTimeMillis(startTimeMillis);
+                        appAbortDataSaveInsole.setOutDoor(mIsOutDoor);
+                    }
+
+                    appAbortDataSaveInsole.setmRightInsoleFileAbsolutePath(mRightInsole30SencendFileAbsolutePath);
                 }
                 rightByteBuffer.putInt(time);
                 rightByteBuffer.putShort(gyrX);
@@ -880,15 +902,11 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     }
 
     private void restoreLastRecord() {
-        mAbortData = AppAbortDbAdapterUtil.getAbortDataFromSP();
-        Log.i(TAG,"mAbortData:"+mAbortData);
-        if (mAbortData!=null){
-            sportCreateRecordID = mAbortData.getMapTrackID();
+        appAbortDataSaveInsole = AppAbortDbAdapterUtil.getAbortDataFromSP(Constant.sportType_Insole);
+        Log.i(TAG,"appAbortDataSaveInsole:"+appAbortDataSaveInsole);
+        if (appAbortDataSaveInsole!=null){
+            sportCreateRecordID = appAbortDataSaveInsole.getMapTrackID();
 
-            List<Integer> speedStringList = mAbortData.getSpeedStringList();
-            if (speedStringList!=null && speedStringList.size()>0){
-                mSpeedStringList.addAll(speedStringList);
-            }
             if (sportCreateRecordID>0){
                 DbAdapter dbAdapter = new DbAdapter(this);
                 try {
@@ -904,6 +922,10 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 long l = MyUtil.parseValidLong(pathRecord.getDuration());
                 if (l>0){
                     recoverTimeMillis = addDuration = l;
+
+                    double speed =mAllDistance / l * 3.6;
+                    String formatFloatValue = MyUtil.getFormatFloatValue(speed,"0.0");
+                    tv_run_avespeed.setText(formatFloatValue);
                 }
 
                 mStartTime = System.currentTimeMillis();
@@ -914,21 +936,60 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 Log.i(TAG,"mPreOutDoorDistance:"+mPreOutDoorDistance);
                 Log.i(TAG,"mAddDistance:"+mAddDistance);
             }
-            List<String> kcalStringList = mAbortData.getKcalStringList();
-            if (kcalStringList!=null && kcalStringList.size()>0){
-                for (String s:kcalStringList){
-                    mAllKcal += Float.parseFloat(s);
-                }
+
+            int kcal = appAbortDataSaveInsole.getKcal();
+            mAllKcal = kcal;
+            if(mAllKcal>0){
                 tv_run_kcal.setText((int)mAllKcal+"");
             }
 
+            mAllStep = mPrestepCount = appAbortDataSaveInsole.getStepCount();
+
+            if(mAllStep>0){
+                tv_run_stride.setText(mAllStep+"");
+            }
+
+            ArrayList<Integer> speedPaceList = appAbortDataSaveInsole.getSpeedPaceList();
+            if (speedPaceList!=null){
+                paceList = speedPaceList;
+            }
+
+            maxSpeedKM_Hour = appAbortDataSaveInsole.getMaxSpeedKM_Hour();
+            if (maxSpeedKM_Hour>0){
+                tv_run_maxSpeedKM_Hour.setText(MyUtil.getFormatFloatValue(maxSpeedKM_Hour,"0.0"));
+            }
+
+            mIsOutDoor = appAbortDataSaveInsole.isOutDoor();
+
+            leftByteBuffer = ByteBuffer.allocate(4+2*6);
+            leftByteBuffer.order(ByteOrder.LITTLE_ENDIAN);  //小端模式写入数据
+
+            rightByteBuffer = ByteBuffer.allocate(4+2*6);
+            rightByteBuffer.order(ByteOrder.LITTLE_ENDIAN);  //小端模式写入数据
+
+            try {
+                if (!MyUtil.isEmpty(appAbortDataSaveInsole.getmLeftInsoleFileAbsolutePath())){
+                    leftDataOutputStream = new DataOutputStream(new FileOutputStream(appAbortDataSaveInsole.getmLeftInsoleFileAbsolutePath(),true));
+                }
+                if (!MyUtil.isEmpty(appAbortDataSaveInsole.getmRightInsoleFileAbsolutePath())){
+                    rightDataOutputStream = new DataOutputStream(new FileOutputStream(appAbortDataSaveInsole.getmRightInsoleFileAbsolutePath(),true));
+                }
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private void setRunningParameter() {
         application = (MyApplication) getApplication();
+
+        application.setRunningRecoverType(Constant.sportType_Insole);
         mIsRunning  =true;
+
         mCurrTimeDate = new Date(0,0,0);
+
+        application.setRunningCurrTimeDate(mCurrTimeDate = new Date(0,0,0));
 
         if (startTimeMillis==-1){
             startTimeMillis = System.currentTimeMillis();
@@ -954,6 +1015,9 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             @Override
             public void onTimeChange(Date date) {
                 mCurrTimeDate = new Date(date.getTime()+recoverTimeMillis);
+                if (application!=null){
+                    application.setRunningCurrTimeDate(mCurrTimeDate);
+                }
                 String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", mCurrTimeDate);
                 tv_run_time.setText(specialFormatTime);
             }
@@ -966,28 +1030,41 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             public void onTomeOut() {
                 if (mIsRunning){
                     Log.i(TAG,"1min 保存数据到本地");
-                    if (pathRecord!=null){
-                        sportCreateRecordID = Util.saveOrUdateRecord(pathRecord.getPathline(),addDuration, pathRecord.getDate(), InsoleRunningActivity.this,mStartTime,mAllDistance,sportCreateRecordID);
-                        Log.i(TAG,"sportCreateRecordID:"+sportCreateRecordID);
 
-                        if (sportCreateRecordID!=-1){
-                            if (mAbortData==null){
-                                mAbortData = new AppAbortDataSave(System.currentTimeMillis(), "", "", sportCreateRecordID, 1,mSpeedStringList);
-                                saveOrUpdateAbortDatareordToSP(mAbortData);
-                            }
-                            else {
-                                if (mAbortData.getMapTrackID()==-1){
-                                    mAbortData.setMapTrackID(sportCreateRecordID);
-                                }
-                                if (mAbortData.getStartTimeMillis()==0){
-                                    mAbortData.setStartTimeMillis(System.currentTimeMillis());
-                                }
-                                mAbortData.setSpeedStringList(mSpeedStringList);
+                    if (pathRecord!=null) {
+                        sportCreateRecordID = Util.saveOrUdateRecord(pathRecord.getPathline(), addDuration, pathRecord.getDate(), InsoleRunningActivity.this, mStartTime, mAllDistance, sportCreateRecordID);
+                        Log.i(TAG, "sportCreateRecordID:" + sportCreateRecordID);
 
-                                saveOrUpdateAbortDatareordToSP(mAbortData);
+
+                    }
+
+                    if (sportCreateRecordID!=-1){
+                        if (appAbortDataSaveInsole==null){
+                            appAbortDataSaveInsole = new AppAbortDataSaveInsole();
+                            appAbortDataSaveInsole.setStartTimeMillis(startTimeMillis);
+                            appAbortDataSaveInsole.setMapTrackID(sportCreateRecordID);
+                            appAbortDataSaveInsole.setOutDoor(mIsOutDoor);
+
+                            saveOrUpdateAbortDatareordToSP(appAbortDataSaveInsole);
+                        }
+                        else {
+                            if (appAbortDataSaveInsole.getMapTrackID()==0){
+                                appAbortDataSaveInsole.setMapTrackID(sportCreateRecordID);
                             }
+
+                            if (appAbortDataSaveInsole.getStartTimeMillis()==0){
+                                appAbortDataSaveInsole.setStartTimeMillis(System.currentTimeMillis());
+                            }
+
+                            appAbortDataSaveInsole.setSpeedPaceList(paceList);
+                            appAbortDataSaveInsole.setStepCount(mAllStep+mPrestepCount);
+                            appAbortDataSaveInsole.setKcal((int) mAllKcal);
+                            appAbortDataSaveInsole.setMaxSpeedKM_Hour(maxSpeedKM_Hour);
+
+                            saveOrUpdateAbortDatareordToSP(appAbortDataSaveInsole);
                         }
                     }
+
 
                 /*else if (MyUtil.isEmpty(mAbortData.getMapTrackID())){
                     mAbortData.setMapTrackID(createrecord+"");
@@ -996,7 +1073,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 }
             }
         },saveDataTOLocalTimeSpanSecond);//1min 保存数据到本地
-        //saveDeviceOffLineFileUtil.startTime();
+        saveDeviceOffLineFileUtil.startTime();
 
         String country = Locale.getDefault().getCountry();
         Log.i(TAG,"country:"+country);Locale.CHINA.getCountry();
@@ -1028,8 +1105,8 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
      *  @param abortData:异常数据对象
      *  @return
      */
-    private void saveOrUpdateAbortDatareordToSP(AppAbortDataSave abortData) {
-       // AppAbortDbAdapterUtil.putAbortDataToSP(abortData);
+    private void saveOrUpdateAbortDatareordToSP(AppAbortDataSaveInsole abortData) {
+        AppAbortDbAdapterUtil.putAbortDataToSP(abortData);
     }
 
     private void backJudge() {
@@ -1063,7 +1140,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                         mlocationClient = null;
                     }
 
-
+                    destorySportInfoTOAPP();
                     finish();
                 }
             });
@@ -1171,7 +1248,16 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
         if (mPaceCurrMeter>=oneKM){
             //大于1000时开始计算配速
-            paceList.add((int) ((System.currentTimeMillis()-mPaceCurrTimeMillis)/1000));
+            int paceCount = (int) (mPaceCurrMeter/oneKM);
+            Log.i(TAG,paceCount+"");
+
+            for (int i = 0; i < paceCount; i++) {
+                long l = (System.currentTimeMillis() - mPaceCurrTimeMillis) / 1000;
+                int oneKMPace = (int) (l / paceCount);
+                Log.i(TAG,"i:"+i+" "+oneKMPace);
+                paceList.add(oneKMPace);
+            }
+
             mPaceCurrTimeMillis = System.currentTimeMillis();
             mPaceCurrMeter = 0;
         }
@@ -1366,10 +1452,15 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             }
         }*/
 
-        long time = (System.currentTimeMillis()-mStartTime)/1000;
+        long time = (recoverTimeMillis+System.currentTimeMillis()-mStartTime)/1000;
         double speed =mAllDistance / time * 3.6;
         String formatFloatValue = MyUtil.getFormatFloatValue(speed,"0.0");
         tv_run_avespeed.setText(formatFloatValue);
+
+        if (application!=null){
+            application.setRunningmCurrentAvespeed(formatFloatValue);
+        }
+
 
 
         /*String maxFormatSpeed = "--";
@@ -1428,7 +1519,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
         if (mLocationOption==null){
             mLocationOption = new AMapLocationClientOption();
             mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-            mLocationOption.setInterval(1000);
+            mLocationOption.setInterval(2000);
             mLocationOption.setGpsFirst(true);
             mLocationOption.setSensorEnable(true);
 
@@ -1496,6 +1587,8 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     private void saveSportRecord(long createrecord) {
         Log.i(TAG,"createrecord:"+createrecord);
         mIsRunning = false;
+        destorySportInfoTOAPP();
+
         sportCreateRecordID = Util.saveOrUdateRecord(pathRecord.getPathline(),addDuration, pathRecord.getDate(), this,mStartTime,mAllDistance,createrecord);
         Log.i(TAG,"sportCreateRecordID:"+sportCreateRecordID);
         if (mlocationClient!=null){
@@ -1715,5 +1808,18 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
     public void testStep(View view) {
         sendReadStepOrder();
+    }
+
+
+
+    private void destorySportInfoTOAPP(){
+        if(application!=null){
+            application.setRunningCurrTimeDate(null);
+            application.setRunningFinalFormatSpeed(null);
+            application.setRunningRecoverType(-1);
+            application.setRunningFormatDistance(null);
+            application.setRunningmCurrentHeartRate(0);
+            application = null;
+        }
     }
 }

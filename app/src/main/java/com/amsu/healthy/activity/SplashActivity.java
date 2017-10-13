@@ -8,8 +8,10 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.activity.insole.InsoleRunningActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.AppAbortDataSave;
+import com.amsu.healthy.bean.AppAbortDataSaveInsole;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.UploadRecord;
@@ -35,65 +37,27 @@ import java.util.List;
 public class SplashActivity extends Activity {
 
     private static final String TAG = "SplashActivity";
-    public static boolean isSplashActivityStarted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
         Log.i(TAG,"onCreate");
-
-        isSplashActivityStarted = true;
         initView();
-
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i(TAG,"onResume");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.i(TAG,"onStop");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.i(TAG,"onPause");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.i(TAG,"onDestroy");
     }
 
     private void initView() {
 
-        //MyUtil.putStringValueFromSP("abortDatas","");
-        AppAbortDataSave abortDataFromSP = AppAbortDbAdapterUtil.getAbortDataFromSP();
-        Log.i(TAG,"abortDataFromSP:"+abortDataFromSP);
-        if (abortDataFromSP!=null){
-            Intent intent1 = new Intent(this,MainActivity.class);
-            intent1.putExtra(Constant.isNeedRecoverAbortData,true);
-            startActivity(intent1);
-
-            Intent intent2 = new Intent(this,StartRunActivity.class);
-            intent2.putExtra(Constant.isNeedRecoverAbortData,true);
-            startActivity(intent2);
-            finish();
+        boolean isNeedRecover = judgeRecoverRunState();
+        if (isNeedRecover){
             return;
         }
-        Log.i(TAG,"开启线程");
-        TextView tv_splish_mark = (TextView) findViewById(R.id.tv_splish_mark);
 
+        TextView tv_splish_mark = (TextView) findViewById(R.id.tv_splish_mark);
         tv_splish_mark.setText(getResources().getString(R.string.app_name)+" "+ApkUtil.getVersionName(this));
 
+        Log.i(TAG,"开启线程");
         new Thread() {
             @Override
             public void run() {
@@ -124,13 +88,51 @@ public class SplashActivity extends Activity {
         int mCurrYear = calendar.get(Calendar.YEAR);
         int mCurrWeekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
         downlaodWeekReport(mCurrYear,mCurrWeekOfYear,false,null);
+
         ApkUtil.checkUpdate(this);
 
         boolean networkConnected = MyUtil.isNetworkConnected(MyApplication.appContext);
         if (networkConnected){
             //有网络连接
-            startUploadOffLineData(MyApplication.appContext);
+            new Thread(){
+                @Override
+                public void run() {
+                    startUploadOffLineData(MyApplication.appContext);
+                }
+            }.start();
         }
+    }
+
+    //判断是否要恢复到之前的运动状态
+    private boolean judgeRecoverRunState() {
+        String stringValueFromSP = MyUtil.getStringValueFromSP("abortDatas");
+        Log.i(TAG,"stringValueFromSP:"+stringValueFromSP);
+        if (!MyUtil.isEmpty(stringValueFromSP) ){
+
+            Intent intent1 = new Intent();
+            intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent1.putExtra(Constant.isNeedRecoverAbortData,true);
+
+            String[] split = stringValueFromSP.split("&&");
+            if (split.length==2 && !MyUtil.isEmpty(split[0])){
+                int i = Integer.parseInt(split[0]);
+
+                if (i==Constant.sportType_Cloth){
+                    intent1.setClass(this,StartRunActivity.class);
+                }
+                else  if (i==Constant.sportType_Insole){
+                    intent1.setClass(this,InsoleRunningActivity.class);
+                }
+
+                startActivity(new Intent(this,MainActivity.class));
+
+                startActivity(intent1);
+                Log.i(TAG," startActivity(intent1);");
+                finish();
+                return true;
+            }
+        }
+        return false;
     }
 
     private void startUploadOffLineData(Context context) {
@@ -157,7 +159,6 @@ public class SplashActivity extends Activity {
 
     //下载最新周报告
     public static void downlaodWeekReport(int year, int weekOfYear, final boolean isFromLogin, final Activity activity) {
-
         Log.i(TAG,"year:"+year+"  weekOfYear:"+weekOfYear);
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
@@ -320,6 +321,29 @@ public class SplashActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG,"onResume");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG,"onStop");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(TAG,"onPause");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG,"onDestroy");
+    }
 
 }
 

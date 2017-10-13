@@ -102,21 +102,22 @@ public class CorrectInsoleActivity extends BaseActivity {
 
     private void dealwithLebDataChange(String hexData,String address) {
         Log.i(TAG,"hexData:"+hexData);
-        if (hexData.length()==2){ // 数据长度为2，位校准返回数据
+        if (hexData.length()==11 && hexData.startsWith("42 39 2B")){ // 返回数据：42 39 2B 63 ，数据长度为11，63为进度，位校准返回数据
+            String[] split = hexData.split(" ");
             if(address.equals(insole_connecMac1)){
                 //鞋垫1进度
-                Log.i(TAG,"鞋垫1进度："+Integer.parseInt(hexData,16));
-                tv_correct_insole1.setText(insole_connecMac1.substring(insole_connecMac1.length()-2)+"进度："+Integer.parseInt(hexData,16)+"%");
-
+                int progress = Integer.parseInt(split[split.length - 1], 16);
+                Log.i(TAG,"鞋垫1进度："+ progress);
+                tv_correct_insole1.setText(insole_connecMac1.substring(insole_connecMac1.length()-2)+"进度："+progress+"%");
             }
             else if(address.equals(insole_connecMac2)){
-                ////鞋垫2进度
-                Log.i(TAG,"鞋垫2进度："+Integer.parseInt(hexData,16));
-                tv_correct_insole2.setText(insole_connecMac2.substring(insole_connecMac2.length()-2)+"进度："+Integer.parseInt(hexData,16)+"%");
-
+                //鞋垫2进度
+                int progress = Integer.parseInt(split[split.length - 1], 16);
+                Log.i(TAG,"鞋垫2进度："+ progress);
+                tv_correct_insole2.setText(insole_connecMac2.substring(insole_connecMac2.length()-2)+"进度："+progress+"%");
             }
         }
-        else if (hexData.length()==5){ //4F 4B  校准成功
+        else if (hexData.length()==14 && hexData.equals("42 39 2B 4F 4B")){ //42 39 2B 4F 4B  校准成功
             if(address.equals(insole_connecMac1)){
                 tv_correct_insole1.setText(insole_connecMac1.substring(insole_connecMac1.length()-2)+"进度：校准成功!");
                 mCorrectedSuccessedCount++;
@@ -179,7 +180,7 @@ public class CorrectInsoleActivity extends BaseActivity {
 
             }
         }
-        else if ((hexData.length()==8)){ //校准失败： 45 52 52
+        else if (hexData.length()==17 && hexData.equals("42 39 2B 45 45 52")){ //校准失败： 42 39 2B 45 45 52
             if(address.equals(insole_connecMac1)){
                 tv_correct_insole1.setText(insole_connecMac1.substring(insole_connecMac1.length()-2)+"进度：校准失败!");
                 mCorrectedSuccessedCount--;
@@ -194,6 +195,7 @@ public class CorrectInsoleActivity extends BaseActivity {
                 //correctedfinshed("校准失败，请重新校准!",false);
                 MyUtil.showToask(this,"校准失败，请重新校准!");
             }
+
         }
     }
 

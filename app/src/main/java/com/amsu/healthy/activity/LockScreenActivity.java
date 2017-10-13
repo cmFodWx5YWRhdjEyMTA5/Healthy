@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.nfc.Tag;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -97,12 +99,13 @@ public class LockScreenActivity extends BaseActivity {
         }
     }
 
+
     private void setScreenData() {
         Log.i(TAG,"setScreenData:");
 
         final MyApplication application = (MyApplication) getApplication();
 
-        if (!MyUtil.isEmpty(application.getRunningFinalFormatSpeed())){
+       /* if (!MyUtil.isEmpty(application.getRunningFinalFormatSpeed())){
             tv_run_speed.setText(application.getRunningFinalFormatSpeed());
         }
 
@@ -114,57 +117,75 @@ public class LockScreenActivity extends BaseActivity {
         }
 
         Log.i(TAG,"isNeedUpdateData:"+isNeedUpdateData);
-        Log.i(TAG,"application.getRunningCurrTimeDate():"+application.getRunningCurrTimeDate());
+        Log.i(TAG,"application.getRunningCurrTimeDate():"+application.getRunningCurrTimeDate());*/
 
         if (application.getRunningCurrTimeDate() != null){
-            String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", application.getRunningCurrTimeDate());
-            Log.i(TAG,"specialFormatTime:"+specialFormatTime);
-            tv_run_time.setText(specialFormatTime);
-
             new Thread(){
-                long time = application.getRunningCurrTimeDate().getTime();
+                long time ;
                 int count = 0;
+
                 @Override
                 public void run() {
-                    super.run();
+                    time = application.getRunningCurrTimeDate().getTime();
+
                     while (isNeedUpdateData){
+                        time += 1000;
+                        mSpecialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", new Date(time));
+                        mHandler.sendEmptyMessage(1);
+
+                        if (count==10){
+                            mHandler.sendEmptyMessage(2);
+                            if (!MyUtil.isEmpty(application.getRunningFinalFormatSpeed())){
+                                mRunningFinalFormatSpeed = application.getRunningFinalFormatSpeed();
+                            }
+
+                            if (!MyUtil.isEmpty(application.getRunningFormatDistance())){
+                                mRunningFormatDistance = application.getRunningFormatDistance();
+                            }
+
+                            if (application.getRunningmCurrentHeartRate()>0){
+                                mRunningmCurrentHeartRate = application.getRunningmCurrentHeartRate()+"";
+                            }
+                            count = 0;
+                            //startActivity(new Intent(LockScreenActivity.this,LockScreenActivity.class));
+                            //Log.i(TAG,"10s设置数据  重启LockScreenActivity");
+                        }
+
+                        count++;
+
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                time += 1000;
-                                String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", new Date(time));
-                                tv_run_time.setText(specialFormatTime);
-
-                                if (count==10){
-                                    if (!MyUtil.isEmpty(application.getRunningFinalFormatSpeed())){
-                                        tv_run_speed.setText(application.getRunningFinalFormatSpeed());
-                                    }
-
-                                    if (!MyUtil.isEmpty(application.getRunningFormatDistance())){
-                                        tv_run_distance.setText(application.getRunningFormatDistance());
-                                    }
-                                    if (application.getRunningmCurrentHeartRate()>0){
-                                        tv_run_heartrate.setText(application.getRunningmCurrentHeartRate()+"");
-                                    }
-                                    count = 0;
-                                    //startActivity(new Intent(LockScreenActivity.this,LockScreenActivity.class));
-                                    //Log.i(TAG,"10s设置数据  重启LockScreenActivity");
-                                }
-
-                                count++;
-                            }
-                        });
                     }
                 }
             }.start();
         }
     }
+
+    private String mSpecialFormatTime;
+    private String mRunningFinalFormatSpeed;
+    private String mRunningFormatDistance;
+    private String mRunningmCurrentHeartRate;
+
+    Handler mHandler = new Handler(){
+        @Override
+        public void dispatchMessage(Message msg) {
+            switch (msg.what) {
+                case 1:
+                    tv_run_time.setText(mSpecialFormatTime);
+                    break;
+
+                case 2:
+                    tv_run_speed.setText(mRunningFinalFormatSpeed);
+                    tv_run_distance.setText(mRunningFormatDistance);
+                    tv_run_heartrate.setText(mRunningmCurrentHeartRate);
+
+                    break;
+            }
+        }
+    };
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

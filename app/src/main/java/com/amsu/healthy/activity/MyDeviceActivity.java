@@ -1,5 +1,6 @@
 package com.amsu.healthy.activity;
 
+import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.activity.insole.InsoleDeviceInfoActivity;
 import com.amsu.healthy.adapter.DeviceAdapter;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
@@ -38,6 +40,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class MyDeviceActivity extends BaseActivity {
     private static final String TAG = "MyDeviceActivity";
@@ -172,20 +175,28 @@ public class MyDeviceActivity extends BaseActivity {
                     }
                     else {
                         //点击的是绑定过的那个，跳到详情页
-                        new Thread(){
-                            @Override
-                            public void run() {
-                                super.run();
-                                while (MyApplication.clothCurrBatteryPowerPercent ==-1){
-                                    CommunicateToBleService.sendLookEleInfoOrder(mLeProxy);
-                                    try {
-                                        Thread.sleep(500);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
+                        if (MyApplication.clothCurrBatteryPowerPercent ==-1){
+                            new Thread(){
+                                @Override
+                                public void run() {
+
+                                    while (true){
+                                        CommunicateToBleService.sendLookEleInfoOrder(mLeProxy);
+
+                                        try {
+                                            Thread.sleep(500);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                        if (MyApplication.clothCurrBatteryPowerPercent!=-1){
+                                            break;
+                                        }
                                     }
                                 }
-                            }
-                        }.start();
+                            }.start();
+                        }
+
                         startActivityForResult(new Intent(MyDeviceActivity.this,DeviceInfoActivity.class),201);
                     }
                 }
@@ -221,9 +232,43 @@ public class MyDeviceActivity extends BaseActivity {
                         }
                     }
                     else {
-                        Intent intent = new Intent(MyDeviceActivity.this, DeviceInfoActivity.class);
-                        intent.putExtra(Constant.sportState,Constant.sportType_Insole);
+                        final MyApplication application = (MyApplication) getApplication();
+                        final Map<String, Integer> insoleDeviceBatteryInfos = application.getInsoleDeviceBatteryInfos();
+                        boolean isContainNoPower = insoleDeviceBatteryInfos.containsValue(-1);
+                        Log.i(TAG,"insoleDeviceBatteryInfos:"+insoleDeviceBatteryInfos);
+                        Log.i(TAG,"isContainNoPower:"+isContainNoPower);
+
+                        if (isContainNoPower){ //当其中有一个电量没有读出来时，再次读取
+                            new Thread(){
+                                @Override
+                                public void run() {
+
+                                    while (true){
+                                        CommunicateToBleService.sendLookEleInfoOrder(mLeProxy);
+
+                                        try {
+                                            Thread.sleep(1000);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                        boolean isContainNoPower = application.getInsoleDeviceBatteryInfos().containsValue(-1);
+                                        Log.i(TAG,"insoleDeviceBatteryInfos:"+insoleDeviceBatteryInfos);
+                                        Log.i(TAG,"isContainNoPower:"+isContainNoPower);
+
+                                        if (!isContainNoPower){
+                                            break;
+                                        }
+
+                                    }
+
+                                }
+                            }.start();
+                        }
+
+                        Intent intent = new Intent(MyDeviceActivity.this, InsoleDeviceInfoActivity.class);
                         startActivityForResult(intent,201);
+
                     }
                 }
 
@@ -403,7 +448,7 @@ public class MyDeviceActivity extends BaseActivity {
                         else if (count==2){
                             //2个算一双鞋垫
                             if (tempDevice!=null){
-                                device.setLEName("：鞋垫1("+tempDevice.getLEName().substring(tempDevice.getMac().length()-3)+
+                                device.setLEName(":鞋垫1("+tempDevice.getLEName().substring(tempDevice.getMac().length()-3)+
                                         ")+鞋垫2("+device.getLEName().substring(device.getMac().length()-3)+")");
                                 device.setMac(tempDevice.getMac()+","+device.getMac());
                                 device.setState(getResources().getString(R.string.click_bind));

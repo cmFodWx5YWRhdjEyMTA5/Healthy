@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_run_text1"
-        android:layout_marginTop="@dimen/x180">
+        android:layout_marginTop="@dimen/x100">
         <LinearLayout
             android:id="@+id/ll_text1"
             android:layout_width="match_parent"
@@ -104,7 +104,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/rl_r2"
-        android:layout_marginTop="@dimen/x148"
+        android:layout_marginTop="@dimen/x100"
         android:gravity="center_vertical">
         <LinearLayout
             android:id="@+id/ll_text3"
@@ -337,7 +337,7 @@
         android:text="0.00"
         android:textSize="@dimen/x248"
         android:textColor="#3b3b3b"
-        android:layout_marginTop="@dimen/x200"
+        android:layout_marginTop="@dimen/x150"
         android:layout_centerHorizontal="true" />
 
     <TextView
@@ -429,7 +429,8 @@
         android:text="步频"
         android:layout_alignParentRight="true"
         android:onClick="testStep"
-        android:layout_marginTop="@dimen/x350"/>
+        android:layout_marginTop="@dimen/x350"
+        android:visibility="gone"/>
 
 
 </RelativeLayout>

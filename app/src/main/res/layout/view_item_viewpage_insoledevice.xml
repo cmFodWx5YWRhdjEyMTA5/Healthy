@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/shebeibj">
+
+    <RelativeLayout
+        android:id="@+id/rl_ele"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y700"
+        android:layout_below="@+id/rl_base_head"
+        >
+
+
+        <TextView
+            android:id="@+id/tv_device_electric"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="--"
+            android:textSize="@dimen/x240"
+            android:textColor="#FFFFFF"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/x160" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="%"
+            android:textSize="@dimen/x72"
+            android:textColor="#FFFFFF"
+            android:layout_toRightOf="@+id/tv_device_electric"
+            android:layout_marginLeft="@dimen/x20"
+            android:layout_alignBaseline="@+id/tv_device_electric"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/x160" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_device_electric"
+            android:text="@string/remaining_battery_power"
+            android:textSize="@dimen/x40"
+            android:textColor="#FFFFFF"
+            android:layout_centerHorizontal="true"/>
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/ll_text1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:divider="@drawable/deiver_horiz_line"
+        android:showDividers="middle|end"
+        android:layout_below="@+id/rl_ele"
+        android:layout_alignParentStart="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x140"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x36">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hardware_version"
+                android:textSize="@dimen/x48"
+                android:textColor="#FFFFFF"
+                android:layout_centerVertical="true"/>
+
+            <TextView
+                android:id="@+id/tv_insoledevice_hardware"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:textSize="@dimen/x48"
+                android:textColor="#FFFFFF"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x140"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x36">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/software_version"
+                android:textSize="@dimen/x48"
+                android:textColor="#FFFFFF"
+                android:layout_centerVertical="true"/>
+            <TextView
+                android:id="@+id/tv_insoledevice_software"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:textSize="@dimen/x48"
+                android:textColor="#FFFFFF"/>
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rl_device_unbind"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y140"
+        android:layout_below="@+id/ll_text1"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:background="@drawable/list_item_background_delete"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="@dimen/x80"
+        android:onClick="unBindDevice"
+        android:clickable="true"
+        android:paddingLeft="@dimen/x36"
+        android:paddingRight="@dimen/x40">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/unbound"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/x48"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
+
+</LinearLayout>

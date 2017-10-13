@@ -15,8 +15,8 @@ android {
         applicationId "com.amsu.healthy"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 143
-        versionName "1.4.3"
+        versionCode 145
+        versionName "1.4.5"
 
         multiDexEnabled true
 

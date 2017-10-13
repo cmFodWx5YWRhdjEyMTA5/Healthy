@@ -20,6 +20,7 @@ public class AppAbortDataSave implements Cloneable {
     public List<Integer> speedStringList;
     public List<String> kcalStringList;
     public boolean isOutDoor;
+    public int sportType;
 
     public AppAbortDataSave() {
     }
@@ -136,6 +137,15 @@ public class AppAbortDataSave implements Cloneable {
                 ", speedStringList=" + speedStringList +
                 ", kcalStringList=" + kcalStringList +
                 ", isOutDoor=" + isOutDoor +
+                ", sportType=" + sportType +
                 '}';
+    }
+
+    public int getSportType() {
+        return sportType;
+    }
+
+    public void setSportType(int sportType) {
+        this.sportType = sportType;
     }
 }

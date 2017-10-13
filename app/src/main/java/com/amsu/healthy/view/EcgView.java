@@ -1,11 +1,15 @@
 package com.amsu.healthy.view;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.AttributeSet;
@@ -38,7 +42,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     private float ecgMax = 255;//心电的最大值
     private int sleepTime = 1000/15; //每次锁屏的时间间距，单位:ms
     private float lockWidth;//每次锁屏需要画的
-    private static int ecgPerCount = 10;//每次画心电数据的个数，心电每秒有500个数据包
+    private static final int ecgPerCount = 10;//每次画心电数据的个数，心电每秒有500个数据包
 
     public List<Integer> ecgDatas = new ArrayList<>();
     private Queue<Integer> ecgOneGroupData = new LinkedList<>();
@@ -205,22 +209,27 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
     private void startDrawWave(){
         rect.set(startX, 0, (int) (startX + lockWidth + blankLineWidth), mHeight);
+
         mCanvas = surfaceHolder.lockCanvas(rect);
-        if(mCanvas == null) return;
-        initBackground(mCanvas);
-        if (isStartCacheDrawLine){
-            drawCacheWave();
-        }
-        else {
-            drawWaveOneGroup();
+        if(mCanvas != null){
+            initBackground(mCanvas);
+
+            if (isStartCacheDrawLine){
+                drawCacheWave();
+            }
+            else {
+                drawWaveOneGroup();
+            }
+
+            surfaceHolder.unlockCanvasAndPost(mCanvas);
+
+            startX = (int) (startX + lockWidth);
+            if(startX > mWidth){
+                startX = 0;
+            }
         }
 
-        surfaceHolder.unlockCanvasAndPost(mCanvas);
 
-        startX = (int) (startX + lockWidth);
-        if(startX > mWidth){
-            startX = 0;
-        }
     }
 
     //画一组的数据
@@ -228,27 +237,37 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         //Log.i(TAG,"ecgOneGroupData.size():"+ecgOneGroupData.size());
         try{
             float mStartX = startX;
-            if(ecgOneGroupData.size() == ecgPerCount){
+            for(int i=0;i<ecgOneGroupData.size();i++){
+                float newX = (float) (mStartX + ecgXOffset);
+                int newY = ecgConver(ecgOneGroupData.poll());
+                mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
+                Log.i(TAG,"x1:"+mStartX+",y1:"+startY0+"。x1:"+newX+",y1:"+newY);
+                mStartX = newX;
+                startY0 = newY;
+                ecgOneGroupData.clear();
+            }
+
+            /*if(ecgOneGroupData.size() == ecgPerCount){
                 for(int i=0;i<ecgPerCount;i++){
                     float newX = (float) (mStartX + ecgXOffset);
                     int newY = ecgConver(ecgOneGroupData.poll());
                     mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
-                    //Log.i(TAG,"x1:"+mStartX+",y1:"+startY0+"。x1:"+newX+",y1:"+newY);
+                    Log.i(TAG,"x1:"+mStartX+",y1:"+startY0+"。x1:"+newX+",y1:"+newY);
                     mStartX = newX;
                     startY0 = newY;
                 }
             }
             else{
-                /**
+                *//**
                  * 如果没有数据
                  * 因为有数据一次画ecgPerCount个数，那么无数据时候就应该画ecgPercount倍数长度的中线
-                 */
+                 *//*
                 int newX = (int) (mStartX + ecgXOffset * ecgPerCount);
                 int newY = ecgConver((int) (ecgMax / 2));
                 mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
                 startY0 = newY;
                 ecgOneGroupData.clear();
-            }
+            }*/
         }catch (NoSuchElementException e){
             e.printStackTrace();
         }
@@ -336,6 +355,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
     //绘制背景
     private void initBackground(Canvas canvas) {
+
         canvas.drawColor(mBackgroundColor);
 
         //画小网格

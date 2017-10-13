@@ -1,7 +1,8 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.amsu.healthy.fragment.analysis_insole.ResultTrackFragment">
 
     <com.amsu.healthy.view.MyMapView
@@ -31,7 +32,7 @@
             android:layout_marginLeft="@dimen/x36"
             android:text="0:00"
             android:textColor="#1f1f1f"
-            android:textSize="@dimen/x168"
+            android:textSize="@dimen/x150"
             />
 
         <TextView
@@ -39,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/tv_finish_mileage"
-            android:layout_marginLeft="@dimen/x24"
+            android:layout_marginLeft="@dimen/x8"
             android:text="km"
             android:textColor="#1f1f1f"
             android:textSize="@dimen/x32"/>
@@ -47,7 +48,7 @@
             android:id="@+id/view"
             android:layout_width="@dimen/x2"
             android:layout_height="@dimen/x100"
-            android:layout_marginLeft="@dimen/x48"
+            android:layout_marginLeft="@dimen/x40"
             android:background="#969598"
             android:layout_gravity="center_vertical"></View>
 
@@ -58,7 +59,7 @@
             android:layout_alignParentRight="true">
             <RelativeLayout
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="5"
                 android:layout_height="match_parent"
                 android:gravity="center">
                 <TextView
@@ -81,7 +82,7 @@
             </RelativeLayout>
             <RelativeLayout
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="4"
                 android:layout_height="match_parent"
                 android:gravity="center">
                 <TextView
@@ -104,7 +105,7 @@
             </RelativeLayout>
             <RelativeLayout
                 android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_weight="4"
                 android:layout_height="match_parent"
                 android:gravity="center">
                 <TextView
@@ -134,4 +135,4 @@
     </LinearLayout>
 
 
-</RelativeLayout>
+</LinearLayout>

@@ -403,7 +403,9 @@
         <activity android:name=".utils.scancode.activity.CaptureActivity" />
         <activity android:name=".activity.ConfirmScanLoginActivity" />
         <activity android:name=".activity.insole.InsoleAnalysisActivity" />
-        <activity android:name=".activity.HistoryRecordAllActivity"></activity>
+        <activity android:name=".activity.HistoryRecordAllActivity" />
+        <activity android:name=".activity.insole.InsoleDeviceInfoActivity" />
+        <activity android:name=".activity.insole.InsoleLockScreenActivity" android:launchMode="singleTask"></activity>
     </application>
 
 </manifest>

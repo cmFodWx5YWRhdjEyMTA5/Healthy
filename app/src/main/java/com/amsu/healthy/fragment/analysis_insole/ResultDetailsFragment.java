@@ -111,15 +111,15 @@ public class ResultDetailsFragment extends Fragment {
             }
 
             if (mInsoleUploadRecord.errDesc.ShoepadResult.general!=null){
-                boolean left_inversion = mInsoleUploadRecord.errDesc.ShoepadResult.general.left.inversion;
-                boolean right_inversion = mInsoleUploadRecord.errDesc.ShoepadResult.general.right.inversion;
+                /*boolean left_inversion = mInsoleUploadRecord.errDesc.ShoepadResult.general.left.inversion;
+                boolean right_inversion = mInsoleUploadRecord.errDesc.ShoepadResult.general.right.inversion;*/
 
                 String left_frontal = mInsoleUploadRecord.errDesc.ShoepadResult.general.left.landingPosition.frontal;
                 String right_frontal = mInsoleUploadRecord.errDesc.ShoepadResult.general.right.landingPosition.frontal;
 
                 //内外方向，outside外侧，inside内侧
                 String allinversionString = "";
-                if (left_inversion){
+                if (!MyUtil.isEmpty(left_frontal)){
                     if (left_frontal.equals("outside")){
                         allinversionString = "外翻/";
                     }
@@ -133,11 +133,11 @@ public class ResultDetailsFragment extends Fragment {
                 else {
                     allinversionString = "--/";
                 }
-                if (right_inversion){
-                    if (left_frontal.equals("outside")){
+                if (!MyUtil.isEmpty(right_frontal)){
+                    if (right_frontal.equals("outside")){
                         allinversionString += "外翻";
                     }
-                    else if (left_frontal.equals("inside")){
+                    else if (right_frontal.equals("inside")){
                         allinversionString += "内翻";
                     }
                     else {
@@ -184,15 +184,27 @@ public class ResultDetailsFragment extends Fragment {
                 tv_detail_reachway.setText(allSagitalString);
 
                 try {
-                    double left_supportStability = Double.parseDouble(mInsoleUploadRecord.errDesc.ShoepadResult.general.left.supportStability);
-                    double right_supportStability = Double.parseDouble(mInsoleUploadRecord.errDesc.ShoepadResult.general.right.supportStability);
-                    String allStabilityString = MyUtil.getFormatFloatValue(left_supportStability,"0.0")+"/"+MyUtil.getFormatFloatValue(right_supportStability,"0.0");
+                    String left_supportStabilityString = "-";
+                    String right_supportStabilityString = "-";
+
+                    if (!MyUtil.isEmpty(mInsoleUploadRecord.errDesc.ShoepadResult.general.left.supportStability) &&
+                            !mInsoleUploadRecord.errDesc.ShoepadResult.general.left.supportStability.equals("NaN")){
+                        double left_supportStability = Double.parseDouble(mInsoleUploadRecord.errDesc.ShoepadResult.general.left.supportStability);
+                        left_supportStabilityString = MyUtil.getFormatFloatValue(left_supportStability,"0.0");
+                    }
+                    if (!MyUtil.isEmpty(mInsoleUploadRecord.errDesc.ShoepadResult.general.right.supportStability) &&
+                            !mInsoleUploadRecord.errDesc.ShoepadResult.general.right.supportStability.equals("NaN")){
+                        double right_supportStability = Double.parseDouble(mInsoleUploadRecord.errDesc.ShoepadResult.general.right.supportStability);
+                        right_supportStabilityString = MyUtil.getFormatFloatValue(right_supportStability,"0.0");
+                    }
+
+                    String allStabilityString = left_supportStabilityString+"/"+right_supportStabilityString;
                     tv_detail_singlestable.setText(allStabilityString);
                 }catch (NumberFormatException e){
                     e.printStackTrace();
                 }
 
-                if (!MyUtil.isEmpty(mInsoleUploadRecord.errDesc.ShoepadResult.general.strideLength)){
+                if (!MyUtil.isEmpty(mInsoleUploadRecord.errDesc.ShoepadResult.general.strideLength) && !mInsoleUploadRecord.errDesc.ShoepadResult.general.strideLength.equals("NaN")){
                     double v = Double.parseDouble(mInsoleUploadRecord.errDesc.ShoepadResult.general.strideLength)*100/2;
                     tv_detail_stride.setText(MyUtil.getFormatFloatValue(v,"0"));
                 }
