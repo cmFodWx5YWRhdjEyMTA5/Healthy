@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_ff1c232a"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/rl_base_head"
+        layout="@layout/page_head" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/x180">
+
+        <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12:00"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x164" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x36"
+                android:text="@string/endurance_time"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x36" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="——"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x164" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x36"
+                android:text="@string/endurance_distance"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x36" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_marginTop="@dimen/x180"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="@dimen/x64"
+                android:layout_height="@dimen/x64"
+                android:src="@drawable/xinlvtubiao" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x56"
+                android:text="120"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x96" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x56"
+                android:text="@string/endurance_heart_rate"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x32" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="@dimen/x64"
+                android:layout_height="@dimen/x64"
+                android:src="@drawable/peisutubiao" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x56"
+                android:text="3'23''"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x96" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x56"
+                android:text="@string/endurance_speed_allocation"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x32" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="@dimen/x64"
+                android:layout_height="@dimen/x64"
+                android:src="@drawable/bupintubiao" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x56"
+                android:text="56"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x96" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x56"
+                android:text="@string/endurance_stride_frequency"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x32" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="20dip">
+
+        <TextView
+            android:id="@+id/tv_run_lock"
+            android:layout_width="@dimen/y140"
+            android:layout_height="@dimen/y140"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bg_round_aaaaaa"
+            android:gravity="center"
+            android:text="锁屏"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/x36" />
+
+        <TextView
+            android:id="@+id/fl_enduranceStart"
+            android:layout_width="@dimen/x280"
+            android:layout_height="@dimen/x280"
+            android:layout_centerInParent="true"
+            android:background="@drawable/btn_gradual_round_blue"
+            android:gravity="center"
+            android:textSize="@dimen/x48"
+            android:text="@string/endurance_end"
+            android:textColor="@android:color/white" />
+    </RelativeLayout>
+</LinearLayout>

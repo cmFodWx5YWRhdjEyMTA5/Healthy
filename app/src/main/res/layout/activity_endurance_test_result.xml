@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background_color"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/rl_base_head"
+        layout="@layout/page_head" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x120"
+        android:background="@android:color/white"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/x36"
+        android:text="2017-12-12"
+        android:textColor="@color/color_ff666666"
+        android:textSize="@dimen/x48" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0.5dip"
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        android:padding="@dimen/x36">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3.65"
+                android:textColor="@color/color_ff20262b"
+                android:textSize="@dimen/x164" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/x16"
+                android:text="@string/endurance_kilometer"
+                android:textColor="@color/color_ff212121"
+                android:textSize="@dimen/x48" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x32"
+            android:text="12分钟跑步距离"
+            android:textColor="@color/color_ffb3b3b3"
+            android:textSize="@dimen/x36" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x96"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="24'21''"
+                    android:textColor="@color/color_ff20262b"
+                    android:textSize="@dimen/x64" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/x24"
+                    android:text="@string/endurance_speed"
+                    android:textColor="@color/color_ffb2b2b2"
+                    android:textSize="@dimen/x32" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x96"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="80"
+                    android:textColor="@color/color_ff20262b"
+                    android:textSize="@dimen/x64" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/x24"
+                    android:text="@string/endurance_vo2max"
+                    android:textColor="@color/color_ffb2b2b2"
+                    android:textSize="@dimen/x32" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x96"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="优秀"
+                    android:textColor="@color/color_ff20262b"
+                    android:textSize="@dimen/x64" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/x24"
+                    android:text="@string/endurance_level"
+                    android:textColor="@color/color_ffb2b2b2"
+                    android:textSize="@dimen/x32" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x120"
+        android:layout_marginTop="0.5dip"
+        android:background="@android:color/white"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/x36"
+        android:text="@string/exercise_cadence_curve"
+        android:textColor="@color/color_ff666666"
+        android:textSize="@dimen/x48" />
+</LinearLayout>

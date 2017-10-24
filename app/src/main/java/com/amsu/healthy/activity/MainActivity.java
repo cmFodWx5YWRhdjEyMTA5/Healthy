@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.activity.marathon.MarathonActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Apk;
 import com.amsu.healthy.bean.AppAbortDataSave;
@@ -769,8 +770,15 @@ public class MainActivity extends BaseActivity {
                     HashMap<String,String> map = new HashMap<>();
                     map.put("screen","设备："+Build.MODEL+",heigth:"+dm.heightPixels+",width:"+dm.widthPixels);
                     MobclickAgent.onEvent(MainActivity.this,"event_phonemodel",map);*/
-
-                    startActivity(new Intent(MainActivity.this, PrepareRunningActivity.class));
+                    int sportType=MyUtil.getIntValueFromSP(Constant.sportType);
+                    switch (sportType){
+                        case Constant.sportType_Marathon://马拉松
+                            startActivity(MarathonActivity.createIntent(MainActivity.this));
+                            break;
+                        default:
+                            startActivity(new Intent(MainActivity.this, PrepareRunningActivity.class));
+                            break;
+                    }
 
 
 

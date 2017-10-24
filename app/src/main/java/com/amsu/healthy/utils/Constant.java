@@ -73,7 +73,7 @@ public class Constant {
     public static String getALLShoepadDatasURL = "http://www.amsu-new.com:8081/intellingence-web/getShoepadDatas.do";
     public static String ServerHostName = "http://www.amsu-new.com:8081/";
     //public static String ServerHostName = "http://192.168.0.117:8080/";
-    public static String bindDeviceInsoleUrl = ServerHostName+"intellingence-web/bangdingshoepad.do";
+    public static String bindDeviceInsoleUrl = ServerHostName + "intellingence-web/bangdingshoepad.do";
 
     public static long AnimatorDuration = 2000;  //动画时长，2s
 
@@ -108,8 +108,18 @@ public class Constant {
     public static String isNeedRecoverAbortData = "isNeedRecoverAbortData";
     public static String sportType = "sportType";
     public static String mIsOutDoor = "mIsOutDoor";
+    /**
+     * 运动服/跑步
+     */
     public static final int sportType_Cloth = 1;
+    /**
+     * 鞋垫/步态
+     */
     public static final int sportType_Insole = 2;
+    /**
+     * 马拉松
+     */
+    public static final int sportType_Marathon = 3;
 
     public static String uploadRecordDefaultString = "0";
     public static String uploadRecordDefaultString_1 = "-1";

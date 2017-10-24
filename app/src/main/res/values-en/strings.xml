@@ -247,6 +247,7 @@
     <string name="cycling">cycling</string>
     <string name="gym">gym</string>
     <string name="walking">walking</string>
+    <string name="marathon">marathon</string>
 
     <string name="health_reserve">health reserve </string>
     <string name="premature_beat_missed_beat">premature/miss beat</string>
@@ -421,6 +422,21 @@
     <string name="hrv_body_fatigue_active_suggestion1">You just a small amount of exercise, physical fitness is relatively adequate, you can also continue to moderate physical exercise, to achieve better exercise effect.</string>
     <string name="hrv_body_fatigue_active_suggestion2">Your physical energy consumption is large, it is recommended that you rest properly, work and rest in order to achieve the best exercise effect.</string>
     <string name="hrv_body_fatigue_active_suggestion3">Your physical strength has been exhausted, pay attention to not excessive overdraft of their physical fitness, stop the exercise, rest.</string>
-
+    <string name="endurance_test">endurance test</string>
+    <string name="roadwork">roadwork</string>
+    <string name="histories">histories</string>
+    <string name="marathon_sport">marathon sport</string>
+    <string name="countdown">count down</string>
+    <string name="endurance_distance">distance</string>
+    <string name="endurance_des">耐力测试将采用12分钟倒计时跑的形式进行，\n请在开始后的12分钟内尽力冲刺更长的距离，\n计时结束后系统将会有语音提示。</string>
+    <string name="endurance_time">time</string>
+    <string name="endurance_heart_rate">heart rate(bmp)</string>
+    <string name="endurance_speed_allocation">speed allocation(分/公里)</string>
+    <string name="endurance_stride_frequency">步频(步/分钟)</string>
+    <string name="endurance_end">长按结束</string>
+    <string name="kilometer">公里</string>
+    <string name="endurance_speed">平均配速</string>
+    <string name="endurance_vo2max">VO2max(ml/kg min)</string>
+    <string name="endurance_level">耐力水平</string>
 
 </resources>

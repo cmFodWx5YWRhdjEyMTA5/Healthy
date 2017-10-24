@@ -1,12 +1,7 @@
 package com.amsu.healthy.activity;
 
-import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -17,26 +12,18 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.User;
-import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.scancode.activity.CaptureActivity;
 import com.amsu.healthy.view.CircleImageView;
 import com.lidroid.xutils.BitmapUtils;
-import com.lidroid.xutils.HttpUtils;
-import com.lidroid.xutils.exception.HttpException;
-import com.lidroid.xutils.http.RequestParams;
-import com.lidroid.xutils.http.ResponseInfo;
-import com.lidroid.xutils.http.callback.RequestCallBack;
-import com.lidroid.xutils.http.client.HttpRequest;
-
-
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Date;
-
+/**
+ * 我的
+ */
 public class MeActivity extends BaseActivity {
 
     private static final String TAG = "MeActivity";

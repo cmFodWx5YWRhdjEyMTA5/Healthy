@@ -48,7 +48,7 @@ public class BaseActivity extends FragmentActivity {
 
     public void changeAppLanguage() {
         String sta = MyUtil.getStringValueFromSP("language");//这是SharedPreferences工具类，用于保存设置，代码很简单，自己实现吧
-        if (!MyUtil.isEmpty(sta)){
+        if (!MyUtil.isEmpty(sta)) {
             // 本地语言设置
             Locale myLocale = new Locale(sta);
             Resources res = getResources();
@@ -125,6 +125,11 @@ public class BaseActivity extends FragmentActivity {
     public void setHeadBackgroudColor(String color) {
         RelativeLayout rl_base_head = (RelativeLayout) findViewById(R.id.rl_base_head);
         rl_base_head.setBackgroundColor(Color.parseColor(color));
+    }
+
+    public void setHeadBackgroundResource(int drawable) {
+        RelativeLayout rl_base_head = (RelativeLayout) findViewById(R.id.rl_base_head);
+        rl_base_head.setBackgroundResource(drawable);
     }
 
     public void setCenterTextColor(String color) {
