@@ -5,52 +5,49 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.amsu.healthy.activity.ConnectToWifiGudieActivity2"
-    android:background="#72D5F4">
+    android:background="#FFF">
 
     <include layout="@layout/page_head"
         android:id="@+id/rl_base_head">
     </include>
 
-    <ImageView
-        android:layout_width="@dimen/x720"
-        android:layout_height="@dimen/x720"
-        android:layout_marginTop="@dimen/x180"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/wifi"/>
+    <EditText
+        android:id="@+id/et_wifi_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:layout_marginTop="@dimen/x128"
+        android:hint="WiFi账号"
+        android:textColorHint="#b2b2b8"
+        android:background="@drawable/et_cursor_color"
+        android:textSize="@dimen/x48"/>
 
-    <TextView
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/et_wifi_password"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/x100"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/connecteto_wifi"
-        android:textSize="@dimen/x56"
-        android:textColor="#FFFFFF"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/x42"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/connecteto_wifi_name"
-        android:textSize="@dimen/x56"
-        android:textColor="#FFFFFF"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/connecteto_wifi_password"
-        android:textSize="@dimen/x56"
-        android:textColor="#FFFFFF"/>
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:layout_marginTop="@dimen/x72"
+        android:hint="WiFi密码"
+        android:background="@drawable/et_cursor_color"
+        android:textColorHint="#b2b2b8"
+        android:textSize="@dimen/x48"/>
 
     <Button
-        android:layout_width="@dimen/x694"
+        android:layout_width="match_parent"
         android:layout_height="@dimen/x140"
-        android:background="@drawable/bg_bt_rec_roundangle_white"
+        android:background="@drawable/bg_bt_rec_roundangle"
         android:text="@string/connect_immediately"
         android:onClick="connectNow"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
         android:textSize="@dimen/x56"
-        android:textColor="#1661a9"
-        android:layout_marginTop="@dimen/x120"
+        android:textColor="#f5f5f5"
+        android:layout_marginTop="@dimen/x80"
         android:layout_gravity="center_horizontal"/>
 
 </LinearLayout>

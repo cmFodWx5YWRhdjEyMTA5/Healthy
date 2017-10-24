@@ -170,6 +170,8 @@
     <string name="address">地址</string>
     <string name="phone">手机号</string>
     <string name="email">邮箱</string>
+    <string name="national_region">国家/地区</string>
+    <string name="choose_national_region">选择国家/地区</string>
 
     <string name="select_from_album">从相册中选择</string>
     <string name="take_a_picture">拍照</string>
@@ -184,6 +186,7 @@
     <string name="choose_address">选择地址</string>
     <string name="male">男</string>
     <string name="female">女</string>
+
 
     <string name="add_new_device">添加新设备</string>
     <string name="searching_for_new_device">正在搜索设备</string>
@@ -308,7 +311,7 @@
     <string name="premature_beat_missed_beat_decrible">是指异位起搏点发出的过早冲动引起的心脏搏动，为最常见的心律失常。如果存在少跳一拍的情况，就是漏博，这通常可能就是合并早搏。频发的早搏会损害心肌功能，诱发心肌缺血，某些早搏还可诱发室速、室颤，情况十分危险，一不小心还容易有猝死的隐患。对于非良性的早搏患者一定要引起重视，积极接受治疗，严重的还需要进行手术治疗</string>
     <string name="health_reserve_decrible">以每周的运动时间（T）来衡量健康储备，通过适量的运动，储备体能，提高心肺能力，合理安排训练计划，储备健康。健康储备的标准，建议每天坚持有氧运动半小时，最好是每天锻炼60分钟，一周累计420分钟，但是每次训练建议不要超过90分钟。</string>
     <string name="health_BMI_decrible">（即身体质量指数，简称BMI），是用体重公斤数除以身高米数平方得出的数字，是目前国际上常用的衡量人体胖瘦程度以及是否健康的一个重要标准。</string>
-    <string name="heart_rate_indicator_decrible">针对采集到的人体静态和动态的心电数据，经由专业的应用程序进行数据分析，把心电数据体现出来的储备心率、恢复心率、抗疲劳指数、心率异常、健康储备等数据进行中和评价得出的身体健康状态评分，分数越高标识身体综合状态越好。</string>
+    <string name="heart_rate_indicator_decrible">针对采集到的人体静态和动态的心电数据，经由专业的应用程序进行数据分析，把心电数据体现出来的储备心率、恢复心率、抗疲劳指数、心律异常、健康储备等数据进行中和评价得出的身体健康状态评分，分数越高标识身体综合状态越好。</string>
     <string name="points">分</string>
 
     <string name="bmi_suggetstion_lev1">您的身体有些消瘦，您现在的BMI指数偏低如果非病理性消瘦， 请加强营养，适当运动，合理搭配膳食或许就能改善哦。</string>
@@ -357,25 +360,25 @@
 
     <string name="necessary_to_collect_recovery">是否计算恢复心率，需要采集一分钟的心电数据？</string>
 
-    <string name="low_suggetstion_lev1">您的心率很好，没有过缓现象，请坚持锻炼。</string>
+    <string name="low_suggetstion_lev1">没有过缓现象;</string>
     <string name="low_suggetstion_lev2">您发生过心率较低的现象，有心动过缓可能。建议您到医院听取医生的专业意见。</string>
     <string name="low_suggetstion_lev3">您发生过心率很低的现象，有可能是因病理性或药物导致心动过缓。希望您尽快到医院进行专业的检查并诊断排除。</string>
 
-    <string name="over_suggetstion_lev1">您的心率很好，没有过速现象，请坚持锻炼。</string>
-    <string name="over_suggetstion_lev2">您出现了心率较高的现象，如非因跑步、饮酒、重体力劳动及情绪激动导致心律加快，则有可能是因疾病引起心动过速，建议您到医院听取医生的专业意见。</string>
-    <string name="over_suggetstion_lev3">您出现了心率较高的现象，如非因跑步、饮酒、重体力劳动及情绪激动导致心律加快，则有可能是因疾病引起心动过速，建议您到医院听取医生的专业意见。</string>
+    <string name="over_suggetstion_lev1">没有过速现象;</string>
+    <string name="over_suggetstion_lev2">您出现了心率较高的现象，如非因跑步、饮酒、重体力劳动及情绪激动导致心律加快，则建议您到医院听取医生的专业意见。</string>
+    <string name="over_suggetstion_lev3">您出现了心率较高的现象，如非因跑步、饮酒、重体力劳动及情绪激动导致心律加快，则建议您到医院听取医生的专业意见。</string>
 
-    <string name="beforebeat_suggetstion_lev1">未发现早搏现象，您的心脏很棒，可以保持当前训练强度。</string>
-    <string name="beforebeat_suggetstion_lev2">发现连续早搏1-3次，您的心脏功能不容乐观建议到医院进行详细的心电检查，请经常关注心脏是否有不适感</string>
-    <string name="beforebeat_suggetstion_lev3">在已知测试时间段内发现连续早搏超过3次，您的心脏有病理风险，建议您尽快到医院进行详细的心电检查。请经常关注心脏是否有不适感。</string>
+    <string name="beforebeat_suggetstion_lev1">未发现早搏现象;</string>
+    <string name="beforebeat_suggetstion_lev2">发现连续早搏1-3次，建议到医院进行详细的心电检查，请经常关注心脏是否有不适感;</string>
+    <string name="beforebeat_suggetstion_lev3">在已知测试时间段内发现连续早搏超过3次，建议您尽快到医院进行详细的心电检查。请经常关注心脏是否有不适感;</string>
 
-    <string name="missbeat_suggetstion_lev1">未发现漏搏现象，您的心脏很棒，可以保持当前训练强度。</string>
+    <string name="missbeat_suggetstion_lev1">未发现漏搏现象;</string>
     <string name="missbeat_suggetstion_lev2">您发生过漏博现象，通常可能因为精神紧张、烟酒过度、生活不规律、夜间休息不足等原因所导致。如只出现心脏漏跳的感觉，没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则只需注意调整生活节奏保持良好生活习惯，不需要过分担心。"</string>
 
     <string name="outdoor_running">户外跑步</string>
     <string name="indoor_running">室内跑步</string>
 
-    <string name="scan_code">扫码登陆</string>
+    <string name="scan_code">扫码登录</string>
 
     <string name="resting_heart_collected">正在采集静态心率</string>
     <string name="please_wait_moment">需要一分钟，请稍后</string>
@@ -393,6 +396,32 @@
 
     <string name="collect_data">采集</string>
     <string name="skip">跳过</string>
+
+    <string name="china">中国</string>
+    <string name="united_states">美国</string>
+    <string name="japan">日本</string>
+    <string name="hong_kong">香港</string>
+
+    <string name="all_countries_regions">所有国家/地区</string>
+
+    <string name="isopen_ecg_webmonitoring">是否开启网页心电监测</string>
+    <string name="nearly_7_days">近七天</string>
+    <string name="no_data_nearly_7_days">近七天无数据</string>
+    <string name="no_data_last_week">上周无数据</string>
+
+    <string name="hrv_mental_fatigue_suggestion1">您现在精神满满，正是发挥您聪明才智的好机会，想一想自己还有那些没有解决的问题吧，可能灵感就在眼前。</string>
+    <string name="hrv_mental_fatigue_suggestion2">您现在精神状态良好，您可以继续保持当前状态进行脑力活动。</string>
+    <string name="hrv_mental_fatigue_suggestion3">您现在精神较为疲劳，试着放下手中的工作休息一下，缓解疲劳吧。</string>
+    <string name="hrv_mental_fatigue_suggestion4">您现在精神非常疲惫，这将影响您的工作效率，建议您适当减轻脑力劳动，离开办公桌释放一下自己吧!</string>
+
+    <string name="hrv_body_fatigue_rest_suggestion1">您现在体能充沛，现在进行体育锻炼将能取得良好的效果，快去进行一些运动吧。</string>
+    <string name="hrv_body_fatigue_rest_suggestion2">您现在体力消耗较多，建议您现在不要进行体力运动，适当进行休息吧。</string>
+    <string name="hrv_body_fatigue_rest_suggestion3">您的体力似乎已经消耗殆尽，请不要过度透支自己的体力，放松下自己的疲惫的身体吧！</string>
+    <string name="hrv_body_fatigue_active_suggestion1">您刚才的运动量较少，体能还较为充足，还可以继续进行适度的体育锻炼达到更好的锻炼效果。</string>
+    <string name="hrv_body_fatigue_active_suggestion2">您的体能消耗较大，建议您适当休息，劳逸结合才能达到最佳的锻炼效果。</string>
+    <string name="hrv_body_fatigue_active_suggestion3">您的体力已经耗尽了，注意不要过度透支自己的体能，停下运动休息一下吧。</string>
+
+
 
 
 </resources>

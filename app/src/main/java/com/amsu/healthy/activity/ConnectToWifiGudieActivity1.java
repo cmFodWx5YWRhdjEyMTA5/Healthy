@@ -20,9 +20,8 @@ public class ConnectToWifiGudieActivity1 extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText(getResources().getString(R.string.synced_data)+"1/2");
-        setHeadBackgroudColor("#72D5F4");
-        setLeftImage(R.drawable.back_icon);
+        setCenterText("设备联网");
+        setLeftImage(R.drawable.guanbi);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

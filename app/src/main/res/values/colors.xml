@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <color name="colorPrimary">#212121</color>
     <color name="colorPrimaryDark">#212121</color>
     <!--<color name="colorAccent">#FF4081</color>-->
@@ -15,8 +16,8 @@
 
     <color name="transparent">#00000000</color>
 
+    <color name="app_top_background_color">#212121</color>
     <color name="app_background_color">#EBEBEB</color>
-
     <color name="app_Refresh_start_color">#00B2EE</color>
     <color name="app_main_color">#0c64b5</color>
 

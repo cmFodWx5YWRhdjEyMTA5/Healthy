@@ -80,7 +80,7 @@ public class HRVFragment extends BaseFragment {
             if (mUploadRecord.pi==-2 || (mUploadRecord.sdnn1!=0 || mUploadRecord.sdnn2!=0 || mUploadRecord.lf1!=0 || mUploadRecord.hf!=0)){
                 //新的计算方式
                 //精神疲劳度
-                HRVResult mentalFatigueNumber = HealthyIndexUtil.judgeHRVMentalFatigueData(mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.hf1, mUploadRecord.lf1, mUploadRecord.sdnn1,
+                HRVResult mentalFatigueNumber = HealthyIndexUtil.judgeHRVMentalFatigueData(getContext(),mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.hf1, mUploadRecord.lf1, mUploadRecord.sdnn1,
                         mUploadRecord.hf2, mUploadRecord.lf2, mUploadRecord.sdnn2);
 
                 if (mentalFatigueNumber.state>0){
@@ -91,11 +91,11 @@ public class HRVFragment extends BaseFragment {
                 HRVResult physicalFatigueNumber;
                 if (mUploadRecord.state==0){
                     //静态
-                    physicalFatigueNumber = HealthyIndexUtil.judgeHRVPhysicalFatigueStatic(mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.sdnn1,
+                    physicalFatigueNumber = HealthyIndexUtil.judgeHRVPhysicalFatigueStatic(getContext(),mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.sdnn1,
                             mUploadRecord.hf2, mUploadRecord.lf2, mUploadRecord.sdnn2);
                 }
                 else {
-                    physicalFatigueNumber = HealthyIndexUtil.judgeHRVPhysicalFatigueSport(mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.sdnn1,
+                    physicalFatigueNumber = HealthyIndexUtil.judgeHRVPhysicalFatigueSport(getContext(),mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.sdnn1,
                             mUploadRecord.hf2, mUploadRecord.lf2, mUploadRecord.sdnn2);
                 }
 
@@ -115,12 +115,12 @@ public class HRVFragment extends BaseFragment {
                 }
 
                 if (MyUtil.isEmpty(mentalSuggestion) && MyUtil.isEmpty(physicalSuggestion)){
-                    allSuggestion = "无法得出分析结果，采样时间不够四分钟或设备连接脱落";
+                    allSuggestion = getResources().getString(R.string.HeartRate_suggetstion_nodata);
                 }
 
             }
             else if (mUploadRecord.pi==-1){
-                allSuggestion = "无法得出分析结果，采样时间不够四分钟或设备连接脱落";
+                allSuggestion = getResources().getString(R.string.HeartRate_suggetstion_nodata);
             }
             else {
                 Log.i(TAG,"fi:"+mUploadRecord.fi+",pi:"+mUploadRecord.pi+",es:"+mUploadRecord.es);

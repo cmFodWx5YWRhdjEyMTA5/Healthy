@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_background_color"
+    android:background="@color/app_top_background_color"
     android:orientation="vertical"
     tools:context="com.amsu.healthy.activity.insole.InsoleDeviceInfoActivity">
 
@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/y128"
         android:orientation="horizontal"
-        android:visibility="gone"
+        android:background="@color/app_top_background_color"
         android:layout_below="@id/rl_base_head">
         <TextView
             android:id="@+id/tv_deviceinsole_left"
@@ -24,7 +24,7 @@
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:text="左脚鞋垫"
-            android:textColor="#0c64b5"
+            android:textColor="#FFFFFF"
             android:gravity="center"
             android:textSize="@dimen/x48" />
         <TextView
@@ -33,7 +33,7 @@
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:text="右脚鞋垫"
-            android:textColor="#999999"
+            android:textColor="#7a7a7a"
             android:gravity="center"
             android:textSize="@dimen/x48"/>
     </LinearLayout>
@@ -42,14 +42,14 @@
         android:layout_width="@dimen/x540"
         android:layout_height="@dimen/x4"
         android:layout_below="@id/rl_base_head"
-        android:background="#0c64b5"
-        android:visibility="gone"></View>
+        android:background="#1fa2ff"
+        ></View>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/vp_insoledevice_info"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"></android.support.v4.view.ViewPager>
+        ></android.support.v4.view.ViewPager>
 
     <RelativeLayout
 

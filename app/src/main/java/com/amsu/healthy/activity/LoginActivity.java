@@ -1,6 +1,5 @@
 package com.amsu.healthy.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,13 +14,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.User;
-import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MD5Util;
 import com.amsu.healthy.utils.MyUtil;
@@ -61,6 +60,8 @@ public class LoginActivity extends BaseActivity {
     private int MSG_TOAST_SUCCESS= 4;
     private int timeUpdate= 60;
     private boolean isAgree;
+    private EventHandler eventHandler;
+    private TextView tv_login_regioncode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +85,7 @@ public class LoginActivity extends BaseActivity {
             }
         });
 
+        tv_login_regioncode = (TextView) findViewById(R.id.tv_login_regioncode);
         et_login_phone = (EditText) findViewById(R.id.et_login_phone);
         et_login_code = (EditText) findViewById(R.id.et_login_code);
         bt_login_getcode = (Button) findViewById(R.id.bt_login_getcode);
@@ -105,6 +107,15 @@ public class LoginActivity extends BaseActivity {
         });
 
         MyApplication.mActivities.add(this);
+
+        Intent intent = getIntent();
+        String zonecode = intent.getStringExtra("zonecode");
+        String phone = intent.getStringExtra("phone");
+
+        et_login_phone.setText(phone);
+        tv_login_regioncode.setText(zonecode);
+
+
 
         /*//监听软键盘的删除键
         et_login_phone.setOnKeyListener(new View.OnKeyListener() {
@@ -154,13 +165,17 @@ public class LoginActivity extends BaseActivity {
 
     private void initData() {
         mTimer = new Timer();
-        EventHandler eh=new EventHandler(){
+        //获取验证码成功
+//提交验证码成功
+//返回支持发送验证码的国家列表
+//event:2,result:0,data:java.lang.Throwable: {"status":603,"detail":"请填写正确的手机号码"}
+        eventHandler = new EventHandler(){
 
             @Override
             public void afterEvent(int event, int result, Object data) {
                 Log.i(TAG,"afterEvent====="+"event:"+event+",result:"+result+",data:"+data.toString());
 
-                if (result==SMSSDK.RESULT_COMPLETE){
+                if (result== SMSSDK.RESULT_COMPLETE){
                     if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE){
                         //获取验证码成功
                         myHandler.sendEmptyMessage(MSG_TOAST_SUCCESS);
@@ -171,6 +186,7 @@ public class LoginActivity extends BaseActivity {
                     }
                     else if (event ==SMSSDK.EVENT_GET_SUPPORTED_COUNTRIES){
                         //返回支持发送验证码的国家列表
+
                     }
                     else{
                         ((Throwable)data).printStackTrace();
@@ -208,9 +224,11 @@ public class LoginActivity extends BaseActivity {
 
 
         };
-        SMSSDK.registerEventHandler(eh); //注册短信回调
+        SMSSDK.registerEventHandler(eventHandler); //注册短信回调
         //定时器
         mTimerTask = new MyTimerTask();
+
+        getCodeSuccessSetTextState();
     }
 
 
@@ -221,6 +239,7 @@ public class LoginActivity extends BaseActivity {
         }
         String phone = et_login_phone.getText().toString();
         String inputVerifycode = et_login_code.getText().toString();
+        String regioncode = tv_login_regioncode.getText().toString();
 
         if (phone.isEmpty()){
             Toast.makeText(this,getResources().getString(R.string.enter_cell_phone_number), Toast.LENGTH_SHORT).show();
@@ -231,14 +250,16 @@ public class LoginActivity extends BaseActivity {
             return;
         }
 
-        validateLogin(phone,inputVerifycode);
+        validateLogin(regioncode,phone,inputVerifycode);
     }
 
     public void getVerifyCode(View view) {
         String phone = et_login_phone.getText().toString();
+        String regioncode = tv_login_regioncode.getText().toString();
         if(!TextUtils.isEmpty(phone)){
-            getMESCode("86",phone);  //86为国家代码
+            getMESCode(regioncode,phone);  //86为国家代码
             MyUtil.showDialog(getResources().getString(R.string.getting_validation_code),this);
+            isSendSuccessNotified = false;
         }else{
             Toast.makeText(this,getResources().getString(R.string.input_validation_code), Toast.LENGTH_SHORT).show();
         }
@@ -279,7 +300,7 @@ public class LoginActivity extends BaseActivity {
                     bt_login_getcode.setText(getResources().getString(R.string.code));
                     bt_login_getcode.setClickable(true);
                     bt_login_getcode.setTextSize(10);
-                    bt_login_getcode.setBackgroundResource(R.drawable.bg_button_verifycode);
+                    //bt_login_getcode.setBackgroundResource(R.drawable.bg_button_verifycode);
                 }
                 else {
                     bt_login_getcode.setText(time+"");
@@ -291,24 +312,34 @@ public class LoginActivity extends BaseActivity {
                 MyUtil.hideDialog(LoginActivity.this);
             }
             else if (msg.what==MSG_TOAST_SUCCESS){
-                bt_login_getcode.setClickable(false);
-                bt_login_getcode.setBackgroundResource(R.drawable.bg_button_code_disable);
-                bt_login_getcode.setTextSize(15);
-                bt_login_getcode.setText(60+"");
-                MyUtil.hideDialog(LoginActivity.this);
-                Toast.makeText(LoginActivity.this,getResources().getString(R.string.verify_code_sent_successfully), Toast.LENGTH_SHORT).show();
-                timeUpdate = 60;
-
-                if (mTimerTask != null){
-                    mTimerTask.cancel();  //将原任务从队列中移除
-                }
-                mTimerTask = new MyTimerTask();
-                mTimer.schedule(mTimerTask, 1000, 1000);
+                getCodeSuccessSetTextState();
             }
         }
     };
 
-    private void validateLogin(final String phone, String inputVerifycode) {
+    boolean isSendSuccessNotified;
+
+    private void getCodeSuccessSetTextState() {
+        if (!isSendSuccessNotified){
+            bt_login_getcode.setClickable(false);
+            //bt_login_getcode.setBackgroundResource(R.drawable.bg_button_code_disable);
+            //bt_login_getcode.setTextSize(15);
+            bt_login_getcode.setText(60+"");
+            MyUtil.hideDialog(LoginActivity.this);
+            Toast.makeText(LoginActivity.this,getResources().getString(R.string.verify_code_sent_successfully), Toast.LENGTH_SHORT).show();
+            timeUpdate = 60;
+
+            if (mTimerTask != null){
+                mTimerTask.cancel();  //将原任务从队列中移除
+            }
+            mTimerTask = new MyTimerTask();
+            mTimer.schedule(mTimerTask, 1000, 1000);
+            isSendSuccessNotified = true;
+        }
+
+    }
+
+    private void validateLogin(String regioncode,final String phone, String inputVerifycode) {
         MyUtil.showDialog(getResources().getString(R.string.login),this);
         final HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
@@ -317,21 +348,22 @@ public class LoginActivity extends BaseActivity {
         String param = String.valueOf(System.currentTimeMillis());
         params.addBodyParameter("param", param);  //时间戳
 
-        params.addBodyParameter("zone","86");  //区号
+        params.addBodyParameter("zone",regioncode);  //区号
         params.addBodyParameter("code",inputVerifycode);  //验证码
         params.addBodyParameter("mobtype","1");
 
         Log.i(TAG,"phone:"+phone+",param:"+param+",inputVerifycode:"+inputVerifycode);
         String oldface = "";
         try {
-            oldface = MD5Util.getMD5(phone + param + Constant.tokenKey);
+            oldface = MD5Util.getMD5(phone + param + Constant.loginTokenKey);
             params.addBodyParameter("oldface",oldface);  //token
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 
         String url = "https://bodylistener.amsu-new.com/intellingence/LoginController/phoneVerify"; //登陆
-        //String url = "http://192.168.0.107:8080/intellingence-web/phoneVerify.do"; //登陆
+        //String url = "http://192.168.1.124:8080/intellingence-web/phoneVerify.do"; //登陆
+        //String url = "http://www.amsu-new.com:8081/intellingence-web/phoneVerify.do"; //登陆
         httpUtils.send(HttpRequest.HttpMethod.POST, url,params, new RequestCallBack<String>() {
 
             @Override
@@ -341,6 +373,34 @@ public class LoginActivity extends BaseActivity {
                 Log.i(TAG,"登陆onSuccess==result:"+result);
                 //{"ret":"0","errDesc":"注册成功!"}
                 //{"ret":"-468","errDesc":"验证码错误"}
+                /*{
+                    "ret": "201",
+                    "errDesc": {
+                        "id": 9,
+                        "userid": "18689463192",
+                        "userpwd": null,
+                        "username": "天空之城",
+                        "type": 0,
+                        "sex": 1,
+                        "birthday": 308246400000,
+                        "weight": 50,
+                        "height": 160,
+                        "address": "江西省南昌市",
+                        "phone": "18689463192",
+                        "email": "",
+                        "icon": "usericons/d9cc909b8de4f858e6a19539b6e19274.png",
+                        "signature": "",
+                        "createtime": 1481744163000,
+                        "updatetime": 1508194725000,
+                        "lastlogintime": null,
+                        "lastloginversion": "",
+                        "state": false,
+                        "mainaccount": "",
+                        "message": "求助啊",
+                        "contactsphone": 0
+                    }
+                }*/
+
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     int ret = jsonObject.getInt("ret");
@@ -572,6 +632,7 @@ public class LoginActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         MyUtil.setDialogNull();
+        SMSSDK.unregisterEventHandler(eventHandler);
 
     }
 }

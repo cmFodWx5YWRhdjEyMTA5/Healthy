@@ -13,20 +13,16 @@ public class Device implements Parcelable {
     String LEName;
     int deviceType;
     Integer rssi;
+    String hardWareVersion;
+    String softWareVersion;
+    int battery;
 
     public Device() {
     }
 
-    public Device(String name, String state) {
-        this.name = name;
-        this.state = state;
-    }
-
-
-    public Device(String name, String state, String mac) {
-        this.name = name;
-        this.state = state;
-        this.mac = mac;
+    public Device(String hardWareVersion, String softWareVersion) {
+        this.hardWareVersion = hardWareVersion;
+        this.softWareVersion = softWareVersion;
     }
 
     public Device(String name, String state, String mac, String LEName, int deviceType, int rssi) {
@@ -44,6 +40,17 @@ public class Device implements Parcelable {
         this.mac = mac;
         this.LEName = LEName;
         this.deviceType = deviceType;
+    }
+
+    public Device(String name, String state, String mac, String LEName, int deviceType, String hardWareVersion, String softWareVersion,int battery) {
+        this.name = name;
+        this.state = state;
+        this.mac = mac;
+        this.LEName = LEName;
+        this.deviceType = deviceType;
+        this.hardWareVersion = hardWareVersion;
+        this.softWareVersion = softWareVersion;
+        this.battery = battery;
     }
 
     public String getName() {
@@ -129,6 +136,30 @@ public class Device implements Parcelable {
         this.deviceType = deviceType;
     }
 
+    public String getHardWareVersion() {
+        return hardWareVersion;
+    }
+
+    public void setHardWareVersion(String hardWareVersion) {
+        this.hardWareVersion = hardWareVersion;
+    }
+
+    public String getSoftWareVersion() {
+        return softWareVersion;
+    }
+
+    public void setSoftWareVersion(String softWareVersion) {
+        this.softWareVersion = softWareVersion;
+    }
+
+    public int getBattery() {
+        return battery;
+    }
+
+    public void setBattery(int battery) {
+        this.battery = battery;
+    }
+
     @Override
     public String toString() {
         return "Device{" +
@@ -138,6 +169,9 @@ public class Device implements Parcelable {
                 ", LEName='" + LEName + '\'' +
                 ", deviceType=" + deviceType +
                 ", rssi=" + rssi +
+                ", hardWareVersion='" + hardWareVersion + '\'' +
+                ", softWareVersion='" + softWareVersion + '\'' +
+                ", battery=" + battery +
                 '}';
     }
 }

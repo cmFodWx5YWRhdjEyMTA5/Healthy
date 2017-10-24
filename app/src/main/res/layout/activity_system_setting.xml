@@ -192,7 +192,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/x48"
-                android:text="是否开启网页心电监测"
+                android:text="@string/isopen_ecg_webmonitoring"
                 android:textColor="#212121"
                 android:textSize="@dimen/x48"
                 android:layout_centerVertical="true"/>

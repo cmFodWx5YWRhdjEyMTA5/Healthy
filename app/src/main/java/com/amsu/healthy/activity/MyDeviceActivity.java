@@ -233,10 +233,13 @@ public class MyDeviceActivity extends BaseActivity {
                     }
                     else {
                         final MyApplication application = (MyApplication) getApplication();
-                        final Map<String, Integer> insoleDeviceBatteryInfos = application.getInsoleDeviceBatteryInfos();
-                        boolean isContainNoPower = insoleDeviceBatteryInfos.containsValue(-1);
+                        final Map<String, Device> insoleDeviceBatteryInfos = application.getInsoleDeviceBatteryInfos();
+                        /*boolean isContainNoPower = insoleDeviceBatteryInfos.containsValue(-1);
                         Log.i(TAG,"insoleDeviceBatteryInfos:"+insoleDeviceBatteryInfos);
-                        Log.i(TAG,"isContainNoPower:"+isContainNoPower);
+                        Log.i(TAG,"isContainNoPower:"+isContainNoPower);*/
+
+                        boolean isContainNoPower = JudgeIsContainNoPower(insoleDeviceBatteryInfos);
+
 
                         if (isContainNoPower){ //当其中有一个电量没有读出来时，再次读取
                             new Thread(){
@@ -252,7 +255,7 @@ public class MyDeviceActivity extends BaseActivity {
                                             e.printStackTrace();
                                         }
 
-                                        boolean isContainNoPower = application.getInsoleDeviceBatteryInfos().containsValue(-1);
+                                        boolean isContainNoPower = JudgeIsContainNoPower(application.getInsoleDeviceBatteryInfos());
                                         Log.i(TAG,"insoleDeviceBatteryInfos:"+insoleDeviceBatteryInfos);
                                         Log.i(TAG,"isContainNoPower:"+isContainNoPower);
 
@@ -276,6 +279,15 @@ public class MyDeviceActivity extends BaseActivity {
         });
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
+    }
+
+    private boolean JudgeIsContainNoPower(Map<String, Device> insoleDeviceBatteryInfos) {
+        for (Device d:insoleDeviceBatteryInfos.values()){
+            if (d.getBattery()==0){
+                return true;
+            }
+        }
+        return false;
     }
 
 

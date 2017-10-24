@@ -1,6 +1,5 @@
 package com.amsu.healthy.activity.insole;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,14 +13,12 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
-import com.amsu.healthy.activity.DeviceInfoActivity;
 import com.amsu.healthy.activity.MainActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
@@ -30,6 +27,7 @@ import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.InputTextAlertDialogUtil;
 import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -38,8 +36,9 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class InsoleDeviceInfoActivity extends BaseActivity {
 
@@ -54,6 +53,7 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
     private TextView tv_deviceinsole_right;
     private ViewPager vp_insoledevice_info;
     private View v_analysis_select;
+    private List<Device> mConnectedDeviceList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,11 +61,15 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
         setContentView(R.layout.activity_insole_device_info);
 
         initView();
+
+        initData();
     }
+
+
 
     private void initView() {
         initHeadView();
-        setCenterText(getResources().getString(R.string.device_information));
+        setCenterText("智能鞋垫");
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,11 +105,40 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
 
         mLeProxy = LeProxy.getInstance();
 
+        //每一个小格的宽度
+        final float mOneTableWidth = MyUtil.getScreeenWidth(this)/2;
+
+        vp_insoledevice_info.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                //Log.i(TAG,"onPageScrolled===position:"+position+",positionOffset:"+positionOffset+",positionOffsetPixels:"+positionOffsetPixels);
+                LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) v_analysis_select.getLayoutParams();
+                int floatWidth=  (int) (mOneTableWidth *(positionOffset+position));  //view向左的偏移量
+                layoutParams.setMargins(floatWidth,0,0,0); //4个参数按顺序分别是左上右下
+                v_analysis_select.setLayoutParams(layoutParams);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                //Log.i(TAG,"onPageSelected===position:"+position);
+                setViewPageTextColor(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                // Log.i(TAG,"onPageScrollStateChanged===state:"+state);
+            }
+        });
+
+
+    }
+
+    private void initData() {
         deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
         Log.i(TAG,"deviceFromSP:"+deviceFromSP);
 
         if (deviceFromSP!=null){
-            String deviceNickName = MyUtil.getStringValueFromSP(deviceFromSP.getMac());
+            /*String deviceNickName = MyUtil.getStringValueFromSP(deviceFromSP.getMac());
             //String myDeceiveName = MyUtil.getStringValueFromSP(Constant.myDeceiveName);
             if (!MyUtil.isEmpty(deviceNickName)){
                 tv_insoledevice_devicename.setText(deviceNickName);
@@ -145,7 +178,7 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
                         }
                     }
                 }
-            }
+            }*/
 
             application = (MyApplication) getApplication();
             setDeviceBattery();
@@ -157,9 +190,22 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
     }
 
     private void setDeviceBattery() {
-        Map<String, Integer> insoleDeviceBatteryInfos = application.getInsoleDeviceBatteryInfos();
+        Map<String, Device> insoleDeviceBatteryInfos = application.getInsoleDeviceBatteryInfos();
 
-        int i=0;
+        String stringValueFromSP = MyUtil.getStringValueFromSP(Constant.insoleDeviceBatteryInfos);
+        Gson gson = new Gson();
+        Map<String, Device> insoleDeviceBatteryInfosSP = gson.fromJson(stringValueFromSP, new TypeToken<Map<String, Device>>() {
+        }.getType());
+
+
+        mConnectedDeviceList = new ArrayList<>();
+        for (Device device : insoleDeviceBatteryInfos.values()) {
+            mConnectedDeviceList.add(device);
+        }
+
+
+
+        /*int i=0;
         for (Integer value : insoleDeviceBatteryInfos.values()) {
             if (i==0 && value!=-1){
                 tv_device_electricleft.setText(value +"");
@@ -168,7 +214,7 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
                 tv_device_electricright.setText(value +"");
             }
             i++;
-        }
+        }*/
     }
 
     private final BroadcastReceiver mchargeReceiver = new BroadcastReceiver() {
@@ -184,7 +230,7 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
 
     //设备电量变化
     private void notifyDeviceBatteryChanged() {
-        setDeviceBattery();
+        //setDeviceBattery();
     }
 
 
@@ -292,9 +338,19 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             View inflate = View.inflate(InsoleDeviceInfoActivity.this, R.layout.view_item_viewpage_insoledevice, null);
-            TextView tv_device_electric = (TextView) inflate.findViewById(R.id.tv_device_electric);
-            TextView tv_insoledevice_hardware = (TextView) inflate.findViewById(R.id.tv_insoledevice_hardware);
-            TextView tv_insoledevice_software = (TextView) inflate.findViewById(R.id.tv_insoledevice_software);
+            if (position<=mConnectedDeviceList.size()-1){
+                Device device = mConnectedDeviceList.get(position);
+                TextView tv_device_electric = (TextView) inflate.findViewById(R.id.tv_device_electric);
+                TextView tv_insoledevice_hardware = (TextView) inflate.findViewById(R.id.tv_insoledevice_hardware);
+                TextView tv_insoledevice_software = (TextView) inflate.findViewById(R.id.tv_insoledevice_software);
+
+                if (device!=null){
+                    tv_device_electric.setText(device.getBattery()+"");
+                    tv_insoledevice_hardware.setText(device.getHardWareVersion());
+                    tv_insoledevice_software.setText(device.getSoftWareVersion());
+                }
+            }
+
             container.addView(inflate);
             return inflate;
         }
@@ -326,7 +382,7 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
         if (currentItem==viewPageItem){
             return;
         }
-        float mOneTableWidth = MyUtil.getScreeenWidth(this)/5;
+        float mOneTableWidth = MyUtil.getScreeenWidth(this)/2;
         vp_insoledevice_info.setCurrentItem(viewPageItem);
         LinearLayout.LayoutParams layoutParams =   (LinearLayout.LayoutParams) v_analysis_select.getLayoutParams();
         int floatWidth= (int) (mOneTableWidth*viewPageItem);  //view向左的偏移量
@@ -340,12 +396,12 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
     private void setViewPageTextColor(int viewPageItem) {
         switch (viewPageItem){
             case 0:
-                tv_deviceinsole_left.setTextColor(Color.parseColor("#0c64b5"));
-                tv_deviceinsole_right.setTextColor(Color.parseColor("#999999"));
+                tv_deviceinsole_left.setTextColor(Color.parseColor("#FFFFFF"));
+                tv_deviceinsole_right.setTextColor(Color.parseColor("#7a7a7a"));
                 break;
             case 1:
-                tv_deviceinsole_left.setTextColor(Color.parseColor("#999999"));
-                tv_deviceinsole_right.setTextColor(Color.parseColor("#0c64b5"));
+                tv_deviceinsole_left.setTextColor(Color.parseColor("#7a7a7a"));
+                tv_deviceinsole_right.setTextColor(Color.parseColor("#FFFFFF"));
                 break;
 
         }

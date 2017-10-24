@@ -177,7 +177,6 @@ public class HeightCurveView extends View {
                     else {
                         y = mHeight-mMarginBotom-mYCoordinateHight*(1-data[i]/mYTextsMaxValue);
                     }
-
                 }else {
                     y = mHeight-mMarginBotom-mYCoordinateHight*(data[i]/mYTextsMaxValue);
                 }
@@ -198,15 +197,18 @@ public class HeightCurveView extends View {
                 shadePath.lineTo(x,y);
             }
             else {
-                shadePath.lineTo(x,y);
                 curvePath.lineTo(x,y);
+                shadePath.lineTo(x,y);
             }
+
         }
         curvePath.lineTo(mWidth,y);
 
         shadePath.lineTo(mWidth,y);
         shadePath.lineTo(x,mHeight-mMarginBotom-3*mCoordinateAnixWidth);
         shadePath.lineTo(x,mHeight-mMarginBotom-3*mCoordinateAnixWidth);
+
+
 
 
 
@@ -276,9 +278,10 @@ public class HeightCurveView extends View {
             float x = 0;
             float y = mHeight-mMarginBotom- mYOneSpanHeight *(i+1);
             //canvas.drawLine(circle_ring,y,circle_ring+divideWidth,y,mCoordinatePaint);
+            //canvas.drawLine(x,y,x+divideWidth,y,mCoordinatePaint);
 
             x = 0;
-            y += getResources().getDimension(R.dimen.x28);
+            y += getResources().getDimension(R.dimen.x14);
             canvas.drawText(String.valueOf(yText),x,y,mLablePaint);
         }
 
@@ -305,9 +308,11 @@ public class HeightCurveView extends View {
             y = mHeight-mMarginBotom;
             canvas.drawLine(circle_ring,y,circle_ring,y-divideWidth,mCoordinatePaint);*/
 
+
             float x = i*(mWidth)/4;
             float y = mHeight-mMarginBotom;
             //canvas.drawLine(circle_ring,y,circle_ring,y-divideWidth,mCoordinatePaint);
+            //canvas.drawLine(x,y,x,y-divideWidth,mCoordinatePaint);
 
             if (0<i && i<4){
                 x = x - mLablePaint.measureText(xLable)/2;

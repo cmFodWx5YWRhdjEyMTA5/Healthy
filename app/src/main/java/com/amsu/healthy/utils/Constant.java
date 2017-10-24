@@ -6,7 +6,10 @@ import java.util.UUID;
  * Created by HP on 2016/11/30.
  */
 public class Constant {
-    public static String tokenKey = "7BmznrYNrA4CmhuqpdEs5doiLA3U";
+    public static String loginTokenKey = "7BmznrYNrA4CmhuqpdEs5doiLA3U";
+
+    public static String insoleAlgorithmUsername = "7a1b77fbe02947a293196d72d8d0c869";
+    public static String insoleAlgorithmPassword = "622ff39cac1f41478c534d6b08058061";
 
     public static int MODIFY_USERNSME = 0;
     public static int MODIFY_SEX = 1;
@@ -143,6 +146,8 @@ public class Constant {
 
 
     public static final int saveDataTOLocalTimeSpanSecond = 10;  //数据持久化时间间隔 1分钟
+
+    public static final String insoleDeviceBatteryInfos = "insoleDeviceBatteryInfos";
 
 }
 

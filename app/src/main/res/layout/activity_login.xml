@@ -10,6 +10,17 @@
         android:id="@+id/rl_base_head">
     </include>
 
+    <TextView
+        android:id="@+id/tv_text_test1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rl_base_head"
+        android:textSize="@dimen/x72"
+        android:textColor="@color/app_main_color"
+        android:text="@string/enter_cell_phone_number"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/x200"/>
+
     <LinearLayout
         android:id="@+id/ll_login_top"
         android:layout_width="match_parent"
@@ -17,7 +28,8 @@
         android:orientation="vertical"
         android:paddingLeft="@dimen/x36"
         android:paddingRight="@dimen/x36"
-        android:layout_below="@id/rl_base_head"
+        android:layout_below="@id/tv_text_test1"
+        android:layout_marginTop="@dimen/x120"
         android:divider="@drawable/deiver_horiz_line"
         android:showDividers="middle"
         android:background="#FFFFFF">
@@ -30,32 +42,32 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:textSize="@dimen/x48"
-                android:textColor="#1f1f1f"
+                android:textColor="#333333"
                 android:text="@string/phone"/>
+
+            <TextView
+                android:id="@+id/tv_login_regioncode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:textSize="@dimen/x48"
+                android:textColor="#333333"
+                android:layout_toRightOf="@+id/tv_login_text1"
+                android:layout_marginLeft="@dimen/x120"
+                android:text="+86"/>
             <EditText
                 android:id="@+id/et_login_phone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="@dimen/x250"
-                android:layout_marginLeft="@dimen/x36"
+                android:layout_marginRight="@dimen/x36"
                 android:hint="@string/enter_cell_phone_number"
-                android:textColorHint="#ccccd2"
+                android:layout_toRightOf="@+id/tv_login_regioncode"
+                android:layout_marginLeft="@dimen/x10"
                 android:textSize="@dimen/x48"
-                android:background="@null"
-                android:layout_toRightOf="@id/tv_login_text1"/>
-            <Button
-                android:id="@+id/bt_login_getcode"
-                android:layout_width="60dp"
-                android:layout_height="30dp"
-                android:text="@string/code"
-                android:layout_centerVertical="true"
-                android:gravity="center"
-                android:textSize="@dimen/x25"
-                android:background="@drawable/bg_button_verifycode"
-                android:textColor="#FFFFFF"
-                android:onClick="getVerifyCode"
-                android:layout_alignParentRight="true"/>
+                android:textColor="#333333"
+                android:background="@null"/>
+
         </RelativeLayout>
         <RelativeLayout
             android:layout_width="match_parent"
@@ -66,20 +78,31 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:textSize="@dimen/x48"
-                android:textColor="#1f1f1f"
+                android:textColor="#333333"
                 android:text="@string/verification_Code"/>
             <EditText
                 android:id="@+id/et_login_code"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="@dimen/x250"
-                android:layout_marginLeft="@dimen/x36"
+                android:layout_marginLeft="@dimen/x120"
                 android:hint="@string/input_validation_code"
                 android:textColorHint="#ccccd2"
                 android:textSize="@dimen/x48"
                 android:background="@null"
                 android:layout_toRightOf="@id/tv_login_text2"/>
+            <Button
+                android:id="@+id/bt_login_getcode"
+                android:layout_width="@dimen/x228"
+                android:layout_height="@dimen/x56"
+                android:text="@string/code"
+                android:layout_centerVertical="true"
+                android:gravity="center"
+                android:textSize="@dimen/x32"
+                android:background="@drawable/bg_bt_rec_roundangle_white"
+                android:textColor="#808080"
+                android:onClick="getVerifyCode"
+                android:layout_alignParentRight="true"/>
         </RelativeLayout>
     </LinearLayout>
 

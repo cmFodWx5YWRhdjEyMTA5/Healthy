@@ -222,7 +222,7 @@ public class InsoleAnalyticFinshResultActivity extends BaseActivity implements V
                     if (!MyUtil.isEmpty(insoleUploadRecord.errDesc.ShoepadData.speedallocationarray)){
                         List<Integer> paceList = gson.fromJson(insoleUploadRecord.errDesc.ShoepadData.speedallocationarray, new TypeToken<List<Integer>>() {
                         }.getType());
-                        if (paceList!=null && paceList.size()>0){
+                        if (paceList!=null && paceList.size()>1){
                             isHavePace = true;
                         }
                     }

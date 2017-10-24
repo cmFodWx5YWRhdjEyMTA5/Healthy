@@ -26,22 +26,17 @@ import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.model.LatLng;
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.HeartRateAnalysisActivity;
 import com.amsu.healthy.activity.RunTrailMapActivity;
 import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.appication.MyApplication;
-import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.bean.AppAbortDataSaveInsole;
-import com.amsu.healthy.bean.InsoleAnalyResult;
-import com.amsu.healthy.bean.User;
+import com.amsu.healthy.bean.Insole3ScendCache;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.AppAbortDbAdapterUtil;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.EcgFilterUtil_1;
-import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.LeProxy;
-import com.amsu.healthy.utils.MD5Util;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.RunTimerTaskUtil;
@@ -58,13 +53,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.gson.Gson;
-import com.lidroid.xutils.HttpUtils;
-import com.lidroid.xutils.exception.HttpException;
-import com.lidroid.xutils.http.RequestParams;
-import com.lidroid.xutils.http.ResponseInfo;
-import com.lidroid.xutils.http.callback.RequestCallBack;
-import com.lidroid.xutils.http.client.HttpRequest;
 
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
@@ -79,7 +67,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class InsoleRunningActivity extends Activity implements View.OnClickListener,AMapLocationListener,
@@ -470,34 +457,32 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 Log.i(TAG,"步数 "+address+", "+ tempStepCount);
                 Log.i(TAG,"步数 mPreLeftStepCount:"+mPreLeftStepCount+", mPreRightStepCount:"+mPreRightStepCount);
 
-
-
                 if (!MyUtil.isEmpty(mLeftMacAddress) && address.equals(mLeftMacAddress)){
                     if (mPreLeftStepCount==-1){
                         mPreLeftStepCount = tempStepCount;
                     }
                     else {
-                        mLeftStepCount = tempStepCount-mPreLeftStepCount;
-                        mLeftAllStep += mLeftStepCount;
+                        mCurLeftStepCount = tempStepCount-mPreLeftStepCount;
+                        mLeftAllStepCount += mCurLeftStepCount;
 
-                        //testText += "步数左脚：总数"+tempStepCount+"，上次"+mPreLeftStepCount+",这次"+mLeftStepCount+"\n";
+                        testText += "步数左脚：总数"+tempStepCount+"，上次"+mPreLeftStepCount+",这次"+mCurLeftStepCount+"\n";
                         mPreLeftStepCount = tempStepCount;
-                        //tv_test.setText(testText);
+                        tv_test.setText(testText);
 
                         if (mLeftNoReceiveCount>0){
-                            mLeftStepCount = mLeftStepCount/mLeftNoReceiveCount;
+                            mCurLeftStepCount = mCurLeftStepCount /mLeftNoReceiveCount;
                         }
 
 
                         if (mCurStride!=-1){
-                            mCurStride = (int) ((mLeftStepCount+mRightStepCount)/2/8.0*60);
+                            mCurStride = (int) ((mCurLeftStepCount + mCurRightStepCount)/2/8.0*60);
                         }
                         else {
-                            mCurStride = (int) (mLeftStepCount/8.0*60);
+                            mCurStride = (int) (mCurLeftStepCount /8.0*60);
                         }
                     }
 
-                    mLeftNoReceiveCount = -1;
+                    mLeftNoReceiveCount = 0;
 
                 }
                 else if (!MyUtil.isEmpty(mRightMacAddress) && address.equals(mRightMacAddress)){
@@ -505,29 +490,29 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                         mPreRightStepCount = tempStepCount;
                     }
                     else {
-                        mRightStepCount = tempStepCount-mPreRightStepCount;
-                        mRightAllStep += mRightStepCount;
+                        mCurRightStepCount = tempStepCount-mPreRightStepCount;
+                        mRightAllStepCount += mCurRightStepCount;
 
-                        //testText += "步数右脚：总数"+tempStepCount+"，上次"+mPreRightStepCount+",这次"+mRightStepCount+"\n";
+                        testText += "步数右脚：总数"+tempStepCount+"，上次"+mPreRightStepCount+",这次"+mCurRightStepCount+"\n";
                         mPreRightStepCount = tempStepCount;
-                        //tv_test.setText(testText);
+                        tv_test.setText(testText);
 
                         if (mRightNoReceiveCount>0){
-                            mRightStepCount = mRightStepCount/mRightNoReceiveCount;
+                            mCurRightStepCount = mCurRightStepCount /mRightNoReceiveCount;
                         }
 
                         if (mCurStride!=-1){
-                            mCurStride = (int) ((mLeftStepCount+mRightStepCount)/2/8.0*60);
+                            mCurStride = (int) ((mCurLeftStepCount + mCurRightStepCount)/2/8.0*60);
                         }
                         else {
-                            mCurStride = (int) (mRightStepCount/8.0*60);
+                            mCurStride = (int) (mCurRightStepCount /8.0*60);
                         }
                     }
 
-                    mRightNoReceiveCount = -1;
+                    mRightNoReceiveCount = 0;
                 }
 
-                if (mCurStride>=0){
+                if (mCurStride>=0 && mCurStride<250){
                     tv_run_stridefre.setText(mCurStride+"");
                     stridefreList.add(mCurStride);
                     mAllStep = mCurStride;
@@ -535,24 +520,24 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
                 mCurStride = -1;
 
-                if (mLeftAllStep!=-1 && mRightAllStep==-1){
-                    mAllStep = mLeftAllStep;
+                if (mLeftAllStepCount !=-1 && mRightAllStepCount ==-1){
+                    mAllStep = mLeftAllStepCount;
                 }
-                else if (mLeftAllStep==-1 && mRightAllStep!=-1){
-                    mAllStep = mRightAllStep;
+                else if (mLeftAllStepCount ==-1 && mRightAllStepCount !=-1){
+                    mAllStep = mRightAllStepCount;
                 }
-                else if (mLeftAllStep!=-1 && mRightAllStep!=-1){
-                    if (Math.abs(mRightAllStep-mLeftAllStep)>120){  //24*5= 120
+                else if (mLeftAllStepCount !=-1 && mRightAllStepCount !=-1){
+                    if (Math.abs(mRightAllStepCount - mLeftAllStepCount)>120){  //24*5= 120
                         //2个脚相差大于120的话，则用较大一个脚
-                        if (mRightAllStep>mLeftAllStep){
-                            mAllStep = mRightAllStep;
+                        if (mRightAllStepCount > mLeftAllStepCount){
+                            mAllStep = mRightAllStepCount;
                         }
                         else {
-                            mAllStep = mLeftAllStep;
+                            mAllStep = mLeftAllStepCount;
                         }
                     }
                     else {
-                        mAllStep = (mLeftAllStep+mRightAllStep)/2;
+                        mAllStep = (mLeftAllStepCount + mRightAllStepCount)/2;
                     }
                 }
 
@@ -624,8 +609,8 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     int mCurStride = -1;
     int mLeftNoReceiveCount = -1;
     int mRightNoReceiveCount  =-1;
-    int mLeftAllStep = -1;
-    int mRightAllStep = -1;
+    int mLeftAllStepCount = -1;
+    int mRightAllStepCount = -1;
 
     private void parseAndWriteData(String[] data,int left_right) {
         int time = (int) (Integer.parseInt(data[12]+data[13]+data[14], 16)*0.025);
@@ -644,30 +629,63 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
         short accX = (short) ((short) Integer.parseInt(data[6]+data[7], 16)*k);
         short accY = (short) ((short) Integer.parseInt(data[8]+data[9], 16)*k);
-        short accZ = (short) ((short) -Integer.parseInt(data[10]+data[11], 16)*k);
+        short accZ = (short) ((short) Integer.parseInt(data[10]+data[11], 16)*k);
 
         if (left_right==insole_left) {
             //L 左脚
+            //Log.e(TAG,"mPreCacheLeftTime:"+mPreCacheLeftTime+"  mCurLeftTime:"+mCurLeftTime+"  time:"+time);
+            if (!mIsLeftHaveData){
+                if (mCurLeftTime>0){
+                    mPreCacheLeftTime = mCurLeftTime-time;
+                }
+                else {
+                    mCurLeftTime = time;
+                }
+                mIsLeftHaveData = true;
+            }
+            else if (mPreCacheLeftTime +time>= mCurLeftTime){ //时间到会重置，需要累加
+                mCurLeftTime = mPreCacheLeftTime +time;
+            }
+            else {
+                mPreCacheLeftTime = mCurLeftTime;
+                mCurLeftTime += time;
+            }
 
-            writeEcgDataToBinaryFile(time,gyrX,gyrY,gyrZ,accX,accY,accZ,insole_left);
-            //Log.i(TAG,"time:"+time+", 左脚 角速度："+gyrX+","+gyrY+","+gyrZ+",  加速度:"+accX+","+accY+","+accZ);
+            writeEcgDataToBinaryFile(mCurLeftTime,gyrX,gyrY,gyrZ,accX,accY,accZ,insole_left);
+            Log.i(TAG,"time:"+time+", 左脚 角速度："+gyrX+","+gyrY+","+gyrZ+",  加速度:"+accX+","+accY+","+accZ);
         }
         else if (left_right==insole_right) {
             //R 右脚
+            //Log.d(TAG,"============mPreCacheRightTime:"+mPreCacheRightTime+"  mCurRightTime:"+mCurRightTime+"  time:"+time);
+            if (!mIsRightHaveData){
+                if (mCurRightTime>0){
+                    mPreCacheRightTime = mCurRightTime-time;
+                }
+                else {
+                    mCurRightTime = time;
+                }
+                mIsRightHaveData = true;
+            }
+            else if (mPreCacheRightTime +time>= mCurRightTime){ //时间到会重置，需要累加
+                mCurRightTime = mPreCacheRightTime +time;
+            }
+            else {
+                mPreCacheRightTime = mCurRightTime;
+                mCurRightTime += time;
+            }
 
-            writeEcgDataToBinaryFile(time,gyrX,gyrY,gyrZ,accX,accY,accZ,insole_right);
-            //Log.i(TAG,"time:"+time+", 右脚 角速度："+gyrX+","+gyrY+","+gyrZ+",  加速度:"+accX+","+accY+","+accZ);
+            writeEcgDataToBinaryFile(mCurRightTime,gyrX,gyrY,gyrZ,accX,accY,accZ,insole_right);
+            Log.e(TAG,"time:"+time+", 右脚 角速度："+gyrX+","+gyrY+","+gyrZ+",  加速度:"+accX+","+accY+","+accZ);
         }
     }
 
     int mPreLeftStepCount = -1;
     int mPreRightStepCount = -1;
 
-    int mLeftStepCount = -1;
-    int mRightStepCount = -1;
+    int mCurLeftStepCount = -1;
+    int mCurRightStepCount = -1;
 
-    double mLeftTime = -1;
-    double mRightTime = -1;
+
 
     //根据左右脚写道不同的文件里
     private void writeEcgDataToTextFile(double time,float gyrX,float gyrY,float gyrZ,float accX ,float accY,float accZ,int insoleType) {
@@ -741,21 +759,18 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
     String fileHead="0xc1";
 
+    private int mCurLeftTime = -1;
+    private int mCurRightTime = -1;
+
+    private int mPreCacheLeftTime;
+    private int mPreCacheRightTime;
+
+    private boolean mIsLeftHaveData;
+    private boolean mIsRightHaveData;
+
     //根据左右脚写道不同的文件里
     private void writeEcgDataToBinaryFile(int time,short gyrX,short gyrY,short gyrZ,short accX ,short accY,short accZ,int insoleType) {
         if (insoleType==insole_left){
-            //时间到会重置，需要累加
-            if (mLeftTime==-1){
-                mLeftTime = time;
-            }
-
-            else if (time>mLeftTime){
-                mLeftTime = time;
-            }
-            else {
-                mLeftTime += time;
-            }
-
             try {
                 if (leftDataOutputStream==null){
                     mLeftInsole30SencendFileAbsolutePath = MyUtil.getInsoleLocalFileName(insoleType,new Date());
@@ -782,33 +797,16 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                     }
 
                     appAbortDataSaveInsole.setmLeftInsoleFileAbsolutePath(mLeftInsole30SencendFileAbsolutePath);
-                }
-                leftByteBuffer.putInt(time);
-                leftByteBuffer.putShort(gyrX);
-                leftByteBuffer.putShort(gyrY);
-                leftByteBuffer.putShort(gyrZ);
-                leftByteBuffer.putShort(accX);
-                leftByteBuffer.putShort(accY);
-                leftByteBuffer.putShort(accZ);
 
-                leftByteBuffer.flip();
-                leftDataOutputStream.write(leftByteBuffer.array());
-                leftByteBuffer.clear();
+                    writeCorrect3ScendData(insoleType);
+                }
+                byteBufferWriteData(leftByteBuffer, leftDataOutputStream, time, gyrX, gyrY, gyrZ, accX, accY, accZ);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         else if (insoleType==insole_right){
-            if (mRightTime==-1){
-                mRightTime = time;
-            }
-            else if (time>mRightTime){
-                mRightTime = time;
-            }
-            else {
-                mRightTime += time;
-            }
-
             try {
                 if (rightDataOutputStream==null){
                     mRightInsole30SencendFileAbsolutePath = MyUtil.getInsoleLocalFileName(insoleType,new Date());
@@ -833,21 +831,57 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                     }
 
                     appAbortDataSaveInsole.setmRightInsoleFileAbsolutePath(mRightInsole30SencendFileAbsolutePath);
-                }
-                rightByteBuffer.putInt(time);
-                rightByteBuffer.putShort(gyrX);
-                rightByteBuffer.putShort(gyrY);
-                rightByteBuffer.putShort(gyrZ);
-                rightByteBuffer.putShort(accX);
-                rightByteBuffer.putShort(accY);
-                rightByteBuffer.putShort(accZ);
 
-                rightByteBuffer.flip();
-                rightDataOutputStream.write(rightByteBuffer.array());
-                rightByteBuffer.clear();
+                    writeCorrect3ScendData(insoleType);
+                }
+                byteBufferWriteData(rightByteBuffer, rightDataOutputStream, time, gyrX, gyrY, gyrZ, accX, accY, accZ);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    //校准的3s补写到文件
+    private void writeCorrect3ScendData(int insoleType) throws IOException {
+        Intent intent = getIntent();
+        ArrayList<Insole3ScendCache> insole3ScendCacheList = intent.getParcelableArrayListExtra("mInsole3ScendCacheList");
+
+        if (insole3ScendCacheList!=null){
+            for (Insole3ScendCache insole3ScendCache:insole3ScendCacheList){
+                int time = insole3ScendCache.getTime();
+
+                short gyrX = insole3ScendCache.getGyrX();
+                short gyrY = insole3ScendCache.getGyrY();
+                short gyrZ = insole3ScendCache.getGyrZ();
+
+                short accX = insole3ScendCache.getAccX();
+                short accY = insole3ScendCache.getAccY();
+                short accZ = insole3ScendCache.getAccZ();
+
+                if (insole3ScendCache.getFootType()==insole_left && insoleType==insole_left){
+                    byteBufferWriteData(leftByteBuffer, leftDataOutputStream, time, gyrX, gyrY, gyrZ, accX, accY, accZ);
+                }
+                else if (insole3ScendCache.getFootType()==insole_right && insoleType==insole_right){
+                    byteBufferWriteData(rightByteBuffer, rightDataOutputStream, time, gyrX, gyrY, gyrZ, accX, accY, accZ);
+                }
+            }
+        }
+    }
+
+    private void byteBufferWriteData(ByteBuffer byteBuffer, DataOutputStream dataOutputStream, int time, short gyrX, short gyrY, short gyrZ, short accX, short accY, short accZ) throws IOException {
+        if (byteBuffer!=null && dataOutputStream!=null){
+            byteBuffer.putInt(time);
+            byteBuffer.putShort(gyrX);
+            byteBuffer.putShort(gyrY);
+            byteBuffer.putShort(gyrZ);
+            byteBuffer.putShort(accX);
+            byteBuffer.putShort(accY);
+            byteBuffer.putShort(accZ);
+
+            byteBuffer.flip();
+            dataOutputStream.write(byteBuffer.array());
+            byteBuffer.clear();
         }
     }
 
@@ -959,6 +993,25 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 tv_run_maxSpeedKM_Hour.setText(MyUtil.getFormatFloatValue(maxSpeedKM_Hour,"0.0"));
             }
 
+            int curLeftTime = appAbortDataSaveInsole.getCurLeftTime();
+            if (curLeftTime>0){
+                mCurLeftTime = curLeftTime;
+            }
+
+            int curRightTime = appAbortDataSaveInsole.getCurRightTime();
+            if (curRightTime>0){
+                mCurRightTime = curRightTime;
+            }
+
+            int preCacheLeftTime = appAbortDataSaveInsole.getPreCacheLeftTime();
+            int preCacheRightTime = appAbortDataSaveInsole.getPreCacheRightTime();
+            if (preCacheLeftTime>0){
+                mPreCacheLeftTime = preCacheLeftTime;
+            }
+            if (preCacheRightTime>0){
+                mPreCacheRightTime = preCacheRightTime;
+            }
+
             mIsOutDoor = appAbortDataSaveInsole.isOutDoor();
 
             leftByteBuffer = ByteBuffer.allocate(4+2*6);
@@ -1060,6 +1113,10 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                             appAbortDataSaveInsole.setStepCount(mAllStep+mPrestepCount);
                             appAbortDataSaveInsole.setKcal((int) mAllKcal);
                             appAbortDataSaveInsole.setMaxSpeedKM_Hour(maxSpeedKM_Hour);
+                            appAbortDataSaveInsole.setCurLeftTime(mCurLeftTime);
+                            appAbortDataSaveInsole.setCurRightTime(mCurRightTime);
+                            appAbortDataSaveInsole.setPreCacheLeftTime(mPreCacheLeftTime);
+                            appAbortDataSaveInsole.setPreCacheRightTime(mPreCacheRightTime);
 
                             saveOrUpdateAbortDatareordToSP(appAbortDataSaveInsole);
                         }

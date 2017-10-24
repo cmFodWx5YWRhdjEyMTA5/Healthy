@@ -3,7 +3,6 @@ package com.amsu.healthy.activity;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
@@ -21,7 +20,6 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -41,6 +39,7 @@ import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.ApkUtil;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
@@ -49,13 +48,8 @@ import com.amsu.healthy.view.DashboardView;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleService;
 import com.google.gson.Gson;
-import com.tencent.bugly.crashreport.CrashReport;
-import com.test.objects.HeartRateResult;
-import com.test.utils.DiagnosisNDK;
-import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -72,7 +66,7 @@ public class MainActivity extends BaseActivity {
     private ValueAnimator mValueAnimator;
     private TextView tv_main_age;
     private TextView tv_main_indexvalue;
-    private int physicalAge;
+    private int physicalAgeDValue;
     private int scoreALL;
 
     public static BleService mLeService;
@@ -428,19 +422,6 @@ public class MainActivity extends BaseActivity {
 
         MyApplication.isNeedSynMsgToDevice = true;
 
-        int indexWarringHeartIconType = MyUtil.getIntValueFromSP("IndexWarringHeartIconType");
-        if (indexWarringHeartIconType==1){
-            iv_main_warring.setImageResource(R.drawable.healthy_green);
-        }
-        else if (indexWarringHeartIconType==2){
-            iv_main_warring.setImageResource(R.drawable.healthy_yellow);
-        }
-        else if (indexWarringHeartIconType==3){
-            iv_main_warring.setImageResource(R.drawable.healthy_orange);
-        }
-        else if (indexWarringHeartIconType==4){
-            iv_main_warring.setImageResource(R.drawable.healthy_red);
-        }
         //showUploadOffLineData();
 
 
@@ -646,11 +627,13 @@ public class MainActivity extends BaseActivity {
         else {
             tv_main_indexvalue.setText("--");
         }
-        physicalAge = MyUtil.getIntValueFromSP("physicalAge");
-        if (physicalAge>0){
+        physicalAgeDValue = MyUtil.getIntValueFromSP("physicalAgeDValue");
+        int physicalAge = HealthyIndexUtil.getUserAge()-physicalAgeDValue;
+
+        if (physicalAge >0){
             Log.i(TAG,"设置动画");
             setAgeTextAnimator(tv_main_age,0, physicalAge);
-            dv_main_compass.setAgeData(physicalAge-10);
+            dv_main_compass.setAgeData(physicalAge -10);
         }
         else {
             Log.i(TAG,"tv_main_age.setText");
@@ -658,19 +641,22 @@ public class MainActivity extends BaseActivity {
             tv_main_age.setText("--");
         }
 
-        Log.i(TAG,"healthyIindexvalue:"+healthyIindexvalue+"  physicalAge:"+physicalAge);
+        Log.i(TAG,"healthyIindexvalue:"+healthyIindexvalue+"  physicalAgeDValue:"+ physicalAgeDValue);
+
+
 
         if (mValueAnimator!=null){
             mValueAnimator.start();
             cv_mian_index.setValue(170);
             cv_mian_warring.setValue(230);
             if (scoreALL >0){
-                dv_main_compass.setAgeData(physicalAge-10);
+                dv_main_compass.setAgeData(physicalAge -10);
             }
         }
 
-        if (MyApplication.IndexWarringHeartIconType!=-1){
-            int indexWarringHeartIconType = MyApplication.IndexWarringHeartIconType;
+        int indexWarringHeartIconType = MyUtil.getIntValueFromSP("IndexWarringHeartIconType");
+        Log.i(TAG,"indexWarringHeartIconType==:"+indexWarringHeartIconType);
+        if (indexWarringHeartIconType!=-1){
             if (indexWarringHeartIconType==1){
                 iv_main_warring.setImageResource(R.drawable.healthy_green);
             }
@@ -716,7 +702,7 @@ public class MainActivity extends BaseActivity {
         super.onStop();
         Log.i(TAG,"onStop");
 
-        physicalAge = -1;
+        physicalAgeDValue = -1;
 
         //mLeService.disconnect(clothDeviceConnecedMac);
     }
@@ -810,7 +796,7 @@ public class MainActivity extends BaseActivity {
                     break;
                 case R.id.rl_main_age:
                     Intent intent = new Intent(MainActivity.this, PhysicalAgeActivity.class);
-                    intent.putExtra("physicalAge",physicalAge);
+                    intent.putExtra("physicalAgeDValue", physicalAgeDValue);
                     startActivity(intent);
                     break;
                 case R.id.rl_main_healthyvalue:
@@ -901,7 +887,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void showdialogToLogin(){
-        startActivity(new Intent(MainActivity.this,LoginActivity.class));
+        startActivity(new Intent(MainActivity.this,LoginInputNumberActivity.class));
         /*new AlertDialog.Builder(this).setTitle("登陆提醒")
                 .setMessage("现在登陆")
                 .setPositiveButton("等会再去", new DialogInterface.OnClickListener() {

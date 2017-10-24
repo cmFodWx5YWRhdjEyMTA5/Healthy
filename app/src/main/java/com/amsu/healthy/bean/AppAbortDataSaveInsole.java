@@ -23,6 +23,10 @@ public class AppAbortDataSaveInsole implements Cloneable {
     public boolean isOutDoor;
     public int sportType;
     public float maxSpeedKM_Hour;
+    public int curLeftTime;
+    public int curRightTime;
+    public int preCacheLeftTime;
+    public int preCacheRightTime;
 
     public AppAbortDataSaveInsole() {
     }
@@ -132,6 +136,46 @@ public class AppAbortDataSaveInsole implements Cloneable {
         this.maxSpeedKM_Hour = maxSpeedKM_Hour;
     }
 
+    public int getCurLeftTime() {
+        return curLeftTime;
+    }
+
+    public void setCurLeftTime(int curLeftTime) {
+        this.curLeftTime = curLeftTime;
+    }
+
+    public int getCurRightTime() {
+        return curRightTime;
+    }
+
+    public void setCurRightTime(int curRightTime) {
+        this.curRightTime = curRightTime;
+    }
+
+    public float getMaxSpeedKM_Hour() {
+        return maxSpeedKM_Hour;
+    }
+
+    public void setMaxSpeedKM_Hour(float maxSpeedKM_Hour) {
+        this.maxSpeedKM_Hour = maxSpeedKM_Hour;
+    }
+
+    public int getPreCacheLeftTime() {
+        return preCacheLeftTime;
+    }
+
+    public void setPreCacheLeftTime(int preCacheLeftTime) {
+        this.preCacheLeftTime = preCacheLeftTime;
+    }
+
+    public int getPreCacheRightTime() {
+        return preCacheRightTime;
+    }
+
+    public void setPreCacheRightTime(int preCacheRightTime) {
+        this.preCacheRightTime = preCacheRightTime;
+    }
+
     @Override
     public String toString() {
         return "AppAbortDataSaveInsole{" +
@@ -146,14 +190,11 @@ public class AppAbortDataSaveInsole implements Cloneable {
                 ", stepCount=" + stepCount +
                 ", isOutDoor=" + isOutDoor +
                 ", sportType=" + sportType +
+                ", maxSpeedKM_Hour=" + maxSpeedKM_Hour +
+                ", curLeftTime=" + curLeftTime +
+                ", curRightTime=" + curRightTime +
+                ", preCacheLeftTime=" + preCacheLeftTime +
+                ", preCacheRightTime=" + preCacheRightTime +
                 '}';
-    }
-
-    public float getMaxSpeedKM_Hour() {
-        return maxSpeedKM_Hour;
-    }
-
-    public void setMaxSpeedKM_Hour(float maxSpeedKM_Hour) {
-        this.maxSpeedKM_Hour = maxSpeedKM_Hour;
     }
 }

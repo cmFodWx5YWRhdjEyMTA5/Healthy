@@ -25,8 +25,8 @@
     <string name="user_agreement">User agreement</string>
     <string name="agree">agree</string>
     <string name="enter_cell_phone_number">Enter cell phone number</string>
-    <string name="input_validation_code">Input validation code</string>
-    <string name="code">code</string>
+    <string name="input_validation_code">SMS Code</string>
+    <string name="code">Send</string>
     <string name="non_consent_logon_protocol">Non consent logon protocol</string>
     <string name="getting_validation_code">Getting validation code...</string>
     <string name="verify_code_sent_successfully">Verify code sent successfully</string>
@@ -394,6 +394,33 @@
 
     <string name="collect_data">Collect data</string>
     <string name="skip">Skip</string>
+
+    <string name="china">China</string>
+    <string name="united_states">United States</string>
+    <string name="japan">Japan</string>
+    <string name="hong_kong">Hong Kong</string>
+
+    <string name="all_countries_regions">All countries and regions</string>
+
+    <string name="national_region">Country/Region</string>
+    <string name="choose_national_region">Choose Country/Region</string>
+
+    <string name="isopen_ecg_webmonitoring">Whether to open web ECG monitoring</string>
+    <string name="nearly_7_days">Nearly 7 days</string>
+    <string name="no_data_last_week">no data last week</string>
+    <string name="no_data_nearly_7_days">no data Nearly 7 days</string>
+
+    <string name="hrv_mental_fatigue_suggestion1">You are full of spirit, it is a good opportunity to play your wisdom, think about yourself and those unresolved problems, maybe the inspiration is in front of you.</string>
+    <string name="hrv_mental_fatigue_suggestion2">You\'re in good mental shape now, and you can keep your current mental activities.</string>
+    <string name="hrv_mental_fatigue_suggestion3">You are now mentally tired, try to put down the work, rest, relieve fatigue bar.</string>
+    <string name="hrv_mental_fatigue_suggestion4">You are very tired now, this will affect your work efficiency, suggest that you properly reduce mental work, leave the desk to release yourself!</string>
+
+    <string name="hrv_body_fatigue_rest_suggestion1">You are now full of physical fitness, physical exercise now will be able to achieve good results, go for some exercise.</string>
+    <string name="hrv_body_fatigue_rest_suggestion2">You are now more physical exertion, it is recommended that you do not do physical exercise, proper rest bar.</string>
+    <string name="hrv_body_fatigue_rest_suggestion3">Your physical strength seems to have been depleted, please do not over overdraft their physical strength, relax your tired body!</string>
+    <string name="hrv_body_fatigue_active_suggestion1">You just a small amount of exercise, physical fitness is relatively adequate, you can also continue to moderate physical exercise, to achieve better exercise effect.</string>
+    <string name="hrv_body_fatigue_active_suggestion2">Your physical energy consumption is large, it is recommended that you rest properly, work and rest in order to achieve the best exercise effect.</string>
+    <string name="hrv_body_fatigue_active_suggestion3">Your physical strength has been exhausted, pay attention to not excessive overdraft of their physical fitness, stop the exercise, rest.</string>
 
 
 </resources>

@@ -87,7 +87,7 @@
                     android:id="@+id/tv_assess_thisweek"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="近七天"
+                    android:text="@string/nearly_7_days"
                     android:layout_toRightOf="@+id/iv_image1"
                     android:layout_marginLeft="3dp"
                     android:layout_centerVertical="true"/>

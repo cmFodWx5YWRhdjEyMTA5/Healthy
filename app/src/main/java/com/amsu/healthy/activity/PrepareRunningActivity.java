@@ -193,8 +193,6 @@ public class PrepareRunningActivity extends BaseActivity {
             }
             else if (MyApplication.deivceType==Constant.sportType_Insole){
                 intent = new Intent(this,CorrectInsoleActivity.class);
-                //intent = new Intent(this,InsoleRunningActivity.class);
-                getInsoleToken();
             }
             //intent.putExtra(Constant.mIsOutDoor,mIsOutDoor);
             /*intent.putExtra("mIsOutDoor",mIsOutDoor);
@@ -255,45 +253,6 @@ public class PrepareRunningActivity extends BaseActivity {
         }
     }
 
-
-    public void getInsoleToken() {
-        HttpUtils httpUtils = new HttpUtils();
-        RequestParams params = new RequestParams();
-
-        params.addBodyParameter("username","7a1b77fbe02947a293196d72d8d0c869");
-        params.addBodyParameter("password","622ff39cac1f41478c534d6b08058061");
-        MyUtil.addCookieForHttp(params);
-
-
-        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getInsoleTokenURL, params, new RequestCallBack<String>() {
-            @Override
-            public void onSuccess(ResponseInfo<String> responseInfo) {
-                MyUtil.hideDialog(PrepareRunningActivity.this);
-                String result = responseInfo.result;
-                Log.i(TAG,"上传onSuccess==result:"+result);
-                 /*{
-                "access_token": "eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiaW52b2tlciIsImlkIjoxMDYsImV4cCI6MTUwMTU4MzYxNiwiaWF0IjoxNTAxNTc2NDE2LCJ1c2VybmFtZSI6ImFtdGVrIn0.Pa5xoUWS6S5sUjeSyyr2p2wfFElhK4YiyulC8macitR3I9Rca3FQEZGO8xIMOafWOAXZzEiUHAnxo1EvLCtVXQ",
-                "expires_in": 7200
-            }*/
-                JSONObject jsonObject = null;
-                try {
-                    jsonObject = new JSONObject(result);
-                    String access_token = (String) jsonObject.get("access_token");
-                    if (!MyUtil.isEmpty(access_token)){
-                        MyApplication.insoleAccessToken = access_token;
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog(PrepareRunningActivity.this);
-                Log.i(TAG,"上传onFailure==result:"+e);
-            }
-        });
-    }
 
     @Override
     protected void onDestroy() {

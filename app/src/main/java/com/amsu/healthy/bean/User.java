@@ -15,6 +15,34 @@ public class User {
     private String icon;
     private String stillRate;
 
+    /*{
+                    "ret": "201",
+                    "errDesc": {
+                        "id": 9,
+                        "userid": "18689463192",
+                        "userpwd": null,
+                        "username": "天空之城",
+                        "type": 0,
+                        "sex": 1,
+                        "birthday": 308246400000,
+                        "weight": 50,
+                        "height": 160,
+                        "address": "江西省南昌市",
+                        "phone": "18689463192",
+                        "email": "",
+                        "icon": "usericons/d9cc909b8de4f858e6a19539b6e19274.png",
+                        "signature": "",
+                        "createtime": 1481744163000,
+                        "updatetime": 1508194725000,
+                        "lastlogintime": null,
+                        "lastloginversion": "",
+                        "state": false,
+                        "mainaccount": "",
+                        "message": "求助啊",
+                        "contactsphone": 0
+                    }
+                }*/
+
     public User() {
     }
 

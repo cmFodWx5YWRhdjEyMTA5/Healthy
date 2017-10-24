@@ -3,7 +3,6 @@ package com.amsu.healthy.activity.insole;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -33,6 +32,9 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,6 +48,10 @@ import java.util.List;
 public class InsoleAnalysisActivity extends BaseActivity {
     private static final String TAG = "InsoleAnalysisActivity";
     private Animation animation;
+    private String mAccess_token;
+    private String mLeftInsoleFileAbsolutePath;
+    private String mRightInsoleFileAbsolutePath;
+    private InsoleUploadRecord mInsoleUploadRecord;
 
 
     @Override
@@ -54,8 +60,11 @@ public class InsoleAnalysisActivity extends BaseActivity {
         setContentView(R.layout.activity_insole_analysis);
 
         initView();
+
         initData();
     }
+
+
 
     private void initView() {
         ImageView iv_heartrate_rotateimage = (ImageView) findViewById(R.id.iv_heartrate_rotateimage);
@@ -65,14 +74,71 @@ public class InsoleAnalysisActivity extends BaseActivity {
         animation.setInterpolator(new LinearInterpolator());
 
         iv_heartrate_rotateimage.setAnimation(animation);
+
+
     }
 
-
-
     private void initData() {
+        getDeliverData();
+
+        getInsoleToken();
+
+
+    }
+
+    private int getTokenFailureCount;
+
+    public void getInsoleToken() {
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+
+        params.addBodyParameter("username",Constant.insoleAlgorithmUsername);
+        params.addBodyParameter("password",Constant.insoleAlgorithmPassword);
+        MyUtil.addCookieForHttp(params);
+
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getInsoleTokenURL, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                Log.i(TAG,"上传onSuccess==result:"+result);
+                 /*{
+                "access_token": "eyJhbGciOiJIUzUxMiJ9.eyJyb2xlIjoiaW52b2tlciIsImlkIjoxMDYsImV4cCI6MTUwMTU4MzYxNiwiaWF0IjoxNTAxNTc2NDE2LCJ1c2VybmFtZSI6ImFtdGVrIn0.Pa5xoUWS6S5sUjeSyyr2p2wfFElhK4YiyulC8macitR3I9Rca3FQEZGO8xIMOafWOAXZzEiUHAnxo1EvLCtVXQ",
+                "expires_in": 7200
+            }*/
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(result);
+                    String access_token = (String) jsonObject.get("access_token");
+                    if (!MyUtil.isEmpty(access_token)){
+                        mAccess_token = access_token;
+                        commitToServerAnaly(mLeftInsoleFileAbsolutePath, mRightInsoleFileAbsolutePath, mInsoleUploadRecord);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                Log.i(TAG,"上传onFailure==result:"+e);
+                if (getTokenFailureCount<3){
+                    getInsoleToken();
+                }
+                else {
+                    MyUtil.showToask(InsoleAnalysisActivity.this,"网络异常，获取token失败，无法获得步态分析结果");
+                    Intent toNextIntent = new Intent(InsoleAnalysisActivity.this,InsoleAnalyticFinshResultActivity.class);
+                    startActivity(toNextIntent);
+                    finish();
+                }
+                getTokenFailureCount++;
+            }
+        });
+    }
+
+    private void getDeliverData(){
         Intent intent = getIntent();
-        String leftInsoleFileAbsolutePath = intent.getStringExtra(Constant.leftInsoleFileAbsolutePath);
-        String rightInsoleFileAbsolutePath = intent.getStringExtra(Constant.rightInsoleFileAbsolutePath);
+        mLeftInsoleFileAbsolutePath = intent.getStringExtra(Constant.leftInsoleFileAbsolutePath);
+        mRightInsoleFileAbsolutePath = intent.getStringExtra(Constant.rightInsoleFileAbsolutePath);
 
         int sportState = intent.getIntExtra(Constant.sportState, 1);  //室内室外
         long sportCreateRecordID = intent.getLongExtra(Constant.sportCreateRecordID, -1);  //室内室外
@@ -83,20 +149,20 @@ public class InsoleAnalysisActivity extends BaseActivity {
         float maxSpeedKM_Hour = intent.getFloatExtra(Constant.maxSpeedKM_Hour, 0);
 
 
-        InsoleUploadRecord insoleUploadRecord = new InsoleUploadRecord();
+        mInsoleUploadRecord = new InsoleUploadRecord();
 
-        insoleUploadRecord.errDesc.ShoepadData.stepheigh = sportState+"";
+        mInsoleUploadRecord.errDesc.ShoepadData.stepheigh = sportState+"";
 
         if (paceList!=null){
-            insoleUploadRecord.errDesc.ShoepadData.speedallocationarray = paceList.toString();
+            mInsoleUploadRecord.errDesc.ShoepadData.speedallocationarray = paceList.toString();
         }
 
         if (stridefreList!=null){
-            insoleUploadRecord.errDesc.ShoepadData.stepratearray = stridefreList.toString();
+            mInsoleUploadRecord.errDesc.ShoepadData.stepratearray = stridefreList.toString();
         }
-        insoleUploadRecord.errDesc.ShoepadData.calorie = insoleAllKcal;
-        insoleUploadRecord.errDesc.ShoepadData.creationtime = startTimeMillis;
-        insoleUploadRecord.errDesc.ShoepadData.maxspeed = maxSpeedKM_Hour;
+        mInsoleUploadRecord.errDesc.ShoepadData.calorie = insoleAllKcal;
+        mInsoleUploadRecord.errDesc.ShoepadData.creationtime = startTimeMillis;
+        mInsoleUploadRecord.errDesc.ShoepadData.maxspeed = maxSpeedKM_Hour;
 
         Log.i(TAG,"sportCreateRecordID:"+sportCreateRecordID);
 
@@ -114,13 +180,13 @@ public class InsoleAnalysisActivity extends BaseActivity {
                 long time = Long.parseLong(pathRecord.getDuration())/1000;
                 List<ParcelableDoubleList> latitude_longitude = Util.getLatitude_longitudeString(pathRecord);
                 if (latitude_longitude!=null){
-                    insoleUploadRecord.errDesc.ShoepadData.trajectory =latitude_longitude.toString();
+                    mInsoleUploadRecord.errDesc.ShoepadData.trajectory =latitude_longitude.toString();
                 }
-                insoleUploadRecord.errDesc.ShoepadData.duration = time;
-                insoleUploadRecord.errDesc.ShoepadData.distance = distance ;
+                mInsoleUploadRecord.errDesc.ShoepadData.duration = time;
+                mInsoleUploadRecord.errDesc.ShoepadData.distance = distance ;
 
                 float speed = distance / time*3.6f;
-                insoleUploadRecord.errDesc.ShoepadData.averagespeed = speed;
+                mInsoleUploadRecord.errDesc.ShoepadData.averagespeed = speed;
             }
             //mInsoleUploadRecord.errDesc.ShoepadResult = new InsoleAnalyResult();
             //showResultData(mInsoleUploadRecord);
@@ -129,11 +195,10 @@ public class InsoleAnalysisActivity extends BaseActivity {
             MyUtil.showToask(this,"轨迹记录id为空，可能在室内或网络问题导致地图初始化失败");
         }
 
-        Log.i(TAG,"mInsoleUploadRecord:"+insoleUploadRecord);
+        Log.i(TAG,"mInsoleUploadRecord:"+ mInsoleUploadRecord);
 
-        showResultData(insoleUploadRecord);
+        showResultData(mInsoleUploadRecord);
 
-        commitToServerAnaly(leftInsoleFileAbsolutePath,rightInsoleFileAbsolutePath,insoleUploadRecord);
     }
 
     private void commitToServerAnaly(String leftFilePath, String rightFilePath, final InsoleUploadRecord insoleUploadRecord) {
@@ -158,14 +223,8 @@ public class InsoleAnalysisActivity extends BaseActivity {
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
 
-        if (!MyUtil.isEmpty(MyApplication.insoleAccessToken)){
-            params.addBodyParameter("access_token",MyApplication.insoleAccessToken);
-        }
-        else {
-            MyUtil.showToask(this,"access_token无效，请求access_token无效失败或联系管理员", Toast.LENGTH_LONG);
-            finish();
-            return;
-        }
+
+        params.addBodyParameter("access_token",mAccess_token);
         //params.addBodyParameter("userId","9");
         params.addBodyParameter("creationtime",insoleUploadRecord.errDesc.ShoepadData.creationtime+"");
         params.addBodyParameter("name",userFromSP.getPhone());
@@ -191,9 +250,9 @@ public class InsoleAnalysisActivity extends BaseActivity {
             params.addBodyParameter("rightFile",new File(rightFilePath));
             params.addBodyParameter("leftFile",new File(rightFilePath));
 
-            String leftFileMd5Message = MD5Util.getFileMd5Message(rightFilePath);
-            params.addBodyParameter("leftchecksum",leftFileMd5Message);
-            params.addBodyParameter("rightchecksum",leftFileMd5Message);
+            String rightFileMd5Message = MD5Util.getFileMd5Message(rightFilePath);
+            params.addBodyParameter("leftchecksum",rightFileMd5Message);
+            params.addBodyParameter("rightchecksum",rightFileMd5Message);
         }
         else if(!MyUtil.isEmpty(leftFilePath) && MyUtil.isEmpty(rightFilePath)){
             params.addBodyParameter("rightFile",new File(leftFilePath));
@@ -357,5 +416,7 @@ public class InsoleAnalysisActivity extends BaseActivity {
             e.printStackTrace();
         }
     }
+
+
 }
 

@@ -405,7 +405,11 @@
         <activity android:name=".activity.insole.InsoleAnalysisActivity" />
         <activity android:name=".activity.HistoryRecordAllActivity" />
         <activity android:name=".activity.insole.InsoleDeviceInfoActivity" />
-        <activity android:name=".activity.insole.InsoleLockScreenActivity" android:launchMode="singleTask"></activity>
+        <activity
+            android:name=".activity.insole.InsoleLockScreenActivity"
+            android:launchMode="singleTask" />
+        <activity android:name=".activity.LoginInputNumberActivity" />
+        <activity android:name=".activity.LoginCountryListActivity"></activity>
     </application>
 
 </manifest>

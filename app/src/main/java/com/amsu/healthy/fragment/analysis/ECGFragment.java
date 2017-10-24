@@ -15,6 +15,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.activity.HeartRateResultShowActivity;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.fragment.BaseFragment;
+import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.EcgFilterUtil_1;
 import com.amsu.healthy.utils.MyUtil;
@@ -201,7 +202,7 @@ public class ECGFragment extends BaseFragment {
                                     Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
                                     datas = new ArrayList<>();
 
-                                    EcgFilterUtil_1 ecgFilterUtil_1 = new EcgFilterUtil_1();
+                                    EcgFilterUtil_1 ecgFilterUtil_1 = CommunicateToBleService.ecgFilterUtil_1;
 
 
                                     while(dataInputStream.available() >0){

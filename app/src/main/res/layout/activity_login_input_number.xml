@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background_color"
+    tools:context="com.amsu.healthy.activity.LoginInputNumberActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <TextView
+        android:id="@+id/tv_text_test1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rl_base_head"
+        android:textSize="@dimen/x72"
+        android:textColor="@color/app_main_color"
+        android:text="@string/enter_cell_phone_number"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/x200"/>
+
+    <LinearLayout
+        android:id="@+id/ll_login_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:layout_below="@id/tv_text_test1"
+        android:divider="@drawable/deiver_horiz_line"
+        android:showDividers="middle"
+        android:layout_marginTop="@dimen/x120"
+        android:background="@drawable/bg_bt_rec_roundangle_white">
+        <RelativeLayout
+            android:id="@+id/rl_login_choosecountry"
+            android:clickable="true"
+            android:onClick="chooseCountry"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y140">
+            <TextView
+                android:id="@+id/tv_login_text1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:textSize="@dimen/x48"
+                android:textColor="#1f1f1f"
+                android:layout_marginLeft="@dimen/x32"
+                android:text="@string/smssdk_country"/>
+
+            <TextView
+                android:id="@+id/tv_login_national_region"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/x250"
+                android:layout_marginLeft="@dimen/x36"
+                android:textSize="@dimen/x48"
+                android:textColor="#1f1f1f"
+                android:text="--"
+                android:layout_toRightOf="@id/tv_login_text1"/>
+
+            <ImageView
+                android:id="@+id/iv_persion_3"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/x32"
+                android:layout_centerVertical="true"/>
+
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y140">
+            <TextView
+                android:id="@+id/tv_login_zonecode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/x32"
+                android:textSize="@dimen/x48"
+                android:textColor="#1f1f1f"
+                android:text="--"/>
+            <EditText
+                android:id="@+id/et_login_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/x176"
+                android:hint="@string/enter_cell_phone_number"
+                android:textColorHint="#ccccd2"
+                android:textSize="@dimen/x48"
+                android:background="@null"
+                android:layout_toRightOf="@id/tv_login_text2"/>
+        </RelativeLayout>
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/bt_login_nextstep"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x128"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:layout_below="@id/ll_login_top"
+        android:layout_marginTop="@dimen/y48"
+        android:textColor="#f5f5f5"
+        android:textSize="@dimen/x48"
+        android:background="@color/app_main_color"
+        android:text="@string/next_step"
+        android:onClick="nextStep"/>
+
+</RelativeLayout>

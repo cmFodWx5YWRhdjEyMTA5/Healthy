@@ -42,7 +42,7 @@ public class PhysicalAgeActivity extends BaseActivity {
         TextView tv_physical_agereal = (TextView) findViewById(R.id.tv_physical_agereal);
 
         Intent intent = getIntent();
-        physicalAge = intent.getIntExtra("physicalAge", 0);
+        physicalAge = HealthyIndexUtil.getUserAge()-intent.getIntExtra("physicalAgeDValue", 0);
         if (physicalAge >0){
             dv_main_compass.setAgeData(physicalAge -10);
             setAgeTextAnimator(tv_physical_age,0, physicalAge);

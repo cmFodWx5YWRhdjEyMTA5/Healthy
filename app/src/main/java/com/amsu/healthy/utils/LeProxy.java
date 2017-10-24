@@ -332,6 +332,7 @@ public class LeProxy {
             //准备工作完成，向外发送广播
             updateBroadcast(address, ACTION_GATT_SERVICES_DISCOVERED);
             Log.w(TAG, "Cancel ServicesDiscoveredTask: " + cancel() + ", i=" + i);
+
         }
 
         @Override

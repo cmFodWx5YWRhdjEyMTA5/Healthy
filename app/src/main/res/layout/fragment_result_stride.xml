@@ -57,7 +57,7 @@
                     android:id="@+id/tv_home_smmetry_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0"
+                    android:text="--"
                     android:textSize="@dimen/x128"
                     android:textColor="#545454"
                     android:layout_centerInParent="true"/>
@@ -129,7 +129,7 @@
                     android:id="@+id/tv_home_variability_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0"
+                    android:text="--"
                     android:textSize="@dimen/x128"
                     android:textColor="#545454"
                     android:layout_centerInParent="true"/>
@@ -199,6 +199,7 @@
                 android:layout_marginTop="@dimen/y64"
                 android:layout_marginBottom="@dimen/x56"
                 android:layout_above="@+id/tv_dec1"
+                HeightCurve:curve_line_width="@dimen/x3"
                 HeightCurve:fillstart_color="#FFF"
                 HeightCurve:fillend_color="#665babe6"
                 HeightCurve:curve_ycoordinateHight="@dimen/x528"
@@ -231,7 +232,7 @@
                 android:layout_marginTop="@dimen/y28"
                 android:textSize="@dimen/x36"
                 android:textColor="#808080"
-                android:text="步幅(步/米)"/>
+                android:text="步幅(厘米/cm)"/>
 
             <TextView
                 android:id="@+id/tv_dec3"

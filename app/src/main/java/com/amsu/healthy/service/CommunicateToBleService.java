@@ -1,7 +1,6 @@
 package com.amsu.healthy.service;
 
 import android.app.Activity;
-import android.app.Application;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -22,7 +21,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.amsu.healthy.R;
@@ -31,16 +29,10 @@ import com.amsu.healthy.activity.HealthyDataActivity;
 import com.amsu.healthy.activity.LockScreenActivity;
 import com.amsu.healthy.activity.MainActivity;
 import com.amsu.healthy.activity.MyDeviceActivity;
-import com.amsu.healthy.activity.SplashActivity;
 import com.amsu.healthy.activity.StartRunActivity;
-import com.amsu.healthy.activity.insole.CorrectInsoleActivity;
 import com.amsu.healthy.activity.insole.InsoleLockScreenActivity;
-import com.amsu.healthy.activity.insole.InsoleRunningActivity;
 import com.amsu.healthy.appication.MyApplication;
-import com.amsu.healthy.bean.AppAbortDataSave;
-import com.amsu.healthy.bean.AppAbortDataSaveInsole;
 import com.amsu.healthy.bean.Device;
-import com.amsu.healthy.utils.AppAbortDbAdapterUtil;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.ECGUtil;
@@ -83,7 +75,7 @@ public class CommunicateToBleService extends Service {
     private PopupWindowUtil popupWindowUtil;
     public static EcgFilterUtil_1 ecgFilterUtil_1;
     private MyApplication mApplication;
-    private static Map<String, Integer> mInsoleDeviceBatteryInfos;
+    private static Map<String, Device> mInsoleDeviceBatteryInfos;
 
     public CommunicateToBleService() {
 
@@ -398,7 +390,6 @@ public class CommunicateToBleService extends Service {
                                 try {
                                     Thread.sleep(50);
 
-
                                     boolean connect = mLeProxy.connect(clothDeviceConnecedMac, false);
                                     Log.i(TAG,"AMSU_P_connect:"+connect);
 
@@ -409,6 +400,7 @@ public class CommunicateToBleService extends Service {
                                     Log.i(TAG,"AMSU_P_开始连接");
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
+                                    Log.i(TAG,"e:"+e);
                                 }
                             }
                         }.start();
@@ -485,25 +477,47 @@ public class CommunicateToBleService extends Service {
         else if (hexData.length()==2){  // 3E
             int intPower = Integer.parseInt(hexData, 16);
             Log.i(TAG,"鞋垫电量："+" address:"+address+" hexData:"+hexData+" intPower:"+intPower);
-            mInsoleDeviceBatteryInfos.put(address,intPower);
+            Device device = mInsoleDeviceBatteryInfos.get(address);
+            if (device==null){
+                device = new Device();
+            }
+            device.setBattery(intPower);
+
+            mInsoleDeviceBatteryInfos.put(address,device);
             mApplication.setInsoleDeviceBatteryInfos(mInsoleDeviceBatteryInfos);
 
             sendBroadcast(calCuelectricVPercentIntent);
         }
         else if (hexData.length()==14){  // 32 2E 32 2E 30
-            String deviceVersionString = address+","+MyUtil.convertHexToString(hexData);
+            String deviceVersionString = MyUtil.convertHexToString(hexData);
             if (uuid.equals(Constant.readInsoleDeviceInfoHardwareRevisionCharUuid)){
                 //硬件版本
                 Log.i(TAG,"鞋垫硬件版本："+" deviceVersionString:"+deviceVersionString);
-                MyUtil.putStringValueFromSP(Constant.hardWareVersion_insole,deviceVersionString);
+                Device device = mInsoleDeviceBatteryInfos.get(address);
+                if (device==null){
+                    device = new Device();
+                }
+                device.setHardWareVersion(deviceVersionString);
+
+                mInsoleDeviceBatteryInfos.put(address,device);
+                mApplication.setInsoleDeviceBatteryInfos(mInsoleDeviceBatteryInfos);
+
+                //MyUtil.putStringValueFromSP(Constant.hardWareVersion_insole,deviceVersionString);
             }
             else if (uuid.equals(Constant.readInsoleDeviceInfoSoftwareRevisionCharUuid)){
                 //软件版本
                 Log.i(TAG,"鞋垫软件版本："+" deviceVersionString:"+deviceVersionString);
-                MyUtil.putStringValueFromSP(Constant.softWareVersion_insole,deviceVersionString);
+                Device device = mInsoleDeviceBatteryInfos.get(address);
+                if (device==null){
+                    device = new Device();
+                }
+                device.setSoftWareVersion(deviceVersionString);
+
+                mInsoleDeviceBatteryInfos.put(address,device);
+                mApplication.setInsoleDeviceBatteryInfos(mInsoleDeviceBatteryInfos);
+
+                //MyUtil.putStringValueFromSP(Constant.softWareVersion_insole,deviceVersionString);
             }
-
-
         }
         /*else if (hexData.startsWith("AA")){
             if (mIsJumpTOCorrected)return;
@@ -1039,13 +1053,17 @@ public class CommunicateToBleService extends Service {
 
                     int runningRecoverType = mApplication.getRunningRecoverType();
                     Log.i(TAG,"runningRecoverType:"+ runningRecoverType);
-                    if (runningRecoverType==Constant.sportType_Cloth){
-                        i.setClass(context,LockScreenActivity.class);
+
+                    if (runningRecoverType>0){
+                        if (runningRecoverType==Constant.sportType_Cloth){
+                            i.setClass(context,LockScreenActivity.class);
+                        }
+                        else if (runningRecoverType==Constant.sportType_Insole){
+                            i.setClass(context,InsoleLockScreenActivity.class);
+                        }
+                        context.startActivity(i);
                     }
-                    else if (runningRecoverType==Constant.sportType_Insole){
-                        i.setClass(context,InsoleLockScreenActivity.class);
-                    }
-                    context.startActivity(i);
+
                 }
             }
         };
@@ -1093,7 +1111,7 @@ public class CommunicateToBleService extends Service {
                             scanLeDevice(true);//继续扫描另一个鞋垫
                             mInsole_connecMac1 = address;
                             MyApplication.insoleConnectedMacAddress.add(address);
-                            mInsoleDeviceBatteryInfos.put(address,-1);
+                            mInsoleDeviceBatteryInfos.put(address,new Device());
                             readInsoleDeviceInfo(address,true,true,true);
                         }
                         else if (MyApplication.insoleConnectedMacAddress.size()==1){
@@ -1109,7 +1127,7 @@ public class CommunicateToBleService extends Service {
                             //MyApplication.clothConnectedMacAddress = clothDeviceConnecedMac;
                             mInsole_connecMac2 = address;
                             MyApplication.insoleConnectedMacAddress.add(address);
-                            mInsoleDeviceBatteryInfos.put(address,-1);
+                            mInsoleDeviceBatteryInfos.put(address,new Device());
                             readInsoleDeviceInfo(address,true,true,true);
                             Log.e(TAG,"2个鞋垫都连接成功====================================================================================================================");
                         }
@@ -1195,9 +1213,9 @@ public class CommunicateToBleService extends Service {
                     }
                     break;
 
-                case LeProxy.ACTION_RSSI_AVAILABLE:{// 更新rssi
+                case LeProxy.ACTION_RSSI_AVAILABLE:// 更新rssi
 
-                }
+
                 break;
 
                 case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
@@ -1319,6 +1337,8 @@ public class CommunicateToBleService extends Service {
 
             if (address==null){
                 MyApplication.insoleConnectedMacAddress.clear();
+                mInsoleDeviceBatteryInfos.clear();
+                mApplication.setInsoleDeviceBatteryInfos(mInsoleDeviceBatteryInfos);
             }
 
             mInsoleDeviceBatteryInfos.remove(address);

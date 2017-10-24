@@ -36,7 +36,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="30dp"
-                android:text="心电"
+                android:text="@string/exercise_heart_ecg"
                 android:textColor="#FFF"
                 android:background="@drawable/bg_care_switch_lefton"
                 android:gravity="center"/>
@@ -45,7 +45,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="30dp"
-                android:text="步态"
+                android:text="@string/walking"
                 android:gravity="center"
                 android:textColor="#FFFFFF"
                 android:background="@drawable/bg_care_switch_rightoff"/>

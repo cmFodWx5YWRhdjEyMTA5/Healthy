@@ -95,13 +95,28 @@ public class ResultStrideFragment extends Fragment {
     private void initData() {
         mInsoleUploadRecord = InsoleAnalyticFinshResultActivity.mInsoleUploadRecord;
         if (mInsoleUploadRecord !=null){
+            /*这个情况为没有计算出来
+            "symmetry": 1,
+                "stepRate": 0,
+                "strideLength": 0,
+                "variability": 0,*/
             mSymmetry = (int) (mInsoleUploadRecord.errDesc.ShoepadResult.general.symmetry*100);
             if (!MyUtil.isEmpty(mInsoleUploadRecord.errDesc.ShoepadResult.general.variability)){
                 mVariability = (int) (Double.parseDouble(mInsoleUploadRecord.errDesc.ShoepadResult.general.variability)*100);
             }
 
-            tv_home_smmetry_value.setText(mSymmetry+"");
-            tv_home_variability_value.setText(mVariability+"");
+            float k = 360/100f;
+
+            if (mSymmetry<100){
+                tv_home_smmetry_value.setText(mSymmetry+"");
+                vr_strid_symmetry.setValue((int)(mSymmetry*k));
+            }
+
+            if (mVariability>0){
+                tv_home_variability_value.setText(mVariability+"");
+                vr_strid_variability.setValue((int)(mVariability*k));
+            }
+
 
             List<InsoleAnalyResult.LeftAndRight> left = mInsoleUploadRecord.errDesc.ShoepadResult.left;
             List<InsoleAnalyResult.LeftAndRight> right = mInsoleUploadRecord.errDesc.ShoepadResult.right;
@@ -170,7 +185,7 @@ public class ResultStrideFragment extends Fragment {
 
                     strideLengthMean[i] = (left.get(i).strideLengthMean + right.get(i).strideLengthMean)/4*100;
                     stepHeightMean[i] = (left.get(i).stepHeightMean + right.get(i).stepHeightMean)/2;
-                    swingWidthMean[i] = Math.abs(left.get(i).swingWidthMean) +  Math.abs(right.get(i).swingWidthMean)/2*100;
+                    swingWidthMean[i] = (Math.abs(left.get(i).swingWidthMean) +  Math.abs(right.get(i).swingWidthMean))/2*100;
                     stanceDurationMean[i] = (left.get(i).stanceDurationMean + right.get(i).stanceDurationMean)/2*1000;
                     loadingImpactMean[i] = (left.get(i).loadingImpactMean + right.get(i).loadingImpactMean)/2;
                 }
@@ -178,7 +193,7 @@ public class ResultStrideFragment extends Fragment {
                 for (int i=leftWindowCount;i<maxWindowCount;i++){
                     strideLengthMean[i] = right.get(i).strideLengthMean/2*100;
                     stepHeightMean[i] = right.get(i).stepHeightMean;
-                    swingWidthMean[i] = Math.abs(right.get(i).swingWidthMean*100);
+                    swingWidthMean[i] = Math.abs(right.get(i).swingWidthMean)*100;
                     stanceDurationMean[i] = right.get(i).stanceDurationMean*1000;
                     loadingImpactMean[i] = right.get(i).loadingImpactMean;
                 }
@@ -187,7 +202,7 @@ public class ResultStrideFragment extends Fragment {
                 for (int i=0;i<rightWindowCount;i++){
                     strideLengthMean[i] = (left.get(i).strideLengthMean+right.get(i).strideLengthMean)/4*100;  //strideLengthMean需要除以2，才为一步的
                     stepHeightMean[i] = (left.get(i).stepHeightMean+ right.get(i).stepHeightMean)/2;
-                    swingWidthMean[i] = (Math.abs(left.get(i).swingWidthMean)+ Math.abs(right.get(i).swingWidthMean)/2*100);
+                    swingWidthMean[i] = (Math.abs(left.get(i).swingWidthMean)+ Math.abs(right.get(i).swingWidthMean))/2*100;
                     stanceDurationMean[i] = (left.get(i).stanceDurationMean+right.get(i).stanceDurationMean)/2*1000;
                     loadingImpactMean[i] = (left.get(i).loadingImpactMean+right.get(i).loadingImpactMean)/2;
                 }
@@ -195,7 +210,7 @@ public class ResultStrideFragment extends Fragment {
                 for (int i=rightWindowCount;i<maxWindowCount;i++){
                     strideLengthMean[i] = left.get(i).strideLengthMean/2*100;
                     stepHeightMean[i] = left.get(i).stepHeightMean;
-                    swingWidthMean[i] = Math.abs(left.get(i).swingWidthMean*100);
+                    swingWidthMean[i] = Math.abs(left.get(i).swingWidthMean)*100;
                     stanceDurationMean[i] = left.get(i).stanceDurationMean*1000;
                     loadingImpactMean[i] = left.get(i).loadingImpactMean;
                 }
@@ -247,9 +262,7 @@ public class ResultStrideFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        float k = 360/100f;
-        vr_strid_symmetry.setValue((int)(mSymmetry*k));
-        vr_strid_variability.setValue((int)(mVariability*k));
+
     }
 
 }

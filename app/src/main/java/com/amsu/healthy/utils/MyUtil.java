@@ -1,6 +1,5 @@
 package com.amsu.healthy.utils;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
@@ -12,15 +11,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Path;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.Debug;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.design.widget.BottomSheetDialog;
 import android.util.Base64;
@@ -31,17 +25,12 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
-import android.widget.ImageView;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.BaseActivity;
-import com.amsu.healthy.activity.MainActivity;
 import com.amsu.healthy.activity.SosActivity;
-import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.DeviceList;
@@ -59,13 +48,10 @@ import com.test.objects.HeartRateResult;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -253,13 +239,24 @@ public class MyUtil {
                 if (!MyUtil.isEmpty(device.getMac())){
                     edit.putString("mac_insole",device.getMac());
                 }
+                if (!MyUtil.isEmpty(device.getHardWareVersion())){
+                    edit.putString("hardWareVersion_insole",device.getHardWareVersion());
+                }
+                if (!MyUtil.isEmpty(device.getSoftWareVersion())){
+                    edit.putString("softWareVersion_insole",device.getSoftWareVersion());
+                }
                 edit.putInt("deviceType_insole",device.getDeviceType());
+                edit.putInt("battery_insole",device.getBattery());
             }
             else {
                 edit.putString("name_insole","");
                 edit.putString("LEName_insole","");
                 edit.putString("state_insole","");
                 edit.putString("mac_insole","");
+                edit.putString("hardWareVersion_insole","");
+                edit.putString("softWareVersion_insole","");
+                edit.putInt("deviceType_insole",-1);
+                edit.putInt("battery_insole",-1);
             }
         }
         else {
@@ -276,13 +273,24 @@ public class MyUtil {
                 if (!MyUtil.isEmpty(device.getMac())){
                     edit.putString("mac",device.getMac());
                 }
+                if (!MyUtil.isEmpty(device.getHardWareVersion())){
+                    edit.putString("hardWareVersion",device.getHardWareVersion());
+                }
+                if (!MyUtil.isEmpty(device.getSoftWareVersion())){
+                    edit.putString("softWareVersion",device.getSoftWareVersion());
+                }
                 edit.putInt("deviceType_cloth",device.getDeviceType());
+                edit.putInt("battery",device.getBattery());
             }
             else {
                 edit.putString("name","");
                 edit.putString("LEName","");
                 edit.putString("state","");
                 edit.putString("mac","");
+                edit.putString("hardWareVersion","");
+                edit.putString("softWareVersion","");
+                edit.putInt("deviceType_cloth",-1);
+                edit.putInt("battery",-1);
             }
         }
         edit.apply();
@@ -305,7 +313,10 @@ public class MyUtil {
         String LEName ;
         String state ;
         String mac ;
-        int type = Constant.sportType_Cloth;
+        String hardWareVersion ;
+        String softWareVersion ;
+        int type;
+        int battery;
 
         if (deviceType==Constant.sportType_Insole){ // 1:衣服   2:鞋垫
             name = getStringValueFromSP("name_insole");
@@ -313,6 +324,9 @@ public class MyUtil {
             state = getStringValueFromSP("state_insole");
             mac = getStringValueFromSP("mac_insole");
             type = getIntValueFromSP("deviceType_insole");
+            hardWareVersion = getStringValueFromSP("hardWareVersion_insole");
+            softWareVersion = getStringValueFromSP("softWareVersion_insole");
+            battery = getIntValueFromSP("battery_insole");
         }
         else {
             name = getStringValueFromSP("name");
@@ -320,10 +334,13 @@ public class MyUtil {
             state = getStringValueFromSP("state");
             mac = getStringValueFromSP("mac");
             type = getIntValueFromSP("deviceType_cloth");
+            hardWareVersion = getStringValueFromSP("hardWareVersion");
+            softWareVersion = getStringValueFromSP("softWareVersion");
+            battery = getIntValueFromSP("battery");
         }
         Device device = null;
         if (!LEName.equals("") && !mac.equals("")){
-            device = new Device(name,state,mac,LEName,type);
+            device = new Device(name,state,mac,LEName,type,hardWareVersion,softWareVersion,battery);
         }
         return device;
     }

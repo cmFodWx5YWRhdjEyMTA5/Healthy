@@ -87,7 +87,6 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
         initView();
 
-
         initData();
 
 
@@ -733,6 +732,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     if (ret==0){
                         MyUtil.saveUserToSP(user);
                         setResult(RESULT_OK);
+                        finish();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

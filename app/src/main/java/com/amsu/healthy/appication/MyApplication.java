@@ -9,9 +9,11 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.amsu.healthy.activity.BaseActivity;
+import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.WebSocketUtil;
+import com.google.gson.Gson;
 import com.mob.MobSDK;
 import com.tencent.bugly.crashreport.CrashReport;
 
@@ -79,15 +81,12 @@ public class MyApplication extends Application{
     private int insoleLeftCurrBatteryPowerPercent = -1;
     private int insoleRightCurrBatteryPowerPercent = -1;
 
-    private Map<String,Integer> insoleDeviceBatteryInfos = new HashMap<>();
+    private Map<String,Device> insoleDeviceBatteryInfos = new HashMap<>();
 
 
     @Override
     public void onCreate() {
         super.onCreate();
-
-
-
 
         //sharesdk短信
         //MobSDK.init(this, "1976143c3c888", "0c1784d4bf495891bf142767b314651c");
@@ -127,6 +126,8 @@ public class MyApplication extends Application{
             }
 
             appContext = getApplicationContext();
+
+            insoleAccessToken = MyUtil.getStringValueFromSP("insoleAccessToken");
         }
 
     }
@@ -203,12 +204,16 @@ public class MyApplication extends Application{
         this.insoleRightCurrBatteryPowerPercent = insoleRightCurrBatteryPowerPercent;
     }
 
-    public Map<String, Integer> getInsoleDeviceBatteryInfos() {
+    public Map<String, Device> getInsoleDeviceBatteryInfos() {
         return insoleDeviceBatteryInfos;
     }
 
-    public void setInsoleDeviceBatteryInfos(Map<String, Integer> insoleDeviceBatteryInfos) {
+    public void setInsoleDeviceBatteryInfos(Map<String, Device> insoleDeviceBatteryInfos) {
         this.insoleDeviceBatteryInfos = insoleDeviceBatteryInfos;
+
+        Gson gson = new Gson();
+        String json = gson.toJson(insoleDeviceBatteryInfos);
+        MyUtil.putStringValueFromSP(Constant.insoleDeviceBatteryInfos,json);
     }
 
 

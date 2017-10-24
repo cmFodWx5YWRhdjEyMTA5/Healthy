@@ -10,14 +10,11 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.insole.InsoleRunningActivity;
 import com.amsu.healthy.appication.MyApplication;
-import com.amsu.healthy.bean.AppAbortDataSave;
-import com.amsu.healthy.bean.AppAbortDataSaveInsole;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.bean.WeekReport;
 import com.amsu.healthy.utils.ApkUtil;
-import com.amsu.healthy.utils.AppAbortDbAdapterUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
@@ -170,7 +167,7 @@ public class SplashActivity extends Activity {
         }
         MyUtil.addCookieForHttp(params);
 
-        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadWeekReportURL, params, new RequestCallBack<String>() {
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.downloadLatelyWeekReportURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 MyUtil.hideDialog(activity);
@@ -312,8 +309,8 @@ public class SplashActivity extends Activity {
             Log.i(TAG,"healthyIindexvalue:"+healthyIindexvalue);
             MyUtil.putIntValueFromSP("healthyIindexvalue",healthyIindexvalue);
 
-            int physicalAge = HealthyIndexUtil.calculatePhysicalAge(scoreBMI, scorehrReserve, scoreHRR, scoreHRV, scoreReserveHealth);
-            MyUtil.putIntValueFromSP("physicalAge",physicalAge);
+            int physicalAgeDValue = HealthyIndexUtil.calculatePhysicalAgeDValue(scoreBMI, scorehrReserve, scoreHRR, scoreHRV, scoreReserveHealth);
+            MyUtil.putIntValueFromSP("physicalAgeDValue",physicalAgeDValue);
 
             MyUtil.putIntValueFromSP("scoreOver_slowPercent",scoreOver_slow.getPercent());
 

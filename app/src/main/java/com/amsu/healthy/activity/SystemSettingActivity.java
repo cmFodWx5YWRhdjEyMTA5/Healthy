@@ -212,7 +212,7 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         */
 
         MyUtil.clearAllSPData();
-        startActivity(new Intent(SystemSettingActivity.this,LoginActivity.class));
+        startActivity(new Intent(SystemSettingActivity.this,LoginInputNumberActivity.class));
         MobclickAgent.onProfileSignOff();  ////友盟退出登陆账号统计
 
 

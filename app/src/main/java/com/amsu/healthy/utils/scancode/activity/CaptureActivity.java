@@ -92,7 +92,7 @@ public final class CaptureActivity extends BaseActivity implements SurfaceHolder
 
     private void initView() {
         initHeadView();
-        setCenterText("扫一扫");
+        setCenterText(getResources().getString(R.string.scan_code));
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override

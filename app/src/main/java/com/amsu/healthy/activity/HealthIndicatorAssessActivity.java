@@ -276,8 +276,8 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
     }
 
     private void setIndicatorData(){
-        tv_assess_thisweek.setText("近七天");
-        tv_assess_compare.setText(mCompareWeek);
+        tv_assess_thisweek.setText(getResources().getString(R.string.nearly_7_days));
+        tv_assess_compare.setText(getResources().getString(R.string.last_week));
 
         boolean isThisWeekHaveData = false;
         boolean isLastWeekHaveData = false;
@@ -294,14 +294,14 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         Log.i(TAG,"isThisWeekHaveData:"+isThisWeekHaveData+",isLastWeekHaveData:"+isLastWeekHaveData);
 
         if (isThisWeekHaveData && !isLastWeekHaveData){
-            //本周有数据
+            //近七天有数据
             rc_assess_radar.setDatas(thisWeekdata,null,null);
-            tv_assess_compare.setText(tv_assess_compare.getText().toString()+"无数据");
+            tv_assess_compare.setText(getResources().getString(R.string.no_data_last_week));
         }
         else if (!isThisWeekHaveData && isLastWeekHaveData){
             //上周有数据
             rc_assess_radar.setDatas(null,lastWeekdata,null);
-            tv_assess_thisweek.setText("近7天无数据");
+            tv_assess_thisweek.setText(getResources().getString(R.string.no_data_last_week));
         }
         else if (isThisWeekHaveData && isLastWeekHaveData){
             //都有
@@ -310,8 +310,8 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
         else if (!isThisWeekHaveData && !isLastWeekHaveData){
             //都没有
             rc_assess_radar.setDatas(null,null,null);
-            tv_assess_thisweek.setText("近7天无数据");
-            tv_assess_compare.setText(tv_assess_compare.getText().toString()+"无数据");
+            tv_assess_thisweek.setText(getResources().getString(R.string.no_data_nearly_7_days));
+            tv_assess_compare.setText(getResources().getString(R.string.no_data_last_week));
         }
 
        /* if(thisWeekReport!=null &&  lastWeekReport==null ){
