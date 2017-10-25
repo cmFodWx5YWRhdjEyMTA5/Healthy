@@ -427,6 +427,14 @@
         <activity
             android:name=".activity.marathon.EnduranceTestResultActivity"
             android:screenOrientation="portrait" />
+        <!--马拉松运动记录-->
+        <activity
+            android:name=".activity.marathon.SportRecordActivity"
+            android:screenOrientation="portrait" />
+        <!--马拉松运动记录详情-->
+        <activity
+            android:name=".activity.marathon.SportRecordDetailsActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

@@ -27,6 +27,11 @@
     <color name="color_ff20262b">#ff20262b</color>
     <color name="color_ff212121">#ff212121</color>
     <color name="color_ffb3b3b3">#ffb3b3b3</color>
+    <color name="color_ff3b3b3b">#ff3b3b3b</color>
     <color name="color_ffb2b2b2">#ffb2b2b2</color>
+    <color name="color_ffe8e8e8">#ffe8e8e8</color>
+    <color name="color_ffffffff">#ffffffff</color>
+    <color name="color_ff999999">#ff999999</color>
+    <color name="color_fff5f5f5">#fff5f5f5</color>
 
 </resources>

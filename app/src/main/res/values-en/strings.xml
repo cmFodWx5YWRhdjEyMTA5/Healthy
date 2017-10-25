@@ -77,12 +77,14 @@
 
     <string name="distance">distance</string>
     <string name="exercise_distance">distance(KM)</string>
+    <string name="exercise_distance_">distance(km)</string>
     <string name="exercise_time">time</string>
     <string name="exercise_heart_rate">heart rate</string>
     <string name="exercise_heart_ecg">ECG</string>
     <string name="exercise_pace">pace</string>
     <string name="exercise_pace_unit">min/km</string>
     <string name="exercise_speed">speed(min/km)</string>
+    <string name="exercise_speed_">speed(min/km)</string>
     <string name="exercise_calories">calories(Kcal)</string>
     <string name="exercise_calorie">calories</string>
     <string name="exercise_cadence">cadence</string>
@@ -435,8 +437,10 @@
     <string name="endurance_stride_frequency">步频(步/分钟)</string>
     <string name="endurance_end">长按结束</string>
     <string name="kilometer">公里</string>
+    <string name="endurance_kilometer_">公里(km)</string>
     <string name="endurance_speed">平均配速</string>
     <string name="endurance_vo2max">VO2max(ml/kg min)</string>
     <string name="endurance_level">耐力水平</string>
-
+    <string name="endurance_sport_record">运动记录</string>
+    <string name="endurance_sport_speed">speed(km/h)</string>
 </resources>

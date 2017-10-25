@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="0dip"
+        android:layout_height="@dimen/x180"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/x36"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/sport_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="5.21"
+                android:textColor="@color/color_ff3b3b3b"
+                android:textSize="@dimen/x64" />
+
+            <TextView
+                android:id="@+id/sport_distance_km"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/sport_distance"
+                android:layout_marginLeft="@dimen/x16"
+                android:layout_toRightOf="@+id/sport_distance"
+                android:text="km"
+                android:textColor="@color/color_ff3b3b3b"
+                android:textSize="@dimen/x28" />
+
+            <TextView
+                android:id="@+id/sport_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/sport_distance"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/x20"
+                android:text="15:10"
+                android:textColor="@color/color_ff666666"
+                android:textSize="@dimen/x36" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/x84"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sport_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="21:41"
+                android:textColor="@color/color_ff3b3b3b"
+                android:textSize="@dimen/x64" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/sport_distance"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/x20"
+                android:text="时间"
+                android:textColor="@color/color_ff666666"
+                android:textSize="@dimen/x36" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/x84"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sport_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="52'51''"
+                android:textColor="@color/color_ff3b3b3b"
+                android:textSize="@dimen/x64" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/sport_distance"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/x20"
+                android:text="平均配速"
+                android:textColor="@color/color_ff666666"
+                android:textSize="@dimen/x36" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/x84"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sport_heart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="168"
+                android:textColor="@color/color_ff3b3b3b"
+                android:textSize="@dimen/x64" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/sport_distance"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/x20"
+                android:text="心率"
+                android:textColor="@color/color_ff666666"
+                android:textSize="@dimen/x36" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/x36"
+        android:src="@drawable/more_icon" />
+</LinearLayout>

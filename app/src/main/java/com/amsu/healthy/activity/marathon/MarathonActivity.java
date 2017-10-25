@@ -52,6 +52,7 @@ public class MarathonActivity extends BaseActivity implements View.OnClickListen
             case R.id.ll_roadwork:
                 break;
             case R.id.ll_histories:
+                startActivity(SportRecordActivity.createIntent(this));
                 break;
         }
     }

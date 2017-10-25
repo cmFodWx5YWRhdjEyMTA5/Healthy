@@ -72,6 +72,7 @@
     <string name="hrr_analyze">HRR分析</string>
 
     <string name="exercise_distance">里程(KM)</string>
+    <string name="exercise_distance_">里程(km)</string>
     <string name="distance">里程</string>
     <string name="exercise_time">用时</string>
     <string name="exercise_heart_rate">心率</string>
@@ -79,6 +80,7 @@
     <string name="exercise_pace">配速</string>
     <string name="exercise_pace_unit">分钟/公里</string>
     <string name="exercise_speed">配速(分钟/公里)</string>
+    <string name="exercise_speed_">配速(min/km)</string>
     <string name="exercise_calories">卡路里(Kcal)</string>
     <string name="exercise_calorie">卡路里</string>
     <string name="exercise_cadence">步频(步/分钟)</string>
@@ -434,9 +436,12 @@
     <string name="endurance_stride_frequency">步频(步/分钟)</string>
     <string name="endurance_end">长按结束</string>
     <string name="endurance_kilometer">公里</string>
+    <string name="endurance_kilometer_">公里(km)</string>
     <string name="endurance_speed">平均配速</string>
     <string name="endurance_vo2max">VO2max(ml/kg min)</string>
     <string name="endurance_level">耐力水平</string>
+    <string name="endurance_sport_record">运动记录</string>
+    <string name="endurance_sport_speed">速度(km/h)</string>
 
 
 
