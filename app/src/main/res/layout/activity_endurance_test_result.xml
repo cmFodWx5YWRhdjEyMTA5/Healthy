@@ -37,7 +37,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3.65"
+                android:text="0.00"
                 android:textColor="@color/color_ff20262b"
                 android:textSize="@dimen/x164" />
 
@@ -73,7 +73,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="24'21''"
+                    android:text="——"
                     android:textColor="@color/color_ff20262b"
                     android:textSize="@dimen/x64" />
 
@@ -98,7 +98,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="80"
+                    android:text="——"
                     android:textColor="@color/color_ff20262b"
                     android:textSize="@dimen/x64" />
 
@@ -123,7 +123,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="优秀"
+                    android:text="——"
                     android:textColor="@color/color_ff20262b"
                     android:textSize="@dimen/x64" />
 
@@ -134,7 +134,6 @@
                     android:text="@string/endurance_level"
                     android:textColor="@color/color_ffb2b2b2"
                     android:textSize="@dimen/x32" />
-
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

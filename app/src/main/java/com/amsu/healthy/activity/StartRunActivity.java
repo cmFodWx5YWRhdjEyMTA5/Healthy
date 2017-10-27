@@ -1,16 +1,14 @@
 package com.amsu.healthy.activity;
 
-import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.os.Environment;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -32,7 +30,6 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.bean.JsonBase;
-import com.amsu.healthy.bean.User;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.AppAbortDbAdapterUtil;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
@@ -61,22 +58,18 @@ import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
 import com.test.utils.DiagnosisNDK;
 
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
-
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static com.amsu.healthy.utils.Constant.isMarathonSportType;
 
 /**
  *
@@ -203,6 +196,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private void initView() {
         initHeadView();
         setCenterText(getResources().getString(R.string.motion_detection));
+        boolean is = MyUtil.getBooleanValueFromSP(isMarathonSportType);
+        if (is){
+            setCenterText(getResources().getString(R.string.endurance_run_test));
+        }
         setLeftImage(R.drawable.back_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override

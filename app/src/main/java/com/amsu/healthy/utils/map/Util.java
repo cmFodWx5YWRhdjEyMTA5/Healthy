@@ -287,4 +287,16 @@ public class Util {
         locString.append(location.getBearing());
         return locString.toString();
     }
+	public static LatLng getLatLng(double l1, double l2) {
+		double temp = 0;
+		if (l1 > l2) {
+			temp = l1;
+			l1 = l2;
+			l2 = temp;
+		}
+		return new LatLng(l1, l2);
+	}
+	public static String formatNumber(double x, int z) {
+		return String.format("%." + z + "f", x);
+	}
 }

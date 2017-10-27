@@ -54,6 +54,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static com.amsu.healthy.utils.Constant.isMarathonSportType;
+
 public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
@@ -535,7 +537,7 @@ public class MainActivity extends BaseActivity {
             switch (intent.getAction()){
                 case LeProxy.ACTION_GATT_CONNECTED:
                     Log.i(TAG,"已连接 " );
-                    if (MyApplication.deivceType==Constant.sportType_Cloth){
+                    if (MyApplication.deivceType == Constant.sportType_Cloth) {
                         iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
                     }
                     else if (MyApplication.deivceType==Constant.sportType_Insole){
@@ -770,16 +772,12 @@ public class MainActivity extends BaseActivity {
                     HashMap<String,String> map = new HashMap<>();
                     map.put("screen","设备："+Build.MODEL+",heigth:"+dm.heightPixels+",width:"+dm.widthPixels);
                     MobclickAgent.onEvent(MainActivity.this,"event_phonemodel",map);*/
-                    int sportType=MyUtil.getIntValueFromSP(Constant.sportType);
-                    switch (sportType){
-                        case Constant.sportType_Marathon://马拉松
-                            startActivity(MarathonActivity.createIntent(MainActivity.this));
-                            break;
-                        default:
-                            startActivity(new Intent(MainActivity.this, PrepareRunningActivity.class));
-                            break;
+                    boolean is = MyUtil.getBooleanValueFromSP(isMarathonSportType);
+                    if (is){
+                        startActivity(MarathonActivity.createIntent(MainActivity.this));
+                    }else{
+                        startActivity(new Intent(MainActivity.this, PrepareRunningActivity.class));
                     }
-
 
 
                     /*int type = MyUtil.getIntValueFromSP(Constant.sportType);

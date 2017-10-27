@@ -443,4 +443,5 @@
     <string name="endurance_level">耐力水平</string>
     <string name="endurance_sport_record">运动记录</string>
     <string name="endurance_sport_speed">speed(km/h)</string>
+    <string name="endurance_run_test">长跑练习</string>
 </resources>

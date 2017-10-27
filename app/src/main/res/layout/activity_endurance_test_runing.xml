@@ -23,6 +23,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/sportTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="12:00"
@@ -46,6 +47,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/sport_distance_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="——"
@@ -82,10 +84,11 @@
                 android:src="@drawable/xinlvtubiao" />
 
             <TextView
+                android:id="@+id/heartRate_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/x56"
-                android:text="120"
+                android:text="——"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/x96" />
 
@@ -111,11 +114,11 @@
                 android:src="@drawable/peisutubiao" />
 
             <TextView
-                android:id="@+id/textView4"
+                android:id="@+id/sport_speed_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/x56"
-                android:text="3'23''"
+                android:text="——"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/x96" />
 
@@ -141,10 +144,11 @@
                 android:src="@drawable/bupintubiao" />
 
             <TextView
+                android:id="@+id/stride_frequency_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/x56"
-                android:text="56"
+                android:text="——"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/x96" />
 
@@ -183,8 +187,8 @@
             android:layout_centerInParent="true"
             android:background="@drawable/btn_gradual_round_blue"
             android:gravity="center"
-            android:textSize="@dimen/x48"
             android:text="@string/endurance_end"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/x48" />
     </RelativeLayout>
 </LinearLayout>

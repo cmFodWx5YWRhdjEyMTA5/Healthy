@@ -10,6 +10,9 @@ import com.amsu.healthy.activity.insole.InsoleRunningActivity;
 import com.amsu.healthy.activity.marathon.EnduranceTestRuningActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.MyUtil;
+
+import static com.amsu.healthy.utils.Constant.isMarathonSportType;
 
 public class RunTimeCountdownActivity extends Activity {
 
@@ -37,28 +40,33 @@ public class RunTimeCountdownActivity extends Activity {
             public void run() {
                 super.run();
                 count = 3;
-                while (count > 1) {
+                while (count > 0) {
                     try {
-                        Thread.sleep(1000);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                tv_countdown_count.setText(count + "");
+                                tv_countdown_count.setText(String.valueOf(count));
                             }
                         });
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     count--;
-                    if (count == 1) {
+                    if (count == 0) {
                         int intExtra = MyApplication.deivceType;
+                        int sport = getIntent().getIntExtra(Constant.sportType, -1);
+                        if (sport != -1) {
+                            intExtra = sport;
+                        }
                         Intent intent = new Intent();
-                        if (intExtra == Constant.sportType_Cloth) {
+                        boolean is = MyUtil.getBooleanValueFromSP(isMarathonSportType);
+                        if (is) {
+                            intent.setClass(RunTimeCountdownActivity.this, EnduranceTestRuningActivity.class);
+                        } else if (intExtra == Constant.sportType_Cloth) {
                             intent.setClass(RunTimeCountdownActivity.this, StartRunActivity.class);
                         } else if (intExtra == Constant.sportType_Insole) {
                             intent.setClass(RunTimeCountdownActivity.this, InsoleRunningActivity.class);
-                        }else if(intExtra == Constant.sportType_Marathon){
-                            intent.setClass(RunTimeCountdownActivity.this, EnduranceTestRuningActivity.class);
                         }
                         boolean booleanExtra = getIntent().getBooleanExtra(Constant.mIsOutDoor, false);
                         intent.putExtra(Constant.mIsOutDoor, booleanExtra);

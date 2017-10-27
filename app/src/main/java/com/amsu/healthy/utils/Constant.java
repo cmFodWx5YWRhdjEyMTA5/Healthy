@@ -107,6 +107,7 @@ public class Constant {
     public static String myDeceiveName = "myDeceiveName";
     public static String isNeedRecoverAbortData = "isNeedRecoverAbortData";
     public static String sportType = "sportType";
+    public static String isMarathonSportType = "isMarathonSportType";
     public static String mIsOutDoor = "mIsOutDoor";
     /**
      * 运动服/跑步
@@ -116,10 +117,6 @@ public class Constant {
      * 鞋垫/步态
      */
     public static final int sportType_Insole = 2;
-    /**
-     * 马拉松
-     */
-    public static final int sportType_Marathon = 3;
 
     public static String uploadRecordDefaultString = "0";
     public static String uploadRecordDefaultString_1 = "-1";

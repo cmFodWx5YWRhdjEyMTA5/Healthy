@@ -10,6 +10,8 @@ import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 
+import static com.amsu.healthy.utils.Constant.isMarathonSportType;
+
 /**
  * Created by HP on 2017/4/5.
  * 运动模式
@@ -83,6 +85,7 @@ public class MotionDetectionActivity extends BaseActivity implements View.OnClic
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();*/
 
+        MyUtil.putBooleanValueFromSP(isMarathonSportType, false);
         switch (v.getId()) {
             case R.id.rl_dection_cloth:
                 switchSelectedState(Constant.sportType_Cloth);
@@ -91,21 +94,24 @@ public class MotionDetectionActivity extends BaseActivity implements View.OnClic
                 switchSelectedState(Constant.sportType_Insole);
                 break;
             case R.id.rl_marathon:
-                switchSelectedState(Constant.sportType_Marathon);
+                MyUtil.putBooleanValueFromSP(isMarathonSportType, true);
+                switchSelectedState(Constant.sportType_Cloth);
                 break;
         }
     }
 
     private void switchSelectedState(int type) {
-        if (type == mSportType) {
-            return;
-        }
-
         switch (type) {
             case Constant.sportType_Cloth:
                 iv_detction_cloth.setBackgroundResource(R.drawable.bg_center_circle);
                 iv_detction_insole1.setBackgroundResource(R.drawable.bg_sport_type);
                 iv_detction_marathon.setBackgroundResource(R.drawable.bg_sport_type);
+                boolean is = MyUtil.getBooleanValueFromSP(isMarathonSportType);
+                if (is) {
+                    iv_detction_cloth.setBackgroundResource(R.drawable.bg_sport_type);
+                    iv_detction_insole1.setBackgroundResource(R.drawable.bg_sport_type);
+                    iv_detction_marathon.setBackgroundResource(R.drawable.bg_center_circle);
+                }
                 /*if (mSportType!=-1){
                     MyUtil.showToask(this,"衣服切换成功");
                 }*/
@@ -114,14 +120,6 @@ public class MotionDetectionActivity extends BaseActivity implements View.OnClic
                 iv_detction_cloth.setBackgroundResource(R.drawable.bg_sport_type);
                 iv_detction_insole1.setBackgroundResource(R.drawable.bg_center_circle);
                 iv_detction_marathon.setBackgroundResource(R.drawable.bg_sport_type);
-                /*if (mSportType!=-1){
-                    MyUtil.showToask(this,"鞋垫切换成功");
-                }*/
-                break;
-            case Constant.sportType_Marathon:
-                iv_detction_cloth.setBackgroundResource(R.drawable.bg_sport_type);
-                iv_detction_insole1.setBackgroundResource(R.drawable.bg_sport_type);
-                iv_detction_marathon.setBackgroundResource(R.drawable.bg_center_circle);
                 /*if (mSportType!=-1){
                     MyUtil.showToask(this,"鞋垫切换成功");
                 }*/
