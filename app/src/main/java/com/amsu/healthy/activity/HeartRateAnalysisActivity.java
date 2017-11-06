@@ -3,7 +3,6 @@ package com.amsu.healthy.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
-import com.amap.api.maps.model.LatLng;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.ParcelableDoubleList;
@@ -28,7 +26,6 @@ import com.amsu.healthy.utils.WebSocketUtil;
 import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
-import com.amsu.healthy.view.HeightCurveView;
 import com.google.gson.Gson;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -39,8 +36,6 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import com.test.objects.HeartRateResult;
 import com.test.utils.DiagnosisNDK;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.entity.StringEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -49,9 +44,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -330,7 +323,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             timestamp = System.currentTimeMillis()/1000;
             datatime = MyUtil.getSpecialFormatTime("yyyy/MM/dd HH:mm:ss", new Date());
         }
-
         uploadRecord.timestamp=timestamp;
         uploadRecord.datatime = datatime;
         uploadRecord.state = sportState;
@@ -696,14 +688,19 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             }
 
             params.addBodyParameter("hr",hr+"");
-            params.addBodyParameter("ae",ae+"");
             params.addBodyParameter("cadence",cadence+"");
             params.addBodyParameter("calorie",calorie+"");
             params.addBodyParameter("latitudeLongitude",latitudeLongitude+"");
-
             params.addBodyParameter("time",uploadRecord.time+"");
             params.addBodyParameter("distance",(int)uploadRecord.distance+"");
-            params.addBodyParameter("state",uploadRecord.state+"");
+            boolean isMarathonSportType = MyUtil.getBooleanValueFromSP(Constant.isMarathonSportType);
+            if (isMarathonSportType) {
+                params.addBodyParameter("state", "3");
+                params.addBodyParameter("ae", Constant.sportAe);
+            } else {
+                params.addBodyParameter("ae",ae+"");
+                params.addBodyParameter("state", uploadRecord.state + "");
+            }
             params.addBodyParameter("zaobo",uploadRecord.zaobo+"");
             params.addBodyParameter("loubo",uploadRecord.loubo+"");
             params.addBodyParameter("inuse",uploadRecord.inuse+"");

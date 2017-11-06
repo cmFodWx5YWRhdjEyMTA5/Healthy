@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -23,14 +24,25 @@ import com.amsu.healthy.activity.BaseActivity;
 import com.amsu.healthy.activity.HealthyDataActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.service.CommunicateToBleService;
+import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.DateFormatUtils;
 import com.amsu.healthy.utils.ECGUtil;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.LeProxy;
+import com.amsu.healthy.utils.MarathonUtil;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.UStringUtil;
 import com.amsu.healthy.utils.map.Util;
+import com.amsu.healthy.view.GlideRelativeView;
 import com.ble.api.DataUtil;
+import com.google.gson.Gson;
+import com.lidroid.xutils.HttpUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
 import com.test.utils.DiagnosisNDK;
 
 import java.io.DataOutputStream;
@@ -71,8 +83,12 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     boolean mIsDataStart;
     public Date mCurrTimeDate;
     private String TAG = "EnduranceTestRuningActivity";
-
+    private Date date;
     private ArrayList<Integer> heartRateDates = new ArrayList<>();  // 心率数组
+    private View testButtons_rl;
+    private View rl_run_lock;
+    private GlideRelativeView rl_run_glide;
+    private boolean isLockScreen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,11 +109,14 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
         heartRate_tv = (TextView) findViewById(R.id.heartRate_tv);
         sport_speed_tv = (TextView) findViewById(R.id.sport_speed_tv);
         stride_frequency_tv = (TextView) findViewById(R.id.stride_frequency_tv);
+        testButtons_rl = findViewById(R.id.testButtons_rl);
+        rl_run_lock = findViewById(R.id.rl_run_lock);
+        rl_run_glide = (GlideRelativeView) findViewById(R.id.rl_run_glide);
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
         application = (MyApplication) getApplication();
         application.setRunningRecoverType(Constant.sportType_Cloth);
-        mIsRunning = true;
         application.setRunningCurrTimeDate(mCurrTimeDate = new Date(0, 0, 0));
+        mIsRunning = true;
     }
 
     private void initEvents() {
@@ -114,34 +133,203 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
                 finish();
             }
         });
+        findViewById(R.id.tv_run_lock).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                testButtons_rl.setVisibility(View.INVISIBLE);
+                rl_run_lock.setVisibility(View.VISIBLE);
+                getIv_base_leftimage().setVisibility(View.GONE);
+                getTv_base_rightText().setClickable(false);
+                isLockScreen = true;
+            }
+        });
+        rl_run_glide.setOnONLockListener(new GlideRelativeView.OnONLockListener() {
+            @Override
+            public void onLock() {
+                testButtons_rl.setVisibility(View.VISIBLE);
+                rl_run_lock.setVisibility(View.GONE);
+                getIv_base_leftimage().setVisibility(View.VISIBLE);
+                getTv_base_rightText().setClickable(true);
+                isLockScreen = false;
+            }
+        });
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (isLockScreen) {
+            return false;
+        } else {
+            backJudge();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void backJudge() {
+        ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(this);
+        chooseAlertDialogUtil.setAlertDialogText(getResources().getString(R.string.testing_runing_quit));
+        chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
+            @Override
+            public void onConfirmClick() {
+                finish();
+            }
+        });
     }
 
     private void countDownTime() {
+        date = new Date();
         CountDownTimer countDownTimer = new CountDownTimer(12 * 60 * 1000, 1000) {
             @Override
             public void onTick(long l) {
                 String time = DateFormatUtils.getFormatTime(l, DateFormatUtils.MM_SS);
                 sportTime.setText(time);
+                if (application != null) {
+                    application.setRunningDate(time);
+                }
             }
 
             @Override
             public void onFinish() {
                 finishSport();
+                if (application != null) {
+                    application.setRunningDate(getString(R.string.null_value));
+                }
             }
         };
 
         countDownTimer.start();
     }
 
+    /**
+     * 结束运动
+     */
     private void finishSport() {
-        startActivity(EnduranceTestResultActivity.createIntent(EnduranceTestRuningActivity.this));
-        finish();
+        uploadData();
+    }
+
+    private String hr = "";
+    private String strideFrequency = "";
+
+    private void uploadData() {
+        RequestParams params = new RequestParams();
+        Gson gson = new Gson();
+
+        if (!heartRateDates.isEmpty()) {
+            hr = gson.toJson(heartRateDates);
+        }
+
+        if (!mStridefreData.isEmpty()) {
+            strideFrequency = gson.toJson(mStridefreData);
+        }
+        String fileBase64 = null;
+        try {
+            fileBase64 = Util.encodeBase64File(ecgLocalFileName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String EC = "";
+        if (!UStringUtil.isNullOrEmpty(fileBase64)) {
+            EC = fileBase64;
+        }
+        final float speed = calculateSpeed();
+        final String distance = sport_distance_tv.getText().toString();
+        double dis = 0;
+        try {
+            dis = Double.parseDouble(distance);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String AHR = "";
+        int MaxHR = 0;
+        int MinHR = 0;
+        int averHeart = 0;
+        if (heartRateDates.size() > 0) {
+            MaxHR = heartRateDates.get(0);
+            MinHR = heartRateDates.get(0);
+            int sum = 0;
+            int graterZeroCount = 0;
+            for (int heart : heartRateDates) {
+                if (heart > 0) {
+                    if (heart > MaxHR) {
+                        MaxHR = heart;
+                    }
+                    if (heart < MinHR) {
+                        MinHR = heart;
+                    }
+                    sum += heart;
+                    graterZeroCount++;
+                }
+            }
+            if (graterZeroCount > 0) {
+                averHeart = sum / graterZeroCount;
+            }
+            AHR = String.valueOf(averHeart);
+        }
+        double vo2;
+        if (dis == 0) {
+            vo2 = 0.0;
+        } else {
+            vo2 = 22.34 * dis - 11.29;
+        }
+        MyUtil.showDialog(getResources().getString(R.string.please_wait_a_moment), this);
+        final double Vo2max = vo2;
+        final String dateStr = DateFormatUtils.getFormatTime(date, DateFormatUtils.YYYY_MM_DD_HH_MM_SS_);
+        final String enduranceLevel = MarathonUtil.getEnduranceLevel(dis);
+        params.addBodyParameter("hr", hr);
+        params.addBodyParameter("strideFrequency", strideFrequency);
+        params.addBodyParameter("EC", EC);
+        params.addBodyParameter("distance", String.valueOf(dis));
+        params.addBodyParameter("date", dateStr);
+        params.addBodyParameter("averagePace", String.valueOf(speed));
+        params.addBodyParameter("enduranceLevel", enduranceLevel);
+        params.addBodyParameter("ahr", AHR);
+        params.addBodyParameter("vo2max", String.valueOf(Vo2max));
+        params.addBodyParameter("maxhr", String.valueOf(MaxHR));
+        MyUtil.addCookieForHttp(params);
+        HttpUtils httpUtils = new HttpUtils();
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.uploadEnduranceDataURL, params, new RequestCallBack<String>() {
+
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                MyUtil.hideDialog(EnduranceTestRuningActivity.this);
+                String json = responseInfo.result;
+                Log.e("json", json);
+                Intent intent = EnduranceTestResultActivity.createIntent(EnduranceTestRuningActivity.this);
+                intent.putExtra("date", dateStr);
+                intent.putExtra("Vo2max", Vo2max);
+                intent.putExtra("speed", speed);
+                intent.putExtra("distance", distance);
+                intent.putExtra("hr", hr);
+                intent.putExtra("strideFrequency", strideFrequency);
+                intent.putExtra("enduranceLevel", enduranceLevel);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                MyUtil.hideDialog(EnduranceTestRuningActivity.this);
+            }
+        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
+        destorySportInfoTOAPP();
+    }
+
+    private void destorySportInfoTOAPP() {
+        if (application != null) {
+            application.setRunningCurrTimeDate(null);
+            application.setRunningFinalFormatSpeed(null);
+            application.setRunningRecoverType(-1);
+            application.setRunningFormatDistance(null);
+            application.setRunningDate(getString(R.string.null_value));
+            application.setRunningmCurrentHeartRate(0);
+            application = null;
+        }
     }
 
     //初始化定位
@@ -168,11 +356,14 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
             locationList.add(aMapLocation);
         }
         double distance = calculateDistance();
-        float averageSpeed = calculateSpeed();
-        String dis = Util.formatNumber(distance / 1000, 2);
-        String s = Util.formatNumber(averageSpeed, 2);
+        String dis = UStringUtil.formatNumber(distance / 1000, 2);
         sport_distance_tv.setText(dis);
-        sport_speed_tv.setText(s);
+        String speedData = UStringUtil.getSpeed(speed);
+        sport_speed_tv.setText(speedData);
+        if (application != null) {
+            application.setRunningFinalFormatSpeed(speedData);
+            application.setRunningFormatDistance(dis);
+        }
     }
 
     private float calculateSpeed() {
@@ -180,7 +371,11 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
         for (Float aFloat : speedList) {
             result += aFloat;
         }
-        return result / speedList.size();
+        int size = speedList.size();
+        if (size > 0) {
+            return result / size;
+        }
+        return 0;
     }
 
     /**

@@ -69,8 +69,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.amsu.healthy.utils.Constant.isMarathonSportType;
-
 /**
  *
  */
@@ -107,6 +105,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     public  double mAllDistance;
     private double mAddDistance;
     private long mCurrentTimeMillis = 0;
+    private long aeTimeMillis = 0;
     private TextView tv_run_test;
 
     private ArrayList<Integer> heartRateDates = new ArrayList<>();  // 心率数组
@@ -182,7 +181,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private boolean isStartDataTransfer;
     private String mCurAppClientID;
     private String mCurBrowserClientID;*/
-
+    private boolean isMarathonSportType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,8 +195,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private void initView() {
         initHeadView();
         setCenterText(getResources().getString(R.string.motion_detection));
-        boolean is = MyUtil.getBooleanValueFromSP(isMarathonSportType);
-        if (is){
+        isMarathonSportType = MyUtil.getBooleanValueFromSP(Constant.isMarathonSportType);
+        if (isMarathonSportType) {
             setCenterText(getResources().getString(R.string.endurance_run_test));
         }
         setLeftImage(R.drawable.back_icon);
@@ -1084,8 +1083,26 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     //private int locationInAccurateCount = 1;
     //private int noGpsLocationCount = 0;
+    List<String[]> aeList = new ArrayList<>();
 
+    /**
+     * 计算当前平均心率
+     */
+    private int calculateAverageHeart(){
+        int result = 0;
+        for (Integer integer : heartRateDates) {
+            result += integer;
+        }
+        int size = heartRateDates.size();
+        if (size > 0) {
+            return result / heartRateDates.size();
+        }
+        return 0;
+    }
     private void calculateDistance(AMapLocation aMapLocation) {
+        if (aeTimeMillis == 0) {
+            aeTimeMillis = System.currentTimeMillis();
+        }
         //不关室内室外，首次定位几个点策略：定位5个点，这5个点的距离在100m范围之内属于正常情况，否则为定位不准，重新定位前5个点
         if (pathRecord.getPathline().size()<5){
             pathRecord.addpoint(aMapLocation);
@@ -1098,7 +1115,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             }
             return;
         }
-
         if (mCurrentTimeMillis==0) {
             mCurrentTimeMillis = System.currentTimeMillis();
         }
@@ -1135,11 +1151,32 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             }
             mCurrentTimeMillis = System.currentTimeMillis();
         }
-
+        int listSize=aeList.size();
+        int temp = (listSize + 1) * 1000;
+        if (mAllDistance >= temp) {
+            if (!aeList.isEmpty()) {
+                String ae[] = aeList.get(listSize - 1);
+                if (ae[0].compareTo(String.valueOf(temp)) != 0) {
+                    String itemAe[] = new String[3];
+                    itemAe[0] = String.valueOf(temp);
+                    itemAe[1] = String.valueOf(aeTimeMillis);
+                    itemAe[2] = String.valueOf(calculateAverageHeart());
+                    aeList.add(itemAe);
+                }
+            } else {
+                String itemAe[] = new String[3];
+                itemAe[0] = String.valueOf(temp);
+                itemAe[1] = String.valueOf(aeTimeMillis);
+                itemAe[2] = String.valueOf(calculateAverageHeart());
+                aeList.add(itemAe);
+            }
+            aeTimeMillis = 0;
+        }
         mFormatDistance = MyUtil.getFormatDistance(mAllDistance);
         if(application!=null){
             application.setRunningFormatDistance(mFormatDistance);
         }
+
         tv_run_distance.setText(mFormatDistance);
         Log.i(TAG,"mAllDistance:"+mAllDistance);
 
@@ -1467,6 +1504,19 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     //结束运动
     private void endRunning() {
+        int size=aeList.size();
+        int dis=0;
+        if (!aeList.isEmpty()) {
+            String tmpAe[] = aeList.get(size - 1);
+            dis = Integer.parseInt(tmpAe[0]);
+        }
+        String itemAe[] = new String[3];
+        itemAe[0] = String.valueOf((int)mAllDistance - dis);
+        itemAe[1] = String.valueOf((System.currentTimeMillis()-aeTimeMillis)/1000);
+        itemAe[2] = String.valueOf(calculateAverageHeart());
+        aeList.add(itemAe);
+        Gson gson = new Gson();
+        Constant.sportAe = gson.toJson(aeList);
         Log.i(TAG,"isThreeMinute:"+ isThreeMinute +", isHaveDataTransfer:"+isHaveDataTransfer);
         ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(this);
         if (isThreeMinute){

@@ -17,10 +17,20 @@ import com.amsu.healthy.appication.FragmentAdapter;
 import com.amsu.healthy.fragment.marathon.SportRecordStatisticsItem_1;
 import com.amsu.healthy.fragment.marathon.SportRecordStatisticsItem_2;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.DateFormatUtils;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.UStringUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.lidroid.xutils.HttpUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.RequestParams;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.lidroid.xutils.http.client.HttpRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +41,12 @@ import static com.mob.MobSDK.getContext;
  * author：WangLei
  * date:2017/10/24.
  * QQ:619321796
- * 耐力测试水平
+ * 耐力测试水平成绩
  */
 
-public class EnduranceTestResultActivity extends BaseActivity {
+public class EnduranceTestResultGradeActivity extends BaseActivity {
     public static Intent createIntent(Context context) {
-        return new Intent(context, EnduranceTestResultActivity.class);
+        return new Intent(context, EnduranceTestResultGradeActivity.class);
     }
 
     TextView testDate;
@@ -56,12 +66,13 @@ public class EnduranceTestResultActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_endurance_test_result);
+        setContentView(R.layout.activity_endurance_test_result_grade);
         initHeadView();
         setLeftImage(R.drawable.back_icon);
         setCenterText(getResources().getString(R.string.endurance_level));
         initViews();
         initEvents();
+        loadData();
     }
 
     private void initViews() {
@@ -108,31 +119,6 @@ public class EnduranceTestResultActivity extends BaseActivity {
             }
         });
         initIndexView(fragmentList.size());
-        loadChart();
-    }
-
-    private void loadChart() {
-        String hr = getIntent().getStringExtra("hr");
-        String strideFrequency = getIntent().getStringExtra("strideFrequency");
-        Gson gson = new Gson();
-        List<Integer> hrList = new ArrayList<>();
-        List<Integer> cadenceList = new ArrayList<>();
-        if (!MyUtil.isEmpty(hr) && !hr.equals(Constant.uploadRecordDefaultString) && !hr.equals("-1")) {
-            hrList = gson.fromJson(hr, new TypeToken<List<Integer>>() {
-            }.getType());
-        }
-        if (!MyUtil.isEmpty(strideFrequency) && !strideFrequency.equals(Constant.uploadRecordDefaultString)) {
-            cadenceList = gson.fromJson(strideFrequency, new TypeToken<List<Integer>>() {
-            }.getType());
-        }
-        int[] heartData = MyUtil.listToIntArray(hrList);
-        int[] stepData = MyUtil.listToIntArray(cadenceList);
-        if (sportRecordStatisticsItem_1 != null) {
-            sportRecordStatisticsItem_1.setData(stepData, 12*60);
-        }
-        if (sportRecordStatisticsItem_2 != null) {
-            sportRecordStatisticsItem_2.setData(heartData, 10);
-        }
     }
 
     private void initEvents() {
@@ -162,6 +148,71 @@ public class EnduranceTestResultActivity extends BaseActivity {
                 mImageViews[i].setBackgroundResource(R.drawable.banner_dian_2);
             }
             indexLayout.addView(mImageViews[i]);
+        }
+    }
+
+    private void loadData() {
+        MyUtil.showDialog(getResources().getString(R.string.please_wait_a_moment), this);
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+        MyUtil.addCookieForHttp(params);
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getLastEnduranceDetailURL, params, new RequestCallBack<String>() {
+
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                MyUtil.hideDialog(EnduranceTestResultGradeActivity.this);
+                String json = responseInfo.result;
+                initUI(json);
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                MyUtil.hideDialog(EnduranceTestResultGradeActivity.this);
+            }
+        });
+    }
+
+    private void initUI(String json) {
+        try {
+            JSONObject object = new JSONObject(json);
+            String ret = object.getString("ret");
+            if (!UStringUtil.isNullOrEmpty(ret) && ret.equals("0")) {
+                JSONObject jsonObject = object.getJSONObject("errDesc");
+                long date = jsonObject.getLong("date");
+                String distance = jsonObject.getString("distance");
+                String averagePace = jsonObject.getString("averagePace");
+                String enduranceLevel = jsonObject.getString("enduranceLevel");
+                String vo2max = jsonObject.getString("vo2max");
+                String hr = jsonObject.getString("hr");
+                String strideFrequency = jsonObject.getString("strideFrequency");
+                testDistance.setText(UStringUtil.isNullOrEmpty(distance) ? "——" : distance);
+                testSpeed.setText(UStringUtil.isNullOrEmpty(averagePace) ? "——" : averagePace);
+                testLevel.setText(enduranceLevel);
+                testVo2.setText(vo2max);
+                final String dateStr = DateFormatUtils.getFormatTime(date, DateFormatUtils.YYYY_MM_DD_HH_MM);
+                testDate.setText(dateStr);
+                Gson gson = new Gson();
+                List<Integer> hrList = new ArrayList<>();
+                List<Integer> cadenceList = new ArrayList<>();
+                if (!MyUtil.isEmpty(hr) && !hr.equals(Constant.uploadRecordDefaultString) && !hr.equals("-1")) {
+                    hrList = gson.fromJson(hr, new TypeToken<List<Integer>>() {
+                    }.getType());
+                }
+                if (!MyUtil.isEmpty(strideFrequency) && !strideFrequency.equals(Constant.uploadRecordDefaultString)) {
+                    cadenceList = gson.fromJson(strideFrequency, new TypeToken<List<Integer>>() {
+                    }.getType());
+                }
+                int[] heartData = MyUtil.listToIntArray(hrList);
+                int[] stepData = MyUtil.listToIntArray(cadenceList);
+                if (sportRecordStatisticsItem_1 != null) {
+                    sportRecordStatisticsItem_1.setData(stepData, 12 * 60);
+                }
+                if (sportRecordStatisticsItem_2 != null) {
+                    sportRecordStatisticsItem_2.setData(heartData, 12 * 60);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 }

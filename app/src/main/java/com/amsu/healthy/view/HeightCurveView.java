@@ -78,7 +78,7 @@ public class HeightCurveView extends View {
         int line_color = typedArray.getColor(R.styleable.HeightCurve_curve_line_color, Color.WHITE);
         line_width = typedArray.getDimension(R.styleable.HeightCurve_curve_line_width, 0);
         float curve_ycoordinateHight = typedArray.getDimension(R.styleable.HeightCurve_curve_ycoordinateHight, 0);
-
+        typedArray.recycle();
         if (curve_ycoordinateHight>0){
             mYCoordinateHight = curve_ycoordinateHight-getResources().getDimension(R.dimen.x35);
         }

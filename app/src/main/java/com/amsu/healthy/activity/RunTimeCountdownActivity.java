@@ -61,9 +61,10 @@ public class RunTimeCountdownActivity extends Activity {
                         }
                         Intent intent = new Intent();
                         boolean is = MyUtil.getBooleanValueFromSP(isMarathonSportType);
-                        if (is) {
+                        boolean isEnduranceTest = getIntent().getBooleanExtra(Constant.isEnduranceTest,false);
+                        if (isEnduranceTest) {
                             intent.setClass(RunTimeCountdownActivity.this, EnduranceTestRuningActivity.class);
-                        } else if (intExtra == Constant.sportType_Cloth) {
+                        } else if (intExtra == Constant.sportType_Cloth || is) {
                             intent.setClass(RunTimeCountdownActivity.this, StartRunActivity.class);
                         } else if (intExtra == Constant.sportType_Insole) {
                             intent.setClass(RunTimeCountdownActivity.this, InsoleRunningActivity.class);

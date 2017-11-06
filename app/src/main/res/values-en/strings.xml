@@ -440,8 +440,12 @@
     <string name="endurance_kilometer_">公里(km)</string>
     <string name="endurance_speed">平均配速</string>
     <string name="endurance_vo2max">VO2max(ml/kg min)</string>
+    <string name="endurance_cadence">平均步频</string>
     <string name="endurance_level">耐力水平</string>
     <string name="endurance_sport_record">运动记录</string>
     <string name="endurance_sport_speed">speed(km/h)</string>
     <string name="endurance_run_test">长跑练习</string>
+    <string name="endurance_kcal">消耗热量</string>
+    <string name="null_value">——</string>
+    <string name="endurance_12min">12分钟跑步成绩</string>
 </resources>

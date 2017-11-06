@@ -12,6 +12,7 @@ import com.amsu.healthy.activity.HealthyDataActivity;
 import com.amsu.healthy.activity.MyDeviceActivity;
 import com.amsu.healthy.activity.RunTimeCountdownActivity;
 import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.utils.Constant;
 
 /**
  * author：WangLei
@@ -74,7 +75,9 @@ public class EnduranceTestActivity extends BaseActivity implements View.OnClickL
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.fl_enduranceStart:
-                startActivity(new Intent(this, RunTimeCountdownActivity.class));
+                Intent intent = new Intent(this, RunTimeCountdownActivity.class);
+                intent.putExtra(Constant.isEnduranceTest, true);
+                startActivity(intent);
                 break;
         }
     }

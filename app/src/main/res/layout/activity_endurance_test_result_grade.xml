@@ -11,17 +11,6 @@
         layout="@layout/page_head" />
 
 
-    <TextView
-        android:id="@+id/testDate"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/x120"
-        android:background="@android:color/white"
-        android:gravity="center_vertical"
-        android:paddingLeft="@dimen/x36"
-        android:text="2017-12-12"
-        android:textColor="@color/color_ff666666"
-        android:textSize="@dimen/x48" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,36 +19,54 @@
         android:orientation="vertical"
         android:padding="@dimen/x36">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/testDate"
+            android:layout_width="@dimen/x380"
+            android:layout_height="@dimen/y60"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/x20"
+            android:background="@drawable/bg_gray_radius"
+            android:gravity="center"
+            android:textColor="@color/color_ff666666"
+            android:textSize="@dimen/x38" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/round_blue"
+            android:gravity="center"
+            android:minHeight="@dimen/x550"
+            android:minWidth="@dimen/x550"
             android:orientation="horizontal">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/testDistance"
+                android:layout_marginTop="@dimen/x32"
+                android:text="@string/endurance_12min"
+                android:textColor="@color/color_ffffffff"
+                android:textSize="@dimen/x36" />
 
             <TextView
                 android:id="@+id/testDistance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0.00"
-                android:textColor="@color/color_ff20262b"
+                android:text="@string/null_value"
+                android:textColor="@color/color_ffffffff"
                 android:textSize="@dimen/x164" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/testDistance"
                 android:layout_marginLeft="@dimen/x16"
-                android:text="@string/endurance_kilometer"
-                android:textColor="@color/color_ff212121"
+                android:layout_toRightOf="@+id/testDistance"
+                android:text="km"
+                android:textColor="@color/color_ffffffff"
                 android:textSize="@dimen/x48" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/x32"
-            android:text="@string/endurance_12min"
-            android:textColor="@color/color_ffb3b3b3"
-            android:textSize="@dimen/x36" />
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

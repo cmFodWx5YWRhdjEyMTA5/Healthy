@@ -162,33 +162,85 @@
         </LinearLayout>
     </LinearLayout>
 
-    <RelativeLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="20dip">
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/tv_run_lock"
-            android:layout_width="@dimen/y140"
-            android:layout_height="@dimen/y140"
-            android:layout_centerVertical="true"
-            android:background="@drawable/bg_round_aaaaaa"
-            android:gravity="center"
-            android:text="锁屏"
-            android:textColor="#FFFFFF"
-            android:textSize="@dimen/x36" />
+        <RelativeLayout
+            android:id="@+id/rl_run_lock"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="@dimen/x40"
+            android:visibility="gone">
 
-        <TextView
-            android:id="@+id/fl_enduranceStart"
-            android:layout_width="@dimen/x280"
-            android:layout_height="@dimen/x280"
-            android:layout_centerInParent="true"
-            android:background="@drawable/btn_gradual_round_blue"
-            android:gravity="center"
-            android:text="@string/endurance_end"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/x48" />
-    </RelativeLayout>
+            <com.amsu.healthy.view.GlideRelativeView
+                android:id="@+id/rl_run_glide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:clickable="true">
+
+                <ImageView
+                    android:id="@+id/iv_image11"
+                    android:layout_width="@dimen/x80"
+                    android:layout_height="@dimen/x80"
+                    android:layout_centerHorizontal="true"
+                    android:src="@drawable/suo" />
+
+                <TextView
+                    android:id="@+id/tv_text11"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/iv_image11"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="@dimen/x30"
+                    android:gravity="center"
+                    android:text="@string/glide_to_unlock"
+                    android:textColor="#85b1da"
+                    android:textSize="@dimen/x40" />
+
+                <ImageView
+                    android:id="@+id/iv_image12"
+                    android:layout_width="@dimen/x48"
+                    android:layout_height="@dimen/x48"
+                    android:layout_below="@+id/tv_text11"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="@dimen/x36"
+                    android:src="@drawable/jiantou" />
+            </com.amsu.healthy.view.GlideRelativeView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/testButtons_rl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="20dip">
+
+            <TextView
+                android:id="@+id/tv_run_lock"
+                android:layout_width="@dimen/y140"
+                android:layout_height="@dimen/y140"
+                android:layout_centerVertical="true"
+                android:background="@drawable/bg_round_aaaaaa"
+                android:gravity="center"
+                android:text="锁屏"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/x36" />
+
+            <TextView
+                android:id="@+id/fl_enduranceStart"
+                android:layout_width="@dimen/x280"
+                android:layout_height="@dimen/x280"
+                android:layout_centerInParent="true"
+                android:background="@drawable/btn_gradual_round_blue"
+                android:gravity="center"
+                android:text="@string/endurance_end"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x48" />
+        </RelativeLayout>
+    </FrameLayout>
 </LinearLayout>

@@ -90,9 +90,13 @@
             android:value="0c1784d4bf495891bf142767b314651c" />
 
         <!-- 高德地图 -->
+        <!--<meta-data-->
+        <!--android:name="com.amap.api.v2.apikey"-->
+        <!--android:value="00a9a61217c28973e9bceba073d5ac52" />-->
+        <!--wanglei 测试key-->
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="00a9a61217c28973e9bceba073d5ac52" />
+            android:value="01d97fe882f5027bc65eb07a93598ab4" />
         <!-- 定位需要的服务 -->
         <service android:name="com.amap.api.location.APSService" />
 
@@ -404,13 +408,14 @@
         <activity android:name=".utils.scancode.activity.CaptureActivity" />
         <activity android:name=".activity.ConfirmScanLoginActivity" />
         <activity android:name=".activity.insole.InsoleAnalysisActivity" />
+        <!--历史记录-->
         <activity android:name=".activity.HistoryRecordAllActivity" />
         <activity android:name=".activity.insole.InsoleDeviceInfoActivity" />
         <activity
             android:name=".activity.insole.InsoleLockScreenActivity"
             android:launchMode="singleTask" />
         <activity android:name=".activity.LoginInputNumberActivity" />
-        <activity android:name=".activity.LoginCountryListActivity"/>
+        <activity android:name=".activity.LoginCountryListActivity" />
         <!--马拉松-->
         <activity
             android:name=".activity.marathon.MarathonActivity"
@@ -418,6 +423,10 @@
         <!--耐力测试-->
         <activity
             android:name=".activity.marathon.EnduranceTestActivity"
+            android:screenOrientation="portrait" />
+        <!--耐力测试成绩-->
+        <activity
+            android:name=".activity.marathon.EnduranceTestResultGradeActivity"
             android:screenOrientation="portrait" />
         <!--耐力测试运动中-->
         <activity
