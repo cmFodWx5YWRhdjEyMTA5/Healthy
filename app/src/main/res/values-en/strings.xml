@@ -436,7 +436,7 @@
     <string name="endurance_speed_allocation">speed allocation(分/公里)</string>
     <string name="endurance_stride_frequency">步频(步/分钟)</string>
     <string name="endurance_end">长按结束</string>
-    <string name="kilometer">公里</string>
+    <string name="endurance_kilometer">公里</string>
     <string name="endurance_kilometer_">公里(km)</string>
     <string name="endurance_speed">平均配速</string>
     <string name="endurance_vo2max">VO2max(ml/kg min)</string>
@@ -448,4 +448,5 @@
     <string name="endurance_kcal">消耗热量</string>
     <string name="null_value">——</string>
     <string name="endurance_12min">12分钟跑步成绩</string>
+    <string name="endurance_hint_txt_1">最后不足1公里用时%1$s，配速%2$s，速度%3$s，心率%4$s</string>
 </resources>

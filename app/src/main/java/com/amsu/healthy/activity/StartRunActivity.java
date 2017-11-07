@@ -1159,14 +1159,14 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 if (ae[0].compareTo(String.valueOf(temp)) != 0) {
                     String itemAe[] = new String[3];
                     itemAe[0] = String.valueOf(temp);
-                    itemAe[1] = String.valueOf(aeTimeMillis);
+                    itemAe[1] = String.valueOf((System.currentTimeMillis()-aeTimeMillis)/1000);
                     itemAe[2] = String.valueOf(calculateAverageHeart());
                     aeList.add(itemAe);
                 }
             } else {
                 String itemAe[] = new String[3];
                 itemAe[0] = String.valueOf(temp);
-                itemAe[1] = String.valueOf(aeTimeMillis);
+                itemAe[1] = String.valueOf((System.currentTimeMillis()-aeTimeMillis)/1000);
                 itemAe[2] = String.valueOf(calculateAverageHeart());
                 aeList.add(itemAe);
             }

@@ -74,7 +74,7 @@ public class SportRecordActivity extends BaseActivity implements SwipeRefreshLay
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mExpandableListView = (ExpandableListView) findViewById(R.id.mExpandableListView);
         adapter = new SportRecordAdapter(this, datas);
-        mExpandableListView.addFooterView(viewFoodView);
+        addFooterView();
         mExpandableListView.setAdapter(adapter);
         int groupCount = mExpandableListView.getCount();
         for (int i = 0; i < groupCount; i++) {
@@ -136,6 +136,7 @@ public class SportRecordActivity extends BaseActivity implements SwipeRefreshLay
 
     private void loadData() {
         inLoading = true;
+        removeFooterView();
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
         MyUtil.addCookieForHttp(params);
@@ -150,16 +151,20 @@ public class SportRecordActivity extends BaseActivity implements SwipeRefreshLay
                 String json = responseInfo.result;
                 Log.e("json", json);
                 Map<String, List<SportRecord>> SportRecordMap = SportRecord.parse(json);
-                Set<Map.Entry<String, List<SportRecord>>> entries = SportRecordMap.entrySet();
-                datas.clear();
-                for (Map.Entry<String, List<SportRecord>> entry : entries) {
-                    List<SportRecord> list = entry.getValue();
-                    String key = entry.getKey();
-                    SportRecordList sportRecordList = new SportRecordList(key, list);
-                    datas.add(sportRecordList);
-                }
-                if (SportRecordMap.size() < maxItemCount) {
-                    removeFooterView();
+                if (SportRecordMap != null) {
+                    Set<Map.Entry<String, List<SportRecord>>> entries = SportRecordMap.entrySet();
+                    datas.clear();
+                    for (Map.Entry<String, List<SportRecord>> entry : entries) {
+                        List<SportRecord> list = entry.getValue();
+                        String key = entry.getKey();
+                        SportRecordList sportRecordList = new SportRecordList(key, list);
+                        datas.add(sportRecordList);
+                    }
+                    if (SportRecordMap.size() < maxItemCount) {
+                        removeFooterView();
+                    } else {
+                        addFooterView();
+                    }
                 }
                 inLoading = false;
                 refresh();
@@ -185,7 +190,15 @@ public class SportRecordActivity extends BaseActivity implements SwipeRefreshLay
     }
 
     private void removeFooterView() {
-        mExpandableListView.removeFooterView(viewFoodView);
+        if (mExpandableListView.getFooterViewsCount() != 0) {
+            mExpandableListView.removeFooterView(viewFoodView);
+        }
+    }
+
+    private void addFooterView() {
+        if (mExpandableListView.getFooterViewsCount() == 0) {
+            mExpandableListView.addFooterView(viewFoodView);
+        }
     }
 
     @Override
