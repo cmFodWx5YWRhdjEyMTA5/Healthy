@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.activity.marathon.MarathonActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Apk;
 import com.amsu.healthy.bean.AppAbortDataSave;
@@ -52,6 +53,8 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static com.amsu.healthy.utils.Constant.isMarathonSportType;
 
 public class MainActivity extends BaseActivity {
 
@@ -534,7 +537,7 @@ public class MainActivity extends BaseActivity {
             switch (intent.getAction()){
                 case LeProxy.ACTION_GATT_CONNECTED:
                     Log.i(TAG,"已连接 " );
-                    if (MyApplication.deivceType==Constant.sportType_Cloth){
+                    if (MyApplication.deivceType == Constant.sportType_Cloth) {
                         iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
                     }
                     else if (MyApplication.deivceType==Constant.sportType_Insole){
@@ -769,9 +772,12 @@ public class MainActivity extends BaseActivity {
                     HashMap<String,String> map = new HashMap<>();
                     map.put("screen","设备："+Build.MODEL+",heigth:"+dm.heightPixels+",width:"+dm.widthPixels);
                     MobclickAgent.onEvent(MainActivity.this,"event_phonemodel",map);*/
-
-                    startActivity(new Intent(MainActivity.this, PrepareRunningActivity.class));
-
+                    boolean is = MyUtil.getBooleanValueFromSP(isMarathonSportType);
+                    if (is){
+                        startActivity(MarathonActivity.createIntent(MainActivity.this));
+                    }else{
+                        startActivity(new Intent(MainActivity.this, PrepareRunningActivity.class));
+                    }
 
 
                     /*int type = MyUtil.getIntValueFromSP(Constant.sportType);

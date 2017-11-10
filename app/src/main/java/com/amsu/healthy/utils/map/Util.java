@@ -1,6 +1,7 @@
 package com.amsu.healthy.utils.map;
 
 import android.content.Context;
+import android.util.Base64;
 import android.util.Log;
 
 import com.amap.api.location.AMapLocation;
@@ -9,6 +10,8 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.trace.TraceLocation;
 import com.amsu.healthy.bean.ParcelableDoubleList;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -287,4 +290,24 @@ public class Util {
         locString.append(location.getBearing());
         return locString.toString();
     }
+	public static LatLng getLatLng(double l1, double l2) {
+		double temp = 0;
+		if (l1 > l2) {
+			temp = l1;
+			l1 = l2;
+			l2 = temp;
+		}
+		return new LatLng(l1, l2);
+	}
+	/**
+	 * 文件转换为base64字符串
+	 */
+	public static String encodeBase64File(String path) throws Exception {
+		File file = new File(path);
+		FileInputStream inputFile = new FileInputStream(file);
+		byte[] buffer = new byte[(int) file.length()];
+		inputFile.read(buffer);
+		inputFile.close();
+		return Base64.encodeToString(buffer, Base64.DEFAULT);
+	}
 }

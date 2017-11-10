@@ -20,5 +20,18 @@
     <color name="app_background_color">#EBEBEB</color>
     <color name="app_Refresh_start_color">#00B2EE</color>
     <color name="app_main_color">#0c64b5</color>
+    <color name="color_ff595656">#ff595656</color>
+    <color name="color_ff333333">#ff333333</color>
+    <color name="color_ff1c232a">#ff1c232a</color>
+    <color name="color_ff666666">#ff666666</color>
+    <color name="color_ff20262b">#ff20262b</color>
+    <color name="color_ff212121">#ff212121</color>
+    <color name="color_ffb3b3b3">#ffb3b3b3</color>
+    <color name="color_ff3b3b3b">#ff3b3b3b</color>
+    <color name="color_ffb2b2b2">#ffb2b2b2</color>
+    <color name="color_ffe8e8e8">#ffe8e8e8</color>
+    <color name="color_ffffffff">#ffffffff</color>
+    <color name="color_ff999999">#ff999999</color>
+    <color name="color_fff5f5f5">#fff5f5f5</color>
 
 </resources>

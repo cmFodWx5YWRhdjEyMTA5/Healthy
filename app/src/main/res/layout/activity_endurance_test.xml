@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/rl_base_head"
+        layout="@layout/page_head" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y640"
+        android:background="@drawable/bg_gradual_blue">
+
+        <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12:00"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x112" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x36"
+                android:text="@string/countdown"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x36" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="——"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x112" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x36"
+                android:text="@string/endurance_distance"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/x36" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x36"
+        android:gravity="center"
+        android:textColor="@color/color_ff333333"
+        android:text="@string/endurance_des"
+        android:textSize="@dimen/x36" />
+
+    <FrameLayout
+        android:id="@+id/fl_enduranceStart"
+        android:layout_width="@dimen/x280"
+        android:layout_height="@dimen/x280"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/x360"
+        android:background="@drawable/btn_gradual_round_blue">
+
+        <ImageView
+            android:layout_width="@dimen/x96"
+            android:layout_height="@dimen/x96"
+            android:layout_gravity="center"
+            android:src="@drawable/kaishi_sanjiao" />
+    </FrameLayout>
+</LinearLayout>

@@ -63,6 +63,18 @@ public class Constant {
     public static String setSosMessage = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/setMessage";
     public static String deleteSosContact = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/deleteContact";
     public static String bindingDeviceURL = "https://bodylistener.amsu-new.com/intellingence/BindingController/bindingDevice";
+    /**
+     * 获取耐力测试详情
+     */
+    public static String getLastEnduranceDetailURL = "http://www.amsu-new.com:8081/intellingence-web/getLastEnduranceDetail.do";
+    /**
+     * 获取耐力测试记录
+     */
+    public static String getReportListURL = "http://www.amsu-new.com:8081/intellingence-web/getReportList.do";
+    /**
+     * 上传耐力测试结果
+     */
+    public static String uploadEnduranceDataURL = "http://www.amsu-new.com:8081/intellingence-web/uploadEnduranceData.do";
 
     //public static String checkAppUpdateURL = "https://bodylistener.amsu-new.com/intellingence/VersionController/getLastVersion";
     public static String checkAppUpdateURL = "http://www.amsu-new.com:8081/intellingence-web/getLastVersion.do";
@@ -74,7 +86,7 @@ public class Constant {
     public static String getALLShoepadDatasURL = "http://www.amsu-new.com:8081/intellingence-web/getShoepadDatas.do";
     public static String ServerHostName = "http://www.amsu-new.com:8081/";
     //public static String ServerHostName = "http://192.168.0.117:8080/";
-    public static String bindDeviceInsoleUrl = ServerHostName+"intellingence-web/bangdingshoepad.do";
+    public static String bindDeviceInsoleUrl = ServerHostName + "intellingence-web/bangdingshoepad.do";
 
     public static long AnimatorDuration = 2000;  //动画时长，2s
 
@@ -82,6 +94,7 @@ public class Constant {
 
     public static String currectDeviceLEMac = "currectDeviceLEMac";
     public static String sportState = "sportState";
+    public static String sportAe = "";
     public static String isLookupECGDataFromSport = "isLookupECGDataFromSport";
     public static String heartDataList_static = "heartDataListstatic";
     public static String paceList = "paceList";
@@ -108,8 +121,16 @@ public class Constant {
     public static String myDeceiveName = "myDeceiveName";
     public static String isNeedRecoverAbortData = "isNeedRecoverAbortData";
     public static String sportType = "sportType";
+    public static String isEnduranceTest = "EnduranceTest";
+    public static String isMarathonSportType = "isMarathonSportType";
     public static String mIsOutDoor = "mIsOutDoor";
+    /**
+     * 运动服/跑步
+     */
     public static final int sportType_Cloth = 1;
+    /**
+     * 鞋垫/步态
+     */
     public static final int sportType_Insole = 2;
 
     public static String uploadRecordDefaultString = "0";

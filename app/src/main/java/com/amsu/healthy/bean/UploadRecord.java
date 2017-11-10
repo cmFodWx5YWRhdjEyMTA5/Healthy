@@ -30,6 +30,7 @@ public class UploadRecord implements Parcelable,Cloneable {
     public String datatime;       //
     public List<Integer> hr;                        //
     public List<Integer> ae;                        //
+    public String aeMarathon;                        //
     public float distance;       //
     public long time;                        //
     public List<Integer> cadence;       //

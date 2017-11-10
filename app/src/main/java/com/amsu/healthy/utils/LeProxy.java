@@ -350,7 +350,7 @@ public class LeProxy {
         public void run() {
             switch (i) {
                 case 0:
-                    if (MyApplication.deivceType==Constant.sportType_Cloth){
+                    if (MyApplication.deivceType == Constant.sportType_Cloth) {
                         //衣服
                         //打开模组默认的数据接收通道【0x1002】，这一步成功才能保证APP收到数据
                         boolean success = enableNotification(address, BleUUIDS.PRIMARY_SERVICE, BleUUIDS.CHARACTERS[1]);

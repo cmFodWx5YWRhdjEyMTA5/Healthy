@@ -72,6 +72,7 @@
     <string name="hrr_analyze">HRR分析</string>
 
     <string name="exercise_distance">里程(KM)</string>
+    <string name="exercise_distance_">里程(km)</string>
     <string name="distance">里程</string>
     <string name="exercise_time">用时</string>
     <string name="exercise_heart_rate">心率</string>
@@ -79,6 +80,7 @@
     <string name="exercise_pace">配速</string>
     <string name="exercise_pace_unit">分钟/公里</string>
     <string name="exercise_speed">配速(分钟/公里)</string>
+    <string name="exercise_speed_">配速(min/km)</string>
     <string name="exercise_calories">卡路里(Kcal)</string>
     <string name="exercise_calorie">卡路里</string>
     <string name="exercise_cadence">步频(步/分钟)</string>
@@ -242,6 +244,8 @@
     <string name="running_type">跑步</string>
     <string name="swimming">游泳</string>
     <string name="cycling">骑行</string>
+    <string name="marathon">马拉松</string>
+    <string name="marathon_sport">马拉松运动</string>
     <string name="gym">健身</string>
     <string name="walking">步态</string>
 
@@ -420,6 +424,31 @@
     <string name="hrv_body_fatigue_active_suggestion1">您刚才的运动量较少，体能还较为充足，还可以继续进行适度的体育锻炼达到更好的锻炼效果。</string>
     <string name="hrv_body_fatigue_active_suggestion2">您的体能消耗较大，建议您适当休息，劳逸结合才能达到最佳的锻炼效果。</string>
     <string name="hrv_body_fatigue_active_suggestion3">您的体力已经耗尽了，注意不要过度透支自己的体能，停下运动休息一下吧。</string>
+    <string name="endurance_test">耐力测试</string>
+    <string name="roadwork">长跑练习</string>
+    <string name="histories">历史纪录</string>
+    <string name="countdown">倒计时</string>
+    <string name="endurance_distance">距离</string>
+    <string name="endurance_des">耐力测试将采用12分钟倒计时跑的形式进行，\n请在开始后的12分钟内尽力冲刺更长的距离，\n计时结束后系统将会有语音提示。</string>
+    <string name="endurance_time">时间</string>
+    <string name="endurance_heart_rate">心率(bmp)</string>
+    <string name="endurance_speed_allocation">配速(分/公里)</string>
+    <string name="endurance_stride_frequency">步频(步/分钟)</string>
+    <string name="endurance_end">长按结束</string>
+    <string name="endurance_kilometer">公里</string>
+    <string name="endurance_kilometer_">公里(km)</string>
+    <string name="endurance_speed">平均配速</string>
+    <string name="endurance_cadence">平均步频</string>
+    <string name="endurance_vo2max">VO2max(ml/kg min)</string>
+    <string name="endurance_level">耐力水平</string>
+    <string name="endurance_sport_record">运动记录</string>
+    <string name="endurance_sport_speed">速度(km/h)</string>
+    <string name="endurance_run_test">长跑练习</string>
+    <string name="endurance_kcal">消耗热量</string>
+    <string name="endurance_12min">12分钟跑步成绩</string>
+    <string name="endurance_hint_txt_1">最后不足1公里用时%1$s，配速%2$s，速度%3$s，心率%4$s</string>
+    <string name="null_value">——</string>
+
 
     <string name="add_information">补充资料</string>
     <string name="add_information_dec">您的资料没有完善，无法准确分析运动结果，请先完善资料</string>

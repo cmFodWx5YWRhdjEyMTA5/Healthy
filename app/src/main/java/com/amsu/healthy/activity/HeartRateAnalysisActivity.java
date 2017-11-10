@@ -322,7 +322,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             timestamp = System.currentTimeMillis()/1000;
             datatime = MyUtil.getSpecialFormatTime("yyyy/MM/dd HH:mm:ss", new Date());
         }
-
         uploadRecord.timestamp=timestamp;
         uploadRecord.datatime = datatime;
         uploadRecord.state = sportState;
@@ -717,14 +716,19 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             }
 
             params.addBodyParameter("hr",hr+"");
-            params.addBodyParameter("ae",ae+"");
             params.addBodyParameter("cadence",cadence+"");
             params.addBodyParameter("calorie",calorie+"");
             params.addBodyParameter("latitudeLongitude",latitudeLongitude+"");
-
             params.addBodyParameter("time",uploadRecord.time+"");
             params.addBodyParameter("distance",(int)uploadRecord.distance+"");
-            params.addBodyParameter("state",uploadRecord.state+"");
+            boolean isMarathonSportType = MyUtil.getBooleanValueFromSP(Constant.isMarathonSportType);
+            if (isMarathonSportType) {
+                params.addBodyParameter("state", "3");
+                params.addBodyParameter("ae", Constant.sportAe);
+            } else {
+                params.addBodyParameter("ae",ae+"");
+                params.addBodyParameter("state", uploadRecord.state + "");
+            }
             params.addBodyParameter("zaobo",uploadRecord.zaobo+"");
             params.addBodyParameter("loubo",uploadRecord.loubo+"");
             params.addBodyParameter("inuse",uploadRecord.inuse+"");

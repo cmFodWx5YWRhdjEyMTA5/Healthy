@@ -91,8 +91,12 @@
 
         <!-- 高德地图 -->
         <meta-data
-            android:name="com.amap.api.v2.apikey"
-            android:value="00a9a61217c28973e9bceba073d5ac52" />
+        android:name="com.amap.api.v2.apikey"
+        android:value="00a9a61217c28973e9bceba073d5ac52" />
+        <!--wanglei 测试key-->
+        <!--<meta-data-->
+            <!--android:name="com.amap.api.v2.apikey"-->
+            <!--android:value="01d97fe882f5027bc65eb07a93598ab4" />-->
         <!-- 定位需要的服务 -->
         <service android:name="com.amap.api.location.APSService" />
 
@@ -117,7 +121,7 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB3bpYzgR9ZQmnae55yeK7TQOyhY2Aigio" />
-
+        <!--我的-->
         <activity
             android:name=".activity.MeActivity"
             android:screenOrientation="portrait" />
@@ -262,6 +266,7 @@
         <activity
             android:name=".activity.RunTrailMapActivity"
             android:screenOrientation="portrait" />
+        <!--运动模式-->
         <activity
             android:name=".activity.MotionDetectionActivity"
             android:screenOrientation="portrait" />
@@ -403,13 +408,42 @@
         <activity android:name=".utils.scancode.activity.CaptureActivity" />
         <activity android:name=".activity.ConfirmScanLoginActivity" />
         <activity android:name=".activity.insole.InsoleAnalysisActivity" />
+        <!--历史记录-->
         <activity android:name=".activity.HistoryRecordAllActivity" />
         <activity android:name=".activity.insole.InsoleDeviceInfoActivity" />
         <activity
             android:name=".activity.insole.InsoleLockScreenActivity"
             android:launchMode="singleTask" />
         <activity android:name=".activity.LoginInputNumberActivity" />
-        <activity android:name=".activity.LoginCountryListActivity"></activity>
+        <activity android:name=".activity.LoginCountryListActivity" />
+        <!--马拉松-->
+        <activity
+            android:name=".activity.marathon.MarathonActivity"
+            android:screenOrientation="portrait" />
+        <!--耐力测试-->
+        <activity
+            android:name=".activity.marathon.EnduranceTestActivity"
+            android:screenOrientation="portrait" />
+        <!--耐力测试成绩-->
+        <activity
+            android:name=".activity.marathon.EnduranceTestResultGradeActivity"
+            android:screenOrientation="portrait" />
+        <!--耐力测试运动中-->
+        <activity
+            android:name=".activity.marathon.EnduranceTestRuningActivity"
+            android:screenOrientation="portrait" />
+        <!--耐力测试结束-->
+        <activity
+            android:name=".activity.marathon.EnduranceTestResultActivity"
+            android:screenOrientation="portrait" />
+        <!--马拉松运动记录-->
+        <activity
+            android:name=".activity.marathon.SportRecordActivity"
+            android:screenOrientation="portrait" />
+        <!--马拉松运动记录详情-->
+        <activity
+            android:name=".activity.marathon.SportRecordDetailsActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

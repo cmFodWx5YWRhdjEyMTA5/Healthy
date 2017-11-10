@@ -1,151 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <include layout="@layout/page_head"
-        android:id="@+id/rl_base_head">
-    </include>
-    
+    <include
+        android:id="@+id/rl_base_head"
+        layout="@layout/page_head"/>
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <RelativeLayout
             android:id="@+id/rl_dection_cloth"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="@dimen/x296"
+            android:layout_weight="1"
             android:clickable="true">
+
             <ImageView
                 android:id="@+id/iv_detction_cloth"
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
+                android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/yifu"
                 android:background="@drawable/bg_sport_type"
                 android:padding="@dimen/x50"
-                android:layout_centerHorizontal="true"/>
+                android:src="@drawable/yifu" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/running_type"
+                android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true" />
+                android:text="@string/running_type" />
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/rl_dection_insole"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="@dimen/x296"
+            android:layout_weight="1"
             android:clickable="true">
+
             <ImageView
                 android:id="@+id/iv_detction_insole"
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
+                android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/ydms_bt"
                 android:background="@drawable/bg_sport_type"
                 android:padding="@dimen/x50"
-                android:layout_centerHorizontal="true"/>
+                android:src="@drawable/ydms_bt" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/walking"
+                android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true" />
+                android:text="@string/walking" />
         </RelativeLayout>
 
         <RelativeLayout
+            android:id="@+id/rl_marathon"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="@dimen/x296"
+            android:layout_weight="1"
             android:clickable="true">
+
             <ImageView
+                android:id="@+id/iv_detction_marathon"
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
+                android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/ydms_qx"
                 android:background="@drawable/bg_sport_type"
                 android:padding="@dimen/x50"
-                android:layout_centerHorizontal="true"/>
+                android:src="@drawable/ydms_qx" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/cycling"
+                android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true" />
+                android:text="@string/marathon" />
         </RelativeLayout>
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true">
+
         <RelativeLayout
             android:layout_width="0dp"
+            android:layout_height="@dimen/x296"
             android:layout_weight="1"
-            android:layout_height="@dimen/x296">
+            android:clickable="true">
+
             <ImageView
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
+                android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/ydms_js"
                 android:background="@drawable/bg_sport_type"
                 android:padding="@dimen/x50"
-                android:layout_centerHorizontal="true"/>
+                android:src="@drawable/ydms_qx" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/gym"
+                android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true" />
+                android:text="@string/cycling" />
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="@dimen/x296"
-            android:clickable="true"
-            >
+            android:layout_weight="1">
+
             <ImageView
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
+                android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/ydms_yy"
                 android:background="@drawable/bg_sport_type"
                 android:padding="@dimen/x50"
-                android:layout_centerHorizontal="true"/>
+                android:src="@drawable/ydms_js" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/swimming"
+                android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true" />
+                android:text="@string/gym" />
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="@dimen/x296"
-            android:visibility="invisible">
+            android:layout_weight="1"
+            android:clickable="true">
+
             <ImageView
                 android:layout_width="@dimen/x172"
                 android:layout_height="@dimen/x172"
+                android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/x68"
-                android:src="@drawable/yifu"
                 android:background="@drawable/bg_sport_type"
                 android:padding="@dimen/x50"
-                android:layout_centerHorizontal="true"/>
+                android:src="@drawable/ydms_yy" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="跑步"
+                android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true" />
+                android:text="@string/swimming" />
         </RelativeLayout>
+
     </LinearLayout>
 
-    
+
 </LinearLayout>

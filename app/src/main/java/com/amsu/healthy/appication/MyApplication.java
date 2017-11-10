@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 
-
 /**
  * Created by HP on 2016/11/23.
  */
@@ -60,6 +59,7 @@ public class MyApplication extends Application{
     public String runningFormatDistance;
     public String runningFinalFormatSpeed;
     public Date runningCurrTimeDate;
+    public String runningDate;
 
     public int runningmCurrentHeartRate;
     public int runningmCurrentStepCount;
@@ -170,7 +170,13 @@ public class MyApplication extends Application{
         this.runningFinalFormatSpeed = runningFinalFormatSpeed;
     }
 
+    public String getRunningDate() {
+        return runningDate;
+    }
 
+    public void setRunningDate(String runningDate) {
+        this.runningDate = runningDate;
+    }
 
     public int getRunningmCurrentHeartRate() {
         return runningmCurrentHeartRate;
