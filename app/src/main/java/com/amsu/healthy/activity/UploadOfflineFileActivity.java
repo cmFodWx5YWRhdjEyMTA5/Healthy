@@ -39,9 +39,9 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
     private static final String TAG = "UploadOfflineFile";
     private ListView lv_history_upload;
-    private List<HistoryRecord> uploadHistoryRecords;
-    private OutputStream socketWriter;
-    private boolean isStartUploadData = false;
+    private List<HistoryRecord> mUploadHistoryRecords;
+    private OutputStream mSocketWriter;
+    private boolean mIsStartUploadData = false;
     private List<String> mOffLineFileNameList;
     private List<String> mEcgOffLineFileNameList;
     private List<String> mAccOffLineFileNameList;
@@ -55,9 +55,9 @@ public class UploadOfflineFileActivity extends BaseActivity {
     String onePackageDataHexString = "";
     private List<Integer> mAllData = new ArrayList<>();
 
-    private String currentUploadFileName;
+    private String mCurrentUploadFileName;
 
-    int mUploadFileCountIndex = -1;  //当前传输的索引
+    int mCurUploadFilePackageIndex = -1;  //当前传输的索引
     int mOneUploadMaxByte = 512*16;
     int mAllFileCount ;  //文件分几次上传，mAllFileCount = 按mOneUploadMaxByte传的次数(整数上传)
     int mFileLastRemainder ;  //最后一次需要上传的，mFileLastRemainder = 文件字节数%mOneUploadMaxByte
@@ -138,8 +138,8 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
         lv_history_upload = (ListView) findViewById(R.id.lv_history_upload);
 
-        uploadHistoryRecords = new ArrayList<>();
-        uploadHistoryRecordAdapter = new HistoryRecordAdapter(uploadHistoryRecords,this,0);
+        mUploadHistoryRecords = new ArrayList<>();
+        uploadHistoryRecordAdapter = new HistoryRecordAdapter(mUploadHistoryRecords,this,0);
         lv_history_upload.setAdapter(uploadHistoryRecordAdapter);
 
         mOffLineFileNameList = new ArrayList<>();
@@ -193,7 +193,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
         long ecgFiletimeMillis = -1;
 
-        HistoryRecord historyRecord = uploadHistoryRecords.get(position);
+        HistoryRecord historyRecord = mUploadHistoryRecords.get(position);
 
         if (historyRecord!=null){
             ecgFiletimeMillis = historyRecord.getDatatime();
@@ -241,7 +241,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                 public void run() {
                     super.run();
                     try {
-                        socketWriter = ConnectToWifiGudieActivity2.mSock.getOutputStream();
+                        mSocketWriter = ConnectToWifiGudieActivity2.mSock.getOutputStream();
                         inputStream = ConnectToWifiGudieActivity2.mSock.getInputStream();
 
 
@@ -253,9 +253,9 @@ public class UploadOfflineFileActivity extends BaseActivity {
                         int length;
                         while (inputStream!=null && (length = inputStream.read(bytes))!=-1) {
                             Log.i(TAG, "length:" + length);
-                            Log.i(TAG,"isStartUploadData:"+isStartUploadData);
+                            Log.i(TAG,"mIsStartUploadData:"+ mIsStartUploadData);
 
-                            if (isStartUploadData) {
+                            if (mIsStartUploadData) {
                                 deviceOffLineFileUtil.stopTime();
                                 final String toHexString = DeviceOffLineFileUtil.binaryToHexString(bytes, length);
                                 //final String s = DeviceOffLineFileUtil.binaryToHexString(bytes, length,"");
@@ -286,7 +286,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                                     //dealWithDeviceFileUpload(toHexString,length);
                                     dealWithDeviceFileUpload(length, toHexString);
                                     deviceOffLineFileUtil.startTime();
-                                    isStartUploadData = true;
+                                    mIsStartUploadData = true;
                                 } else if (toHexString.startsWith("FF 86")) {  //删除文件：
                                     dealWithDeviceDeleteFile(toHexString);
                                 } else if (toHexString.startsWith("FF 87")) {  //一键删除文件：
@@ -313,12 +313,12 @@ public class UploadOfflineFileActivity extends BaseActivity {
     /*//给设备发送16进制指令
     private void sendHexStringDeviceOrder(String deviceOrder) {
         byte[] bytes = DeviceOffLineFileUtil.hexStringToBytes(deviceOrder);
-        if (socketWriter!=null){
+        if (mSocketWriter!=null){
             try {
                 Thread.sleep(20);
-                socketWriter.write(bytes);
+                mSocketWriter.write(bytes);
                 Log.i(TAG,"发送命令：" + deviceOrder);
-                socketWriter.flush();
+                mSocketWriter.flush();
             } catch (IOException e) {
                 Log.e(TAG,"e:"+e);
                 e.printStackTrace();
@@ -326,7 +326,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                 *//*Log.i(TAG,"异常重建socket");
                 try {
                     Socket sock = new Socket(ConnectToWifiGudieActivity2.serverAddress, 8080);
-                    socketWriter = sock.getOutputStream();
+                    mSocketWriter = sock.getOutputStream();
                     Log.i(TAG,"异常重建socket成功");
                     inputStream = sock.getInputStream();
                 } catch (IOException eeee) {
@@ -334,7 +334,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                     Log.e(TAG,"异常重建socket失败:"+eeee);
                 }*//*
                 inputStream  = null;
-                socketWriter = null;
+                mSocketWriter = null;
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -362,12 +362,12 @@ public class UploadOfflineFileActivity extends BaseActivity {
     }
 
     private void sendOrder(final byte[] bytes){
-        if (socketWriter!=null){
+        if (mSocketWriter !=null){
             try {
                 deviceOffLineFileUtil.startTime();
                 Thread.sleep(10);    //睡一会，不然发送后收不到数据
-                socketWriter.write(bytes);
-                socketWriter.flush();
+                mSocketWriter.write(bytes);
+                mSocketWriter.flush();
                 Log.i(TAG,"发送成功");
             } catch (IOException e) {
                 Log.i(TAG,"发送命令异常："+e);
@@ -513,7 +513,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
             mOffLineFileNameList.remove(0);
         }*/
 
-        uploadHistoryRecords.clear();
+        mUploadHistoryRecords.clear();
 
         Log.i(TAG,"正确文件顺序");
         for (String s:rightOrderFileList){
@@ -523,8 +523,8 @@ public class UploadOfflineFileActivity extends BaseActivity {
                     //以ecg结尾的文件在离线文件中列出来
                     String datatime = s.substring(0,4)+"-"+s.substring(4,6)+"-"+s.substring(6,8)+" "+
                             s.substring(8,10)+":"+s.substring(10,12)+":"+s.substring(12,14);
-            /*if (uploadHistoryRecords.size()>0){
-                if (uploadHistoryRecords.get(uploadHistoryRecords.size()-1).equals(datatime)){
+            /*if (mUploadHistoryRecords.size()>0){
+                if (mUploadHistoryRecords.get(mUploadHistoryRecords.size()-1).equals(datatime)){
                     return;
                 }
             }*/     int year = Integer.parseInt(s.substring(0,4));
@@ -535,7 +535,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                     int sec = Integer.parseInt(s.substring(12,14));
 
                     Date date1 = new Date(year-1900, mouth-1, date, hrs, min, sec);
-                    uploadHistoryRecords.add(new HistoryRecord("0",date1.getTime(),-1,HistoryRecord.analysisState_noAnalysised));
+                    mUploadHistoryRecords.add(new HistoryRecord("0",date1.getTime(),-1,HistoryRecord.analysisState_noAnalysised));
                 }
 
             }
@@ -563,14 +563,14 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
         if (mOffLineFileNameList.size()>0){
             String fileName = mOffLineFileNameList.get(0);
-            currentUploadFileName = fileName;
+            mCurrentUploadFileName = fileName;
 
             //String fileName = "20170413172800.ecg";
             String startOrder = "FF040018";
             String deviceOrder = startOrder + DeviceOffLineFileUtil.stringToHexString(fileName) + DeviceOffLineFileUtil.readDeviceSpecialFileBeforeAddSum("FF 04 00 18",fileName)+"16";
             Log.i(TAG,"deviceOrder:"+deviceOrder);
             isSendReadLengthOrder = true;
-            isStartUploadData = false;
+            mIsStartUploadData = false;
 
 
             sendHexStringDeviceOrder(deviceOrder);
@@ -613,7 +613,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
         Log.i(TAG,"fileLengthInt:"+fileLengthInt);
 
         //servic_info.setText("fileLengthInt:"+fileLengthInt);
-        mUploadFileCountIndex = 0;
+        mCurUploadFilePackageIndex = 0;
 
         if (fileLengthInt<100){
             runOnUiThread(new Runnable() {
@@ -632,7 +632,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                     isFileDataTooLittleDelete = true;
                 }
             });
-            //deleteOneFile(currentUploadFileName);
+            //deleteOneFile(mCurrentUploadFileName);
             return;
         }else {
             isFileDataTooLittleDelete  = false;
@@ -644,12 +644,12 @@ public class UploadOfflineFileActivity extends BaseActivity {
             Log.i(TAG,"需要传的次数 mAllFileCount:"+mAllFileCount);
             Log.i(TAG,"余数 mFileLastRemainder:"+mFileLastRemainder);
 
-            String offsetHexLenght = DeviceOffLineFileUtil.getFormatHexFileLenght(8, mOneUploadMaxByte*mUploadFileCountIndex);
+            String offsetHexLenght = DeviceOffLineFileUtil.getFormatHexFileLenght(8, mOneUploadMaxByte* mCurUploadFilePackageIndex);
             //String offsetHexLenght = DeviceOffLineFileUtil.getFormatHexFileLenght(8, offsetTest);
             String fileHexLenght = DeviceOffLineFileUtil.getFormatHexFileLenght(8, mOneUploadMaxByte);
             String startOrder = "FF05000e"+offsetHexLenght+fileHexLenght;
             String deviceOrder = startOrder+DeviceOffLineFileUtil.readDeviceSpecialFileBeforeAddSum(startOrder)+"16";
-            Log.i(TAG,mUploadFileCountIndex+"分段上传deviceOrder:"+deviceOrder);
+            Log.i(TAG, mCurUploadFilePackageIndex +"分段上传deviceOrder:"+deviceOrder);
             sendHexStringDeviceOrder(deviceOrder);
         }
         else {
@@ -665,7 +665,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
         }
     }
-    //boolean isStartUploadData
+    //boolean mIsStartUploadData
 
     //文件上传
     private void dealWithDeviceFileUpload(int length, final String toHexString) {
@@ -674,21 +674,21 @@ public class UploadOfflineFileActivity extends BaseActivity {
             startTimeMillis = System.currentTimeMillis();
         }
 
-        if (mUploadFileCountIndex<mAllFileCount){
+        if (mCurUploadFilePackageIndex <mAllFileCount){
             //前几次整数上传
             onePackageReadLength += length;
             onePackageDataHexString += toHexString;
             Log.i(TAG,"分包 当前收到总长度length:"+onePackageReadLength);
             if (onePackageReadLength==mOneUploadMaxByte+16*14){
-                Log.i(TAG,"当前包上传成功:"+mUploadFileCountIndex);
+                Log.i(TAG,"当前包上传成功:"+ mCurUploadFilePackageIndex);
 
                 float progress ;
                 //有可能整个文件的包长为8192，刚好一次传完，则mAllFileCount=1，mFileLastRemainder=0；
                 if (mFileLastRemainder!=0){
-                    progress = (float)(mUploadFileCountIndex+1)/(mAllFileCount+1);
+                    progress = (float)(mCurUploadFilePackageIndex +1)/(mAllFileCount+1);
                 }
                 else {
-                    progress = (float)(mUploadFileCountIndex+1)/(mAllFileCount);
+                    progress = (float)(mCurUploadFilePackageIndex +1)/(mAllFileCount);
                 }
 
                 ProgressBar pb_item_progress = (ProgressBar) lv_history_upload.getChildAt(mUploadFileIndex/2).findViewById(R.id.pb_item_progress);
@@ -711,7 +711,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                 onePackageReadLength = 0;
                 onePackageDataHexString = "";
 
-                if (mUploadFileCountIndex==mAllFileCount-1 && mFileLastRemainder==0){
+                if (mCurUploadFilePackageIndex ==mAllFileCount-1 && mFileLastRemainder==0){
                     //上传完成
                     uploadCurrentFileSuccess();
                     if ((int) (mCurrListViewItemProgress*100)>90){
@@ -720,12 +720,12 @@ public class UploadOfflineFileActivity extends BaseActivity {
                     }
                 }
                 else {
-                    mUploadFileCountIndex++;
+                    mCurUploadFilePackageIndex++;
                     uploadNextPackageData();
                 }
             }
         }
-        else if (mUploadFileCountIndex==mAllFileCount){
+        else if (mCurUploadFilePackageIndex ==mAllFileCount){
 
             //int allHexlength = Integer.parseInt(allHexString, 16);
 
@@ -736,11 +736,11 @@ public class UploadOfflineFileActivity extends BaseActivity {
             Log.i(TAG,"余数 当前包收到总长度length:"+onePackageReadLength);
             //Log.i(TAG,"mFileLastRemainder:"+mFileLastRemainder);
             if (onePackageReadLength == mFileLastRemainder+(int) Math.ceil(mFileLastRemainder/512.0)*14){
-                Log.i(TAG,"余数上传成功:"+mUploadFileCountIndex);
+                Log.i(TAG,"余数上传成功:"+ mCurUploadFilePackageIndex);
 
                 mIsCurrFileRemainderUploadOk = true;
                 /*if (mAllFileCount>0){
-                    float progress = (float)(mUploadFileCountIndex+1)/mAllFileCount;
+                    float progress = (float)(mCurUploadFilePackageIndex+1)/mAllFileCount;
                     if (mCurrListViewItemProgress>0){
                         progress += mCurrListViewItemProgress;
                     }
@@ -806,11 +806,11 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
         Log.i(TAG,"求情重传次数requireRetransmissionCount "+requireRetransmissionCount);
 
-        isStartUploadData = false;
-        //deleteOneFile(currentUploadFileName);
+        mIsStartUploadData = false;
+        //deleteOneFile(mCurrentUploadFileName);
         isSendReadLengthOrder = false;
 
-        final String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+ currentUploadFileName;
+        final String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+ mCurrentUploadFileName;
         final boolean isWriteSuccess = DeviceOffLineFileUtil.writeEcgDataToBinaryFile(mAllData, filePath);
         Log.i(TAG,"写入文件isWriteSuccess:"+isWriteSuccess+ "  filePath:"+filePath);
         Log.i(TAG,"mListViewItemUolpadIndex:"+mListViewItemUolpadIndex);
@@ -831,7 +831,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
         final TextView tv_history_alstate;
 
-        if (currentUploadFileName.endsWith("acc")){
+        if (mCurrentUploadFileName.endsWith("acc")){
             tv_history_alstate = (TextView) lv_history_upload.getChildAt(mUploadFileIndex/2).findViewById(R.id.tv_history_alstate);
             //TextView tv_history_alstate = HistoryRecordAdapter.textViewList.get(mUploadFileIndex);
 
@@ -855,24 +855,42 @@ public class UploadOfflineFileActivity extends BaseActivity {
     //发送读取下一个文件的指令
     private void sendReadNextFileOrder(){
         mUploadFileIndex++; //上传下一个文件
-        mUploadFileCountIndex = -1;
+        mCurUploadFilePackageIndex = -1;  //将mUploadFileCountIndex标识为-1，标识还没有读取到这个文件的长度
+
         if (mOffLineFileNameList.size()>0 && mUploadFileIndex<mOffLineFileNameList.size()){
             String fileName = mOffLineFileNameList.get(mUploadFileIndex);
-            currentUploadFileName = fileName;
+            mCurrentUploadFileName = fileName;
 
-            Log.i(TAG,"读取长度currentUploadFileName:"+currentUploadFileName);
+            Log.i(TAG,"读取长度currentUploadFileName:"+ mCurrentUploadFileName);
             //String fileName = "20170413172800.ecg";
             mIsCurrFileRemainderUploadOk = false;
-            isStartUploadData = false;
+            mIsStartUploadData = false;
             String startOrder = "FF040018";
             String deviceOrder = startOrder + DeviceOffLineFileUtil.stringToHexString(fileName) + DeviceOffLineFileUtil.readDeviceSpecialFileBeforeAddSum("FF 04 00 18",fileName)+"16";
             Log.i(TAG,"读取deviceOrder:"+deviceOrder);
-            Log.i(TAG,"isStartUploadData:"+isStartUploadData);
+            Log.i(TAG,"mIsStartUploadData:"+ mIsStartUploadData);
             isSendReadLengthOrder = true;
 
-
-
             sendHexStringDeviceOrder(deviceOrder);
+        }
+        else if (mOffLineFileNameList.size()>0 && mUploadFileIndex==mOffLineFileNameList.size()){
+            Log.i(TAG,"所有文件上传完成!");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog alertDialog = new AlertDialog.Builder(UploadOfflineFileActivity.this)
+                            .setTitle("所有文件上传完成，请点击文件进行分析!")
+                            .setPositiveButton(getResources().getString(R.string.exit_confirm), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            })
+                            .create();
+                    alertDialog.setCanceledOnTouchOutside(false);
+                    alertDialog.show();
+                }
+            });
         }
 
     }
@@ -886,8 +904,8 @@ public class UploadOfflineFileActivity extends BaseActivity {
     private void judgeRequireRetransmission() {
         Log.i(TAG,"isSendReadLengthOrder:"+isSendReadLengthOrder);
         if (isSendReadLengthOrder ){
-            Log.i(TAG,"mUploadFileCountIndex:"+mUploadFileCountIndex+"   mAllFileCount:"+mAllFileCount);
-            if (mUploadFileCountIndex==mAllFileCount ){
+            Log.i(TAG,"mCurUploadFilePackageIndex:"+ mCurUploadFilePackageIndex +"   mAllFileCount:"+mAllFileCount);
+            if (mCurUploadFilePackageIndex ==mAllFileCount ){
                 if (mFileLastRemainder>0 && !mIsCurrFileRemainderUploadOk){
                     requireRetransmission();
                 }
@@ -902,7 +920,6 @@ public class UploadOfflineFileActivity extends BaseActivity {
                 requireRetransmission();
             }
         }
-
     }
 
     int noRepronseCount;
@@ -912,12 +929,12 @@ public class UploadOfflineFileActivity extends BaseActivity {
         /*Log.i(TAG,"请求重传requireRetransmission:");
         Log.i(TAG,"noRepronseCount:"+noRepronseCount);
         if (noRepronseCount==3){
-            socketWriter = null;
+            mSocketWriter = null;
             Log.i(TAG,"重建socket");
             try {
                 Socket sock = new Socket(ConnectToWifiGudieActivity2.serverAddress, 8080);
                 ConnectToWifiGudieActivity2.mSock = sock;
-                socketWriter = sock.getOutputStream();
+                mSocketWriter = sock.getOutputStream();
                 Log.i(TAG,"重建socket成功");
                 inputStream = sock.getInputStream();
             } catch (IOException e) {
@@ -926,7 +943,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
             }
             noRepronseCount=-1;
 
-            isStartUploadData = false;
+            mIsStartUploadData = false;
             requireRetransmissionCount++;
             onePackageData.clear();
             onePackageReadLength = 0;
@@ -934,7 +951,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
             noRepronseCount++;
         }
         else {
-            isStartUploadData = false;
+            mIsStartUploadData = false;
             requireRetransmissionCount++;
             onePackageData.clear();
             onePackageReadLength = 0;
@@ -945,7 +962,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
         Log.i(TAG,"请求重传requireRetransmission:");
         Log.i(TAG,"noRepronseCount:"+noRepronseCount);
 
-        isStartUploadData = false;
+        mIsStartUploadData = false;
         requireRetransmissionCount++;
         onePackageData.clear();
         onePackageReadLength = 0;
@@ -955,17 +972,18 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
     //当前包传输成功，进行下一个包传输
     private void uploadNextPackageData(){
-        if (mUploadFileCountIndex<mAllFileCount){
-            String offsetHexLenght = DeviceOffLineFileUtil.getFormatHexFileLenght(8, mOneUploadMaxByte*mUploadFileCountIndex);
-            String fileHexLenght = DeviceOffLineFileUtil.getFormatHexFileLenght(8, mOneUploadMaxByte);
-            String startOrder = "FF05000e"+offsetHexLenght+fileHexLenght;
-            String deviceOrder = startOrder+DeviceOffLineFileUtil.readDeviceSpecialFileBeforeAddSum(startOrder)+"16";
-            Log.i(TAG,mUploadFileCountIndex+"分段上传deviceOrder:"+deviceOrder);
-            sendHexStringDeviceOrder(deviceOrder);
-        }
-        else {
+        if (mCurUploadFilePackageIndex !=-1){  //mCurUploadFilePackageIndex!=-1表示还没有读取文件长度
+            if (mCurUploadFilePackageIndex <mAllFileCount){
+                String offsetHexLenght = DeviceOffLineFileUtil.getFormatHexFileLenght(8, mOneUploadMaxByte* mCurUploadFilePackageIndex);
+                String fileHexLenght = DeviceOffLineFileUtil.getFormatHexFileLenght(8, mOneUploadMaxByte);
+                String startOrder = "FF05000e"+offsetHexLenght+fileHexLenght;
+                String deviceOrder = startOrder+DeviceOffLineFileUtil.readDeviceSpecialFileBeforeAddSum(startOrder)+"16";
+                Log.i(TAG, mCurUploadFilePackageIndex +"分段上传deviceOrder:"+deviceOrder);
+                sendHexStringDeviceOrder(deviceOrder);
+            }
+            else
             if (mFileLastRemainder>0){
-                String offsetHexLenght = DeviceOffLineFileUtil.getFormatHexFileLenght(8, mOneUploadMaxByte*mUploadFileCountIndex);
+                String offsetHexLenght = DeviceOffLineFileUtil.getFormatHexFileLenght(8, mOneUploadMaxByte* mCurUploadFilePackageIndex);
                 String fileHexLenght = DeviceOffLineFileUtil.getFormatHexFileLenght(8, mFileLastRemainder);
                 String startOrder = "FF05000e"+offsetHexLenght+fileHexLenght;
                 String deviceOrder = startOrder+DeviceOffLineFileUtil.readDeviceSpecialFileBeforeAddSum(startOrder)+"16";
@@ -979,7 +997,13 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
             }
         }
-        isStartUploadData = false;
+        else {
+            mUploadFileIndex--;
+            sendReadNextFileOrder();
+        }
+
+
+        mIsStartUploadData = false;
     }
 
 

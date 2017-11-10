@@ -6,10 +6,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -17,7 +17,6 @@ import android.widget.Button;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.insole.CorrectInsoleActivity;
-import com.amsu.healthy.activity.insole.InsoleRunningActivity;
 import com.amsu.healthy.adapter.FragmentListRateAdapter;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.fragment.inoutdoortype.InDoorRunFragment;
@@ -29,16 +28,6 @@ import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.WebSocketUtil;
 import com.ble.api.DataUtil;
-import com.lidroid.xutils.HttpUtils;
-import com.lidroid.xutils.exception.HttpException;
-import com.lidroid.xutils.http.RequestParams;
-import com.lidroid.xutils.http.ResponseInfo;
-import com.lidroid.xutils.http.callback.RequestCallBack;
-import com.lidroid.xutils.http.client.HttpRequest;
-
-import org.java_websocket.client.WebSocketClient;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -127,11 +116,27 @@ public class PrepareRunningActivity extends BaseActivity {
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
 
-        boolean mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
-        if (mIsAutoMonitor){
+        //boolean mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
+
+        int chooseMonitorShowIndex = MyUtil.getIntValueFromSP("chooseMonitorShowIndex");
+
+        if (chooseMonitorShowIndex!=-1){
             mWebSocketUtil = new WebSocketUtil();
             //String url = "ws://192.168.0.112:8080/SportMonitor/websocket";
-            String url = "ws://www.amsu-new.com:8081/SportMonitor/websocket";
+            String url = "ws://www.amsu-new.com:8081/SportMonitorServer/websocket";
+
+            if (chooseMonitorShowIndex==0){
+                //普通
+                url = "ws://www.amsu-new.com:8081/SportMonitorServer/websocket";
+            }
+            else  if (chooseMonitorShowIndex==1){
+                //健身房
+                url = "ws://www.amsu-new.com:8081/GymSportMonitorServer/websocket";
+            }
+            if (chooseMonitorShowIndex==2){
+                //马拉松
+                url = "ws://www.amsu-new.com:8081/MarathonSportMonitorServer/websocket";
+            }
             mWebSocketUtil.connectWebSocket(url);
             ((MyApplication)getApplication()).setWebSocketUtil(mWebSocketUtil);
         }

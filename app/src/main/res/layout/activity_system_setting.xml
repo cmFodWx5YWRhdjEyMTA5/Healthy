@@ -188,7 +188,7 @@
             android:paddingRight="@dimen/x40">
 
             <TextView
-                android:id="@id/text1"
+                android:id="@+id/tv_persiondata_switvhname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/x48"

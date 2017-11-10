@@ -94,7 +94,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
 
         //分析过程有可能耗时，在子线程中进行
         final String ecgLocalFileName = intent.getStringExtra(Constant.ecgLocalFileName); ///storage/emulated/0
-        //final String ecgLocalFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth/20170920184950.ecg"; ///storage/emulated/0
+        //final String ecgLocalFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth/20171030183831.ecg"; ///storage/emulated/0
         Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
         Log.i(TAG,"integerArrayListExtra: "+integerArrayListExtra);
         if (!MyUtil.isEmpty(ecgLocalFileName)) {

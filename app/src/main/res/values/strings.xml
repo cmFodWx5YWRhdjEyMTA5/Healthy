@@ -408,7 +408,7 @@
 
     <string name="all_countries_regions">所有国家/地区</string>
 
-    <string name="isopen_ecg_webmonitoring">是否开启网页心电监测</string>
+    <string name="isopen_ecg_webmonitoring">未开启网页心电监测</string>
     <string name="nearly_7_days">近七天</string>
     <string name="no_data_nearly_7_days">近七天无数据</string>
     <string name="no_data_last_week">上周无数据</string>

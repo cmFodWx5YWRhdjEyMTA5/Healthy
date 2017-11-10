@@ -461,8 +461,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         CommunicateToBleService.setServiceForegrounByNotify(getResources().getString(R.string.running),getResources().getString(R.string.distance)+": "+mFormatDistance+"KM       "+getResources().getString(R.string.exercise_time)+": "+specialFormatTime,1);
         Log.i(TAG,"设置通知:"+specialFormatTime);
 
-        boolean mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
-        if (mIsAutoMonitor){
+        //boolean mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
+        int chooseMonitorShowIndex = MyUtil.getIntValueFromSP("chooseMonitorShowIndex");
+        if (chooseMonitorShowIndex!=-1){
             mWebSocketUtil = ((MyApplication) getApplication()).getWebSocketUtil();
             /*if (mWebSocketUtil!=null){
                 mWebSocketClient = mWebSocketUtil.mWebSocketClient;
@@ -475,8 +476,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 mWebSocketUtil.sendSocketMsg(sendStartRunningState);
             }
         }
-
-
     }
 
 

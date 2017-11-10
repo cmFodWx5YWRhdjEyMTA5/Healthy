@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
@@ -25,8 +26,10 @@ import java.util.Locale;
 public class SystemSettingActivity extends BaseActivity implements View.OnClickListener {
 
     private static final String TAG = "SystemSettingActivity";
-    private boolean mIsAutoMonitor;
+    //private boolean mIsAutoMonitor;
     private ImageView iv_persiondata_switvh;
+    private TextView tv_persiondata_switvhname;
+    private int chooseMonitorShowIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +59,7 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         RelativeLayout rl_persiondata_switvh = (RelativeLayout) findViewById(R.id.rl_persiondata_switvh);
 
         iv_persiondata_switvh = (ImageView) findViewById(R.id.iv_persiondata_switvh);
+        tv_persiondata_switvhname = (TextView) findViewById(R.id.tv_persiondata_switvhname);
 
         rl_persiondata_persiondata.setOnClickListener(this);
         rl_persiondata_device.setOnClickListener(this);
@@ -69,12 +73,18 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
             MyApplication.mActivities.add(this);
         }
 
-        mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
-        if (mIsAutoMonitor){
+        //mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
+        chooseMonitorShowIndex = MyUtil.getIntValueFromSP("chooseMonitorShowIndex");
+
+        String chooseMonitorShowName = MyUtil.getStringValueFromSP("chooseMonitorShowName");
+
+        if (chooseMonitorShowIndex !=-1){
             iv_persiondata_switvh.setImageResource(R.drawable.switch_on);
+            tv_persiondata_switvhname.setText(chooseMonitorShowName);
         }
         else {
             iv_persiondata_switvh.setImageResource(R.drawable.switch_of);
+            tv_persiondata_switvhname.setText(getResources().getString(R.string.isopen_ecg_webmonitoring));
         }
 
         if (!Constant.isInnerUpdateAllowed){
@@ -238,30 +248,54 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
 
 
     public void switchMonitorState(View view) {
-        if (!mIsAutoMonitor){
+        if (chooseMonitorShowIndex==-1){
             InputTextAlertDialogUtil textAlertDialogUtil = new InputTextAlertDialogUtil(this);
-            textAlertDialogUtil.setAlertDialogText("输入密码",getResources().getString(R.string.exit_confirm),getResources().getString(R.string.exit_cancel));
+            textAlertDialogUtil.setAlertDialogText("输入邀请码",getResources().getString(R.string.exit_confirm),getResources().getString(R.string.exit_cancel));
 
             textAlertDialogUtil.setOnConfirmClickListener(new InputTextAlertDialogUtil.OnConfirmClickListener() {
                 @Override
                 public void onConfirmClick(String inputText) {
                     Log.i(TAG,"inputText:"+inputText);
-                    if (inputText.equals("000")){
-                        iv_persiondata_switvh.setImageResource(R.drawable.switch_on);
-                        mIsAutoMonitor = true;
-                        MyUtil.putBooleanValueFromSP("mIsAutoMonitor",true);
-                        MyUtil.showToask(SystemSettingActivity.this,"开启成功");
+                    if (inputText.equals("123")){
+                        showChoosTypeDialog();
                     }
                     else {
-                        MyUtil.showToask(SystemSettingActivity.this,"输入错误，无法开启");
+                        MyUtil.showToask(SystemSettingActivity.this,"邀请码输入错误，请联系相关人员");
                     }
                 }
             });
         }
         else {
             iv_persiondata_switvh.setImageResource(R.drawable.switch_of);
-            mIsAutoMonitor = false;
-            MyUtil.putBooleanValueFromSP("mIsAutoMonitor",false);
+            chooseMonitorShowIndex = -1;
+            //MyUtil.putBooleanValueFromSP("mIsAutoMonitor",false);
+            MyUtil.putIntValueFromSP("chooseMonitorShowIndex",chooseMonitorShowIndex);
         }
+
     }
+
+    public void showChoosTypeDialog(){
+        final String[] items = {"普通监测","健身房","马拉松"};
+        new AlertDialog.Builder(this)
+                .setTitle("选择监测类型")
+                .setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String chooseMonitorShowName = "已开启心电监测（"+items[which]+"）";
+                        iv_persiondata_switvh.setImageResource(R.drawable.switch_on);
+                        tv_persiondata_switvhname.setText(chooseMonitorShowName);
+
+                        chooseMonitorShowIndex = which;
+
+                        MyUtil.putIntValueFromSP("chooseMonitorShowIndex",chooseMonitorShowIndex);
+                        //MyUtil.putBooleanValueFromSP("mIsAutoMonitor",true);
+                        MyUtil.putStringValueFromSP("chooseMonitorShowName",chooseMonitorShowName);
+                        MyUtil.showToask(SystemSettingActivity.this,"开启成功");
+
+                        dialog.cancel();
+                    }
+                })
+                .show();
+    }
+
 }

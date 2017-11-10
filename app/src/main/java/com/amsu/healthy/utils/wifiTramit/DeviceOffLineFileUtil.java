@@ -256,12 +256,16 @@ public class DeviceOffLineFileUtil {
             @Override
             public void run() {
                 Log.i(TAG,"run TimeOutCountIndex:"+TimeOutCountIndex);
+                Log.i(TAG,"mIsTimeerRunning:"+mIsTimeerRunning);
+
                 if (mIsTimeerRunning){
                     TimeOutCountIndex++;
-                }
-                if (TimeOutCountIndex==TimeOutAllCount && mIsTimeerRunning) {
-                    TimeOutCountIndex = 0;
-                    onTimeOutListener.onTomeOut();//时间到
+
+                    if (TimeOutCountIndex==TimeOutAllCount) {
+                        TimeOutCountIndex = 0;
+                        onTimeOutListener.onTomeOut();//时间到
+                        Log.i(TAG,"onTomeOut()");
+                    }
                 }
             }
         };
