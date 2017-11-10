@@ -132,6 +132,7 @@ public class Constant {
      * 鞋垫/步态
      */
     public static final int sportType_Insole = 2;
+    public static boolean enduranceTest;
 
     public static String uploadRecordDefaultString = "0";
     public static String uploadRecordDefaultString_1 = "-1";

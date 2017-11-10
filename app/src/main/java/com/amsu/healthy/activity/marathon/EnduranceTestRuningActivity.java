@@ -56,6 +56,7 @@ import java.util.List;
 import static com.amsu.healthy.activity.StartRunActivity.accOneGroupLength;
 import static com.amsu.healthy.service.CommunicateToBleService.ecgFilterUtil_1;
 import static com.amsu.healthy.utils.Constant.ecgLocalFileName;
+import static com.amsu.healthy.utils.Constant.enduranceTest;
 
 /**
  * author：WangLei
@@ -99,6 +100,7 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
         initEvents();
         countDownTime();
         initMapLoationTrace();
+        enduranceTest = true;
     }
 
     private void initViews() {
@@ -130,7 +132,7 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                backJudge();
             }
         });
         findViewById(R.id.tv_run_lock).setOnClickListener(new View.OnClickListener() {
@@ -316,6 +318,7 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        enduranceTest = false;
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
         destorySportInfoTOAPP();
     }
@@ -351,9 +354,18 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
         float speed = aMapLocation.getSpeed();
+        if (speed > 300) {
+            speed = 0;
+        }
         speedList.add(speed);
         if (speed > 0) {
             locationList.add(aMapLocation);
+        }
+        double lat = aMapLocation.getLatitude();
+        double lon = aMapLocation.getLongitude();
+        if (lat != 0 && lon != 0) {
+            MyUtil.putStringValueFromSP("lat", String.valueOf(lat));
+            MyUtil.putStringValueFromSP("lon", String.valueOf(lon));
         }
         double distance = calculateDistance();
         String dis = UStringUtil.formatNumber(distance / 1000, 2);

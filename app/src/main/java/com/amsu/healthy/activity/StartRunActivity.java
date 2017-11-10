@@ -1099,6 +1099,12 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         return 0;
     }
     private void calculateDistance(AMapLocation aMapLocation) {
+        double lat = aMapLocation.getLatitude();
+        double lon = aMapLocation.getLongitude();
+        if (lat != 0 && lon != 0) {
+            MyUtil.putStringValueFromSP("lat", String.valueOf(lat));
+            MyUtil.putStringValueFromSP("lon", String.valueOf(lon));
+        }
         if (aeTimeMillis == 0) {
             aeTimeMillis = System.currentTimeMillis();
         }
