@@ -13,12 +13,13 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
-import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.UStringUtil;
 import com.amsu.healthy.view.GlideRelativeView;
 
 import java.util.Date;
+
+import static com.amsu.healthy.utils.Constant.enduranceTest;
 
 public class LockScreenActivity extends BaseActivity {
 
@@ -29,7 +30,6 @@ public class LockScreenActivity extends BaseActivity {
     private TextView tv_run_heartrate;
     private GlideRelativeView rl_run_glide;
     private RelativeLayout rl_run_lock;
-    boolean isMarathonSportType;
     private String runningDate;
 
     @Override
@@ -51,7 +51,6 @@ public class LockScreenActivity extends BaseActivity {
         /*bindService(new Intent(this, CommunicateToBleService.class),mConnection,BIND_AUTO_CREATE);
         isBind = true;*/
         initHeadView();
-        isMarathonSportType = MyUtil.getBooleanValueFromSP(Constant.isMarathonSportType);
         tv_run_speed = (TextView) findViewById(R.id.tv_run_speed);
         tv_run_distance = (TextView) findViewById(R.id.tv_run_distance);
         tv_run_time = (TextView) findViewById(R.id.tv_run_time);
@@ -170,11 +169,8 @@ public class LockScreenActivity extends BaseActivity {
         public void dispatchMessage(Message msg) {
             switch (msg.what) {
                 case 1:
-                    if (isMarathonSportType) {
+                    if (enduranceTest) {
                         tv_run_time.setText(UStringUtil.isNullOrEmpty(runningDate) ? "——" : runningDate);
-                        if (runningDate.equals("——")) {
-                            finish();
-                        }
                     } else {
                         tv_run_time.setText(mSpecialFormatTime);
                     }

@@ -90,13 +90,13 @@
             android:value="0c1784d4bf495891bf142767b314651c" />
 
         <!-- 高德地图 -->
-        <meta-data
-        android:name="com.amap.api.v2.apikey"
-        android:value="00a9a61217c28973e9bceba073d5ac52" />
-        <!--wanglei 测试key-->
         <!--<meta-data-->
-            <!--android:name="com.amap.api.v2.apikey"-->
-            <!--android:value="01d97fe882f5027bc65eb07a93598ab4" />-->
+        <!--android:name="com.amap.api.v2.apikey"-->
+        <!--android:value="00a9a61217c28973e9bceba073d5ac52" />-->
+        <!--wanglei 测试key-->
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="01d97fe882f5027bc65eb07a93598ab4" />
         <!-- 定位需要的服务 -->
         <service android:name="com.amap.api.location.APSService" />
 

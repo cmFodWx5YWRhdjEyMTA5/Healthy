@@ -57,6 +57,7 @@ public class SportRecordActivity extends BaseActivity implements SwipeRefreshLay
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sport_record);
+        SportRecord.clear();
         initHeadView();
         setLeftImage(R.drawable.back_icon);
         setCenterText(getResources().getString(R.string.endurance_sport_record));
@@ -76,10 +77,6 @@ public class SportRecordActivity extends BaseActivity implements SwipeRefreshLay
         adapter = new SportRecordAdapter(this, datas);
         addFooterView();
         mExpandableListView.setAdapter(adapter);
-        int groupCount = mExpandableListView.getCount();
-        for (int i = 0; i < groupCount; i++) {
-            mExpandableListView.expandGroup(i);
-        }
         mExpandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
             public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
@@ -182,7 +179,7 @@ public class SportRecordActivity extends BaseActivity implements SwipeRefreshLay
 
     private void refresh() {
         adapter.refresh();
-        int groupCount = mExpandableListView.getCount();
+        int groupCount = datas.size();
         for (int i = 0; i < groupCount; i++) {
             mExpandableListView.collapseGroup(i);
             mExpandableListView.expandGroup(i);

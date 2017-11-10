@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.amap.api.maps.AMap;
@@ -34,6 +35,7 @@ import com.amsu.healthy.utils.DateFormatUtils;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.UStringUtil;
 import com.amsu.healthy.utils.map.Util;
+import com.amsu.healthy.view.MapContainer;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -76,6 +78,8 @@ public class SportRecordStatisticsFragment extends BaseFragment implements AMap.
     private Polyline mOriginPolyline;
     private Marker mOriginStartMarker;
     private Marker mOriginEndMarker;
+    private MapContainer mMapContainer;
+    private ScrollView mScrollView;
 
     @Nullable
     @Override
@@ -93,6 +97,9 @@ public class SportRecordStatisticsFragment extends BaseFragment implements AMap.
     }
 
     private void initView(Bundle savedInstanceState) {
+        mScrollView = (ScrollView) mView.findViewById(R.id.mScrollView);
+        mMapContainer = (MapContainer) mView.findViewById(R.id.mMapContainer);
+        mMapContainer.setScrollView(mScrollView);
         mMapView = (TextureMapView) mView.findViewById(R.id.mMapView);
         indexLayout = (LinearLayout) mView.findViewById(R.id.indexLayout);
         mMapView.onCreate(savedInstanceState);
@@ -259,6 +266,14 @@ public class SportRecordStatisticsFragment extends BaseFragment implements AMap.
     @Override
     public void onMapLoaded() {
         if (mUploadRecord != null) { //经纬度
+            String lat = MyUtil.getStringValueFromSP("lat");
+            String lon = MyUtil.getStringValueFromSP("lon");
+            if (!UStringUtil.isNullOrEmpty(lat) && !UStringUtil.isNullOrEmpty(lon)) {
+                double l1 = Double.parseDouble(lat);
+                double l2 = Double.parseDouble(lon);
+                LatLng latLng = Util.getLatLng(l1, l2);
+                aMap.moveCamera(CameraUpdateFactory.changeLatLng(latLng));
+            }
             Gson gson = new Gson();
             List<ParcelableDoubleList> fromJson = mUploadRecord.latitudeLongitude;
             Log.i(TAG, "fromJson:" + fromJson);
@@ -292,7 +307,6 @@ public class SportRecordStatisticsFragment extends BaseFragment implements AMap.
 
     /**
      * 地图上添加原始轨迹线路及起终点、轨迹动画小人
-     *
      */
     private void addOriginTrace(LatLng startPoint, LatLng endPoint, List<LatLng> originList, float mapTraceDistance) {
         if (mOriginPolyline != null) {

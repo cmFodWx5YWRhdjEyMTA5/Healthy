@@ -6,6 +6,7 @@
     android:orientation="vertical">
 
     <ScrollView
+        android:id="@+id/mScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="none">
@@ -20,10 +21,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <com.amap.api.maps.TextureMapView
-                    android:id="@+id/mMapView"
+                <com.amsu.healthy.view.MapContainer
+                    android:id="@+id/mMapContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/x640" />
+                    android:layout_height="@dimen/x640"
+                    android:orientation="vertical">
+
+                    <com.amap.api.maps.TextureMapView
+                        android:id="@+id/mMapView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </com.amsu.healthy.view.MapContainer>
 
                 <TextView
                     android:id="@+id/sport_date"
