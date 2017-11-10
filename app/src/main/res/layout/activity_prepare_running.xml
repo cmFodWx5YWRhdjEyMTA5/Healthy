@@ -30,7 +30,7 @@
         android:layout_gravity="center_horizontal"/>-->
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/x240"
         android:layout_alignParentBottom="true"
@@ -48,7 +48,7 @@
         <Button
             android:id="@+id/bt_choose_offline"
             android:layout_width="@dimen/x160"
-            android:layout_height="@dimen/x160"
+            android:layout_height="@dimen/y160"
             android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/x110"
             android:layout_toRightOf="@+id/iv_choose_online"
@@ -57,8 +57,7 @@
             android:onClick="goStartOffLineRun"
             android:text="离线跑"
             android:textColor="#666666"
-            android:textSize="@dimen/x32"
-            android:visibility="gone" />
+            android:textSize="@dimen/x32" />
     </RelativeLayout>
 
 

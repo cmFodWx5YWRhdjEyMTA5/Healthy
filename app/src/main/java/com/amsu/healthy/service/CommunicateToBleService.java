@@ -113,7 +113,7 @@ public class CommunicateToBleService extends Service {
                 final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
                 mBluetoothAdapter = bluetoothManager.getAdapter();
                 mLeProxy = LeProxy.getInstance();
-                Log.i(TAG,"mBluetoothAdapter.getState():"+mBluetoothAdapter.getState());
+                //Log.i(TAG,"getState():"+mBluetoothAdapter.getState());
             }
 
             stratListenScrrenBroadCast();
@@ -482,6 +482,7 @@ public class CommunicateToBleService extends Service {
                 device = new Device();
             }
             device.setBattery(intPower);
+            device.setMac(address);
 
             mInsoleDeviceBatteryInfos.put(address,device);
             mApplication.setInsoleDeviceBatteryInfos(mInsoleDeviceBatteryInfos);
@@ -498,6 +499,7 @@ public class CommunicateToBleService extends Service {
                     device = new Device();
                 }
                 device.setHardWareVersion(deviceVersionString);
+                device.setMac(address);
 
                 mInsoleDeviceBatteryInfos.put(address,device);
                 mApplication.setInsoleDeviceBatteryInfos(mInsoleDeviceBatteryInfos);
@@ -512,6 +514,7 @@ public class CommunicateToBleService extends Service {
                     device = new Device();
                 }
                 device.setSoftWareVersion(deviceVersionString);
+                device.setMac(address);
 
                 mInsoleDeviceBatteryInfos.put(address,device);
                 mApplication.setInsoleDeviceBatteryInfos(mInsoleDeviceBatteryInfos);
@@ -1084,8 +1087,6 @@ public class CommunicateToBleService extends Service {
                     Log.i(TAG,"MyApplication.mCurrApplicationActivity:"+MyApplication.mCurrApplicationActivity);
                     mIsConnectting = false;
                     mIsConnectted = true;
-
-
 
                     if (MyApplication.deivceType==Constant.sportType_Cloth){
                         scanLeDevice(false);//停止扫描

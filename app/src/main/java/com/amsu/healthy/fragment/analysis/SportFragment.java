@@ -509,41 +509,45 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
             // A geodesic polyline that goes around the world.
             if (mUploadRecord!=null){
                 com.google.android.gms.maps.model.PolylineOptions polylineOptions = new com.google.android.gms.maps.model.PolylineOptions();
-                Gson gson = new Gson();
                 /*List<List<Double>> fromJson = gson.fromJson(mUploadRecord.latitudeLongitude,new TypeToken<List<List<Double>>>() {
                 }.getType());*/
                 List<ParcelableDoubleList> fromJson = mUploadRecord.latitudeLongitude;
                 Log.i(TAG,"fromJson:"+fromJson);
                 if (fromJson!=null && fromJson.size()>0){
-                    com.google.android.gms.maps.model.LatLng startLatLng =
-                            new com.google.android.gms.maps.model.LatLng(fromJson.get(0).get(0),fromJson.get(0).get(1));
-                    com.google.android.gms.maps.model.LatLng endLatLng =
-                            new com.google.android.gms.maps.model.LatLng(fromJson.get(fromJson.size()-1).get(0),fromJson.get(fromJson.size()-1).get(1));
+                    try {
+                        com.google.android.gms.maps.model.LatLng startLatLng =
+                                new com.google.android.gms.maps.model.LatLng(fromJson.get(0).get(0),fromJson.get(0).get(1));
+                        com.google.android.gms.maps.model.LatLng endLatLng =
+                                new com.google.android.gms.maps.model.LatLng(fromJson.get(fromJson.size()-1).get(0),fromJson.get(fromJson.size()-1).get(1));
 
-                    com.google.android.gms.maps.model.LatLng latLng = null;
-                    com.google.android.gms.maps.model.LatLngBounds.Builder builder = new com.google.android.gms.maps.model.LatLngBounds.Builder();
-                    for (List<Double> list:fromJson){
-                        latLng = new com.google.android.gms.maps.model.LatLng(list.get(0),list.get(1));
-                        polylineOptions.add(latLng);
-                        builder.include(latLng);
+                        com.google.android.gms.maps.model.LatLng latLng = null;
+                        com.google.android.gms.maps.model.LatLngBounds.Builder builder = new com.google.android.gms.maps.model.LatLngBounds.Builder();
+                        for (List<Double> list:fromJson){
+                            latLng = new com.google.android.gms.maps.model.LatLng(list.get(0),list.get(1));
+                            polylineOptions.add(latLng);
+                            builder.include(latLng);
+                        }
+                        map.addMarker(new com.google.android.gms.maps.model.MarkerOptions().position(startLatLng).icon(com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource(R.drawable.qidian)));
+                        map.addMarker(new com.google.android.gms.maps.model.MarkerOptions().position(endLatLng).icon(com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource(R.drawable.zhongdian)));
+
+                        map.addPolyline((polylineOptions)
+                                .width(getResources().getDimension(R.dimen.x8))
+                                .color(Color.RED)
+                                .geodesic(true)
+                                .clickable(true));
+                        //map.moveCamera(com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(latLng, 15));
+
+                        com.google.android.gms.maps.CameraUpdate cameraUpdate = com.google.android.gms.maps.CameraUpdateFactory.newLatLngBounds(builder.build(), 10);
+                        map.moveCamera(cameraUpdate);
+
+                        if (fromJson.size()<10){
+                            map.moveCamera(com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(startLatLng, 17));
+                        }
+                    }catch (Exception e){
+                        //曾经有异常
+                        Log.i(TAG,"e:"+e);
                     }
-                    map.addMarker(new com.google.android.gms.maps.model.MarkerOptions().position(startLatLng).icon(com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource(R.drawable.qidian)));
-                    map.addMarker(new com.google.android.gms.maps.model.MarkerOptions().position(endLatLng).icon(com.google.android.gms.maps.model.BitmapDescriptorFactory.fromResource(R.drawable.zhongdian)));
 
-                    map.addPolyline((polylineOptions)
-                            .width(getResources().getDimension(R.dimen.x8))
-                            .color(Color.RED)
-                            .geodesic(true)
-                            .clickable(true));
-                    //map.moveCamera(com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(latLng, 15));
-
-                    com.google.android.gms.maps.CameraUpdate cameraUpdate = com.google.android.gms.maps.CameraUpdateFactory
-                            .newLatLngBounds(builder.build(), 10);
-                    map.moveCamera(cameraUpdate);
-
-                    if (fromJson.size()<10){
-                        map.moveCamera(com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom(startLatLng, 17));
-                    }
                 }
             }
         }

@@ -906,19 +906,19 @@ public class MainActivity extends BaseActivity {
     }
 
     public void showdialogToSupplyData(){
-        new AlertDialog.Builder(this).setTitle("数据提醒")
-                .setMessage("您的资料没有完善，无法准确分析运动结果，请先完善资料")
-                .setNegativeButton("现在就去", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(MainActivity.this,SupplyPersionDataActivity.class));
-                        //finish();
-                    }
-                })
-                .setPositiveButton("等会再去", new DialogInterface.OnClickListener() {
+        new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.add_information))
+                .setMessage(getResources().getString(R.string.add_information_dec))
+                .setNegativeButton(getResources().getString(R.string.exit_cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        //finish();
+                    }
+                })
+                .setPositiveButton(getResources().getString(R.string.exit_confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(MainActivity.this,SupplyPersionDataActivity.class));
                     }
                 })
                 .show();

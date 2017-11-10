@@ -156,6 +156,10 @@
       <district name="宣州区" zipcode="366000" />
       <district name="其他" zipcode="366000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="北京市">
     <city name="北京市">
@@ -179,6 +183,10 @@
       <district name="延庆县" zipcode="100000" />
       <district name="其他" zipcode="100000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="福建省">
     <city name="福州市">
@@ -292,6 +300,10 @@
       <district name="诏安县" zipcode="363000" />
       <district name="其他" zipcode="363000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="甘肃省">
     <city name="白银市">
@@ -419,6 +431,10 @@
       <district name="肃南裕固族自治县" zipcode="734000" />
       <district name="其他" zipcode="734000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="广东省">
     <city name="潮州市">
@@ -606,6 +622,10 @@
       <district name="香洲区" zipcode="519000" />
       <district name="其他" zipcode="519000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="广西壮族自治区">
     <city name="百色市">
@@ -759,6 +779,10 @@
       <district name="玉州区" zipcode="537000" />
       <district name="其他" zipcode="537000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="贵州省">
     <city name="安顺市">
@@ -876,6 +900,10 @@
       <district name="遵义县" zipcode="563000" />
       <district name="其他" zipcode="563000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="海南省">
     <city name="三亚市">
@@ -905,6 +933,10 @@
       <district name="秀英区" zipcode="570000" />
       <district name="其他" zipcode="570000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="河北省">
     <city name="保定市">
@@ -1113,6 +1145,10 @@
       <district name="涿鹿县" zipcode="075000" />
       <district name="其他" zipcode="75000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="河南省">
     <city name="安阳市">
@@ -1323,6 +1359,10 @@
       <district name="正阳县" zipcode="463000" />
       <district name="其他" zipcode="463000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="黑龙江省">
     <city name="大庆市">
@@ -1496,6 +1536,10 @@
       <district name="友好区" zipcode="152300" />
       <district name="其他" zipcode="152300" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="湖北省">
     <city name="鄂州市">
@@ -1636,6 +1680,10 @@
       <district name="秭归县" zipcode="443000" />
       <district name="其他" zipcode="443000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="湖南省">
     <city name="长沙市">
@@ -1802,6 +1850,10 @@
       <district name="株洲县" zipcode="412000" />
       <district name="其他" zipcode="412000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="吉林省">
     <city name="白城市">
@@ -1891,6 +1943,10 @@
       <district name="延吉市" zipcode="133000" />
       <district name="其他" zipcode="133000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="江苏省">
     <city name="常州市">
@@ -2038,6 +2094,10 @@
       <district name="扬中市" zipcode="212000" />
       <district name="其他" zipcode="212000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="江西省">
     <city name="抚州市">
@@ -2173,6 +2233,10 @@
       <district name="月湖区" zipcode="335000" />
       <district name="其他" zipcode="335000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="辽宁省">
     <city name="鞍山市">
@@ -2317,6 +2381,10 @@
       <district name="站前区" zipcode="115000" />
       <district name="其他" zipcode="115000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="内蒙古自治区">
     <city name="阿拉善盟">
@@ -2456,6 +2524,10 @@
       <district name="扎赉特旗" zipcode="137400" />
       <district name="其他" zipcode="137400" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="宁夏回族自治区">
     <city name="固原市">
@@ -2494,6 +2566,10 @@
       <district name="中宁县" zipcode="751700" />
       <district name="其他" zipcode="751700" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="青海省">
     <city name="果洛藏族自治州">
@@ -2566,6 +2642,10 @@
       <district name="治多县" zipcode="815000" />
       <district name="其他" zipcode="815000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="山东省">
     <city name="滨州市">
@@ -2760,6 +2840,10 @@
       <district name="淄川区" zipcode="255000" />
       <district name="其他" zipcode="255000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="山西省">
     <city name="长治市">
@@ -2914,6 +2998,10 @@
       <district name="垣曲县" zipcode="044000" />
       <district name="其他" zipcode="44000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="陕西省">
     <city name="安康市">
@@ -3052,6 +3140,10 @@
       <district name="子洲县" zipcode="719000" />
       <district name="其他" zipcode="719000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="上海市">
     <city name="上海市">
@@ -3076,6 +3168,10 @@
       <district name="闸北区" zipcode="200000" />
       <district name="其他" zipcode="200000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="四川省">
     <city name="阿坝藏族羌族自治州">
@@ -3322,6 +3418,10 @@
       <district name="自流井区" zipcode="643000" />
       <district name="其他" zipcode="643000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="天津市">
     <city name="天津市">
@@ -3345,6 +3445,10 @@
       <district name="西青区" zipcode="100000" />
       <district name="其他" zipcode="100000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="西藏自治区">
     <city name="阿里地区">
@@ -3440,6 +3544,10 @@
       <district name="扎囊县" zipcode="856000" />
       <district name="其他" zipcode="856000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="新疆维吾尔自治区">
     <city name="阿克苏地区">
@@ -3580,6 +3688,10 @@
       <district name="昭苏县" zipcode="833200" />
       <district name="其他" zipcode="833200" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="云南省">
     <city name="保山市">
@@ -3759,6 +3871,10 @@
       <district name="镇雄县" zipcode="657000" />
       <district name="其他" zipcode="657000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="浙江省">
     <city name="杭州市">
@@ -3884,6 +4000,10 @@
       <district name="嵊泗县" zipcode="316000" />
       <district name="其他" zipcode="316000" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
   </province>
   <province name="重庆市">
     <city name="重庆市">
@@ -3929,5 +4049,25 @@
       <district name="忠县" zipcode="404100" />
       <district name="其他" zipcode="404100" />
     </city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+    <city name="  "></city>
+  </province>
+
+  <province name="  ">
+    <city name="  "></city>
+  </province>
+
+  <province name="  ">
+    <city name="  "></city>
+  </province>
+
+  <province name="  ">
+    <city name="  "></city>
+  </province>
+
+  <province name="  ">
+    <city name="  "></city>
   </province>
 </root>

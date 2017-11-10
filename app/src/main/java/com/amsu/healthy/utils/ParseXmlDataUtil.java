@@ -5,6 +5,7 @@ import android.content.res.AssetManager;
 import android.util.Log;
 import android.util.Xml;
 
+import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.ProvinceModel;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -22,12 +23,20 @@ public class ParseXmlDataUtil {
     private static final String TAG = "ParseXmlDataUtil";
 
     //从xml文件解析数据
-    public static List<ProvinceModel> parseXmlDataFromAssets(String fileName, Context context){
+    public static List<ProvinceModel> parseXmlDataFromAssets( Context context){
         List<ProvinceModel> provinceModels = new ArrayList<>();
         XmlPullParser xmlPullParser = Xml.newPullParser();
         AssetManager assetManager = context.getAssets();
         try {
-            InputStream inputStream = assetManager.open("province_data.xml");
+            String fileName;
+            if (MyApplication.languageType==MyApplication.language_ch){
+                fileName = "address_china.xml";
+            }
+            else {
+                fileName = "address_foreign.xml";
+            }
+
+            InputStream inputStream = assetManager.open(fileName);
             xmlPullParser.setInput(inputStream,"utf-8");
             int next = xmlPullParser.next();
             ProvinceModel  provinceModel = null;

@@ -104,12 +104,13 @@
         android:id="@+id/bt_healthydata_sos"
         android:layout_width="match_parent"
         android:layout_height="@dimen/y142"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/bg_bt_sos"
+        android:onClick="startSoS"
         android:text="SOS"
         android:textColor="#FFFFFF"
-        android:textSize="@dimen/x48"
-        android:onClick="startSoS"
-        android:background="@drawable/bg_bt_sos"
-        android:layout_alignParentBottom="true"/>
+        android:textSize="@dimen/x48" />
 
     <TextView
         android:id="@+id/tv_healthydata_analysis"

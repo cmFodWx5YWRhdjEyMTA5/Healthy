@@ -213,7 +213,7 @@
     <string name="clothing_host_automatically_offline_explain">When enabled, the host and APP Bluetooth are disconnected and are disconnected in 10 seconds, and the host enters offline mode. (you need to restart the host after modification.)</string>
     <string name="sportswear_connection_successful">Sportswear connection successful</string>
     <string name="insole_connection_successful">Insole connection successful</string>
-    <string name="sportswear_connection_disconnected">Sportswear connection disconnected</string>
+    <string name="sportswear_connection_disconnected">Sportswear disconnected</string>
     <string name="insole_connection_disconnected">Insole connection disconnected</string>
 
 
@@ -421,6 +421,9 @@
     <string name="hrv_body_fatigue_active_suggestion1">You just a small amount of exercise, physical fitness is relatively adequate, you can also continue to moderate physical exercise, to achieve better exercise effect.</string>
     <string name="hrv_body_fatigue_active_suggestion2">Your physical energy consumption is large, it is recommended that you rest properly, work and rest in order to achieve the best exercise effect.</string>
     <string name="hrv_body_fatigue_active_suggestion3">Your physical strength has been exhausted, pay attention to not excessive overdraft of their physical fitness, stop the exercise, rest.</string>
+
+    <string name="add_information">add information</string>
+    <string name="add_information_dec">our data is not perfect, can not accurately analyze the results of the movement, please first perfect information</string>
 
 
 </resources>

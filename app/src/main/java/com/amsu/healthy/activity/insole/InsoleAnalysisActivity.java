@@ -8,11 +8,9 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
-import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.InsoleAnalyResult;
 import com.amsu.healthy.bean.InsoleUploadRecord;
 import com.amsu.healthy.bean.ParcelableDoubleList;
@@ -135,6 +133,8 @@ public class InsoleAnalysisActivity extends BaseActivity {
         });
     }
 
+    String insoleTag;
+
     private void getDeliverData(){
         Intent intent = getIntent();
         mLeftInsoleFileAbsolutePath = intent.getStringExtra(Constant.leftInsoleFileAbsolutePath);
@@ -147,6 +147,8 @@ public class InsoleAnalysisActivity extends BaseActivity {
         long startTimeMillis = intent.getLongExtra(Constant.startTimeMillis, -1);
         int insoleAllKcal = intent.getIntExtra(Constant.insoleAllKcal, 0);
         float maxSpeedKM_Hour = intent.getFloatExtra(Constant.maxSpeedKM_Hour, 0);
+
+        insoleTag = intent.getStringExtra(Constant.insoleTag);
 
 
         mInsoleUploadRecord = new InsoleUploadRecord();
@@ -216,9 +218,9 @@ public class InsoleAnalysisActivity extends BaseActivity {
             Log.i(TAG,"testInsoleLocalFile:"+testInsoleLocalFile);
             leftFilePath = rightFilePath = testInsoleLocalFile;
         }
-        Log.i(TAG,"leftFilePath:"+new File(leftFilePath).exists());
+       /* Log.i(TAG,"leftFilePath:"+new File(leftFilePath).exists());
         Log.i(TAG,"rightFilePath:"+new File(rightFilePath).exists());
-
+*/
         User userFromSP = MyUtil.getUserFromSP();
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
@@ -242,7 +244,7 @@ public class InsoleAnalysisActivity extends BaseActivity {
         params.addBodyParameter("height",userFromSP.getHeight());
         params.addBodyParameter("weight",userFromSP.getWeight());
         params.addBodyParameter("phone",userFromSP.getPhone());
-        params.addBodyParameter("tag","鞋垫 android");
+        params.addBodyParameter("tag","android");
 
 
 
@@ -278,7 +280,7 @@ public class InsoleAnalysisActivity extends BaseActivity {
         params.addBodyParameter("averagespeed",insoleUploadRecord.errDesc.ShoepadData.averagespeed+"");
         params.addBodyParameter("speedallocationarray",insoleUploadRecord.errDesc.ShoepadData.speedallocationarray+"");
         params.addBodyParameter("calorie",insoleUploadRecord.errDesc.ShoepadData.calorie+"");
-        params.addBodyParameter("stridelengtharray","0");
+        params.addBodyParameter("stridelengtharray",insoleTag);
         params.addBodyParameter("stepratearray",insoleUploadRecord.errDesc.ShoepadData.stepratearray+"");
         params.addBodyParameter("stepheigh",insoleUploadRecord.errDesc.ShoepadData.stepheigh+"");
         params.addBodyParameter("swingwidth","0");

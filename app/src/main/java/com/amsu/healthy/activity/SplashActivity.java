@@ -86,7 +86,9 @@ public class SplashActivity extends Activity {
         int mCurrWeekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
         downlaodWeekReport(mCurrYear,mCurrWeekOfYear,false,null);
 
-        ApkUtil.checkUpdate(this);
+        if (!Constant.isInnerUpdateAllowed){
+            ApkUtil.checkUpdate(this);
+        }
 
         boolean networkConnected = MyUtil.isNetworkConnected(MyApplication.appContext);
         if (networkConnected){

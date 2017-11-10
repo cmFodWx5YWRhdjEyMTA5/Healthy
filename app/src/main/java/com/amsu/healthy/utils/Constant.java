@@ -38,7 +38,8 @@ public class Constant {
     public static String getOneDayHealthyPlanListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningDateList";
     public static String getAfter20ItemHealthyPlanListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningPastList";
     //public static String uploadReportURL = "http://bodylistener.amsu-new.com:83/intellingence/ReportController/uploadReport";
-    public static String uploadReportURL = "http://www.amsu-new.com:8081/intellingence-web/uploadReport.do";
+    //public static String uploadReportURL = "http://www.amsu-new.com:8081/intellingence-web/uploadReport.do";
+    public static String uploadReportURL = "http://192.168.1.124:8080/intellingence-web/uploadReport.do";
     //public static String downloadQuarterReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadQuarterReport";
     public static String downloadQuarterReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadQuarterReport.do";
     //public static String downloadMonthReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadMonthReport";
@@ -133,6 +134,7 @@ public class Constant {
     public static final String insoleAllKcal = "insoleAllKcal";
     public static final String maxSpeedKM_Hour = "maxSpeedKM_Hour";
     public static final String stridefreList = "stridefreList";
+    public static final String insoleTag = "insoleTag";
     public static final String getShoepadList = "http://www.amsu-new.com:8081/intellingence-web/getShoepadList.do";
     public static final String deleteShoepadDataById = "http://www.amsu-new.com:8081/intellingence-web/deleteShoepadDataById.do";
     public static final String getBangdingDetails = "http://www.amsu-new.com:8081/intellingence-web/getBangdingDetails.do";
@@ -148,6 +150,10 @@ public class Constant {
     public static final int saveDataTOLocalTimeSpanSecond = 10;  //数据持久化时间间隔 1分钟
 
     public static final String insoleDeviceBatteryInfos = "insoleDeviceBatteryInfos";
+
+    public static boolean isInnerUpdateAllowed = true;  //是否开启应用内部更新，谷歌应用市场不允许更新
+
+
 
 }
 

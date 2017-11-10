@@ -10,6 +10,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.Device;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
 import com.ble.ble.BleService;
@@ -119,6 +120,16 @@ public class LeProxy {
 
     //向默认通道【0x1001】发送数据
     public boolean send(String address, byte[] data, boolean encode){
+        Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
+        Log.i(TAG,"deviceFromSP:"+deviceFromSP);
+        if (deviceFromSP!=null && !MyUtil.isEmpty(deviceFromSP.getLEName())){
+            if (deviceFromSP.getLEName().startsWith("AMSU_E")){  //新版衣服AMSU_E开头，则数据不加密，encode为false。   就衣服版本BLE开头，需要加密
+                encode = false;
+            }
+        }
+
+        Log.i(TAG,"encode:"+encode);
+
         if (mBleService != null) {
             return mBleService.send(address, data, encode);
         }

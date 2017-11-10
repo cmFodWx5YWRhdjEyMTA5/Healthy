@@ -1197,8 +1197,8 @@ public class HealthyIndexUtil {
     }
 
     //精神疲劳度
-    public static HRVFragment.HRVResult judgeHRVMentalFatigueData(Context context,double HF, double LF, double HF1, double LF1, int SDNN1, double HF2, double LF2, int SDNN2) {
-        Log.i(TAG,",HF:"+HF+",LF:"+LF+",HF1:"+HF1+",LF1:"+LF1+",SDNN1:"+SDNN1+",HF2:"+HF2+",LF2:"+LF2+",SDNN2:"+SDNN2);
+    public static HRVFragment.HRVResult judgeHRVMentalFatigueData(Context context,double HF, double LF, double HF1, double LF1, int SDNN1, double HF2, double LF2, int SDNN2, int t) {
+        Log.i(TAG,",HF:"+HF+",LF:"+LF+",HF1:"+HF1+",LF1:"+LF1+",SDNN1:"+SDNN1+",HF2:"+HF2+",LF2:"+LF2+",SDNN2:"+SDNN2+",t:"+t);
         int state = 0;
         String suggestion = "";
         /*1、	不疲劳
@@ -1216,22 +1216,22 @@ public class HealthyIndexUtil {
                 除符合以上四点的其他情况
 */
         try {
-            if ( SDNN1<120	&&	SDNN2<120	&&	(SDNN2-SDNN1)/5>-0.5&&(SDNN2-SDNN1)/5<0.5){
+            if ( SDNN1<120	&&	SDNN2<120	&&	(SDNN2-SDNN1)/t>-0.5&&(SDNN2-SDNN1)/t<0.5){
                 state  = 1;
                 //suggestion = "您现在精神满满，正是发挥您聪明才智的好机会，想一想自己还有那些没有解决的问题吧，可能灵感就在眼前。";
                 suggestion =  context.getResources().getString(R.string.hrv_mental_fatigue_suggestion1);
             }
-            else if (((SDNN2-SDNN1)/5>0.5&&(SDNN2-SDNN1)/5<1) || (SDNN2<140 && SDNN2>120 && HF/LF2>HF/LF1)){
+            else if (((SDNN2-SDNN1)/t>0.5&&(SDNN2-SDNN1)/t<1) || (SDNN2<140 && SDNN2>120 && HF/LF2>HF/LF1)){
                 state  = 2;
                 //suggestion = "您现在精神状态良好，您可以继续保持当前状态进行脑力活动。";
                 suggestion =  context.getResources().getString(R.string.hrv_mental_fatigue_suggestion2);
             }
-            else if ((SDNN2-SDNN1)/5>1	|| (SDNN2<160 && SDNN2>140 &&(HF/LF2-HF/LF1)/HF/LF1>0.05)){
+            else if ((SDNN2-SDNN1)/t>1	|| (SDNN2<160 && SDNN2>140 &&(HF/LF2-HF/LF1)/HF/LF1>0.01*t)){
                 state  = 3;
                 //suggestion = "您现在精神较为疲劳，试着放下手中的工作休息一下，缓解疲劳吧。";
                 suggestion =  context.getResources().getString(R.string.hrv_mental_fatigue_suggestion3);
             }
-            else if ( SDNN2>160	& (SDNN2-SDNN1)/5>-0.5&&(SDNN2-SDNN1)/5<0.5 && (HF/LF2-HF/LF1)/HF/LF1>-0.05 && (HF/LF2-HF/LF1)/HF/LF1<0.05){
+            else if ( SDNN2>160	& (SDNN2-SDNN1)/t>-0.5&&(SDNN2-SDNN1)/t<0.5 && (HF/LF2-HF/LF1)/HF/LF1>-0.05*t && (HF/LF2-HF/LF1)/HF/LF1<0.01*t){
                 state  = 4;
                 //suggestion = "您现在精神非常疲惫，这将影响您的工作效率，建议您适当减轻脑力劳动，离开办公桌释放一下自己吧!";
                 suggestion =  context.getResources().getString(R.string.hrv_mental_fatigue_suggestion4);
@@ -1248,7 +1248,7 @@ public class HealthyIndexUtil {
     }
 
     //身体疲劳度 静态
-    public static HRVFragment.HRVResult judgeHRVPhysicalFatigueStatic(Context context,double HF, double LF, double HF3, double LF3, int SDNN3, double HF4, double LF4, int SDNN4) {
+    public static HRVFragment.HRVResult judgeHRVPhysicalFatigueStatic(Context context,double HF, double LF, double HF3, double LF3, int SDNN3, double HF4, double LF4, int SDNN4,int t) {
         int state = 0;
         String suggestion = "";
         //静态
@@ -1261,17 +1261,17 @@ public class HealthyIndexUtil {
         SDNN4<50	&	-0.05<(LF/HF4-LF/HF3)/LF/HF3<0.05)	||	 ((LF/HF4-LF/HF3)/LF/HF3>0.1	&	SDNN4<70)*/
 
         try {
-            if (SDNN4>120 || ((SDNN4-SDNN3)/SDNN3>0.05 && (LF/HF4-LF/HF3)/LF/HF3>0.05 && SDNN3>70)){
+            if (SDNN4>120 || ((SDNN4-SDNN3)/SDNN3>0.01*t && (LF/HF4-LF/HF3)/LF/HF3>0.01*t && SDNN3>70)){
                 state = 1;
                 //suggestion = "您现在体能充沛，现在进行体育锻炼将能取得良好的效果，快去进行一些运动吧。";
                 suggestion =  context.getResources().getString(R.string.hrv_body_fatigue_rest_suggestion1);
             }
-            else if ((SDNN4>50&&SDNN4<70 && ((LF/HF4-LF/HF3)/LF/HF3>-0.05 && (LF/HF4-LF/HF3)/LF/HF3<0.05)) || (LF/HF4-LF/HF3)/LF/HF3<0.1&&(LF/HF4-LF/HF3)/LF/HF3>0.05){
+            else if ((SDNN4>50&&SDNN4<70 && ((LF/HF4-LF/HF3)/LF/HF3>-0.01*t && (LF/HF4-LF/HF3)/LF/HF3<0.01*t)) || (LF/HF4-LF/HF3)/LF/HF3<0.02*t&&(LF/HF4-LF/HF3)/LF/HF3>0.01*t){
                 state = 2;
                 //suggestion = "您现在体力消耗较多，建议您现在不要进行体力运动，适当进行休息吧。";
                 suggestion =  context.getResources().getString(R.string.hrv_body_fatigue_rest_suggestion2);
             }
-            else if ((SDNN4 <50 && (LF/HF4-LF/HF3)/LF/HF3>-0.05 && (LF/HF4-LF/HF3)/LF/HF3<0.05) || ((LF/HF4-LF/HF3)/LF/HF3>0.1&&SDNN4<70)){
+            else if ((SDNN4 <50 && (LF/HF4-LF/HF3)/LF/HF3>-0.01*t && (LF/HF4-LF/HF3)/LF/HF3<0.01*t) || ((LF/HF4-LF/HF3)/LF/HF3>0.02*t&&SDNN4<70)){
                 state = 3;
                 //suggestion = "您的体力似乎已经消耗殆尽，请不要过度透支自己的体力，放松下自己的疲惫的身体吧！";
                 suggestion =  context.getResources().getString(R.string.hrv_body_fatigue_rest_suggestion3);
@@ -1288,7 +1288,7 @@ public class HealthyIndexUtil {
     }
 
     //身体疲劳度 动态
-    public static HRVFragment.HRVResult judgeHRVPhysicalFatigueSport(Context context,double HF, double LF, double HF1, double LF1, int SDNN1, double HF2, double LF2, int SDNN2) {
+    public static HRVFragment.HRVResult judgeHRVPhysicalFatigueSport(Context context,double HF, double LF, double HF1, double LF1, int SDNN1, double HF2, double LF2, int SDNN2,int t) {
         int state = 0;
         String suggestion = "";
         //动态
@@ -1299,15 +1299,15 @@ public class HealthyIndexUtil {
         0.5<(SDNN2-SDNN1)/SDNN1	||	（10<(LF/HF2-LF/HF1)/LF/HF1	&	SDNN2<50）*/
 
         try {
-            if ((SDNN2 - SDNN1) / SDNN1 < 0.2 && SDNN1 > 70 || (LF / HF2 - LF / HF1) / LF / HF1 < 5) {
+            if ((SDNN2 - SDNN1) / SDNN1 < 0.04*t && SDNN1 > 70 || (LF / HF2 - LF / HF1) / LF / HF1 < t) {
                 state = 1;
                 //suggestion = "您刚才的运动量较少，体能还较为充足，还可以继续进行适度的体育锻炼达到更好的锻炼效果。";
                 suggestion =  context.getResources().getString(R.string.hrv_body_fatigue_active_suggestion1);
-            } else if (((SDNN2 - SDNN1) / SDNN1 > 0.2 && (SDNN2 - SDNN1) / SDNN1 < 0.5) || ((LF / HF2 - LF / HF1) / LF / HF1 > 5 && (LF / HF2 - LF / HF1) / LF / HF1 < 10)) {
+            } else if (((SDNN2 - SDNN1) / SDNN1 > 0.04*t && (SDNN2 - SDNN1) / SDNN1 < 0.1*t) || ((LF / HF2 - LF / HF1) / LF / HF1 > t && (LF / HF2 - LF / HF1) / LF / HF1 < 2*t)) {
                 state = 2;
                 //suggestion = "您的体能消耗较大，建议您适当休息，劳逸结合才能达到最佳的锻炼效果。";
                 suggestion =  context.getResources().getString(R.string.hrv_body_fatigue_active_suggestion2);
-            } else if (0.5 < (SDNN2 - SDNN1) / SDNN1 || (10 < (LF / HF2 - LF / HF1) / LF / HF1 && SDNN2 < 50)) {
+            } else if (0.1*t < (SDNN2 - SDNN1) / SDNN1 || (2*t < (LF / HF2 - LF / HF1) / LF / HF1 && SDNN2 < 50)) {
                 state = 3;
                 //suggestion = "您的体力已经耗尽了，注意不要过度透支自己的体能，停下运动休息一下吧。";
                 suggestion =  context.getResources().getString(R.string.hrv_body_fatigue_active_suggestion3);

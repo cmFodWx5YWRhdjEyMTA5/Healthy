@@ -242,6 +242,7 @@ public class ECGFragment extends BaseFragment {
 
                 }
 
+
                 if (getActivity()!=null){
                     getActivity().runOnUiThread(new Runnable() {
                         @Override

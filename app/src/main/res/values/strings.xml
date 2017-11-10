@@ -286,7 +286,7 @@
 
     <string name="HeartRate_suggetstion_fast">心动过速：正常人可由运动或精神紧张引起,也可见于发热、甲状腺功能亢进、贫血、失血等情况。请您注意休息，保持情绪稳定，当感觉身体不适时，请及时就医。 </string>
     <string name="HeartRate_suggetstion_slow">心动过缓：常见于健康的青年人、运动员，及睡眠状态下的一般健康人群，也可见于窦房结功能障碍、甲状腺功能低下、颅内压增高及服用某些药物后的异常反应，偶尔出现属正常现象，不必过于紧张。当症状频繁出现或感觉身体不适时可到医院做进一步检查 </string>
-    <string name="HeartRate_suggetstion_nodata">采样时间不够四分钟或设备连接脱落。"</string>
+    <string name="HeartRate_suggetstion_nodata">采样时间不够四分钟或设备连接脱落，无法得出运动和精神疲劳分析结果。\n"</string>
     <string name="HeartRate_suggetstion_normal">心率正常</string>
 
     <string name="premature_beat_times">本次测量早搏</string>
@@ -421,7 +421,8 @@
     <string name="hrv_body_fatigue_active_suggestion2">您的体能消耗较大，建议您适当休息，劳逸结合才能达到最佳的锻炼效果。</string>
     <string name="hrv_body_fatigue_active_suggestion3">您的体力已经耗尽了，注意不要过度透支自己的体能，停下运动休息一下吧。</string>
 
-
+    <string name="add_information">补充资料</string>
+    <string name="add_information_dec">您的资料没有完善，无法准确分析运动结果，请先完善资料</string>
 
 
 </resources>

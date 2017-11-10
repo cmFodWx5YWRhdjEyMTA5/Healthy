@@ -1,14 +1,14 @@
 package com.amsu.healthy.utils.wifiTramit;
 
-import java.util.List;
-
 import android.app.Activity;
-import android.content.Context;
-import android.net.wifi.*;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiConfiguration.AuthAlgorithm;
 import android.net.wifi.WifiConfiguration.KeyMgmt;
+import android.net.wifi.WifiManager;
 import android.text.TextUtils;
 import android.util.Log;
+
+import java.util.List;
 
 public class WifiAutoConnectManager {
 
@@ -152,12 +152,16 @@ public class WifiAutoConnectManager {
 
 				WifiConfiguration tempConfig = isExsits(ssid);
 
+				Log.i(TAG,"tempConfig:"+ tempConfig);
+
 				connected = false;
 
 				if (tempConfig != null) {
 					//wifiManager.removeNetwork(tempConfig.networkId);
-					connected = wifiManager.enableNetwork(tempConfig.networkId,true);
-					Log.i(TAG,"connected:"+ connected);
+					boolean enableNetwork = wifiManager.enableNetwork(tempConfig.networkId, true);
+					Log.i(TAG,"enableNetwork:"+ enableNetwork);
+
+					connected = enableNetwork;
 				}
 				else {
 					WifiConfiguration wifiConfig = createWifiInfo(ssid, password,type);
@@ -174,14 +178,21 @@ public class WifiAutoConnectManager {
 					boolean enabled = wifiManager.enableNetwork(netID, true);
 					Log.i(TAG,"enabled:"+enabled);
 
+
+					//connected = enabled;
+
 					connected = wifiManager.reconnect();
 				}
 
 				long currentTimeMillis = System.currentTimeMillis();
-				while (wifiManager.getConnectionInfo()==null || !("\""+ssid+"\"").equals(wifiManager.getConnectionInfo().getSSID())){
+
+				Log.i(TAG,"getSSID:"+ wifiManager.getConnectionInfo().getSSID());
+
+				while (wifiManager.getConnectionInfo()==null && !("\""+ssid+"\"").equals(wifiManager.getConnectionInfo().getSSID())){
+					Log.i(TAG,"getSSID:"+ wifiManager.getConnectionInfo().getSSID());
 					Log.i(TAG,"connectionInfo:"+wifiManager.getConnectionInfo());
 					try {
-						Thread.sleep(500);
+						Thread.sleep(1000);
 					} catch (InterruptedException ie) {
 					}
 

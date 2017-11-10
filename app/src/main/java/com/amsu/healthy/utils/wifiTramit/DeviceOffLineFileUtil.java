@@ -255,11 +255,11 @@ public class DeviceOffLineFileUtil {
         mTimerTask=new TimerTask() {
             @Override
             public void run() {
-                System.out.println("run TimeOutCountIndex:"+TimeOutCountIndex);
+                Log.i(TAG,"run TimeOutCountIndex:"+TimeOutCountIndex);
                 if (mIsTimeerRunning){
                     TimeOutCountIndex++;
                 }
-                if (TimeOutCountIndex==TimeOutAllCount) {
+                if (TimeOutCountIndex==TimeOutAllCount && mIsTimeerRunning) {
                     TimeOutCountIndex = 0;
                     onTimeOutListener.onTomeOut();//时间到
                 }
@@ -310,12 +310,14 @@ public class DeviceOffLineFileUtil {
     }
 
     public void stopTime(){
-        if (mIsTimeerRunning && mTimer!=null){
+        /*if (mIsTimeerRunning && mTimer!=null){
             mIsTimeerRunning = false;
             TimeOutCountIndex = 0;
             //mTimer.cancel();
             //mTimer = null;
-        }
+        }*/
+        mIsTimeerRunning = false;
+        TimeOutCountIndex = 0;
     }
 
     public  void destoryTime(){

@@ -2,8 +2,8 @@ package com.amsu.healthy.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -291,7 +291,8 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
     }
 
     private void initProvinceData() {
-        provinceModels = ParseXmlDataUtil.parseXmlDataFromAssets("province_data.xml",this);
+        String fileName;
+        provinceModels = ParseXmlDataUtil.parseXmlDataFromAssets(this);
     }
 
     private void chooseHeightDialog() {
@@ -398,10 +399,10 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
 
     //选择性别
     private void chooseSexDialog() {
-        final String[] items = new String[] { "女", "男" };
+        final String[] items = new String[] { getResources().getString(R.string.female), getResources().getString(R.string.male) };
 
         new AlertDialog.Builder(this).
-                setTitle("选择性别")
+                setTitle(getResources().getString(R.string.Choose_sex))
                 .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -415,7 +416,7 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
 
     //上传数据
     private void registerToDB() {
-        MyUtil.showDialog("正在上传",this);
+        MyUtil.showDialog(getResources().getString(R.string.loading_more),this);
         final String phone = MyUtil.getStringValueFromSP("phone");
         final String sexString = String.valueOf(sex);
 
@@ -473,8 +474,6 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
                 MyUtil.hideDialog(SupplyPersionDataActivity.this);
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
-
-
         });
 
     }

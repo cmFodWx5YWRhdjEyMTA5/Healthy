@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -30,6 +31,7 @@ import com.amsu.healthy.activity.RunTrailMapActivity;
 import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.AppAbortDataSaveInsole;
+import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.Insole3ScendCache;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.AppAbortDbAdapterUtil;
@@ -67,6 +69,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 
 public class InsoleRunningActivity extends Activity implements View.OnClickListener,AMapLocationListener,
@@ -85,8 +88,8 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     private DataOutputStream rightDataOutputStream;
     private ByteBuffer rightByteBuffer;
     private long mCurrentTimeMillis =-1;
-    private long mCurrentTimeMillis_insoleTestLongPackage =-1;
-    private long mCurrentTimeMillis_insoleTestShortPackage =-1;
+    //private long mCurrentTimeMillis_insoleTestPackage =-1;
+    private long mCurrentTimeMillis_insoleTestPackage =-1;
     private String mLeftInsole30SencendFileAbsolutePath;
     private String mRightInsole30SencendFileAbsolutePath;
     private TextView tv_test;
@@ -173,6 +176,8 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     private ArrayList<Integer> paceList;
     private long startTimeMillis =-1;
     private int mPrestepCount;
+    private List<Float> mLeftReceiveCountRate;
+    private List<Float> mRightReceiveCountRate;
 
 
     @Override
@@ -230,6 +235,9 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
         mIndoorCal8ScendSpeedList = new ArrayList<>();
         stridefreList = new ArrayList<>();
         paceList = new ArrayList<>();
+
+        mLeftReceiveCountRate = new ArrayList<>();
+        mRightReceiveCountRate = new ArrayList<>();
 
 
         //commitToServerAnaly("/storage/emulated/0/amsu/insole/20170802092924.is");
@@ -309,19 +317,14 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 }
             }
 
-            if (mCurrentTimeMillis_insoleTestLongPackage==-1){
-                mCurrentTimeMillis_insoleTestLongPackage = System.currentTimeMillis();
+            if (mCurrentTimeMillis_insoleTestPackage==-1){
+                mCurrentTimeMillis_insoleTestPackage = System.currentTimeMillis();
             }
 
-            if (System.currentTimeMillis()-mCurrentTimeMillis_insoleTestLongPackage>=1000*40) {
+            if (System.currentTimeMillis()-mCurrentTimeMillis_insoleTestPackage>=1000*40) {
                 Log.i("30ScendCount", "40秒到，上传计算");
-                testText += mLeftMacAddress +"==左脚长包 40秒内  count："+mLeftReceivePackageCount+"\n";
-                testText += mRightMacAddress +"==右脚长包 40秒内  count："+mRightReceivePackageCount+"\n\n";
 
-                tv_test.setText(testText);
-                mLeftReceivePackageCount=0;
-                mRightReceivePackageCount=0;
-                mCurrentTimeMillis_insoleTestLongPackage = System.currentTimeMillis();
+                timeOutCalReceiveRate(2);
             }
             /*if (System.currentTimeMillis()-mCurrentTimeMillis_insoleTest>=1000*20){
                 Log.i("30ScendCount","40秒到，上传计算");
@@ -465,9 +468,9 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                         mCurLeftStepCount = tempStepCount-mPreLeftStepCount;
                         mLeftAllStepCount += mCurLeftStepCount;
 
-                        testText += "步数左脚：总数"+tempStepCount+"，上次"+mPreLeftStepCount+",这次"+mCurLeftStepCount+"\n";
+                        //testText += "步数左脚：总数"+tempStepCount+"，上次"+mPreLeftStepCount+",这次"+mCurLeftStepCount+"\n";
                         mPreLeftStepCount = tempStepCount;
-                        tv_test.setText(testText);
+                        //tv_test.setText(testText);
 
                         if (mLeftNoReceiveCount>0){
                             mCurLeftStepCount = mCurLeftStepCount /mLeftNoReceiveCount;
@@ -493,9 +496,9 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                         mCurRightStepCount = tempStepCount-mPreRightStepCount;
                         mRightAllStepCount += mCurRightStepCount;
 
-                        testText += "步数右脚：总数"+tempStepCount+"，上次"+mPreRightStepCount+",这次"+mCurRightStepCount+"\n";
+                        //testText += "步数右脚：总数"+tempStepCount+"，上次"+mPreRightStepCount+",这次"+mCurRightStepCount+"\n";
                         mPreRightStepCount = tempStepCount;
-                        tv_test.setText(testText);
+                        //tv_test.setText(testText);
 
                         if (mRightNoReceiveCount>0){
                             mCurRightStepCount = mCurRightStepCount /mRightNoReceiveCount;
@@ -552,18 +555,11 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
         }
         else  if (allDataSplit.length==16){
-            if (mCurrentTimeMillis_insoleTestShortPackage==-1){
-                mCurrentTimeMillis_insoleTestShortPackage = System.currentTimeMillis();
+            if (mCurrentTimeMillis_insoleTestPackage==-1){
+                mCurrentTimeMillis_insoleTestPackage = System.currentTimeMillis();
             }
-            if (System.currentTimeMillis()-mCurrentTimeMillis_insoleTestShortPackage>=1000*40){
-                Log.i("30ScendCount", "40秒到，上传计算");
-                testText += mLeftMacAddress +"==左脚短包 40秒内  count："+mLeftReceivePackageCount+"\n";
-                testText += mRightMacAddress +"==右脚短包 40秒到  count："+mRightReceivePackageCount+"\n\n";
-
-                tv_test.setText(testText);
-                mLeftReceivePackageCount=0;
-                mRightReceivePackageCount=0;
-                mCurrentTimeMillis_insoleTestShortPackage = System.currentTimeMillis();
+            if (System.currentTimeMillis()-mCurrentTimeMillis_insoleTestPackage>=1000*40){
+                timeOutCalReceiveRate(1);
             }
 
             if (MyUtil.isEmpty(mLeftMacAddress) || MyUtil.isEmpty(mRightMacAddress)){
@@ -606,6 +602,58 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
         }
     }
 
+    private void timeOutCalReceiveRate(int packageType) {
+        mLeftReceiveCountRate.add(mLeftReceivePackageCount/2080.f);
+        mRightReceiveCountRate.add(mRightReceivePackageCount/2080.f);
+
+        String[] leftRightReceiveCountRate = getLeftRightReceiveCountRate();
+
+        if (packageType==1){ //1为短报
+            testText += mLeftMacAddress +"==左脚短包 40秒："+mLeftReceivePackageCount+",比例"+leftRightReceiveCountRate[0]+"\n";
+            testText += mRightMacAddress +"==右脚短包 40秒："+mRightReceivePackageCount+",比例"+leftRightReceiveCountRate[1]+"\n\n";
+        }
+        else {
+            testText += mLeftMacAddress +"==左脚长包 40秒："+mLeftReceivePackageCount+",比例"+leftRightReceiveCountRate[0]+"\n";
+            testText += mRightMacAddress +"==右脚长包 40秒："+mRightReceivePackageCount+",比例"+leftRightReceiveCountRate[1]+"\n\n";
+        }
+
+        tv_test.setText(testText);
+        mLeftReceivePackageCount=0;
+        mRightReceivePackageCount=0;
+        mCurrentTimeMillis_insoleTestPackage = System.currentTimeMillis();
+    }
+
+    private String[] getLeftRightReceiveCountRate(){
+        String[] leftRightReceiveCountRate = new String[]{"",""};
+        float sumLeft = 0;
+        for (float i: mLeftReceiveCountRate){
+            if (i>1){
+                i=1;
+            }
+            sumLeft += i;
+        }
+
+        float sumRight = 0;
+        for (float i: mRightReceiveCountRate){
+            if (i>1){
+                i=1;
+            }
+            sumRight += i;
+        }
+
+        String formatFloatValue_left = "";
+        if (mLeftReceiveCountRate.size()>0){
+            formatFloatValue_left = MyUtil.getFormatFloatValue(sumLeft / mLeftReceiveCountRate.size()*100, "0.00");
+        }
+        String formatFloatValue_right = "";
+        if (mRightReceiveCountRate.size()>0){
+            formatFloatValue_right = MyUtil.getFormatFloatValue(sumRight / mRightReceiveCountRate.size()*100, "0.00");
+        }
+        leftRightReceiveCountRate[0] = formatFloatValue_left;
+        leftRightReceiveCountRate[1] = formatFloatValue_right;
+        return leftRightReceiveCountRate;
+    }
+
     int mCurStride = -1;
     int mLeftNoReceiveCount = -1;
     int mRightNoReceiveCount  =-1;
@@ -613,7 +661,9 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     int mRightAllStepCount = -1;
 
     private void parseAndWriteData(String[] data,int left_right) {
-        int time = (int) (Integer.parseInt(data[12]+data[13]+data[14], 16)*0.025);
+        //int time = (int) (Integer.parseInt(data[12]+data[13]+data[14], 16)*0.025);
+
+        int time = (int) (Integer.parseInt(data[12]+data[13]+data[14], 16)*6.4);  //2017.11.6修改
         //Log.i(TAG,"time:"+time);
 
         //double time = Integer.parseInt(split[split.length-4]+split[split.length-3]+split[split.length-2], 16)*0.000025;
@@ -1616,6 +1666,47 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             intent.putExtra(Constant.maxSpeedKM_Hour,maxSpeedKM_Hour);
             intent.putIntegerArrayListExtra(Constant.stridefreList,stridefreList);
 
+            String[] leftRightReceiveCountRate = getLeftRightReceiveCountRate();
+
+            String mLeftMacAddressLast = "";
+            String mRightMacAddressLast = "";
+            if (!MyUtil.isEmpty(mLeftMacAddress)){
+                mLeftMacAddressLast = mLeftMacAddress.substring(mLeftMacAddress.length() - 2);
+            }
+            if (!MyUtil.isEmpty(mRightMacAddress)){
+                mRightMacAddressLast = mRightMacAddress.substring(mRightMacAddress.length() - 2);
+            }
+
+
+            String curAppVersionString = MyUtil.getVersionName(this);
+
+
+            String leftDeviceHardware = "";
+            String rightDeviceHardware = "";
+
+            String leftDeviceSoftware = "";
+            String rightDeviceSoftware = "";
+
+            MyApplication application = (MyApplication) getApplication();
+            Map<String, Device> insoleDeviceBatteryInfos = application.getInsoleDeviceBatteryInfos();
+            for (Device device : insoleDeviceBatteryInfos.values()) {
+                if (!MyUtil.isEmpty(mLeftMacAddress) && mLeftMacAddress.equals(device.getMac())){
+                    leftDeviceHardware = device.getHardWareVersion();
+                    leftDeviceSoftware = device.getSoftWareVersion();
+                }
+                else if(!MyUtil.isEmpty(mRightMacAddress) && mRightMacAddress.equals(device.getMac())){
+                    rightDeviceHardware = device.getHardWareVersion();
+                    rightDeviceSoftware = device.getSoftWareVersion();
+                }
+            }
+
+            //String deviceVersionInfo = "设备版本{左脚(硬件:001,软件:001),右脚(硬件:001,软件:001)}";
+            String deviceVersionInfo = "设备版本{左脚(硬件:"+leftDeviceHardware+",软件:"+leftDeviceSoftware+"),右脚(硬件:"+rightDeviceHardware+",软件:"+rightDeviceSoftware+")}";
+
+            String insoleTag = "手机型号:"+Build.MODEL+", 系统版本"+Build.VERSION.SDK_INT+", 收到数据比率(左脚"+mLeftMacAddressLast+":"+leftRightReceiveCountRate[0]+",右脚"+mRightMacAddressLast+":"+
+                    leftRightReceiveCountRate[1]+"), "+deviceVersionInfo+", app版本:"+curAppVersionString;
+            intent.putExtra(Constant.insoleTag,insoleTag);
+
             startActivity(intent);
             finish();
 
@@ -1634,9 +1725,6 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 }
             });
         }
-
-
-
 
     }
 
@@ -1808,7 +1896,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
     public void startCollect(View view) {
         isStartCollect = true;
-        mCurrentTimeMillis_insoleTestLongPackage = System.currentTimeMillis();
+        mCurrentTimeMillis_insoleTestPackage = System.currentTimeMillis();
         mLeftReceivePackageCount=0;
         mRightReceivePackageCount=0;
 
@@ -1854,7 +1942,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
         testText += "\n"+ mLeftMacAddress +"左脚     count："+mLeftReceivePackageCount+"\n";
         testText += mRightMacAddress +"右脚     count："+mRightReceivePackageCount+"\n";
-        testText += "采集时间:"+ (System.currentTimeMillis()-mCurrentTimeMillis_insoleTestLongPackage)/(1000*60.0)+"分钟"+"\n";
+        testText += "采集时间:"+ (System.currentTimeMillis()-mCurrentTimeMillis_insoleTestPackage)/(1000*60.0)+"分钟"+"\n";
 
         tv_test.setText(testText);
 

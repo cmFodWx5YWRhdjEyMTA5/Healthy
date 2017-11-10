@@ -2,14 +2,12 @@ package com.amsu.healthy.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.nfc.Tag;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -17,10 +15,7 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.utils.MyUtil;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -105,7 +100,6 @@ public class HistoryRecordAdapter extends BaseAdapter {
             myHolder.tv_history_sportstate.setBackgroundResource(R.drawable.button_lishi2);
         }
 
-
         if (historyRecord.getAnalysisState()==HistoryRecord.analysisState_noAnalysised){
             myHolder.tv_history_alstate.setText("未同步");
             myHolder.tv_history_alstate.setTextColor(Color.parseColor("#CCCCCC"));
@@ -117,6 +111,7 @@ public class HistoryRecordAdapter extends BaseAdapter {
         else {
             //默认，已分析
             myHolder.tv_history_alstate.setText(R.string.analysised);
+            myHolder.tv_history_sportstate.setVisibility(View.VISIBLE);
             myHolder.tv_history_alstate.setTextColor(Color.parseColor("#CCCCCC"));
         }
 

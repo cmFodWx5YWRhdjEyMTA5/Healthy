@@ -76,7 +76,6 @@ public class MyUtil {
 
     public static void showDialog(String message,Activity context){
         try {
-
             dialog = new ProgressDialog(context);
             dialog.setCanceledOnTouchOutside(false);
                 //dialog.setProgressStyle(R.style.progresStyle);

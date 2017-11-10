@@ -1,6 +1,5 @@
 package com.amsu.healthy.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,7 +14,6 @@ import android.widget.RelativeLayout;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
-import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.ApkUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.InputTextAlertDialogUtil;
@@ -55,6 +53,7 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         RelativeLayout rl_persiondata_exit = (RelativeLayout) findViewById(R.id.rl_persiondata_exit);
         RelativeLayout rl_persiondata_questionnaire = (RelativeLayout) findViewById(R.id.rl_persiondata_questionnaire);
         RelativeLayout rl_persiondata_Multilingual = (RelativeLayout) findViewById(R.id.rl_persiondata_Multilingual);
+        RelativeLayout rl_persiondata_switvh = (RelativeLayout) findViewById(R.id.rl_persiondata_switvh);
 
         iv_persiondata_switvh = (ImageView) findViewById(R.id.iv_persiondata_switvh);
 
@@ -76,6 +75,11 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         }
         else {
             iv_persiondata_switvh.setImageResource(R.drawable.switch_of);
+        }
+
+        if (!Constant.isInnerUpdateAllowed){
+            rl_persiondata_update.setVisibility(View.GONE);
+            rl_persiondata_switvh.setVisibility(View.GONE);
         }
     }
 

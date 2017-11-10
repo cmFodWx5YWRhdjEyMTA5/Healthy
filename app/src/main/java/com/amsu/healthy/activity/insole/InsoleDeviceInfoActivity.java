@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
@@ -288,9 +287,10 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
                         for (String oldStr : MyApplication.insoleConnectedMacAddress) {
                             mLeProxy.disconnect(oldStr);
                         }
+                         finish();
 
                     }
-                    else {
+                   else {
                         //设备已被其他人绑定！
                         restult = "解绑失败";
                     }

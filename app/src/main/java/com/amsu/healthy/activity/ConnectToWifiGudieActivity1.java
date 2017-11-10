@@ -35,4 +35,6 @@ public class ConnectToWifiGudieActivity1 extends BaseActivity {
         startActivity(new Intent(this,ConnectToWifiGudieActivity2.class));
         finish();
     }
+
+
 }

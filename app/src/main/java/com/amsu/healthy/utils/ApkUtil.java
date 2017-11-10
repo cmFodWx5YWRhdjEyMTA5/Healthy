@@ -18,12 +18,9 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.AppUpdateActivity;
-import com.amsu.healthy.activity.MainActivity;
 import com.amsu.healthy.activity.SplashActivity;
 import com.amsu.healthy.bean.Apk;
 import com.amsu.healthy.bean.JsonBase;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;

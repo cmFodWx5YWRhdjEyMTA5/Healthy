@@ -8,8 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.BottomSheetDialog;
@@ -44,7 +44,6 @@ import com.google.gson.Gson;
 import com.test.utils.DiagnosisNDK;
 
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -744,26 +743,27 @@ public class HealthyDataActivity extends BaseActivity {
 
     public void startSoS(View view) {
         SmsManager smsManager = SmsManager.getDefault();
+        List<SosActivity.SosNumber> sosNumberList = MyUtil.getSosNumberList();
+        String sosinfo = MyUtil.getStringValueFromSP(Constant.sosinfo);
+
         try {
-          /* 建立自定义Action常数的Intent(给PendingIntent参数之用) */
+            //建立自定义Action常数的Intent(给PendingIntent参数之用)
             Intent itSend = new Intent(SMS_SEND_ACTIOIN);
             Intent itDeliver = new Intent(SMS_DELIVERED_ACTION);
 
-          /* sentIntent参数为传送后接受的广播信息PendingIntent */
+            //sentIntent参数为传送后接受的广播信息PendingIntent
             PendingIntent mSendPI = PendingIntent.getBroadcast(getApplicationContext(), 0, itSend, 0);
 
-          /* deliveryIntent参数为送达后接受的广播信息PendingIntent */
+            //deliveryIntent参数为送达后接受的广播信息PendingIntent
             PendingIntent mDeliverPI = PendingIntent.getBroadcast(getApplicationContext(), 0, itDeliver, 0);
 
-          /* 发送SMS短信，注意倒数的两个PendingIntent参数 */
-
-            List<SosActivity.SosNumber> sosNumberList = MyUtil.getSosNumberList();
+            //发送SMS短信，注意倒数的两个PendingIntent参数
 
             if (sosNumberList==null  || sosNumberList.size()==0){
                 startActivity(new Intent(this,SosActivity.class));
                 return;
             }
-            String sosinfo = MyUtil.getStringValueFromSP(Constant.sosinfo);
+
             for (SosActivity.SosNumber sosNumber:sosNumberList){
                 smsManager.sendTextMessage(sosNumber.phone, null, sosinfo, mSendPI, mDeliverPI);
             }
@@ -771,6 +771,19 @@ public class HealthyDataActivity extends BaseActivity {
             Log.i(TAG,"sendTextMessage");
         }
         catch(Exception e) {
+            if (e instanceof SecurityException){//没有权限，调到短信发送界面
+                if (sosNumberList!=null  && sosNumberList.size()>0){
+                    String phones = "";
+                    for (SosActivity.SosNumber sosNumber:sosNumberList){
+                        phones += sosNumber.phone+";";
+                    }
+                    Uri smsToUri = Uri.parse("smsto:"+phones);
+                    Intent intent = new Intent(Intent.ACTION_SENDTO, smsToUri);
+                    //短信内容
+                    intent.putExtra("sms_body", sosinfo);
+                    startActivity(intent);
+                }
+            }
             Log.e(TAG,"e:"+e);
         }
     }

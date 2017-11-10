@@ -1,14 +1,10 @@
 package com.amsu.healthy.activity.insole;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.nfc.Tag;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -17,8 +13,9 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
-import com.amsu.healthy.activity.MyDeviceActivity;
 import com.amsu.healthy.activity.RunTimeCountdownActivity;
+import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.Insole3ScendCache;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
@@ -27,7 +24,7 @@ import com.amsu.healthy.utils.MyUtil;
 import com.ble.api.DataUtil;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class CorrectInsoleActivity extends BaseActivity {
@@ -83,8 +80,26 @@ public class CorrectInsoleActivity extends BaseActivity {
         Intent intent = getIntent();
         /*insole_connecMac1 = intent.getStringExtra("insole_connecMac1");
         insole_connecMac2 = intent.getStringExtra("insole_connecMac2");*/
-        insole_connecMac1 = CommunicateToBleService.mInsole_connecMac1;
-        insole_connecMac2 = CommunicateToBleService.mInsole_connecMac2;
+        /*insole_connecMac1 = CommunicateToBleService.mInsole_connecMac1;
+        insole_connecMac2 = CommunicateToBleService.mInsole_connecMac2;*/
+
+
+        MyApplication application = (MyApplication) getApplication();
+        Map<String, Device> insoleDeviceBatteryInfos = application.getInsoleDeviceBatteryInfos();
+
+        int i=0;
+        for (Device device : insoleDeviceBatteryInfos.values()) {
+            if (!MyUtil.isEmpty(device.getMac())){
+                if (i==0){
+                    insole_connecMac1 = device.getMac();
+                }
+                else if (i==1){
+                    insole_connecMac2 = device.getMac();
+                }
+                i++;
+            }
+        }
+
         Log.i(TAG,"insole_connecMac1:"+insole_connecMac1);
         Log.i(TAG,"insole_connecMac2:"+insole_connecMac2);
 

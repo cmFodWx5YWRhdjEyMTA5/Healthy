@@ -3,7 +3,6 @@ package com.amsu.healthy.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
-import com.amap.api.maps.model.LatLng;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.ParcelableDoubleList;
@@ -28,7 +26,6 @@ import com.amsu.healthy.utils.WebSocketUtil;
 import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
-import com.amsu.healthy.view.HeightCurveView;
 import com.google.gson.Gson;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -39,8 +36,6 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import com.test.objects.HeartRateResult;
 import com.test.utils.DiagnosisNDK;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.entity.StringEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -49,9 +44,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -88,7 +81,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
 
         final int hrr = intent.getIntExtra(Constant.hrr, 0);  // 运动类型，需要传到下个界面
         final long sportCreateRecordID = intent.getLongExtra(Constant.sportCreateRecordID, -1);  //运动记录id
-        final long startTimeMillis = intent.getLongExtra(Constant.startTimeMillis, -1);
+        final long startTimeMillis = intent.getLongExtra(Constant.startTimeMillis, -1);  //此次运动的开始时间
 
         Log.i(TAG,"sportCreateRecordID:"+sportCreateRecordID);
         Log.i(TAG,"startTimeMillis:"+startTimeMillis);
@@ -159,7 +152,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                                 }
                                 mAllKcal += getkcal;
                                 mKcalData.add(getkcal+"");
-
                             }
 
                             //Log.i(TAG,"calcuEcgRate:"+calcuEcgRate.length);
@@ -406,29 +398,55 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 Log.i(TAG,"hrvs:"+HRVs);
             }
 
-            int timeCount = 150*60*2;
-            if (calcuData.length>timeCount*2){   //大于4分钟则进行后2次分析
-                final int[] calcuData3  = new int[timeCount];
-                final int[] calcuData4  = new int[timeCount];
-               /* final int[] calcuData3  = new int[timeCount];
-                final int[] calcuData4  = new int[timeCount];*/
-                /*for (int i=0;i<timeCount;i++){
+            int timeOneMinuteCount = 150*60;
+            int timeAnalysisMinuteCount = 150*60;
+            if (calcuData.length<timeOneMinuteCount*4){
+                //不足4分钟，提示时间不足
+            }
+            else if (calcuData.length>=timeOneMinuteCount*4 && calcuData.length<timeOneMinuteCount*6){
+                //4~6分钟，取前后2分钟的数据
+                timeAnalysisMinuteCount = timeOneMinuteCount*2;
+            }
+            else if (calcuData.length>=timeOneMinuteCount*6 && calcuData.length<timeOneMinuteCount*8){
+                //6~8分钟，取前后3分钟的数据
+                timeAnalysisMinuteCount = timeOneMinuteCount*3;
+            }
+            else if (calcuData.length>=timeOneMinuteCount*10){
+                //大于10分钟，取前后5分钟的数据
+                timeAnalysisMinuteCount = timeOneMinuteCount*5;
+            }
+
+            if (calcuData.length>=timeOneMinuteCount*4){   //大于4分钟则进行后2次分析
+                final int[] analysisStartData  = new int[timeAnalysisMinuteCount];
+                final int[] analysisEndData  = new int[timeAnalysisMinuteCount];
+               /* final int[] analysisStartData  = new int[timeOneMinuteCount];
+                final int[] analysisEndData  = new int[timeOneMinuteCount];*/
+                /*for (int i=0;i<timeOneMinuteCount;i++){
                     calcuData1[i] = calcuData[i];
                 }
-                for (int i=0;i<timeCount;i++){
-                    calcuData2[i] = calcuData[timeCount+i];
+                for (int i=0;i<timeOneMinuteCount;i++){
+                    calcuData2[i] = calcuData[timeOneMinuteCount+i];
                 }*/
-                for (int i=0;i<timeCount;i++){
-                    calcuData3[timeCount-1-i] = calcuData[calcuData.length-1-timeCount-i];
+                /*for (int i=0;i<timeAnalysisMinuteCount;i++){
+                    analysisStartData[timeAnalysisMinuteCount-1-i] = calcuData[calcuData.length-1-timeAnalysisMinuteCount-i];
                 }
-                for (int i=0;i<timeCount;i++){
-                    calcuData4[timeCount-1-i] = calcuData[calcuData.length-1-i];
+                for (int i=0;i<timeAnalysisMinuteCount;i++){
+                    analysisEndData[timeAnalysisMinuteCount-1-i] = calcuData[calcuData.length-1-i];
+                }*/
+
+                for (int i=0;i<timeAnalysisMinuteCount;i++){
+                    analysisStartData[i] = calcuData[i];  //原始数据calcuData的前面timeAnalysisMinuteCount个数据点
+                    analysisEndData[timeAnalysisMinuteCount-1-i] = calcuData[calcuData.length-1-i];//原始数据calcuData的后面timeAnalysisMinuteCount个数据点
                 }
 
-                HeartRateResult heartRateResult1 = DiagnosisNDK.AnalysisEcg(calcuData3, calcuData3.length, Constant.oneSecondFrame);
+                /*for (int i=0;i<timeAnalysisMinuteCount;i++){
+                    analysisEndData[timeAnalysisMinuteCount-1-i] = calcuData[calcuData.length-1-i];//原始数据calcuData的后面timeAnalysisMinuteCount个数据点
+                }*/
+
+                HeartRateResult heartRateResult1 = DiagnosisNDK.AnalysisEcg(analysisStartData, analysisStartData.length, Constant.oneSecondFrame);
                 Log.i(TAG,"heartRateResult1:"+heartRateResult1.toString());
 
-                HeartRateResult heartRateResult2 = DiagnosisNDK.AnalysisEcg(calcuData4, calcuData4.length, Constant.oneSecondFrame);
+                HeartRateResult heartRateResult2 = DiagnosisNDK.AnalysisEcg(analysisEndData, analysisEndData.length, Constant.oneSecondFrame);
                 Log.i(TAG,"heartRateResult1:"+heartRateResult2.toString());
 
                 uploadRecord.sdnn1 = heartRateResult1.RR_SDNN;
@@ -441,10 +459,10 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 uploadRecord.hf = heartRateResult.HF;
 
                 PI = -2;
-               /* HeartRateResult heartRateResult3 = DiagnosisNDK.AnalysisEcg(calcuData3, calcuData3.length, Constant.oneSecondFrame);
+               /* HeartRateResult heartRateResult3 = DiagnosisNDK.AnalysisEcg(analysisStartData, analysisStartData.length, Constant.oneSecondFrame);
                 Log.i(TAG,"heartRateResult3:"+heartRateResult3.toString());
 
-                HeartRateResult heartRateResult4 = DiagnosisNDK.AnalysisEcg(calcuData4, calcuData4.length, Constant.oneSecondFrame);
+                HeartRateResult heartRateResult4 = DiagnosisNDK.AnalysisEcg(analysisEndData, analysisEndData.length, Constant.oneSecondFrame);
                 Log.i(TAG,"heartRateResult4:"+heartRateResult4.toString());*/
 
                 /*int r = HealthyIndexUtil.judgeHRVMentalFatigueData(heartRateResult.HF,heartRateResult.LF,heartRateResult1.HF,heartRateResult1.LF,heartRateResult1.RR_SDNN,
@@ -458,7 +476,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 }
                 HealthyIndexUtil.judgeHRVPhysicalFatigueStatic(heartRateResult.HF,heartRateResult.LF,heartRateResult1.HF,heartRateResult1.LF,heartRateResult1.RR_SDNN,
                         heartRateResult2.HF,heartRateResult2.LF,heartRateResult2.RR_SDNN);*/
-
             }
 
 
@@ -509,15 +526,12 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             uploadRecord.cc = (220-HealthyIndexUtil.getUserAge());
         }
 
+
         //设置跑步数据
         if (sportCreateRecordID!=-1){
             float distance = 0;
             long time = 0;
             List<ParcelableDoubleList> latitude_longitude;  //经纬度
-
-            final ArrayList<String> mKcalData = intent.getStringArrayListExtra(Constant.mKcalData);//
-            final ArrayList<Integer> mStridefreData = intent.getIntegerArrayListExtra(Constant.mStridefreData);//
-            final ArrayList<Integer> mSpeedStringListData = intent.getIntegerArrayListExtra(Constant.mSpeedStringListData);//
 
             DbAdapter dbAdapter = new DbAdapter(this);
             dbAdapter.open();
@@ -532,17 +546,24 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 time = Long.parseLong(pathRecord.getDuration())/1000;
                 latitude_longitude = Util.getLatitude_longitudeString(pathRecord);
 
-                uploadRecord.ae = mSpeedStringListData;
                 uploadRecord.distance = distance;
                 uploadRecord.time =time;
-                if (mKcalData!=null ){
-                    uploadRecord.calorie = mKcalData;
-                }
-                if (mStridefreData!=null){
-                    uploadRecord.cadence = mStridefreData;
-                }
                 uploadRecord.latitudeLongitude = latitude_longitude;
             }
+        }
+
+        ArrayList<String> mKcalData = intent.getStringArrayListExtra(Constant.mKcalData);//
+        ArrayList<Integer> mStridefreData = intent.getIntegerArrayListExtra(Constant.mStridefreData);//
+        ArrayList<Integer> mSpeedStringListData = intent.getIntegerArrayListExtra(Constant.mSpeedStringListData);//
+
+        if (mSpeedStringListData!=null){
+            uploadRecord.ae = mSpeedStringListData;
+        }
+        if (mKcalData!=null ){
+            uploadRecord.calorie = mKcalData;
+        }
+        if (mStridefreData!=null){
+            uploadRecord.cadence = mStridefreData;
         }
 
         Log.i(TAG,"uploadRecord:"+uploadRecord);

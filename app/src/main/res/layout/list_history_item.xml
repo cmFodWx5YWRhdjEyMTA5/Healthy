@@ -65,7 +65,8 @@
                     android:text="状态"
                     android:textColor="#FFFFFF"
                     android:background="@drawable/button_lishi1"
-                    android:textSize="@dimen/x24" />
+                    android:textSize="@dimen/x24"
+                    android:visibility="gone"/>
             </RelativeLayout>
 
 

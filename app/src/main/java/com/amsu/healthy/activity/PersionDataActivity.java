@@ -550,7 +550,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
     }
 
     private void initProvinceData() {
-        provinceModels = ParseXmlDataUtil.parseXmlDataFromAssets("province_data.xml",this);
+        provinceModels = ParseXmlDataUtil.parseXmlDataFromAssets(this);
     }
 
     private void chooseHeightDialog() {
