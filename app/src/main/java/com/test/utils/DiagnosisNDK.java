@@ -54,7 +54,7 @@ public class DiagnosisNDK {
 	}
 
 	public native static HeartRateResult getEcgResult(double[] source,
-			long len, int s_rate);
+			long len, int s_rate,int gain);
 
 /*	public native static PluseRateP_PP getPpgResult(double[] source, int len,
 			int s_rate, int SBP, int DBP, int height, int age, int SPO,
@@ -86,7 +86,7 @@ public class DiagnosisNDK {
 	 * 返回值： 返回心率值
 	 */
 	public native static int getEcgHeart(int[] source,
-			int len, int s_rate);
+			int len, int s_rate,int gain);
 	
 	/*
 	 * 涵数名：                    getPedo
@@ -114,7 +114,7 @@ public class DiagnosisNDK {
 	
     public static int ecgHeart(int[] source, int len, int rate) {
 		Log.d("ndk's c++", "len=" + len + " s_rate=" + rate);
-    	return getEcgHeart(source,len, rate);
+    	return getEcgHeart(source,len, rate,34);
     }
     
     public static void AnalysisPedo(byte[] source, int len, int[] aout) {
@@ -142,9 +142,8 @@ public class DiagnosisNDK {
 		
 		
 		Log.d("before ndk's c++", "len=" + len + " s_rate=" + s_rate);
-        
 
-		HeartRateResult result = getEcgResult(ecg, len, s_rate);
+		HeartRateResult result = getEcgResult(ecg, len, s_rate,34);
 
 		int abnormal = result.RR_Apb + result.RR_Pvc + result.RR_Iovp
 				+ result.RR_Boleakage + result.RR_Kuanbo + result.RR_2

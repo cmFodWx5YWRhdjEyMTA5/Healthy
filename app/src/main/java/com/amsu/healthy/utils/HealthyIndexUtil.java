@@ -899,6 +899,7 @@ public class HealthyIndexUtil {
                     scoreBeat.getPercent()*0.125+scoreReserveHealth.getPercent()*0.25);
         }
         return 0;
+
     }
 
     //情绪指数（精神紧张或放松状态）LF/HF   SDNN:80-200

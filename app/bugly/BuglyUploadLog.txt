@@ -446,3 +446,17 @@ appChannel=appinner
 appPackage=com.amsu.healthy
 appVersion=1.4.8
 
+file=C:\Users\HP\AndroidStudioProjects\Healthy\app\build\outputs\mapping\appinner\release\mapping.txt
+sha1=0f3390650c75d7fd4c34840f1ae8c2e422598dbe
+appId=d139ea916b
+appChannel=appinner
+appPackage=com.amsu.healthy
+appVersion=1.4.8
+
+file=C:\Users\HP\AndroidStudioProjects\Healthy\app\build\outputs\mapping\appinner\release\mapping.txt
+sha1=94783a49866965241b5d8feab13ce858f3092ae9
+appId=d139ea916b
+appChannel=appinner
+appPackage=com.amsu.healthy
+appVersion=1.4.8
+

@@ -44,6 +44,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.http.RequestParams;
 import com.test.objects.HeartRateResult;
+import com.test.utils.DiagnosisNDK;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -1297,7 +1298,6 @@ public class MyUtil {
     }
 
     public static String convertHexToString(String hex){
-
         StringBuilder sb = new StringBuilder();
         StringBuilder temp = new StringBuilder();
 
@@ -1315,6 +1315,24 @@ public class MyUtil {
         }
 
         return sb.toString();
+    }
+
+    public static int getStridefreByAccData(byte[] accByteData){
+        int[] results = new int[2];
+        DiagnosisNDK.AnalysisPedo(accByteData,accByteData.length,results);
+            /*int state = -1;
+            int pedoCount = -1;
+            DiagnosisNDK.AnalysisPedo(bytes,accDataLength,state,pedoCount);
+            Log.i(TAG,"state:"+state+",pedoCount:"+pedoCount);*/
+
+        Log.i(TAG,"results: "+results[0]+"  "+results[1]);
+
+        //每分钟的步数
+        float data = results[1] * 5.21f;
+        if (LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_secondGeneration || LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_secondGeneration_our){
+            data = data/2;
+        }
+        return (int) data;     //
     }
 
 }

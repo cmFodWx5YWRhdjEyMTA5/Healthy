@@ -109,6 +109,8 @@ public class HealthyDataActivity extends BaseActivity {
     private ImageView iv_base_connectedstate;
     private TextView tv_base_charge;
     private EcgFilterUtil_1 ecgFilterUtil_1;
+    private int mCclothDeviceType;
+    private LeProxy mLeProxy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -213,6 +215,12 @@ public class HealthyDataActivity extends BaseActivity {
             tv_base_charge.setText(MyApplication.clothCurrBatteryPowerPercent +"%");
         }
 
+        mLeProxy = LeProxy.getInstance();
+        mCclothDeviceType = mLeProxy.getClothDeviceType();
+        Log.i(TAG,"mCclothDeviceType:"+mCclothDeviceType);
+
+
+
     }
 
     private final BroadcastReceiver mchargeReceiver = new BroadcastReceiver() {
@@ -316,60 +324,150 @@ public class HealthyDataActivity extends BaseActivity {
 
     private void dealwithLebDataChange(String hexData) {
         //Log.i(TAG,"hexData:"+hexData);
-        if (hexData.length()<40){
-            return;
-        }
 
-        if(hexData.startsWith("FF 83")){
-            //心电数据
-            //Log.i(TAG,"心电hexData:"+hexData);
-            if (hexData.length()==44){
-                //Log.i(TAG,"滤波前心电=====:"+hexData);
-                dealWithEcgData(hexData);
+        if (LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_encrypt || LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_noEncrypt){
+            if (hexData.length()<40){
+                return;
+            }
+
+            if(hexData.startsWith("FF 83")){
+                //心电数据
+                //Log.i(TAG,"心电hexData:"+hexData);
+                if (hexData.length()==44){
+                    //Log.i(TAG,"滤波前心电=====:"+hexData);
+                    ECGUtil.geIntEcgaArr(hexData, " ", 3, oneGroupLength,ecgInts); //一次的数据，10位
+                    dealWithEcgData();
+                    mIsHaveEcgDataReceived = true;
+                }
+            }
+            else if(hexData.startsWith("FF 84")){
+                // FF 84 0B 11 05 02 11 06 02 0E DA 00 16 FF 83 0F
+                //FF 84 0B 11 05 02 11 06 02 0E DA 00 16 长度为13
+                String[] split = hexData.split(" ");
+                if (split.length>13){
+                    //有携带的心电包数据
+                    remainEcgPackageData = hexData.substring(39);
+                }
+            }
+            else {
+                if (!MyUtil.isEmpty(remainEcgPackageData)){
+                    remainEcgPackageData += " "+hexData;
+                    Log.i(TAG,"remainEcgPackageData:"+remainEcgPackageData);
+                    ECGUtil.geIntEcgaArr(hexData, " ", 3, oneGroupLength,ecgInts); //一次的数据，10位
+                    dealWithEcgData();
+                    remainEcgPackageData = null;
+                }
+            }
+            /*else if(hexData.startsWith("FF 86 11")){
+                //加速度数据
+                //Log.i(TAG,"加速度hexData:"+hexData);
+                //dealWithAccelerationgData(hexData);
+            }*/
+        }
+        /*else if (mCclothDeviceType==Constant.clothDeviceType_noEncrypt){
+            if (hexData.length()==35){
+                ECGUtil.geIntEcgaArr(hexData, " ", 0, oneGroupLength,ecgInts); //一次的数据，10位
+                dealWithEcgData();
                 mIsHaveEcgDataReceived = true;
             }
-        }
-        else if(hexData.startsWith("FF 84")){
-            // FF 84 0B 11 05 02 11 06 02 0E DA 00 16 FF 83 0F
-            //FF 84 0B 11 05 02 11 06 02 0E DA 00 16 长度为13
-            String[] split = hexData.split(" ");
-            if (split.length>13){
-                //有携带的心电包数据
-                remainEcgPackageData = hexData.substring(39);
+            else  if (hexData.length()==41){
+
             }
-        }
-        else {
-            if (!MyUtil.isEmpty(remainEcgPackageData)){
-                remainEcgPackageData += " "+hexData;
-                Log.i(TAG,"remainEcgPackageData:"+remainEcgPackageData);
-                dealWithEcgData(remainEcgPackageData);
-                remainEcgPackageData = null;
+            else  if (hexData.length()==44){
+
             }
-        }
-        /*else if(hexData.startsWith("FF 86 11")){
-            //加速度数据
-            //Log.i(TAG,"加速度hexData:"+hexData);
-            //dealWithAccelerationgData(hexData);
         }*/
+        else {
+
+            if (mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration || mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration_our){
+                String[] split = hexData.split(" ");
+                if (split.length==20){
+                    for (int i=0;i<split.length/2;i++){
+                        short i1 = (short) Integer.parseInt(split[2 * i] + split[2 * i + 1], 16);
+                        //Log.i(TAG,""+i1);
+                        if (mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration){
+                            ecgInts[i] = i1 /256+128;
+                        }
+                        else {
+                            ecgInts[i] = i1 /16;
+                        }
+
+                        //Log.i(TAG,"ecgInts[i]:"+ecgInts[i]);
+                    }
+
+
+                    dealWithEcgData();
+                    remainEcgPackageData = null;
+
+
+                }
+                else  if (split.length==1){
+                    int curHeartRate = Integer.parseInt(split[0] , 16);
+                    //tv_healthydata_rate.setText(curHeartRate+"");
+
+                    if (curHeartRate!=mPreHeartRate){
+                        //心率不一样则改变灯的闪烁状态
+                        String data  = "4238FF05";  //导联脱落
+                        byte[] bytes = DataUtil.hexToByteArray(data);
+                        //boolean send = mLeProxy.send(mConnectedAddress, Constant.clothNewSerUuid, Constant.clothNewSendReciveDataCharUuid, bytes, false);
+                        //Log.i(TAG,"send:"+send);
+                    }
+
+                    mPreHeartRate = curHeartRate;
+                }
+            }
+        }
+
     }
 
     private boolean mIsHaveEcgDataReceived;
     private int mPreHeartRate;
     private boolean isNeedUpdateHeartRate = false;
     int [] ecgInts = new int[oneGroupLength];
+    int [] ecgIntsForFiliter = new int[oneGroupLength];
+    int [] ecgIntsForLine = new int[oneGroupLength];
     private boolean isNeedCreateNewFilterObejct = true;
 
+    private boolean isFilterFinished = true;
+
     //处理心电数据
-    private void dealWithEcgData(String hexData) {
+    private void dealWithEcgData() {
         if (isActivityFinsh) return;
         isNeedUpdateHeartRate = false;
-        ECGUtil.geIntEcgaArr(hexData, " ", 3, oneGroupLength,ecgInts); //一次的数据，10位
+        //ECGUtil.geIntEcgaArr(hexData, " ", 3, oneGroupLength,ecgInts); //一次的数据，10位
 
         String intString = "";
         for (int i:ecgInts){
             intString+=i+",";
         }
-        Log.i(TAG,"滤波前心电:"+intString);
+        Log.i(TAG,"滤波前心电:"+intString +"  "+isFilterFinished);
+
+        if (!isFilterFinished){  //上次滤波没有结束,睡5
+            Log.i(TAG,"等待");
+            while (true){
+                try {
+                    Thread.sleep(2);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if (isFilterFinished){
+                    Log.i(TAG,"前面释放");
+                    writeEcgToFileAndFilter();
+                    break;
+                }
+            }
+        }
+        else {
+            writeEcgToFileAndFilter();
+        }
+
+
+    }
+
+    private void writeEcgToFileAndFilter() {
+        Log.i(TAG,"开始");
+        isFilterFinished  = false;
 
         if (!isLookupECGDataFromSport){
             writeEcgDataToBinaryFile(ecgInts);
@@ -383,10 +481,11 @@ public class HealthyDataActivity extends BaseActivity {
             }
         }*/
 
+        ecgIntsForFiliter = ecgInts.clone();
 
         //滤波处理
-        for (int i=0;i<ecgInts.length;i++){
-            ecgInts[i] = ecgFilterUtil_1.miniEcgFilterLp(ecgFilterUtil_1.miniEcgFilterHp (ecgFilterUtil_1.NotchPowerLine(ecgInts[i], 1)));
+        for (int i=0;i<ecgIntsForFiliter.length;i++){
+            ecgIntsForFiliter[i] = ecgFilterUtil_1.miniEcgFilterLp(ecgFilterUtil_1.miniEcgFilterHp (ecgFilterUtil_1.NotchPowerLine(ecgIntsForFiliter[i], 1)));
 
             /*int temp = EcgFilterUtil_1.miniEcgFilterLp(accOneGroupDataInts[i], 0);
             temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
@@ -394,8 +493,15 @@ public class HealthyDataActivity extends BaseActivity {
             //Log.i(TAG,"temp:"+accOneGroupDataInts[i]);
         }
 
+        ecgIntsForLine = ecgIntsForFiliter.clone();
+
+        isFilterFinished = true;
+        Log.i(TAG,"结束");
+
         if (isNeedDrawEcgData){
-            mHandler.sendEmptyMessage(2);
+            //mHandler.sendEmptyMessage(2);
+
+            updateUIECGLineData();
         }
 
         if (isLookupECGDataFromSport){
@@ -468,7 +574,6 @@ public class HealthyDataActivity extends BaseActivity {
     });
 
 
-
     private void updateUIECGHeartData() {
         if (mCurrentHeartRate ==0){
             tv_healthydata_rate.setText("--");
@@ -511,11 +616,14 @@ public class HealthyDataActivity extends BaseActivity {
     private void updateUIECGLineData() {
         //Log.i(TAG,"绘图");
         String intString = "";
-        for (int i:ecgInts){
+        for (int i:ecgIntsForLine){
             intString+=i+",";
         }
-        Log.i(TAG,"滤波后心电:"+intString);
-        pv_healthydata_path.addEcgOnGroupData(ecgInts);
+        Log.w(TAG,"滤波后心电:"+intString);
+
+
+        pv_healthydata_path.addEcgOnGroupData(ecgIntsForLine);
+
         /*if (tempCount<10){
             tempCount++;
             pv_healthydata_path.addEcgOnGroupData(ecgInts_temp);
@@ -526,7 +634,7 @@ public class HealthyDataActivity extends BaseActivity {
     }
 
     //写到文件里，二进制方式写入
-    private void writeEcgDataToBinaryFile(int[] ints) {
+    private void writeEcgDataToBinaryFile(final int[] ints) {
         try {
             if (fileOutputStream==null){
                 startTimeMillis = System.currentTimeMillis();
@@ -859,6 +967,7 @@ public class HealthyDataActivity extends BaseActivity {
                 startActivityForResult(enableBtIntent, MainActivity.REQUEST_ENABLE_BT);
             }
             isonResumeEd = true;
+            //pv_healthydata_path.startThread();
         }
 
         if (MyApplication.isHaveDeviceConnectted){

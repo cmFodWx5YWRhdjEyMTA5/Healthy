@@ -58,7 +58,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
     private String mCurrentUploadFileName;
 
     int mCurUploadFilePackageIndex = -1;  //当前传输的索引
-    int mOneUploadMaxByte = 512*16;
+    int mOneUploadMaxByte = 512*16;  //一包的大小，8K
     int mAllFileCount ;  //文件分几次上传，mAllFileCount = 按mOneUploadMaxByte传的次数(整数上传)
     int mFileLastRemainder ;  //最后一次需要上传的，mFileLastRemainder = 文件字节数%mOneUploadMaxByte
     long startTimeMillis = 0;
@@ -183,6 +183,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
     //弹出分析选择
     private void chooseDataState(final int position) {
         final String ecgLocalFileName = mEcgLocalOffLineFileNameList.get(position+"");
+        final String accLocalFileName = mAccLocalOffLineFileNameList.get(position+"");
         final String offLineFileName = mOffLineFileNameList.get(position);
         Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
 
@@ -212,7 +213,6 @@ public class UploadOfflineFileActivity extends BaseActivity {
                 //动态
                 isAnalyed = true;
                 intent.putExtra(Constant.sportState,Constant.SPORTSTATE_ATHLETIC);
-                String accLocalFileName = mAccLocalOffLineFileNameList.get(position+"");
                 intent.putExtra(Constant.accLocalFileName,accLocalFileName);
                 Log.i(TAG,"accLocalFileName:"+accLocalFileName);
                 startActivity(intent);
@@ -230,6 +230,21 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
         if (isAnalyed){
             analyCount++;
+
+            //删除文件
+            deleteOneFile(ecgLocalFileName);
+            new Thread(){
+                @Override
+                public void run() {
+                    super.run();
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    deleteOneFile(accLocalFileName);
+                }
+            }.start();
         }
     }
 
@@ -816,6 +831,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
         Log.i(TAG,"mListViewItemUolpadIndex:"+mListViewItemUolpadIndex);
 
         deviceOffLineFileUtil.stopTime();
+        mAllData.clear();
 
 
         if (isWriteSuccess){

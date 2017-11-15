@@ -30,7 +30,7 @@ public class DeviceOffLineFileUtil {
     public final static String readDeviceID = "FF0200060716";
     public final static String readDeviceFileList = "FF0300060816";
     public final static String generateDeviceFile = "FF0800060D16";
-    private static final String TAG = "TestActivity";
+    private static final String TAG = "DeviceOffLineFileUtil";
 
     //3.4	查询某个数据文件长度
     public final static String readDeviceSpecialFileLength(String fileName){

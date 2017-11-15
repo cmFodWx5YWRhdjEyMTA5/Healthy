@@ -383,7 +383,8 @@
             -->
         </activity>
         <activity android:name=".activity.RunTimeCountdownActivity" />
-        <activity android:name=".activity.insole.InsoleRunningActivity" />
+        <activity android:name=".activity.insole.InsoleRunningActivity"
+            android:screenOrientation="portrait"></activity>
         <activity android:name=".activity.insole.InsoleAnalyticFinshResultActivity">
 
             <!--

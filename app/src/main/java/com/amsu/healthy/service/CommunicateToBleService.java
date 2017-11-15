@@ -113,6 +113,12 @@ public class CommunicateToBleService extends Service {
                 final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
                 mBluetoothAdapter = bluetoothManager.getAdapter();
                 mLeProxy = LeProxy.getInstance();
+
+                int intValueFromSP = MyUtil.getIntValueFromSP(Constant.mClothDeviceType);
+                if (intValueFromSP!=-1){
+                    mLeProxy.setmClothDeviceType(intValueFromSP);
+                }
+
                 //Log.i(TAG,"getState():"+mBluetoothAdapter.getState());
             }
 
@@ -185,7 +191,12 @@ public class CommunicateToBleService extends Service {
         dealwithPhoneBleOpen();
 
         checkDeviceCharge();
-        sendDeviceSynOrderToBlueTooth();  //当设备连接成功后才开始发送同步指令
+
+        int clothDeviceType = mLeProxy.getClothDeviceType();
+        if (clothDeviceType == Constant.clothDeviceType_encrypt || clothDeviceType == Constant.clothDeviceType_noEncrypt){  //旧版衣服，数据加密时需要发送同步指令
+            sendDeviceSynOrderToBlueTooth();  //当设备连接成功后才开始发送同步指令
+        }
+
 
         /*new Thread(){
             @Override
@@ -266,15 +277,22 @@ public class CommunicateToBleService extends Service {
 
     private void scanLeDevice(final boolean enable) {
         if (enable) {
-            final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+            BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             mBluetoothAdapter = bluetoothManager.getAdapter();
             //if (mBluetoothAdapter.isEnabled()) {
             if (mBluetoothAdapter.getState()==BluetoothAdapter.STATE_ON) {
-                if (mScanning)
-                    return;
+                /*if (mScanning)
+                    return;*/
                 mScanning = true;
                 boolean b = mBluetoothAdapter.startLeScan(mLeScanCallback);
                 Log.i(TAG,"startLeScan:"+b);
+
+                if (!b){
+                    bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                    mBluetoothAdapter = bluetoothManager.getAdapter();
+                    boolean sendAgain = mBluetoothAdapter.startLeScan(mLeScanCallback);
+                    Log.i(TAG,"startLeScan  sendAgain:"+sendAgain);
+                }
             } else {
                 Log.i(TAG,"蓝牙未连接");
             }
@@ -472,9 +490,13 @@ public class CommunicateToBleService extends Service {
         else if (hexData.startsWith("FF 84")){
             Log.i(TAG,"设备版本号："+hexData);
             //FF 84 0B 11 05 02 11 06 02 0C 90 00 16 FF 83
-            dealwithDeviceInfo(hexData);
+            int clothDeviceType = mLeProxy.getClothDeviceType();
+            if (clothDeviceType!=Constant.clothDeviceType_secondGeneration && clothDeviceType!=Constant.clothDeviceType_secondGeneration_our){
+                dealwithDeviceInfo(hexData);
+            }
+
         }
-        else if (hexData.length()==2){  // 3E
+        else if (hexData.length()==2 && MyApplication.deivceType==Constant.sportType_Insole){  // 3E  鞋垫电量
             int intPower = Integer.parseInt(hexData, 16);
             Log.i(TAG,"鞋垫电量："+" address:"+address+" hexData:"+hexData+" intPower:"+intPower);
             Device device = mInsoleDeviceBatteryInfos.get(address);
@@ -505,6 +527,8 @@ public class CommunicateToBleService extends Service {
                 mApplication.setInsoleDeviceBatteryInfos(mInsoleDeviceBatteryInfos);
 
                 //MyUtil.putStringValueFromSP(Constant.hardWareVersion_insole,deviceVersionString);
+
+                MyUtil.putStringValueFromSP(Constant.hardWareVersion,deviceVersionString);
             }
             else if (uuid.equals(Constant.readInsoleDeviceInfoSoftwareRevisionCharUuid)){
                 //软件版本
@@ -520,6 +544,52 @@ public class CommunicateToBleService extends Service {
                 mApplication.setInsoleDeviceBatteryInfos(mInsoleDeviceBatteryInfos);
 
                 //MyUtil.putStringValueFromSP(Constant.softWareVersion_insole,deviceVersionString);
+
+                MyUtil.putStringValueFromSP(Constant.softWareVersion,deviceVersionString);
+            }
+
+            if(mLeProxy.getClothDeviceType()==-1){
+                mLeProxy.setmClothDeviceType(Constant.clothDeviceType_secondGeneration_our);
+                MyUtil.putIntValueFromSP(Constant.mClothDeviceType,Constant.clothDeviceType_secondGeneration_our);
+                sendReadDeviceState();
+            }
+        }
+        else if (hexData.length()==17){   //神念56 32 2E 30 2E 31    自己32 2E 30 2E 30
+            //新版衣服硬件版本  V2.0.1  软件版本  V1.0.1
+            String deviceVersionString = MyUtil.convertHexToString(hexData);
+            if (uuid.equals(Constant.readInsoleDeviceInfoHardwareRevisionCharUuid)){
+                //硬件版本
+                Log.i(TAG,"新版衣服硬件版本："+" deviceVersionString:"+deviceVersionString);
+                MyUtil.putStringValueFromSP(Constant.hardWareVersion,deviceVersionString);
+
+            }
+            else if (uuid.equals(Constant.readInsoleDeviceInfoSoftwareRevisionCharUuid)){
+                //软件版本
+                Log.i(TAG,"新版衣服软件版本："+" deviceVersionString:"+deviceVersionString);
+                MyUtil.putStringValueFromSP(Constant.softWareVersion,deviceVersionString);
+            }
+
+            mLeProxy.setmClothDeviceType(Constant.clothDeviceType_secondGeneration);
+
+            MyUtil.putIntValueFromSP(Constant.mClothDeviceType,Constant.clothDeviceType_secondGeneration);
+
+            sendReadDeviceState();
+
+        }
+        else if (hexData.length()==32){
+            //主机状态信息
+            Log.i(TAG,"主机状态:"+hexData);
+            String[] split = hexData.split(" ");
+            Log.i(TAG,"split[3]:"+split[3]);
+            int connectedState = Integer.parseInt(split[3], 16);
+
+            if (connectedState==0){
+                //脱落,让灯闪烁
+                String hexSynOrder = "42382BFF01";
+                UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+                UUID charUuid = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
+                //boolean send = mLeProxy.send(clothDeviceConnecedMac, serUuid, charUuid, DataUtil.hexToByteArray(hexSynOrder), false);
+                //Log.i(TAG,"connectedStateSend:"+ send);
             }
         }
         /*else if (hexData.startsWith("AA")){
@@ -556,6 +626,9 @@ public class CommunicateToBleService extends Service {
                 mIsJumpTOCorrected = true;
             }
         }*/
+        else if (hexData.length() == 50 || hexData.length()==11) { //不加密衣服版本信息（不完整，需要通过发命令再获取）
+            mLeProxy.setmClothDeviceType(Constant.clothDeviceType_noEncrypt);
+        }
         else if (hexData.length() > 40) {
             if (!mIsDataStart){
                 mIsDataStart = true;
@@ -570,7 +643,49 @@ public class CommunicateToBleService extends Service {
                 DeviceOffLineFileUtil.startTime();
             }*/
         }
+        else if (hexData.length()==2 && MyApplication.deivceType==Constant.sportType_Cloth) {  // 3E  新版衣服心率
+
+            int intValue = Integer.parseInt(hexData , 16);
+            Log.i(TAG,"intValue:"+intValue);
+            if (uuid.equals(Constant.readInsoleBatteryCharUuid)){  //新版衣服电量
+                Log.i(TAG,"clothCurrBatteryPowerPercent："+intValue);
+                MyApplication.clothCurrBatteryPowerPercent = intValue;
+                calCuelectricVPercentIntent.putExtra("clothCurrBatteryPowerPercent",intValue);
+                sendBroadcast(calCuelectricVPercentIntent);
+            }
+            else {
+                if (intValue!=mPreHeartRate && intValue!=0){
+                    //心率不一样则改变灯的闪烁状态,  42382B01FF(1号灯常亮)，42382B0100(1号灯关闭)
+                    int maxRate = 220- HealthyIndexUtil.getUserAge();
+                    String data  = "";
+                    if (intValue <=maxRate*0.75){
+                        data  = "42382B03FF";  //导联脱落
+                    }
+                    else if (maxRate*0.75<intValue && intValue<=maxRate*0.95){
+                        data  = "42382B02FF";  //导联脱落
+                    }
+                    else if (maxRate*0.95<intValue){
+                        data  = "42382B01FF";  //导联脱落
+                    }
+
+                    if (!MyUtil.isEmpty(data) && !data.equals(mPreControlLightOrder)){
+                        Log.i(TAG,"data:"+data);
+                        byte[] bytes = DataUtil.hexToByteArray(data);
+                        UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+                        UUID charUuid = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
+                        boolean send = mLeProxy.send(address, serUuid, charUuid, bytes, false);
+                        Log.i(TAG,"send:"+send);
+                    }
+                    mPreControlLightOrder = data;
+                }
+                mPreHeartRate = intValue;
+            }
+        }
+
     }
+
+    private int mPreHeartRate;
+    private String mPreControlLightOrder;
 
 
 
@@ -610,9 +725,9 @@ public class CommunicateToBleService extends Service {
                         Log.i(TAG, "查询设备信息");
                         sendLookEleInfoOrder();*/
 
-                        Thread.sleep(100);
+                        Thread.sleep(1000);
 
-                        boolean isCheckIsHaveDataOrderSend = mLeProxy.send(clothDeviceConnecedMac, DataUtil.hexToByteArray(Constant.checkIsHaveDataOrder), true);
+                        /*boolean isCheckIsHaveDataOrderSend = mLeProxy.send(clothDeviceConnecedMac, DataUtil.hexToByteArray(Constant.checkIsHaveDataOrder), true);
                         Log.i(TAG, "查询SD卡是否有数据："+isCheckIsHaveDataOrderSend);
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -620,7 +735,7 @@ public class CommunicateToBleService extends Service {
                         }
                         else {
                             Thread.sleep(2000);
-                        }
+                        }*/
 
 
                         String writeConfigureOrder = "FF010E"+ HealthyDataActivity.getDataHexString()+"0016";
@@ -651,6 +766,7 @@ public class CommunicateToBleService extends Service {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+
                 }
             }
         }.start();
@@ -771,6 +887,7 @@ public class CommunicateToBleService extends Service {
         else {
             softWareVersionString+=+ints[5];
         }
+
         Log.i(TAG,"软件："+softWareVersionString);
         MyUtil.putStringValueFromSP(Constant.softWareVersion,softWareVersionString);
 
@@ -908,9 +1025,6 @@ public class CommunicateToBleService extends Service {
         }
         return leave;
     }
-
-
-
 
         /*if (electricV<3) {
             return 0;
@@ -1097,11 +1211,26 @@ public class CommunicateToBleService extends Service {
                                 popupWindowUtil.showDeviceConnectedChangePopWindow(1,getResources().getString(R.string.sportswear_connection_successful));
                             }
                         }
-                        MyApplication.clothConnectedMacAddress = clothDeviceConnecedMac;
-                        sendStartQuantityOfElectricToBlueTooth();
+                        MyApplication.clothConnectedMacAddress = clothDeviceConnecedMac  =address ;
 
-                        deviceOffLineFileUtil.startTime();
-                        sendStartDataTransmitOrderToBlueTooth();
+                        int clothDeviceType = mLeProxy.getClothDeviceType();
+
+                        Log.i(TAG,"clothDeviceType:"+clothDeviceType);
+
+                        if (clothDeviceType==Constant.clothDeviceType_encrypt || clothDeviceType==-1){
+                            sendStartQuantityOfElectricToBlueTooth();
+
+                            deviceOffLineFileUtil.startTime();
+                            sendStartDataTransmitOrderToBlueTooth();
+
+                            if (clothDeviceType==-1){
+                                //不加密数据可能2种：1、不加密旧版衣服，2、二代衣服      根据读取的设备信息来区分   （通用获取设备信息方法）
+                                readInsoleDeviceInfo(address,true,true,true);
+                            }
+                        }
+                        else if (clothDeviceType==Constant.clothDeviceType_secondGeneration || clothDeviceType==Constant.clothDeviceType_secondGeneration_our){
+                            readInsoleDeviceInfo(address,true,true,true);
+                        }
 
                     }
                     else if (MyApplication.deivceType==Constant.sportType_Insole){
@@ -1175,7 +1304,7 @@ public class CommunicateToBleService extends Service {
                     mIsConnectting = false;
                     mIsDataStart = false;
                     mIsConnectted = false;
-                    scanLeDevice(true);//停止扫描
+                    scanLeDevice(true);//开始扫描
 
                     if (MyApplication.isHaveDeviceConnectted){
                         MyApplication.isHaveDeviceConnectted = false;
@@ -1301,11 +1430,84 @@ public class CommunicateToBleService extends Service {
         }.start();
     }
 
+    //读取设备信息
+    private void readNewClothDeviceInfo(final String address, final boolean isReadBattery, final boolean isReadHardwareRevision, final boolean isReadSoftwareRevision) {
+        new Thread(){
+
+            private boolean isReadBatterySendOK;
+            private boolean isReadHardwareRevisionSendOK;
+            private boolean isReadSoftwareRevisionSendOK;
+            private int allLoopCount;
+
+            @Override
+            public void run() {
+
+                while (true){
+                    if (allLoopCount==0){
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if (isReadBattery && !isReadBatterySendOK){
+                        UUID serUuid = UUID.fromString(Constant.readInsoleBatterySerUuid);
+                        UUID charUuid = UUID.fromString(Constant.readInsoleBatteryCharUuid);
+                        isReadBatterySendOK = mLeProxy.readCharacteristic(address, serUuid, charUuid);
+                        Log.i(TAG,"isReadBatterySendOK:"+ isReadBatterySendOK);
+
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    UUID readInsoleDeviceInfoSerUuid = UUID.fromString(Constant.readInsoleDeviceInfoSerUuid);
+                    if (isReadHardwareRevision && !isReadHardwareRevisionSendOK){
+                        UUID readInsoleDeviceInfoHardwareRevisionCharUuid = UUID.fromString(Constant.readInsoleDeviceInfoHardwareRevisionCharUuid);
+                        isReadHardwareRevisionSendOK = mLeProxy.readCharacteristic(address, readInsoleDeviceInfoSerUuid, readInsoleDeviceInfoHardwareRevisionCharUuid);
+                        Log.i(TAG,"isReadHardwareRevisionSendOK:"+ isReadHardwareRevisionSendOK);
+
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if (isReadSoftwareRevision && !isReadSoftwareRevisionSendOK){
+                        UUID readInsoleDeviceInfoSoftwareRevisionCharUuid = UUID.fromString(Constant.readInsoleDeviceInfoSoftwareRevisionCharUuid);
+                        isReadSoftwareRevisionSendOK = mLeProxy.readCharacteristic(address, readInsoleDeviceInfoSerUuid, readInsoleDeviceInfoSoftwareRevisionCharUuid);
+                        Log.i(TAG,"isReadSoftwareRevisionSendOK:"+ isReadSoftwareRevisionSendOK);
+
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    allLoopCount++;
+                    Log.i(TAG,"allLoopCount:"+allLoopCount);
+
+                    if ((isReadBatterySendOK && isReadHardwareRevisionSendOK && isReadSoftwareRevisionSendOK) || allLoopCount==10){
+                        //三次都发送成功或者已经循环10次（防止一直循环执行），则退出
+                        break;
+                    }
+                }
+            }
+        }.start();
+    }
+
 
     private void dealwithBelDisconnected(String address){
         Log.w(TAG,"已断开 "+address);
         Log.i(TAG,"MyApplication.isHaveDeviceConnectted:"+ MyApplication.isHaveDeviceConnectted);
         Log.i(TAG,"MyApplication.mCurrApplicationActivity:"+MyApplication.mCurrApplicationActivity);
+
+        mLeProxy.setmClothDeviceType(-1);
 
         mIsConnectted = false;
         mIsConnectting = false;
@@ -1377,6 +1579,28 @@ public class CommunicateToBleService extends Service {
             }
         }
     };
+
+
+    boolean isStarted = false;
+    private void sendReadDeviceState(){
+        if (!isStarted){
+            Log.i(TAG,"sendReadDeviceState");
+            MyTimeTask.startTimeRiseTimerTask( 4000, new MyTimeTask.OnTimeChangeAtScendListener() {
+                @Override
+                public void onTimeChange(Date date) {
+                    String hexSynOrder = "4131";
+                    Log.i(TAG,"clothDeviceConnecedMac:"+clothDeviceConnecedMac);
+                    UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+                    UUID charUuid = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
+                    boolean send = mLeProxy.send(clothDeviceConnecedMac, serUuid, charUuid, DataUtil.hexToByteArray(hexSynOrder), false);
+                    Log.i(TAG,"sendReadDeviceState:"+ send);
+                }
+            });
+
+            isStarted  =true;
+        }
+    }
+
 
     @Override
     public void onDestroy() {

@@ -10,7 +10,7 @@
         android:paddingLeft="@dimen/x36"
         android:paddingRight="@dimen/x36">
         <TextView
-            android:id="@+id/tv_wring_type"
+            android:id="@+id/tv_wring_dec"
             android:layout_width="@dimen/x108"
             android:layout_height="@dimen/x108"
             android:text="心率"
@@ -29,7 +29,7 @@
             android:textSize="@dimen/x48"
             android:textColor="#7d7d7d"
             android:layout_marginLeft="@dimen/x64"
-            android:layout_toRightOf="@+id/tv_wring_type"
+            android:layout_toRightOf="@+id/tv_wring_dec"
             android:layout_marginTop="@dimen/x20"/>
         <TextView
             android:id="@+id/tv_wring_day"
@@ -39,11 +39,12 @@
             android:textSize="@dimen/x28"
             android:textColor="#7d7d7d"
             android:layout_marginLeft="@dimen/x64"
-            android:layout_toRightOf="@+id/tv_wring_type"
+            android:layout_toRightOf="@+id/tv_wring_dec"
             android:layout_marginBottom="@dimen/x20"
             android:layout_alignParentBottom="true"/>
 
         <TextView
+            android:id="@+id/tv_wring_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="状态"
@@ -51,8 +52,7 @@
             android:textColor="#3b3b3b"
             android:layout_marginLeft="@dimen/x64"
             android:layout_toRightOf="@+id/tv_wring_year"
-            android:layout_marginTop="@dimen/x20"
-            android:visibility="gone"/>
+            android:layout_marginTop="@dimen/x20"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
