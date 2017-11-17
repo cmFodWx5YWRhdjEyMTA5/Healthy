@@ -554,20 +554,8 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
             }
         } else {
             //计算
-            /*byte[] bytes = new byte[accDataLength];
-            for (int i=0;i<accData.size();i++){
-                bytes[i] = (byte)(int)accData.get(i);
-            }*/
-            int[] results = new int[2];
-            DiagnosisNDK.AnalysisPedo(accByteData, accDataLength, results);
-            /*int state = -1;
-            int pedoCount = -1;
-            DiagnosisNDK.AnalysisPedo(bytes,accDataLength,state,pedoCount);
-            Log.i(TAG,"state:"+state+",pedoCount:"+pedoCount);*/
 
-            Log.i(TAG, "results: " + results[0] + "  " + results[1]);
-            //每分钟的步数
-            mTempStridefre = (int) (results[1] * 5.21);
+            mTempStridefre = MyUtil.getStridefreByAccData(accByteData);
             mStridefreData.add(mTempStridefre);
             mHandler.sendEmptyMessage(2);
 

@@ -20,6 +20,7 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -49,8 +50,10 @@ import com.amsu.healthy.view.DashboardView;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleService;
 import com.google.gson.Gson;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -783,14 +786,14 @@ public class MainActivity extends BaseActivity {
                     break;
                 case R.id.rl_mian_start:
 
-                   /* DisplayMetrics dm = new DisplayMetrics();
+                    DisplayMetrics dm = new DisplayMetrics();
                     getWindowManager().getDefaultDisplay().getMetrics(dm);
                     Log.i(TAG,"heigth : " + dm.heightPixels);
                     Log.i(TAG,"width : " + dm.widthPixels);
 
                     HashMap<String,String> map = new HashMap<>();
                     map.put("screen","设备："+Build.MODEL+",heigth:"+dm.heightPixels+",width:"+dm.widthPixels);
-                    MobclickAgent.onEvent(MainActivity.this,"event_phonemodel",map);*/
+                    MobclickAgent.onEvent(MainActivity.this,"event_phonemodel",map);
                     boolean is = MyUtil.getBooleanValueFromSP(isMarathonSportType);
                     if (is){
                         startActivity(MarathonActivity.createIntent(MainActivity.this));

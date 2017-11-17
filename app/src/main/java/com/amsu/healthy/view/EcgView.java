@@ -4,12 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
-import android.media.AudioManager;
-import android.media.SoundPool;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -35,10 +31,10 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     public boolean isRunning;
     private Canvas mCanvas;
 
-    private float ecgMax = 255;//心电的最大值
+    private int ecgMax = 255;//心电的最大值
     private int sleepTime = 1000/15; //每次锁屏的时间间距，单位:ms
-    private float lockWidth;//每次锁屏需要画的
-    private static int ecgPerCount = 10;//每次画心电数据的个数，心电每秒有500个数据包
+
+    private static int ecgPerCount = 10;//每次画心电数据的个数，心电每秒有15个数据包
 
     public List<Integer> ecgDatas = new ArrayList<>();
     private Queue<Integer> ecgOneGroupData = new LinkedList<>();
@@ -62,7 +58,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     //折现的颜色
     protected int mLineColor = Color.parseColor("#ff3b30");
     //网格颜色
-    protected int mGridColor = Color.parseColor("#C9C9C9");
+    protected int mGridColor = Color.parseColor("#e0e0e0");
     //protected int mGridColor = Color.parseColor("#C9C9C9");
     //小网格颜色
     protected int mSGridColor = Color.parseColor("#E8E8E8");
@@ -72,9 +68,14 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
     //小网格的宽度
     //protected int mSGridWidth = 15;
-    protected float mSGridWidth = getResources().getDimension(R.dimen.x10);
+    //protected float mSGridWidth = 14.248f;
+    //protected float mSGridWidth = getResources().getDimension(R.dimen.x10);
+    protected float mSGridWidth = getResources().getDimension(R.dimen.x14);
     //网格宽度
     protected float mGridWidth = mSGridWidth*5;
+
+    private float lockWidth = 5/3f*mSGridWidth;;//每次锁屏需要画的 。   1s有150个点，刚好5个大格。
+
     protected int mHorSmiallGridCount ;  //小网格的个数
     protected int mVirGigGridCount ;  //小网格的个数
     private boolean isStartCacheDrawLine = false;
@@ -92,7 +93,6 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         this.surfaceHolder = getHolder();
         this.surfaceHolder.addCallback(this);
         rect = new Rect();
-        converXOffset();
     }
 
     private void init() {
@@ -114,10 +114,6 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         Log.i(TAG,"mSGridWidth:"+mSGridWidth);
     }
 
-    private void converXOffset(){
-        lockWidth = 7*(mSGridWidth/3);
-        Log.i(TAG,"lockWidth:"+lockWidth);
-    }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -292,13 +288,9 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
      * @return
      */
     private int ecgConver(int data){
-
-
         //data = (int) (rateLineR*data * ecgYRatio);
 
         return (int) (mHeight/2-rateLineR*mOneValuePX*data);
-
-
     }
 
     public void setRateLineR(double rateLineR){
@@ -315,6 +307,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     //添加一组的数据
     public void addEcgOnGroupData(int[] data){
         //soundPool.play(soundId, 0.8f, 0.8f,1, 0, 1.0f);
+
         for (int i=0;i<data.length;i++){
             ecgOneGroupData.add(data[i]);
         }
@@ -339,16 +332,19 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         int vSNum = (int) (mWidth /mSGridWidth);
 
         //横线个数
-        int hSNum = (int) (mHeight/mSGridWidth-(mHeight/mSGridWidth)%5);
+        //int hSNum = (int) (mHeight/mSGridWidth-(mHeight/mSGridWidth)%5);
+        int hSNum = (int) (mHeight/mSGridWidth);
         mLinePaint.setColor(mSGridColor);
-        float smallGridWidth = getResources().getDimension(R.dimen.x2);
+        float smallGridWidth = getResources().getDimension(R.dimen.x3);
 
-        if (smallGridWidth<1.0){
-            mLinePaint.setStrokeWidth(1);
+        //在分辨率比较低的手机上，线的宽度设为0.5以下可能会画不出来线
+        if (smallGridWidth<2.0){
+            smallGridWidth = 2;
         }
-        else {
-            mLinePaint.setStrokeWidth(smallGridWidth);
-        }
+
+        mLinePaint.setStrokeWidth(smallGridWidth/2);
+
+        Log.i(TAG,"getStrokeWidth():"+mLinePaint.getStrokeWidth());
 
         //画竖线
         for(int i = 0;i<vSNum+1;i++){
@@ -360,30 +356,38 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         //画大网格
-        //竖线个数
-        int vNum = (int) (mWidth / mGridWidth);
         //横线个数
+        int vNum = (int) (mWidth / mGridWidth);
+        //竖线个数
         int hNum = (int) (mHeight / mGridWidth);
 
         mLinePaint.setColor(mGridColor);
-        mLinePaint.setStrokeWidth(smallGridWidth/2);
+        mLinePaint.setStrokeWidth(smallGridWidth);
 
         //画竖线
         for(int i = 0;i<vNum+1;i++){
-            if (i%2==0){
+            /*if (i%2==0){
                 mLinePaint.setStrokeWidth(smallGridWidth);
             }else {
                 mLinePaint.setStrokeWidth(smallGridWidth/2);
-            }
+            }*/
+
+            Log.i(TAG,"mLinePaint.getStrokeWidth():"+mLinePaint.getStrokeWidth());
             canvas.drawLine(i*mGridWidth,0,i*mGridWidth,hNum*mGridWidth,mLinePaint);
         }
+        Log.i(TAG,"hNum:"+hNum);
+        Log.i(TAG,"smallGridWidth:"+smallGridWidth);
+
+
+
         //画横线
         for(int i = 0;i<hNum+1;i++){
-            if (i%2==0){
+            /*if (i%2==0){
                 mLinePaint.setStrokeWidth(smallGridWidth);
             }else {
                 mLinePaint.setStrokeWidth(smallGridWidth/2);
-            }
+            }*/
+            Log.i(TAG,"mLinePaint.getStrokeWidth():"+mLinePaint.getStrokeWidth());
             canvas.drawLine(0,i*mGridWidth,mWidth,i*mGridWidth,mLinePaint);
         }
     }

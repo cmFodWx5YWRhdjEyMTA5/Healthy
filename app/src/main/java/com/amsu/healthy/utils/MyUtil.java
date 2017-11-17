@@ -910,7 +910,7 @@ public class MyUtil {
     }
 
     // 正在运行的
-    public static void KillRunningProcess(Context context) {
+    /*public static void KillRunningProcess(Context context) {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         // 获取正在运行的应用
         List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
@@ -924,7 +924,7 @@ public class MyUtil {
             }
             activityManager.killBackgroundProcesses(ra.processName);
         }
-    }
+    }*/
 
     // 将Json数组解析成相应的映射对象列表
     public static <T> List<T> parseJsonArrayWithGson(JsonBase jsonBase, Class<T[]> clazz) {
@@ -938,10 +938,16 @@ public class MyUtil {
     }
 
     public static <T> JsonBase<T> commonJsonParse(String result, Type type){
-        Gson gson = new Gson();
-        JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
-        if (jsonBase!=null && jsonBase.ret==0) {
-            return gson.fromJson(result, type);
+        JsonBase jsonBase = new JsonBase();
+        try {
+            Gson gson = new Gson();
+            jsonBase = gson.fromJson(result, JsonBase.class);
+            if (jsonBase!=null && jsonBase.ret==0) {
+                return gson.fromJson(result, type);
+            }
+            return jsonBase;
+        }catch (Exception e){
+            Log.i(TAG,"e:"+e);
         }
         return jsonBase;
     }
@@ -1319,20 +1325,18 @@ public class MyUtil {
 
     public static int getStridefreByAccData(byte[] accByteData){
         int[] results = new int[2];
-        DiagnosisNDK.AnalysisPedo(accByteData,accByteData.length,results);
-            /*int state = -1;
-            int pedoCount = -1;
-            DiagnosisNDK.AnalysisPedo(bytes,accDataLength,state,pedoCount);
-            Log.i(TAG,"state:"+state+",pedoCount:"+pedoCount);*/
 
+        int fs = 26;
+        //新版主机步频计算频率为52
+        if (LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_secondGeneration || LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_secondGeneration_our){
+            fs = 52;
+        }
+
+        DiagnosisNDK.AnalysisPedo(accByteData,accByteData.length,results,fs);
         Log.i(TAG,"results: "+results[0]+"  "+results[1]);
 
         //每分钟的步数
-        float data = results[1] * 5.21f;
-        if (LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_secondGeneration || LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_secondGeneration_our){
-            data = data/2;
-        }
-        return (int) data;     //
+        return (int) (results[1] * 5.21f);     //
     }
 
 }

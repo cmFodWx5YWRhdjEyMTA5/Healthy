@@ -235,7 +235,7 @@
 
 
     <string name="current_heart_rate">当前心率</string>
-    <string name="adjust">调整</string>
+    <string name="adjust">增益</string>
     <string name="analysis">分析</string>
 
     <string name="bunny_community">Bunny运动社区</string>

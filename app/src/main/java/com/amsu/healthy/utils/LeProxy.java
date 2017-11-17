@@ -111,6 +111,8 @@ public class LeProxy {
         }
     }
 
+
+
     public void disconnect(String address){
         if (mBleService != null) {
             mBleService.setAutoConnect(address, false);
@@ -348,7 +350,7 @@ public class LeProxy {
         LocalBroadcastManager.getInstance(mBleService).sendBroadcast(intent);
     }
 
-    private void updateBroadcast(String address, BluetoothGattCharacteristic characteristic){
+    public void updateBroadcast(String address, BluetoothGattCharacteristic characteristic){
         Intent intent = new Intent(ACTION_DATA_AVAILABLE);
         intent.putExtra(EXTRA_ADDRESS, address);
         intent.putExtra(EXTRA_UUID, characteristic.getUuid().toString());
@@ -395,32 +397,32 @@ public class LeProxy {
                         }
 
                         if (mClothDeviceType ==Constant.clothDeviceType_secondGeneration || mClothDeviceType ==Constant.clothDeviceType_secondGeneration_our){
-                            UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-                            UUID charUuid_2 = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
-                            UUID charUuid_3 = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
-                            UUID charUuid_4 = UUID.fromString("6e400004-b5a3-f393-e0a9-e50e24dcca9e");
-                            UUID charUuid_5 = UUID.fromString("6e400005-b5a3-f393-e0a9-e50e24dcca9e");
-                            UUID charUuid_6 = UUID.fromString("6e400006-b5a3-f393-e0a9-e50e24dcca9e");
+                            UUID serUuid = UUID.fromString(Constant.readSecondGenerationInfoSerUuid);
+                            UUID charUuid_2 = UUID.fromString(Constant.sendReceiveSecondGenerationClothCharUuid_1);
+                            UUID charUuid_3 = UUID.fromString(Constant.sendReceiveSecondGenerationClothCharUuid_1);
+                            UUID charUuid_4 = UUID.fromString(Constant.readSecondGenerationClothECGCharUuid);
+                            UUID charUuid_5 = UUID.fromString(Constant.readSecondGenerationClothACCCharUuid);
+                            UUID charUuid_6 = UUID.fromString(Constant.readSecondGenerationClothHeartRateCharUuid);
 
                             try {
                                 boolean success_2 = enableNotification(address, serUuid, charUuid_2);
                                 Log.i(TAG, "success_2: " + success_2);
 
-                                Thread.sleep(1000);
+                                Thread.sleep(100);
 
                                 boolean success_3 = enableNotification(address, serUuid, charUuid_3);
                                 Log.i(TAG, "success_3: " + success_3);
 
 
-                                Thread.sleep(1000);
+                                Thread.sleep(100);
                                 boolean success_4 = enableNotification(address, serUuid, charUuid_4);
                                 Log.i(TAG, "success_4: " + success_4);
 
-                                Thread.sleep(1000);
+                                Thread.sleep(100);
                                 boolean success_5 = enableNotification(address, serUuid, charUuid_5);
                                 Log.i(TAG, "success_5: " + success_5);
 
-                                Thread.sleep(1000);
+                                Thread.sleep(100);
                                 boolean success_6 = enableNotification(address, serUuid, charUuid_6);
                                 Log.i(TAG, "success_6: " + success_6);
                             } catch (InterruptedException e) {

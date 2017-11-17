@@ -83,7 +83,7 @@ public class HealthyPlanActivity extends BaseActivity {
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
         Date date = new Date();
-        date.setMonth(date.getMonth());
+        date.setDate(date.getDate()-1);
         String formatTime = MyUtil.getPaceFormatTime(date);
         params.addBodyParameter("date",formatTime);
         params.addBodyParameter("page","1");
@@ -116,7 +116,6 @@ public class HealthyPlanActivity extends BaseActivity {
         Intent intent = new Intent(HealthyPlanActivity.this, AddHeathyPlanActivity.class);
         startActivityForResult(intent,120);
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

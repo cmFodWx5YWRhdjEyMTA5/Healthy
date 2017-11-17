@@ -83,7 +83,7 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
                 String title = et_addplan_title.getText().toString();
                 String content = et_addplan_content.getText().toString();
                 Log.i(TAG,"time:"+time);
-                if (!MyUtil.isEmpty(title) && !MyUtil.isEmpty(content)){
+                if (!MyUtil.isEmpty(title.trim()) && !MyUtil.isEmpty(content.trim())){
                     final HealthyPlan healthyPlan = new HealthyPlan(title,content,time);
                     MyUtil.showDialog("正在上传",AddHeathyPlanActivity.this);
                     HttpUtils httpUtils = new HttpUtils();

@@ -95,9 +95,12 @@ public class DiagnosisNDK {
 	 * 参数3：    out  arrayout  分析得出的结果，    arrayout[0] 返回状态     0静止，1走路，2跑步     arrayout[1] 返回步数
 	 * 返回值：                     void
 	 */
-	public native static void getPedo(byte[] source, int len, int[] arrayout);
+	//新主机传52，老主机26
+	public native static void getPedo(byte[] source, int len, int[] arrayout, int fs);
 
-	public native static void getPedo(byte[] source, int len, int state, int pedoCount );
+
+
+	public native static void getPedo(byte[] source, int len, int state, int pedoCount);
 
 
 	
@@ -117,8 +120,8 @@ public class DiagnosisNDK {
     	return getEcgHeart(source,len, rate,34);
     }
     
-    public static void AnalysisPedo(byte[] source, int len, int[] aout) {
-    	getPedo(source, len, aout);
+    public static void AnalysisPedo(byte[] source, int len, int[] aout, int fs) {
+    	getPedo(source, len, aout,fs);
     	Log.d("before ndk's c++", "aout[0]=" + aout[0] + " aout[1]=" + aout[1]);
     }
 

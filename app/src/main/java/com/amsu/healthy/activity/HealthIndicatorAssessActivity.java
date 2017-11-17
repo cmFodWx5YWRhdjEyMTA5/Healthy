@@ -1,29 +1,18 @@
 package com.amsu.healthy.activity;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Intent;
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.bean.Device;
-import com.amsu.healthy.bean.FullReport;
-import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.WeekReport;
@@ -31,7 +20,6 @@ import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.RadarView;
-import com.amsu.healthy.view.SelectDialog;
 import com.google.gson.Gson;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -440,7 +428,6 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                 scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(0,this);
             }
 
-
             IndicatorAssess scoreBeat = null;
             List<WeekReport.WeekReportResult.Zaoboloubo> zaoboloubo = weekReport.errDesc.zaoboloubo;
             if (zaoboloubo!=null && zaoboloubo.size()>0){
@@ -655,7 +642,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                         tv_item_value.setText("--");
                     }
                     else {
-                        tv_item_value.setText(indicatorAssess.getValue()+"("+differenceValueString+")");
+                        tv_item_value.setText(indicatorAssess.getPercent()+"("+differenceValueString+")");
                     }
                 }
                 else {

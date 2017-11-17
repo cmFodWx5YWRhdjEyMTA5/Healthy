@@ -111,6 +111,7 @@ public class HealthyDataActivity extends BaseActivity {
     private EcgFilterUtil_1 ecgFilterUtil_1;
     private int mCclothDeviceType;
     private LeProxy mLeProxy;
+    private CommunicateToBleService mCommunicateToBleService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,6 +217,7 @@ public class HealthyDataActivity extends BaseActivity {
         }
 
         mLeProxy = LeProxy.getInstance();
+        mCommunicateToBleService = CommunicateToBleService.getInstance();
         mCclothDeviceType = mLeProxy.getClothDeviceType();
         Log.i(TAG,"mCclothDeviceType:"+mCclothDeviceType);
 
@@ -378,7 +380,6 @@ public class HealthyDataActivity extends BaseActivity {
             }
         }*/
         else {
-
             if (mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration || mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration_our){
                 String[] split = hexData.split(" ");
                 if (split.length==20){
@@ -397,23 +398,10 @@ public class HealthyDataActivity extends BaseActivity {
 
 
                     dealWithEcgData();
+                    mIsHaveEcgDataReceived = true;
                     remainEcgPackageData = null;
 
 
-                }
-                else  if (split.length==1){
-                    int curHeartRate = Integer.parseInt(split[0] , 16);
-                    //tv_healthydata_rate.setText(curHeartRate+"");
-
-                    if (curHeartRate!=mPreHeartRate){
-                        //心率不一样则改变灯的闪烁状态
-                        String data  = "4238FF05";  //导联脱落
-                        byte[] bytes = DataUtil.hexToByteArray(data);
-                        //boolean send = mLeProxy.send(mConnectedAddress, Constant.clothNewSerUuid, Constant.clothNewSendReciveDataCharUuid, bytes, false);
-                        //Log.i(TAG,"send:"+send);
-                    }
-
-                    mPreHeartRate = curHeartRate;
                 }
             }
         }
@@ -442,7 +430,7 @@ public class HealthyDataActivity extends BaseActivity {
         }
         Log.i(TAG,"滤波前心电:"+intString +"  "+isFilterFinished);
 
-        if (!isFilterFinished){  //上次滤波没有结束,睡5
+        /*if (!isFilterFinished){  //上次滤波没有结束,睡5
             Log.i(TAG,"等待");
             while (true){
                 try {
@@ -460,7 +448,9 @@ public class HealthyDataActivity extends BaseActivity {
         }
         else {
             writeEcgToFileAndFilter();
-        }
+        }*/
+
+        writeEcgToFileAndFilter();
 
 
     }
@@ -539,6 +529,10 @@ public class HealthyDataActivity extends BaseActivity {
             mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
             Log.i(TAG,"mCurrentHeartRate:"+ mCurrentHeartRate);
             //calcuEcgRate = new int[calGroupCalcuLength*10];
+
+            if (mCommunicateToBleService.mIsDeviceDroped){
+                mCurrentHeartRate = 0;
+            }
 
             mHandler.sendEmptyMessage(1);
 

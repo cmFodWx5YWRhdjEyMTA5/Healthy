@@ -12,6 +12,7 @@ import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.RequestParams;
@@ -91,13 +92,19 @@ public class LookupHealthPlanActivity extends BaseActivity {
                     Gson gson = new Gson();
                     JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
                     if (jsonBase.getRet()==0){
-                        HealthyPlan jsonHealthy = gson.fromJson(String.valueOf(jsonBase.errDesc), HealthyPlan.class);
+                        //HealthyPlan jsonHealthy = gson.fromJson(String.valueOf(jsonBase.errDesc), HealthyPlan.class);
+                        JsonBase<HealthyPlan> planJsonBase  = MyUtil.commonJsonParse(result, new TypeToken<JsonBase<HealthyPlan>>() {}.getType());
 
-                        mHealthyPlan = jsonHealthy;
-                        mHealthyPlan.setId(mPlanId);
-                        tv_addplan_title.setText(mHealthyPlan.getTitle());
-                        tv_addplan_content.setText(mHealthyPlan.getContent());
-                        tv_addplan_time.setText(mHealthyPlan.getDate());
+                        if (planJsonBase!=null){
+                            mHealthyPlan = planJsonBase.errDesc;
+                            mHealthyPlan.setId(mPlanId);
+                            tv_addplan_title.setText(mHealthyPlan.getTitle());
+                            tv_addplan_content.setText(mHealthyPlan.getContent());
+                            tv_addplan_time.setText(mHealthyPlan.getDate());
+                        }
+                        else {
+                            MyUtil.showToask(LookupHealthPlanActivity.this,"数据解析出错");
+                        }
                     }
                 }
 

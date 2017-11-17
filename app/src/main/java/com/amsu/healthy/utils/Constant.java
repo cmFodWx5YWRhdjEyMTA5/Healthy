@@ -177,7 +177,12 @@ public class Constant {
     public static final String readInsoleDeviceInfoHardwareRevisionCharUuid = "00002a27-0000-1000-8000-00805f9b34fb";  //Hardware Revision 0x2A27
     public static final String readInsoleDeviceInfoSoftwareRevisionCharUuid = "00002a28-0000-1000-8000-00805f9b34fb";  //Software Revision 0x2A28
 
-
+    public static final String readSecondGenerationInfoSerUuid = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+    public static final String sendReceiveSecondGenerationClothCharUuid_1 = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+    public static final String sendReceiveSecondGenerationClothCharUuid_2 = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+    public static final String readSecondGenerationClothECGCharUuid = "6e400004-b5a3-f393-e0a9-e50e24dcca9e";
+    public static final String readSecondGenerationClothACCCharUuid = "6e400005-b5a3-f393-e0a9-e50e24dcca9e";
+    public static final String readSecondGenerationClothHeartRateCharUuid = "6e400006-b5a3-f393-e0a9-e50e24dcca9e";
 
 
     public static final int saveDataTOLocalTimeSpanSecond = 10;  //数据持久化时间间隔 1分钟

@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -76,6 +77,7 @@ public class CommunicateToBleService extends Service {
     public static EcgFilterUtil_1 ecgFilterUtil_1;
     private MyApplication mApplication;
     private static Map<String, Device> mInsoleDeviceBatteryInfos;
+    private static CommunicateToBleService mInstance;
 
     public CommunicateToBleService() {
 
@@ -99,6 +101,13 @@ public class CommunicateToBleService extends Service {
     public void onCreate() {
         Log.i(TAG,"onCreate");
         super.onCreate();
+    }
+
+    public static CommunicateToBleService getInstance(){
+        if (mInstance == null) {
+            mInstance = new CommunicateToBleService();
+        }
+        return mInstance;
     }
 
     @Override
@@ -192,10 +201,9 @@ public class CommunicateToBleService extends Service {
 
         checkDeviceCharge();
 
-        int clothDeviceType = mLeProxy.getClothDeviceType();
-        if (clothDeviceType == Constant.clothDeviceType_encrypt || clothDeviceType == Constant.clothDeviceType_noEncrypt){  //旧版衣服，数据加密时需要发送同步指令
-            sendDeviceSynOrderToBlueTooth();  //当设备连接成功后才开始发送同步指令
-        }
+
+
+        sendDeviceSynOrderToBlueTooth();  //当设备连接成功后才开始发送同步指令
 
 
         /*new Thread(){
@@ -629,6 +637,13 @@ public class CommunicateToBleService extends Service {
         else if (hexData.length() == 50 || hexData.length()==11) { //不加密衣服版本信息（不完整，需要通过发命令再获取）
             mLeProxy.setmClothDeviceType(Constant.clothDeviceType_noEncrypt);
         }
+        else if (hexData.length()==59){
+            if (!hexData.equals("00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00") && (mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration || mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration_our)){
+                //新版衣服，不是导联脱落状态
+                mIsDeviceDroped = false;
+            }
+
+        }
         else if (hexData.length() > 40) {
             if (!mIsDataStart){
                 mIsDataStart = true;
@@ -646,6 +661,7 @@ public class CommunicateToBleService extends Service {
         else if (hexData.length()==2 && MyApplication.deivceType==Constant.sportType_Cloth) {  // 3E  新版衣服心率
 
             int intValue = Integer.parseInt(hexData , 16);
+            Log.i(TAG,"hexData:"+hexData);
             Log.i(TAG,"intValue:"+intValue);
             if (uuid.equals(Constant.readInsoleBatteryCharUuid)){  //新版衣服电量
                 Log.i(TAG,"clothCurrBatteryPowerPercent："+intValue);
@@ -653,8 +669,22 @@ public class CommunicateToBleService extends Service {
                 calCuelectricVPercentIntent.putExtra("clothCurrBatteryPowerPercent",intValue);
                 sendBroadcast(calCuelectricVPercentIntent);
             }
+            else if (uuid.equals(Constant.readSecondGenerationClothECGCharUuid)) {  //新版衣服吊链脱落：会发一个字节 00
+                if (hexData.equals("00")){
+                    mIsDeviceDroped = true;
+
+                    BluetoothGattCharacteristic bluetoothGattCharacteristic = new BluetoothGattCharacteristic(UUID.fromString(Constant.readSecondGenerationClothECGCharUuid),
+                            BluetoothGattCharacteristic.PROPERTY_NOTIFY,
+                            BluetoothGattCharacteristic.PERMISSION_READ);
+
+                    String dealutValue="0000000000000000000000000000000000000000";
+                    bluetoothGattCharacteristic.setValue(DataUtil.hexToByteArray(dealutValue));
+                    mLeProxy.updateBroadcast(address,bluetoothGattCharacteristic);
+                    Log.i(TAG,"广播");
+                }
+            }
             else {
-                if (intValue!=mPreHeartRate && intValue!=0){
+                if (intValue!=mPreHeartRate && intValue!=0 && !mIsDeviceDroped){
                     //心率不一样则改变灯的闪烁状态,  42382B01FF(1号灯常亮)，42382B0100(1号灯关闭)
                     int maxRate = 220- HealthyIndexUtil.getUserAge();
                     String data  = "";
@@ -668,11 +698,12 @@ public class CommunicateToBleService extends Service {
                         data  = "42382B01FF";  //导联脱落
                     }
 
-                    if (!MyUtil.isEmpty(data) && !data.equals(mPreControlLightOrder)){
+                    //if (!MyUtil.isEmpty(data) && !data.equals(mPreControlLightOrder)){
+                    if (!MyUtil.isEmpty(data)){
                         Log.i(TAG,"data:"+data);
                         byte[] bytes = DataUtil.hexToByteArray(data);
-                        UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-                        UUID charUuid = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
+                        UUID serUuid = UUID.fromString(Constant.readSecondGenerationInfoSerUuid);
+                        UUID charUuid = UUID.fromString(Constant.sendReceiveSecondGenerationClothCharUuid_1);
                         boolean send = mLeProxy.send(address, serUuid, charUuid, bytes, false);
                         Log.i(TAG,"send:"+send);
                     }
@@ -680,18 +711,18 @@ public class CommunicateToBleService extends Service {
                 }
                 mPreHeartRate = intValue;
             }
+
         }
 
     }
 
-    private int mPreHeartRate;
+    private int mPreHeartRate = -1;
     private String mPreControlLightOrder;
-
-
 
     private boolean mIsJumpTOCorrected;
     private boolean isShowAlertDialog;
     private int isNeedCorrectDevice = -1;
+    public boolean mIsDeviceDroped = false;
 
     private void showUploadOffLineData(Activity activity){
         if (!isShowAlertDialog){
@@ -828,22 +859,26 @@ public class CommunicateToBleService extends Service {
         MyTimeTask.startTimeRiseTimerTask( 1000, new MyTimeTask.OnTimeChangeAtScendListener() {
             @Override
             public void onTimeChange(Date date) {
-                if (mIsConnectted && mIsDataStart && MyApplication.isNeedSynMsgToDevice){
-                    int maxRate = 220- HealthyIndexUtil.getUserAge();
-                    String hrateIndexHex = "02";
-                    if (MyApplication.currentHeartRate <=maxRate*0.75){
-                        hrateIndexHex = "02";
+                int clothDeviceType = mLeProxy.getClothDeviceType();
+                if (clothDeviceType == Constant.clothDeviceType_encrypt || clothDeviceType == Constant.clothDeviceType_noEncrypt){  //旧版衣服，数据加密时需要发送同步指令
+                    if (mIsConnectted && mIsDataStart && MyApplication.isNeedSynMsgToDevice){
+                        int maxRate = 220- HealthyIndexUtil.getUserAge();
+                        String hrateIndexHex = "02";
+                        if (MyApplication.currentHeartRate <=maxRate*0.75){
+                            hrateIndexHex = "02";
+                        }
+                        else if (maxRate*0.75<MyApplication.currentHeartRate && MyApplication.currentHeartRate<=maxRate*0.95){
+                            hrateIndexHex = "01";
+                        }
+                        else if (maxRate*0.95<MyApplication.currentHeartRate ){
+                            hrateIndexHex = "00";
+                        }
+                        String hexSynOrder = "FF070B"+HealthyDataActivity.getDataHexStringHaveScend()+hrateIndexHex+"16";
+                        boolean send = mLeProxy.send(clothDeviceConnecedMac, DataUtil.hexToByteArray(hexSynOrder), true);  //有可能会抛出android.os.DeadObjectException
+                        Log.i(TAG,"同步指令connecMac:"+ clothDeviceConnecedMac +",hrateIndexHex:"+hrateIndexHex+"  send:"+send);
                     }
-                    else if (maxRate*0.75<MyApplication.currentHeartRate && MyApplication.currentHeartRate<=maxRate*0.95){
-                        hrateIndexHex = "01";
-                    }
-                    else if (maxRate*0.95<MyApplication.currentHeartRate ){
-                        hrateIndexHex = "00";
-                    }
-                    String hexSynOrder = "FF070B"+HealthyDataActivity.getDataHexStringHaveScend()+hrateIndexHex+"16";
-                    boolean send = mLeProxy.send(clothDeviceConnecedMac, DataUtil.hexToByteArray(hexSynOrder), true);  //有可能会抛出android.os.DeadObjectException
-                    Log.i(TAG,"同步指令connecMac:"+ clothDeviceConnecedMac +",hrateIndexHex:"+hrateIndexHex+"  send:"+send);
                 }
+
             }
         });
     }

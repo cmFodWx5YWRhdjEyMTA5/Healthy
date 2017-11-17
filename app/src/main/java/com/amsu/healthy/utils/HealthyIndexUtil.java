@@ -382,6 +382,10 @@ public class HealthyIndexUtil {
             suggestion = context.getResources().getString(R.string.rv_suggetstion_lev5);
             state = "差";
         }
+
+        if (scoreHRV>100){
+            scoreHRV = 100;
+        }
         Log.i(TAG,"hrv:"+hrv+",scoreHRV:"+scoreHRV);
 
         IndicatorAssess indicatorAssess = new IndicatorAssess(hrv,scoreHRV,context.getResources().getString(R.string.indicator_for_resistance_to_fatigue),suggestion,state);
