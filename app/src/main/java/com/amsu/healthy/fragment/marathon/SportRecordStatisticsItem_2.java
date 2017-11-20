@@ -40,17 +40,15 @@ public class SportRecordStatisticsItem_2 extends Fragment {
 
     private void initView() {
         hv_HeightCurveView = (HeightCurveView) mView.findViewById(R.id.hv_HeightCurveView);
-        setData(stepData,time);
+        setData(stepData);
     }
 
     int[] stepData;
-    int time;
 
-    public void setData(int[] stepData, int time) {
+    public void setData(int[] stepData) {
         this.stepData = stepData;
-        this.time = time;
         if (hv_HeightCurveView != null) {
-            hv_HeightCurveView.setData(stepData, time, HeightCurveView.LINETYPE_HEART);
+            hv_HeightCurveView.setData(stepData, 12 * 60, HeightCurveView.LINETYPE_HEART);
         }
     }
 }

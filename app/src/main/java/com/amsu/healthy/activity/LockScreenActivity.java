@@ -171,6 +171,9 @@ public class LockScreenActivity extends BaseActivity {
                 case 1:
                     if (enduranceTest) {
                         tv_run_time.setText(UStringUtil.isNullOrEmpty(runningDate) ? "——" : runningDate);
+                        if (!UStringUtil.isNullOrEmpty(runningDate) && runningDate.equals("0:00")) {
+                            LockScreenActivity.this.finish();
+                        }
                     } else {
                         tv_run_time.setText(mSpecialFormatTime);
                     }
