@@ -324,7 +324,7 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
             String formatSpeed = MyUtil.getFormatSpeed(distance, duration);
             tv_sport_speed.setText(formatSpeed);
 
-            int time = (int) (Math.ceil(mUploadRecord.time/60));
+            int time = (int) (Math.ceil(mUploadRecord.time/60))+1;
 
             if (mUploadRecord.hr!=null && mUploadRecord.hr.size()>0){//心率
                 heartData = MyUtil.listToIntArray(mUploadRecord.hr);
@@ -513,7 +513,7 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
                 }.getType());*/
                 List<ParcelableDoubleList> fromJson = mUploadRecord.latitudeLongitude;
                 Log.i(TAG,"fromJson:"+fromJson);
-                if (fromJson!=null && fromJson.size()>0){
+                if (fromJson!=null && fromJson.size()>=5){
                     try {
                         com.google.android.gms.maps.model.LatLng startLatLng =
                                 new com.google.android.gms.maps.model.LatLng(fromJson.get(0).get(0),fromJson.get(0).get(1));
@@ -547,7 +547,9 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
                         //曾经有异常
                         Log.i(TAG,"e:"+e);
                     }
-
+                }
+                else {
+                    mv_finish_googlemap.setVisibility(View.GONE);
                 }
             }
         }
@@ -614,7 +616,13 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
             Log.i(TAG,"latLngList.size()" + ":"+latLngList.size());
             //不纠偏
             float mapTraceDistance = Util.getDistanceByLatLng(latLngList);
-            addOriginTrace(latLngList.get(0), latLngList.get(latLngList.size()-1), latLngList,mapTraceDistance);
+            if (latLngList.size()>=5){
+                addOriginTrace(latLngList.get(0), latLngList.get(latLngList.size()-1), latLngList,mapTraceDistance);
+            }
+            else {
+                mv_finish_map.setVisibility(View.GONE);
+            }
+
 
             //时间
             /*int duration = (int) Float.parseFloat(mUploadRecord.time);

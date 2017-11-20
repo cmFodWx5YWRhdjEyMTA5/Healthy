@@ -182,6 +182,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private String mCurAppClientID;
     private String mCurBrowserClientID;*/
     private boolean isMarathonSportType;
+    private LeProxy mLeProxy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -278,6 +279,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         mIsOutDoor = getIntent().getBooleanExtra(Constant.mIsOutDoor, false);
         Log.i(TAG,"mIsOutDoor:"+mIsOutDoor);
+        mLeProxy = LeProxy.getInstance();
+
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
 
@@ -288,6 +291,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             restoreLastRecord();
         }
         startRunning();
+
     }
 
     private void restoreLastRecord() {
@@ -647,23 +651,64 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     private void dealwithLebDataChange(String hexData) {
         //Log.i(TAG,"hexData:"+hexData);
-        if (hexData.startsWith("FF 83")) {
-            //心电数据
-            //Log.i(TAG,"心电hexData:"+hexData);
-            //FF 83 0F FF FF FF FF FF FF FF FF FF FF 00 16  长度44
-            if (hexData.length()==44){
-                dealWithEcgData(hexData);
-                isHaveDataTransfer = true;
-                mIsDataStart = true;
-            }
-        } else if (hexData.startsWith("FF 86")) {
-            //加速度数据
-            //Log.i(TAG,"加速度hexData:"+hexData);
-            //FF 86 11 00 A4 06 AC 1E 9D 00 A4 06 AC 1E 9D 11 16   长度50
-            if (hexData.length()==50){
-                dealWithAccelerationgData(hexData);
+        if (LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_encrypt || LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_noEncrypt) {
+            if (hexData.startsWith("FF 83")) {
+                //心电数据
+                //Log.i(TAG,"心电hexData:"+hexData);
+                //FF 83 0F FF FF FF FF FF FF FF FF FF FF 00 16  长度44
+                if (hexData.length()==44){
+                    ECGUtil.geIntEcgaArr(hexData, " ", 3, oneGroupLength,ecgOneGroupDataInts); //一次的数据，10位
+                    dealWithEcgData();
+                    isHaveDataTransfer = true;
+                    mIsDataStart = true;
+
+                }
+            } else if (hexData.startsWith("FF 86")) {
+                //加速度数据
+                //Log.i(TAG,"加速度hexData:"+hexData);
+                //FF 86 11 00 A4 06 AC 1E 9D 00 A4 06 AC 1E 9D 11 16   长度50
+                if (hexData.length()==50){
+                    ECGUtil.geIntEcgaArr(hexData, " ", 3, accOneGroupLength, accOneGroupDataInts); //一次的数据，12位
+                    dealWithAccelerationgData();
+                }
             }
         }
+        if (mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration || mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration_our){
+            String[] split = hexData.split(" ");
+            if (split.length==20){
+                for (int i=0;i<split.length/2;i++){
+                    short i1 = (short) Integer.parseInt(split[2 * i] + split[2 * i + 1], 16);
+                    //Log.i(TAG,""+i1);
+                    if (mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration){
+                        ecgOneGroupDataInts[i] = i1 /256+120;
+                    }
+                    else {
+                        ecgOneGroupDataInts[i] = i1 /16;
+                    }
+                    //Log.i(TAG,"ecgInts[i]:"+ecgInts[i]);
+                }
+                dealWithEcgData();
+            }
+            else  if (split.length==1){
+                int curHeartRate = Integer.parseInt(split[0] , 16);
+                //tv_healthydata_rate.setText(curHeartRate+"");
+
+                if (curHeartRate!=mPreHeartRate){
+                    //心率不一样则改变灯的闪烁状态
+                    String data  = "4238FF01";  //导联脱落
+                    byte[] bytes = DataUtil.hexToByteArray(data);
+                    //boolean send = mLeProxy.send(mConnectedAddress, Constant.clothNewSerUuid, Constant.clothNewSendReciveDataCharUuid, bytes, false);
+                    //Log.i(TAG,"send:"+send);
+                }
+
+                mPreHeartRate = curHeartRate;
+            }
+            else if (split.length==12){
+                ECGUtil.geIntEcgaArr(hexData, " ", 0, accOneGroupLength, accOneGroupDataInts); //一次的数据，12位
+                dealWithAccelerationgData();
+            }
+        }
+
     }
 
     int [] ecgOneGroupDataInts = new int[oneGroupLength];
@@ -671,9 +716,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private boolean isNeedUpdateHeartRate = false;
 
     //处理心电数据
-    private void dealWithEcgData(String hexData) {
+    private void dealWithEcgData() {
         isNeedUpdateHeartRate = false;
-        ECGUtil.geIntEcgaArr(hexData, " ", 3, oneGroupLength, ecgOneGroupDataInts); //一次的数据，10位
 
         if (mIsRunning) {
             writeEcgDataToBinaryFile(ecgOneGroupDataInts);
@@ -907,9 +951,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     byte[] accByteData = new byte[accDataLength];
     private int accCalcuDataIndex = 0;
     //处理加速度数据
-    private void dealWithAccelerationgData(String hexData) {
+    private void dealWithAccelerationgData() {
         if (!mIsRunning)return;
-        ECGUtil.geIntEcgaArr(hexData, " ", 3, accOneGroupLength, accOneGroupDataInts); //一次的数据，12位
 
         if (mIsRunning) {
             writeAccDataToBinaryFile(accOneGroupDataInts);
@@ -923,20 +966,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
         else {
             //计算
-            /*byte[] bytes = new byte[accDataLength];
-            for (int i=0;i<accData.size();i++){
-                bytes[i] = (byte)(int)accData.get(i);
-            }*/
-            int[] results = new int[2];
-            DiagnosisNDK.AnalysisPedo(accByteData,accDataLength,results);
-            /*int state = -1;
-            int pedoCount = -1;
-            DiagnosisNDK.AnalysisPedo(bytes,accDataLength,state,pedoCount);
-            Log.i(TAG,"state:"+state+",pedoCount:"+pedoCount);*/
-
-            Log.i(TAG,"results: "+results[0]+"  "+results[1]);
-            //每分钟的步数
-            mTempStridefre = (int) (results[1] * 5.21);
+            mTempStridefre = MyUtil.getStridefreByAccData(accByteData);
+            Log.i(TAG,"mTempStridefre: "+mTempStridefre);
             mStridefreData.add(mTempStridefre);
             mHandler.sendEmptyMessage(2);
 
@@ -945,7 +976,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 accByteData[accCalcuDataIndex++] = (byte)i;
             }
         }
-
     }
 
 

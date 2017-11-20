@@ -1,6 +1,5 @@
 package com.amsu.healthy.activity;
 
-import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -38,7 +37,6 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -397,6 +395,10 @@ public class MyDeviceActivity extends BaseActivity {
                         MyUtil.saveDeviceToSP(device,Constant.sportType_Cloth);
                         TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(position).findViewById(R.id.tv_item_state);
                         tv_item_state.setText(getResources().getString(R.string.bound));
+
+                        LeProxy.getInstance().setmClothDeviceType(LeProxy.getInstance().getClothDeviceTypeBySP());
+
+                        MyUtil.putIntValueFromSP(Constant.mClothDeviceType,-1);
 
                         if (iSNeedUnbind){
                             if (MyApplication.isHaveDeviceConnectted){

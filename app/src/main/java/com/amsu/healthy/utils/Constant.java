@@ -132,6 +132,15 @@ public class Constant {
      * 鞋垫/步态
      */
     public static final int sportType_Insole = 2;
+
+
+    public static final int clothDeviceType_encrypt = 1;  //加密
+    public static final int clothDeviceType_noEncrypt = 2;  //不加密
+    public static final int clothDeviceType_secondGeneration = 3;  //二代衣服,神念
+    public static final int clothDeviceType_secondGeneration_our = 4;  //二代衣服，自己
+
+
+
     public static boolean enduranceTest;
 
     public static String uploadRecordDefaultString = "0";
@@ -168,12 +177,21 @@ public class Constant {
     public static final String readInsoleDeviceInfoHardwareRevisionCharUuid = "00002a27-0000-1000-8000-00805f9b34fb";  //Hardware Revision 0x2A27
     public static final String readInsoleDeviceInfoSoftwareRevisionCharUuid = "00002a28-0000-1000-8000-00805f9b34fb";  //Software Revision 0x2A28
 
+    public static final String readSecondGenerationInfoSerUuid = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+    public static final String sendReceiveSecondGenerationClothCharUuid_1 = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+    public static final String sendReceiveSecondGenerationClothCharUuid_2 = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+    public static final String readSecondGenerationClothECGCharUuid = "6e400004-b5a3-f393-e0a9-e50e24dcca9e";
+    public static final String readSecondGenerationClothACCCharUuid = "6e400005-b5a3-f393-e0a9-e50e24dcca9e";
+    public static final String readSecondGenerationClothHeartRateCharUuid = "6e400006-b5a3-f393-e0a9-e50e24dcca9e";
+
 
     public static final int saveDataTOLocalTimeSpanSecond = 10;  //数据持久化时间间隔 1分钟
 
     public static final String insoleDeviceBatteryInfos = "insoleDeviceBatteryInfos";
 
     public static boolean isInnerUpdateAllowed = true;  //是否开启应用内部更新，谷歌应用市场不允许更新
+
+    public static final String mClothDeviceType = "mClothDeviceType";
 
 
 

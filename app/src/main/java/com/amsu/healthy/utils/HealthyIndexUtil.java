@@ -382,6 +382,10 @@ public class HealthyIndexUtil {
             suggestion = context.getResources().getString(R.string.rv_suggetstion_lev5);
             state = "差";
         }
+
+        if (scoreHRV>100){
+            scoreHRV = 100;
+        }
         Log.i(TAG,"hrv:"+hrv+",scoreHRV:"+scoreHRV);
 
         IndicatorAssess indicatorAssess = new IndicatorAssess(hrv,scoreHRV,context.getResources().getString(R.string.indicator_for_resistance_to_fatigue),suggestion,state);
@@ -899,6 +903,7 @@ public class HealthyIndexUtil {
                     scoreBeat.getPercent()*0.125+scoreReserveHealth.getPercent()*0.25);
         }
         return 0;
+
     }
 
     //情绪指数（精神紧张或放松状态）LF/HF   SDNN:80-200

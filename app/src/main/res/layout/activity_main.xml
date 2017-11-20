@@ -280,7 +280,7 @@
                 android:id="@+id/iv_main_warring"
                 android:layout_width="@dimen/x72"
                 android:layout_height="@dimen/x72"
-                android:src="@drawable/healthy_green"
+                android:src="@drawable/jkzb_k"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/x60"
                 />

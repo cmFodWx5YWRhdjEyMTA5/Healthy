@@ -17,8 +17,9 @@ import com.amsu.healthy.bean.ParcelableDoubleList;
 import com.amsu.healthy.bean.ScoreInfo;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.bean.User;
+import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.EcgFilterUtil;
+import com.amsu.healthy.utils.EcgFilterUtil_1;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.OffLineDbAdapter;
@@ -45,6 +46,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -95,8 +97,11 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         //分析过程有可能耗时，在子线程中进行
         final String ecgLocalFileName = intent.getStringExtra(Constant.ecgLocalFileName); ///storage/emulated/0
         //final String ecgLocalFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth/20171030183831.ecg"; ///storage/emulated/0
+        //final String ecgLocalFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20171109152200.ecg"; ///storage/emulated/0
+
         Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
         Log.i(TAG,"integerArrayListExtra: "+integerArrayListExtra);
+
         if (!MyUtil.isEmpty(ecgLocalFileName)) {
             //心电数据 or 心电+运动
             final File file = new File(ecgLocalFileName);
@@ -130,14 +135,18 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                             int[] calcuEcgRate = new int[HealthyDataActivity.calGroupCalcuLength *HealthyDataActivity.oneGroupLength];
                             int heartCount = ecgDataList.size() / calcuEcgRate.length;
 
+                            EcgFilterUtil_1 ecgFilterUtil_1 = CommunicateToBleService.ecgFilterUtil_1;
+
                             for (int j=0;j<heartCount;j++){
                                 for (int i=0;i<calcuEcgRate.length;i++){
                                     calcuEcgRate[i] = ecgDataList.get(j*calcuEcgRate.length+i);
+                                    calcuEcgRate[i] = ecgFilterUtil_1.miniEcgFilterLp(ecgFilterUtil_1.miniEcgFilterHp (ecgFilterUtil_1.NotchPowerLine(calcuEcgRate[i], 1)));  //滤波
                                 }
-                                int mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
-                                //Log.i(TAG,"mCurrentHeartRate:"+ mCurrentHeartRate);
-                                heartDataList_static.add(mCurrentHeartRate);
 
+                                Log.i(TAG,"计算数据calcuEcgRate"+ Arrays.toString(calcuEcgRate));
+                                int mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+                                Log.i(TAG,"mCurrentHeartRate:"+ mCurrentHeartRate);
+                                heartDataList_static.add(mCurrentHeartRate);
 
                                 float time =  6.6f/60f;
                                 //float time = (float) (timeLong / (1000 * 60.0));
@@ -158,15 +167,17 @@ public class HeartRateAnalysisActivity extends BaseActivity {
 
                             //计算加速度数据
                             String accLocalFileName = intent.getStringExtra(Constant.accLocalFileName);
+                            //String accLocalFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20171109152200.acc"; ///storage/emulated/0
                             //Log.i(TAG,"accLocalFileName:"+ accLocalFileName);
                             if (!MyUtil.isEmpty(accLocalFileName)){
                                 File file = new File(accLocalFileName);
                                 if (file.exists()){
                                     List<Integer> accDataList = readIntArrayDataFromFile(file);
-                                    //Log.i(TAG,"accDataList.size():"+ accDataList.size());
+                                    Log.i(TAG,"accDataList:"+accDataList.toString());
+                                    Log.i(TAG,"accDataList.size():"+ accDataList.size());
                                     stridefreData = calcuAccStridefreData(accDataList);
-                                    //Log.i(TAG,"stridefreData.size():"+stridefreData.size());
-                                    //Log.i(TAG,"stridefreData:"+stridefreData);
+                                    Log.i(TAG,"stridefreData.size():"+stridefreData.size());
+                                    Log.i(TAG,"stridefreData:"+stridefreData);
 
                                     /*for (int i:stridefreData){
                                         Log.i(TAG,"stridefreData:"+i);
@@ -174,7 +185,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
 
                                 }
                             }
-
                         }
 
                         Log.i(TAG,"ecgDataList.size()"+ecgDataList.size());
@@ -216,12 +226,18 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             for (int i=0;i<calcuEcgRate.length;i++){
                 bytes[i] = (byte)(int)calcuEcgRate[i];
             }
-            int[] results = new int[2];
+
+            int stridefreByAccData = MyUtil.getStridefreByAccData(bytes);
+            Log.i(TAG,"stridefreByAccData: "+stridefreByAccData);
+            stridefreData.add(stridefreByAccData);
+
+            /*int[] results = new int[2];
 
             DiagnosisNDK.AnalysisPedo(bytes,calcuEcgRate.length,results);
             //Log.i(TAG,"results: "+results[0]+"  "+results[1]);
             final int stridefre = (int) (results[1] * 5.21); //每分钟的步数
-            stridefreData.add(stridefre);
+            Log.i(TAG,"results: "+results[0]+"  "+results[1]+",stridefre:"+stridefre);*/
+
         }
 
         return stridefreData;
@@ -325,6 +341,8 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         uploadRecord.timestamp=timestamp;
         uploadRecord.datatime = datatime;
         uploadRecord.state = sportState;
+
+
 
         //设置心电数据
 
@@ -565,6 +583,13 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             uploadRecord.cadence = mStridefreData;
         }
 
+        Log.i(TAG,"mStridefreData:===================="+mStridefreData);
+
+        if (stridefreData!=null && stridefreData.size()>0){  //在离线分析时会有步频
+            uploadRecord.cadence = stridefreData;
+        }
+
+
         Log.i(TAG,"uploadRecord:"+uploadRecord);
         uploadDataAndJumpToShowPage(uploadRecord,sportCreateRecordID);
 
@@ -584,19 +609,22 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             fileInputStream = new FileInputStream(file);
             DataInputStream dataInputStream = new DataInputStream(fileInputStream); //读取二进制文件
 
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[1024*1024];
             Log.i(TAG,"dataInputStream.available():"+dataInputStream.available());
             Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
 
             while(dataInputStream.available() >0){
                 int read = dataInputStream.read(bytes);
-                for (int i = 0; i < read/2-1; i++) {
+                Log.i(TAG,"read:"+read);
+                for (int i = 0; i < read/2; i++) {
                     bytes[0] = bytes[i*2];
                     bytes[1] = bytes[i*2+1];
-                    //滤波处理
-                    int temp = EcgFilterUtil.miniEcgFilterLp((int) MyUtil.getShortByTwoBytes(bytes[0],bytes[1]), 0);
-                    temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);
+                    int temp =  MyUtil.getShortByTwoBytes(bytes[0],bytes[1]);
                     calcuData.add(temp);
+                    /*if (calcuData.size()<1000){
+                        //Log.i(TAG,calcuData.size()+":"+temp);
+                    }*/
+
                 }
             }
         } catch (FileNotFoundException e) {

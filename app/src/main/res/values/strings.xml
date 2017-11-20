@@ -235,11 +235,11 @@
 
 
     <string name="current_heart_rate">当前心率</string>
-    <string name="adjust">调整</string>
+    <string name="adjust">增益</string>
     <string name="analysis">分析</string>
 
     <string name="bunny_community">Bunny运动社区</string>
-    <string name="bunny_community_decrible">旨在建设全国领先的运动社区，为运动爱好者提供一个专属的交流平台，。发现志趣相投的运动爱好者。</string>
+    <string name="bunny_community_decrible">旨在建设全国领先的运动社区，为运动爱好者提供一个专属的交流平台。发现志趣相投的运动爱好者。</string>
 
     <string name="running_type">跑步</string>
     <string name="swimming">游泳</string>

@@ -215,10 +215,11 @@ public class HealthyPlanCalenActivity extends BaseActivity {
                 JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
                 Log.i(TAG,"jsonBase:"+jsonBase);
                 if (jsonBase.getRet()==0){
-                    String errDesc = jsonBase.errDesc+"";
-                    mMonthHealthyPlanList = gson.fromJson(errDesc, new TypeToken<List<HealthyPlan>>() {
-                    }.getType());
-                    updatePlanDaysList(mMonthHealthyPlanList);
+                    JsonBase<List<HealthyPlan>> commonJsonParse = MyUtil.commonJsonParse(result, new TypeToken<JsonBase<List<HealthyPlan>>>() {}.getType());
+                    if (commonJsonParse!=null){
+                        mMonthHealthyPlanList = commonJsonParse.errDesc;
+                        updatePlanDaysList(mMonthHealthyPlanList);
+                    }
                 }
                 else {
                     vl_healthycalen_calen.setPlanDays(new int[0]);

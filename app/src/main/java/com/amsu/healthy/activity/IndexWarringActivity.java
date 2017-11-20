@@ -207,43 +207,26 @@ public class IndexWarringActivity extends BaseActivity {
         if (weekReport.errDesc!=null && weekReport.errDesc.guosuguohuan!=null){
             List<String> guosuguohuan = weekReport.errDesc.guosuguohuan;
 
-        /*for (int i=0;i<guosuguohuan.size();i++){
-            IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateTypeSlow(Integer.parseInt(guosuguohuan.get(i)));
-            IndicatorAssess indicatorAssess2 = HealthyIndexUtil.calculateTypeOver(Integer.parseInt(guosuguohuan.get(i)));
-            if (i==0){
-                scoreSlow = indicatorAssess1;
-                scoreOver = indicatorAssess2;
-            }
-            else{
-                if (indicatorAssess1.getPercent()!=0){
+            /*for (int i=0;i<guosuguohuan.size();i++){
+                IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateTypeSlow(Integer.parseInt(guosuguohuan.get(i)));
+                IndicatorAssess indicatorAssess2 = HealthyIndexUtil.calculateTypeOver(Integer.parseInt(guosuguohuan.get(i)));
+                if (i==0){
                     scoreSlow = indicatorAssess1;
-                    scoreSlowCount ++;
-                }
-                if (indicatorAssess2.getPercent()!=0){
                     scoreOver = indicatorAssess2;
-                    scoreOverCount++;
                 }
-            }
-        }*/
+                else{
+                    if (indicatorAssess1.getPercent()!=0){
+                        scoreSlow = indicatorAssess1;
+                        scoreSlowCount ++;
+                    }
+                    if (indicatorAssess2.getPercent()!=0){
+                        scoreOver = indicatorAssess2;
+                        scoreOverCount++;
+                    }
+                }
+            }*/
 
 
-
-            IndicatorAssess scoreBeforeBeat = null;
-            IndicatorAssess scoreMissBeat = null;
-            List<WeekReport.WeekReportResult.Zaoboloubo> zaoboloubo = weekReport.errDesc.zaoboloubo;
-            if (zaoboloubo!=null && zaoboloubo.size()>0){
-                int zaobo  = zaoboloubo.get(0).zaoboTimes;
-                int loubo  = zaoboloubo.get(0).louboTimes;
-                if (zaobo<0){
-                    zaobo = 0;
-                }
-                if (loubo<0){
-                    loubo = 0;
-                }
-                //早搏 包括房早搏APB和室早搏VPB，两者都记为早搏(心电分析算法得出)
-                scoreBeforeBeat = HealthyIndexUtil.calculateTypeBeforeBeat(zaobo,this);
-                scoreMissBeat = HealthyIndexUtil.calculateTypeMissBeat(loubo,this);
-            }
 
             //过缓/过速(心电分析算法得出)
             IndicatorAssess scoreSlow = null;  //过缓
@@ -256,47 +239,67 @@ public class IndexWarringActivity extends BaseActivity {
 
             Collections.reverse(weekAllHistoryRecords);
 
-        for (WeekReport.WeekReportResult.HistoryRecordItem historyRecordItem:weekAllHistoryRecords){
-            Log.i(TAG,"historyRecordItem:"+historyRecordItem.toString());
-        }
-
-        for (int i=0;i<weekAllHistoryRecords.size();i++){
-            WeekReport.WeekReportResult.HistoryRecordItem historyRecord = weekAllHistoryRecords.get(i);
-            staticStateHistoryRecords.add(historyRecord);
-            /*IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateTypeSlow(Integer.parseInt(guosuguohuan.get(i)),this);
-            IndicatorAssess indicatorAssess2 = HealthyIndexUtil.calculateTypeOver(Integer.parseInt(guosuguohuan.get(i)),this);
-            if (isFirst){
-                scoreSlow = indicatorAssess1;
-                scoreOver = indicatorAssess2;
-                isFirst = false;
+            for (WeekReport.WeekReportResult.HistoryRecordItem historyRecordItem:weekAllHistoryRecords){
+                Log.i(TAG,"historyRecordItem:"+historyRecordItem.toString());
             }
-            else{
-                if (indicatorAssess1.getPercent()!=0){
+
+            for (int i=0;i<weekAllHistoryRecords.size();i++){
+                WeekReport.WeekReportResult.HistoryRecordItem historyRecord = weekAllHistoryRecords.get(i);
+                staticStateHistoryRecords.add(historyRecord);
+                /*IndicatorAssess indicatorAssess1 = HealthyIndexUtil.calculateTypeSlow(Integer.parseInt(guosuguohuan.get(i)),this);
+                IndicatorAssess indicatorAssess2 = HealthyIndexUtil.calculateTypeOver(Integer.parseInt(guosuguohuan.get(i)),this);
+                if (isFirst){
                     scoreSlow = indicatorAssess1;
-                    scoreSlowCount ++;
-                }
-                if (indicatorAssess2.getPercent()!=0){
                     scoreOver = indicatorAssess2;
-                    scoreOverCount++;
+                    isFirst = false;
                 }
-            }*/
-        }
+                else{
+                    if (indicatorAssess1.getPercent()!=0){
+                        scoreSlow = indicatorAssess1;
+                        scoreSlowCount ++;
+                    }
+                    if (indicatorAssess2.getPercent()!=0){
+                        scoreOver = indicatorAssess2;
+                        scoreOverCount++;
+                    }
+                }*/
+            }
 
             int sum = 0;
-            int count = 0;
+            int heartBiggerThanZeroCount = 0;
             for (String s:guosuguohuan){
                 if (!MyUtil.isEmpty(s)&& !s.equals("null") && Integer.parseInt(s)>0){
-                    count++;
+                    heartBiggerThanZeroCount++;
                     sum += Integer.parseInt(s);
                 }
             }
 
-            if(count>0){
-                int over_slow = sum/count;
+            IndicatorAssess scoreBeforeBeat = null;
+            IndicatorAssess scoreMissBeat = null;
+
+            if(heartBiggerThanZeroCount>0){  //当心率大于0的点有时才计算过速、过缓、早搏、漏搏
+                int over_slow = sum/heartBiggerThanZeroCount;
                 Log.i(TAG,"over_slow:"+over_slow);
                 //过缓/过速(心电分析算法得出)
                 scoreSlow = HealthyIndexUtil.calculateTypeSlow(over_slow,this);
                 scoreOver = HealthyIndexUtil.calculateTypeOver(over_slow,this);
+
+
+                List<WeekReport.WeekReportResult.Zaoboloubo> zaoboloubo = weekReport.errDesc.zaoboloubo;
+                if (zaoboloubo!=null && zaoboloubo.size()>0){
+                    int zaobo  = zaoboloubo.get(0).zaoboTimes;
+                    int loubo  = zaoboloubo.get(0).louboTimes;
+                    if (zaobo<0){
+                        zaobo = 0;
+                    }
+                    if (loubo<0){
+                        loubo = 0;
+                    }
+                    //早搏 包括房早搏APB和室早搏VPB，两者都记为早搏(心电分析算法得出)
+                    scoreBeforeBeat = HealthyIndexUtil.calculateTypeBeforeBeat(zaobo,this);
+                    scoreMissBeat = HealthyIndexUtil.calculateTypeMissBeat(loubo,this);
+                }
+
             }
 
             if (guosuguohuan!=null&& guosuguohuan.size()==0){

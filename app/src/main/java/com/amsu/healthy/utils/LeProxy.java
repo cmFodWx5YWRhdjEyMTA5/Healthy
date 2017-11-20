@@ -14,6 +14,7 @@ import com.amsu.healthy.bean.Device;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
 import com.ble.ble.BleService;
+import com.ble.ble.adaption.Error;
 import com.ble.ble.adaption.OnResultListener;
 import com.ble.ble.constants.BleUUIDS;
 import com.ble.ble.oad.OADListener;
@@ -21,7 +22,6 @@ import com.ble.ble.oad.OADManager;
 import com.ble.ble.oad.OADProxy;
 import com.ble.ble.oad.OADType;
 import com.ble.ble.util.GattUtil;
-import com.ble.ble.adaption.Error;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +56,12 @@ public class LeProxy {
     private static LeProxy mInstance;
 
     private BleService mBleService;
+    private int mClothDeviceType = -2;
 
     private LeProxy(){
+        if (mClothDeviceType==-2){
+            mClothDeviceType = getClothDeviceTypeBySP();
+        }
     }
 
     public static LeProxy getInstance(){
@@ -70,7 +74,18 @@ public class LeProxy {
     public void setBleService(IBinder binder){
         mBleService = ((BleService.LocalBinder) binder).getService(mBleCallBack);
         // mBleService.setMaxConnectedNumber(max);// 设置最大可连接从机数量，默认为4
-        mBleService.setDecode(true);//设置是否解密接收的数据（仅限于默认的接收通道【0x1002】，依据模透传块数据是否加密而定）
+        boolean decode ;
+        if (mClothDeviceType==-2){
+            mClothDeviceType = getClothDeviceTypeBySP();
+        }
+
+        if (mClothDeviceType == Constant.clothDeviceType_noEncrypt || mClothDeviceType == Constant.clothDeviceType_secondGeneration || mClothDeviceType==-1){
+            decode = false;
+        }
+        else {
+            decode = true;
+        }
+        mBleService.setDecode(decode);//设置是否解密接收的数据（仅限于默认的接收通道【0x1002】，依据模透传块数据是否加密而定）
         mBleService.setConnectTimeout(5000);//设置APP端的连接超时时间（单位ms）
         mBleService.initialize();// 必须调用初始化函数
     }
@@ -96,6 +111,8 @@ public class LeProxy {
         }
     }
 
+
+
     public void disconnect(String address){
         if (mBleService != null) {
             mBleService.setAutoConnect(address, false);
@@ -120,12 +137,8 @@ public class LeProxy {
 
     //向默认通道【0x1001】发送数据
     public boolean send(String address, byte[] data, boolean encode){
-        Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
-        Log.i(TAG,"deviceFromSP:"+deviceFromSP);
-        if (deviceFromSP!=null && !MyUtil.isEmpty(deviceFromSP.getLEName())){
-            if (deviceFromSP.getLEName().startsWith("AMSU_E")){  //新版衣服AMSU_E开头，则数据不加密，encode为false。   就衣服版本BLE开头，需要加密
-                encode = false;
-            }
+        if (mClothDeviceType == Constant.clothDeviceType_noEncrypt || mClothDeviceType == Constant.clothDeviceType_secondGeneration || mClothDeviceType==-1){
+            encode = false;
         }
 
         Log.i(TAG,"encode:"+encode);
@@ -275,6 +288,7 @@ public class LeProxy {
                 Log.i(TAG, "onCharacteristicRead() - " + address + " uuid=" + characteristic.getUuid().toString()
                         + "\n len=" + characteristic.getValue().length
                         + " [" + DataUtil.byteArrayToHex(characteristic.getValue()) + ']');
+
                 updateBroadcast(address, characteristic);
             }
         }
@@ -316,13 +330,27 @@ public class LeProxy {
         }
     };
 
+    //将字节数组转换为16进制字符串
+    public static String binaryToHexString(byte[] bytes,int length) {
+        String hexStr = "0123456789ABCDEF";
+        String result = "";
+        String hex = "";
+        for (int i=0;i<length;i++) {
+            byte b = bytes[i];
+            hex = String.valueOf(hexStr.charAt((b & 0xF0) >> 4));
+            hex += String.valueOf(hexStr.charAt(b & 0x0F));
+            result += hex + " ";
+        }
+        return result;
+    }
+
     private void updateBroadcast(String address, String action){
         Intent intent = new Intent(action);
         intent.putExtra(EXTRA_ADDRESS, address);
         LocalBroadcastManager.getInstance(mBleService).sendBroadcast(intent);
     }
 
-    private void updateBroadcast(String address, BluetoothGattCharacteristic characteristic){
+    public void updateBroadcast(String address, BluetoothGattCharacteristic characteristic){
         Intent intent = new Intent(ACTION_DATA_AVAILABLE);
         intent.putExtra(EXTRA_ADDRESS, address);
         intent.putExtra(EXTRA_UUID, characteristic.getUuid().toString());
@@ -353,8 +381,58 @@ public class LeProxy {
                     if (MyApplication.deivceType == Constant.sportType_Cloth) {
                         //衣服
                         //打开模组默认的数据接收通道【0x1002】，这一步成功才能保证APP收到数据
-                        boolean success = enableNotification(address, BleUUIDS.PRIMARY_SERVICE, BleUUIDS.CHARACTERS[1]);
-                        Log.i(TAG, "Enable 0x1002 notification: " + success);
+
+
+                        Log.i(TAG,"mClothDeviceType:"+mClothDeviceType);
+
+                        while (true){
+                            if (mClothDeviceType!=-1){
+                                break;
+                            }
+                            try {
+                                Thread.sleep(500);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        if (mClothDeviceType ==Constant.clothDeviceType_secondGeneration || mClothDeviceType ==Constant.clothDeviceType_secondGeneration_our){
+                            UUID serUuid = UUID.fromString(Constant.readSecondGenerationInfoSerUuid);
+                            UUID charUuid_2 = UUID.fromString(Constant.sendReceiveSecondGenerationClothCharUuid_1);
+                            UUID charUuid_3 = UUID.fromString(Constant.sendReceiveSecondGenerationClothCharUuid_1);
+                            UUID charUuid_4 = UUID.fromString(Constant.readSecondGenerationClothECGCharUuid);
+                            UUID charUuid_5 = UUID.fromString(Constant.readSecondGenerationClothACCCharUuid);
+                            UUID charUuid_6 = UUID.fromString(Constant.readSecondGenerationClothHeartRateCharUuid);
+
+                            try {
+                                boolean success_2 = enableNotification(address, serUuid, charUuid_2);
+                                Log.i(TAG, "success_2: " + success_2);
+
+                                Thread.sleep(100);
+
+                                boolean success_3 = enableNotification(address, serUuid, charUuid_3);
+                                Log.i(TAG, "success_3: " + success_3);
+
+
+                                Thread.sleep(100);
+                                boolean success_4 = enableNotification(address, serUuid, charUuid_4);
+                                Log.i(TAG, "success_4: " + success_4);
+
+                                Thread.sleep(100);
+                                boolean success_5 = enableNotification(address, serUuid, charUuid_5);
+                                Log.i(TAG, "success_5: " + success_5);
+
+                                Thread.sleep(100);
+                                boolean success_6 = enableNotification(address, serUuid, charUuid_6);
+                                Log.i(TAG, "success_6: " + success_6);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else {
+                            boolean success = enableNotification(address, BleUUIDS.PRIMARY_SERVICE, BleUUIDS.CHARACTERS[1]);
+                            Log.i(TAG, "Enable 0x1002 notification: " + success);
+                        }
                     }
                     else if(MyApplication.deivceType==Constant.sportType_Insole){
                         UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
@@ -382,14 +460,13 @@ public class LeProxy {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+
+
                     }
 
                     break;
 
 //                case 1:
-
-
-
 
 
 //                    //适配CC2541透传模块与部分手机的连接问题（就是连线后不走onServicesDiscovered()方法，一段时间后自动断开），
@@ -434,5 +511,31 @@ public class LeProxy {
         }
     };
 
+    public int getClothDeviceTypeBySP(){
+        Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
+        Log.i(TAG,"deviceFromSP:"+deviceFromSP);
+        if (deviceFromSP!=null && !MyUtil.isEmpty(deviceFromSP.getLEName())){
+            if (deviceFromSP.getLEName().startsWith("BLE")){  //旧版衣服不加密，BLE开头 BLE#0x44A6E51B5BF8
+                return Constant.clothDeviceType_encrypt;
+            }
+            else if (deviceFromSP.getLEName().startsWith("AMSU_E")){
+                //新版衣服AMSU_E开头，则数据不加密，encode为false。   就衣服版本BLE开头，需要加密
+                //二代衣服AMSU_E开头，数据不加密，但是数据协议有变，需要区分
+                ///return Constant.clothDeviceType_noEncrypt;
+                return -1;
+            }
+            /*else if (deviceFromSP.getLEName().startsWith("AMSU_E")){  //
+                return Constant.clothDeviceType_secondGeneration;
+            }*/
+        }
+        return Constant.clothDeviceType_encrypt;
+    }
 
+    public int getClothDeviceType() {
+        return mClothDeviceType;
+    }
+
+    public void setmClothDeviceType(int mClothDeviceType) {
+        this.mClothDeviceType = mClothDeviceType;
+    }
 }

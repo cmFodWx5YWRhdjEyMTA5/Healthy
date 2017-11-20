@@ -54,7 +54,7 @@ public class DiagnosisNDK {
 	}
 
 	public native static HeartRateResult getEcgResult(double[] source,
-			long len, int s_rate);
+			long len, int s_rate,int gain);
 
 /*	public native static PluseRateP_PP getPpgResult(double[] source, int len,
 			int s_rate, int SBP, int DBP, int height, int age, int SPO,
@@ -86,7 +86,7 @@ public class DiagnosisNDK {
 	 * 返回值： 返回心率值
 	 */
 	public native static int getEcgHeart(int[] source,
-			int len, int s_rate);
+			int len, int s_rate,int gain);
 	
 	/*
 	 * 涵数名：                    getPedo
@@ -95,9 +95,12 @@ public class DiagnosisNDK {
 	 * 参数3：    out  arrayout  分析得出的结果，    arrayout[0] 返回状态     0静止，1走路，2跑步     arrayout[1] 返回步数
 	 * 返回值：                     void
 	 */
-	public native static void getPedo(byte[] source, int len, int[] arrayout);
+	//新主机传52，老主机26
+	public native static void getPedo(byte[] source, int len, int[] arrayout, int fs);
 
-	public native static void getPedo(byte[] source, int len, int state, int pedoCount );
+
+
+	public native static void getPedo(byte[] source, int len, int state, int pedoCount);
 
 
 	
@@ -114,11 +117,11 @@ public class DiagnosisNDK {
 	
     public static int ecgHeart(int[] source, int len, int rate) {
 		Log.d("ndk's c++", "len=" + len + " s_rate=" + rate);
-    	return getEcgHeart(source,len, rate);
+    	return getEcgHeart(source,len, rate,34);
     }
     
-    public static void AnalysisPedo(byte[] source, int len, int[] aout) {
-    	getPedo(source, len, aout);
+    public static void AnalysisPedo(byte[] source, int len, int[] aout, int fs) {
+    	getPedo(source, len, aout,fs);
     	Log.d("before ndk's c++", "aout[0]=" + aout[0] + " aout[1]=" + aout[1]);
     }
 
@@ -142,9 +145,8 @@ public class DiagnosisNDK {
 		
 		
 		Log.d("before ndk's c++", "len=" + len + " s_rate=" + s_rate);
-        
 
-		HeartRateResult result = getEcgResult(ecg, len, s_rate);
+		HeartRateResult result = getEcgResult(ecg, len, s_rate,34);
 
 		int abnormal = result.RR_Apb + result.RR_Pvc + result.RR_Iovp
 				+ result.RR_Boleakage + result.RR_Kuanbo + result.RR_2

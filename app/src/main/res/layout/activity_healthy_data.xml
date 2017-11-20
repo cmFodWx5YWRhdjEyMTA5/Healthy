@@ -56,8 +56,8 @@
     <RelativeLayout
         android:id="@+id/rl_healthydata_middle"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/y520"
-        android:layout_marginTop="@dimen/y96"
+        android:layout_height="@dimen/y560"
+        android:layout_marginTop="@dimen/y66"
         android:layout_below="@id/rl_healthydata_top">
         <com.amsu.healthy.view.CardiographView
             android:layout_width="match_parent"

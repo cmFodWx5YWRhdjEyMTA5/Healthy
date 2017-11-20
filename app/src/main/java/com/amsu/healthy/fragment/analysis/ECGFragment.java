@@ -207,7 +207,7 @@ public class ECGFragment extends BaseFragment {
 
                                     while(dataInputStream.available() >0){
                                         int read = dataInputStream.read(bytes);
-                                        for (int i = 0; i < read/2-1; i++) {
+                                        for (int i = 0; i < read/2; i++) {
                                             bytes[0] = bytes[i*2];
                                             bytes[1] = bytes[i*2+1];
 
