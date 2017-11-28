@@ -206,16 +206,13 @@ public class SportRecordStatisticsFragment extends BaseFragment implements AMap.
             } else {
                 sport_speed.setText("0'00''");
             }
-            int t = (int) (Math.ceil(mUploadRecord.time / 60));
-            if (t > 0) {
-                int[] heartData = MyUtil.listToIntArray(mUploadRecord.hr);
-                int[] stepData = MyUtil.listToIntArray(mUploadRecord.cadence);
-                if (sportRecordStatisticsItem_1 != null) {
-                    sportRecordStatisticsItem_1.setData(stepData, t);
-                }
-                if (sportRecordStatisticsItem_2 != null) {
-                    sportRecordStatisticsItem_2.setData(heartData, t);
-                }
+            int[] heartData = MyUtil.listToIntArray(mUploadRecord.hr);
+            int[] stepData = MyUtil.listToIntArray(mUploadRecord.cadence);
+            if (sportRecordStatisticsItem_1 != null) {
+                sportRecordStatisticsItem_1.setData(stepData);
+            }
+            if (sportRecordStatisticsItem_2 != null) {
+                sportRecordStatisticsItem_2.setData(heartData);
             }
         }
     }

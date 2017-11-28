@@ -76,6 +76,7 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     private View rl_run_lock;
     private GlideRelativeView rl_run_glide;
     private boolean isLockScreen;
+    private CountDownTimer countDownTimer;
 
     public boolean mIsRunning = false;
     private ArrayList<Integer> mStridefreData = new ArrayList<>();
@@ -97,6 +98,7 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     private void initViews() {
         setLeftImage(R.drawable.back_icon);
         setCenterText(getResources().getString(R.string.endurance_test));
+//        setRightImage(R.drawable.xindianbo);
         sportTime = (TextView) findViewById(R.id.sportTime);
         sport_distance_tv = (TextView) findViewById(R.id.sport_distance_tv);
         heartRate_tv = (TextView) findViewById(R.id.heartRate_tv);
@@ -129,6 +131,14 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
                 backJudge();
             }
         });
+//        getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(EnduranceTestRuningActivity.this, HealthyDataActivity.class);
+//                intent.putExtra(Constant.isLookupECGDataFromSport,true);
+//                startActivity(intent);
+//            }
+//        });
         findViewById(R.id.tv_run_lock).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -155,7 +165,7 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (isLockScreen) {
             return false;
-        } else {
+        } else if (keyCode == KeyEvent.KEYCODE_BACK ){
             backJudge();
         }
         return super.onKeyDown(keyCode, event);
@@ -174,7 +184,7 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
 
     private void countDownTime() {
         date = new Date();
-        CountDownTimer countDownTimer = new CountDownTimer(12 * 60 * 1000, 1000) {
+        countDownTimer = new CountDownTimer(12 * 60 * 1000, 1000) {
             @Override
             public void onTick(long l) {
                 String time = DateFormatUtils.getFormatTime(l, DateFormatUtils.MM_SS);
@@ -188,11 +198,10 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
             public void onFinish() {
                 finishSport();
                 if (application != null) {
-                    application.setRunningDate(getString(R.string.null_value));
+                    application.setRunningDate("0:00");
                 }
             }
         };
-
         countDownTimer.start();
     }
 
@@ -315,6 +324,7 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     protected void onDestroy() {
         super.onDestroy();
         enduranceTest = false;
+        countDownTimer.cancel();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
         destorySportInfoTOAPP();
     }

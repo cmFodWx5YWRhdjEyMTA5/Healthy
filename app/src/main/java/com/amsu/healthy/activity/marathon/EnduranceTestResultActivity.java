@@ -128,10 +128,10 @@ public class EnduranceTestResultActivity extends BaseActivity {
         int[] heartData = MyUtil.listToIntArray(hrList);
         int[] stepData = MyUtil.listToIntArray(cadenceList);
         if (sportRecordStatisticsItem_1 != null) {
-            sportRecordStatisticsItem_1.setData(stepData, 12*60);
+            sportRecordStatisticsItem_1.setData(stepData);
         }
         if (sportRecordStatisticsItem_2 != null) {
-            sportRecordStatisticsItem_2.setData(heartData, 10);
+            sportRecordStatisticsItem_2.setData(heartData);
         }
     }
 

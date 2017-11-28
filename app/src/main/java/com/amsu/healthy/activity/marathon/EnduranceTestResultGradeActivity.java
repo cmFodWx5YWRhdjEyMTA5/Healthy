@@ -185,10 +185,19 @@ public class EnduranceTestResultGradeActivity extends BaseActivity {
                 String vo2max = jsonObject.getString("vo2max");
                 String hr = jsonObject.getString("hr");
                 String strideFrequency = jsonObject.getString("strideFrequency");
-                testDistance.setText(UStringUtil.isNullOrEmpty(distance) ? "——" : distance);
-                testSpeed.setText(UStringUtil.isNullOrEmpty(averagePace) ? "——" : averagePace);
+                if (!UStringUtil.isNullOrEmpty(distance)) {
+                    double dis = Double.parseDouble(distance);
+                    testDistance.setText(UStringUtil.formatNumber(dis, 2));
+                }
+                if (!UStringUtil.isNullOrEmpty(averagePace)) {
+                    double speed = Double.parseDouble(averagePace);
+                    testSpeed.setText(UStringUtil.formatNumber(speed, 2));
+                }
+                if (!UStringUtil.isNullOrEmpty(vo2max)) {
+                    double v = Double.parseDouble(vo2max);
+                    testVo2.setText(UStringUtil.formatNumber(v, 2));
+                }
                 testLevel.setText(enduranceLevel);
-                testVo2.setText(vo2max);
                 final String dateStr = DateFormatUtils.getFormatTime(date, DateFormatUtils.YYYY_MM_DD_HH_MM);
                 testDate.setText(dateStr);
                 Gson gson = new Gson();
@@ -205,10 +214,10 @@ public class EnduranceTestResultGradeActivity extends BaseActivity {
                 int[] heartData = MyUtil.listToIntArray(hrList);
                 int[] stepData = MyUtil.listToIntArray(cadenceList);
                 if (sportRecordStatisticsItem_1 != null) {
-                    sportRecordStatisticsItem_1.setData(stepData, 12 * 60);
+                    sportRecordStatisticsItem_1.setData(stepData);
                 }
                 if (sportRecordStatisticsItem_2 != null) {
-                    sportRecordStatisticsItem_2.setData(heartData, 12 * 60);
+                    sportRecordStatisticsItem_2.setData(heartData);
                 }
             }
         } catch (JSONException e) {
