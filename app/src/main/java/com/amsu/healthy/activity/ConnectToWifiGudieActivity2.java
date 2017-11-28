@@ -17,8 +17,8 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
-import com.amsu.healthy.utils.wifiTramit.WifiAutoConnectManager;
+import com.amsu.healthy.utils.wifiTransmit.DeviceOffLineFileUtil;
+import com.amsu.healthy.utils.wifiTransmit.WifiAutoConnectManager;
 
 import java.io.IOException;
 import java.io.InputStream;

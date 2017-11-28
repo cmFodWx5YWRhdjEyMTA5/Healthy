@@ -37,15 +37,15 @@ import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.AppAbortDbAdapterUtil;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.EcgFilterUtil_1;
-import com.amsu.healthy.utils.LeProxy;
+import com.amsu.healthy.utils.ble.EcgFilterUtil_1;
+import com.amsu.healthy.utils.ble.LeProxy;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.RunTimerTaskUtil;
 import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
-import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
+import com.amsu.healthy.utils.wifiTransmit.DeviceOffLineFileUtil;
 import com.amsu.healthy.view.GlideRelativeView;
 import com.ble.api.DataUtil;
 import com.google.android.gms.common.ConnectionResult;
@@ -1687,8 +1687,8 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             String leftDeviceSoftware = "";
             String rightDeviceSoftware = "";
 
-            MyApplication application = (MyApplication) getApplication();
-            Map<String, Device> insoleDeviceBatteryInfos = application.getInsoleDeviceBatteryInfos();
+            //MyApplication application = (MyApplication) getApplication();
+            Map<String, Device> insoleDeviceBatteryInfos = CommunicateToBleService.getInstance().getInsoleDeviceBatteryInfos();
             for (Device device : insoleDeviceBatteryInfos.values()) {
                 if (!MyUtil.isEmpty(mLeftMacAddress) && mLeftMacAddress.equals(device.getMac())){
                     leftDeviceHardware = device.getHardWareVersion();

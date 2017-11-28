@@ -11,7 +11,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.HealthyDataActivity;
+import com.amsu.healthy.utils.ble.EcgAccDataUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -79,7 +79,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     protected int mHorSmiallGridCount ;  //小网格的个数
     protected int mVirGigGridCount ;  //小网格的个数
     private boolean isStartCacheDrawLine = false;
-    private double rateLineR = HealthyDataActivity.ECGSCALE_MODE_CURRENT;
+    private double rateLineR = EcgAccDataUtil.ECGSCALE_MODE_CURRENT;
     private int currentcountIndex = 0;
     private Thread mThread;
 

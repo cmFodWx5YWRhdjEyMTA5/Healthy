@@ -13,7 +13,7 @@ import com.amsu.healthy.activity.HeartRateAnalysisActivity;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.OffLineDbAdapter;
-import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
+import com.amsu.healthy.utils.wifiTransmit.DeviceOffLineFileUtil;
 
 import java.util.List;
 

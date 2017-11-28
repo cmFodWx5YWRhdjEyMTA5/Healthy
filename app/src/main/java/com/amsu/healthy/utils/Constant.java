@@ -134,10 +134,13 @@ public class Constant {
     public static final int sportType_Insole = 2;
 
 
-    public static final int clothDeviceType_encrypt = 1;  //加密
-    public static final int clothDeviceType_noEncrypt = 2;  //不加密
+    public static final int clothDeviceType_old_encrypt = 1;  //加密
+    public static final int clothDeviceType_old_noEncrypt = 2;  //不加密
     public static final int clothDeviceType_secondGeneration = 3;  //二代衣服,神念
     public static final int clothDeviceType_secondGeneration_our = 4;  //二代衣服，自己
+
+    public static final int clothDeviceType_AMSU_EStartWith = -1;  //二代衣服，自己
+    public static final int clothDeviceType_Default_NO = -2;  //二代衣服，自己
 
 
 

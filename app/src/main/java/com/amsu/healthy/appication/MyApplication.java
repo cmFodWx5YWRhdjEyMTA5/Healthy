@@ -9,21 +9,17 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.amsu.healthy.activity.BaseActivity;
-import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.WebSocketUtil;
-import com.google.gson.Gson;
+import com.amsu.healthy.utils.WebSocketProxy;
 import com.mob.MobSDK;
 import com.tencent.bugly.crashreport.CrashReport;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 
@@ -75,14 +71,11 @@ public class MyApplication extends Application{
         this.runningmCurrentAvespeed = runningmCurrentAvespeed;
     }
 
-    public WebSocketUtil webSocketUtil;
+    public WebSocketProxy webSocketUtil;
     public static int IndexWarringHeartIconType = -1;
 
     private int insoleLeftCurrBatteryPowerPercent = -1;
     private int insoleRightCurrBatteryPowerPercent = -1;
-
-    private Map<String,Device> insoleDeviceBatteryInfos = new HashMap<>();
-
 
     @Override
     public void onCreate() {
@@ -186,11 +179,11 @@ public class MyApplication extends Application{
         this.runningmCurrentHeartRate = runningmCurrentHeartRate;
     }
 
-    public WebSocketUtil getWebSocketUtil() {
+    public WebSocketProxy getWebSocketUtil() {
         return webSocketUtil;
     }
 
-    public void setWebSocketUtil(WebSocketUtil webSocketUtil) {
+    public void setWebSocketUtil(WebSocketProxy webSocketUtil) {
         this.webSocketUtil = webSocketUtil;
     }
 
@@ -210,17 +203,6 @@ public class MyApplication extends Application{
         this.insoleRightCurrBatteryPowerPercent = insoleRightCurrBatteryPowerPercent;
     }
 
-    public Map<String, Device> getInsoleDeviceBatteryInfos() {
-        return insoleDeviceBatteryInfos;
-    }
-
-    public void setInsoleDeviceBatteryInfos(Map<String, Device> insoleDeviceBatteryInfos) {
-        this.insoleDeviceBatteryInfos = insoleDeviceBatteryInfos;
-
-        Gson gson = new Gson();
-        String json = gson.toJson(insoleDeviceBatteryInfos);
-        MyUtil.putStringValueFromSP(Constant.insoleDeviceBatteryInfos,json);
-    }
 
 
     public int getRunningmCurrentStepCount() {

@@ -1,4 +1,4 @@
-package com.amsu.healthy.utils.wifiTramit;
+package com.amsu.healthy.utils.wifiTransmit;
 
 import android.app.Activity;
 import android.net.wifi.WifiConfiguration;

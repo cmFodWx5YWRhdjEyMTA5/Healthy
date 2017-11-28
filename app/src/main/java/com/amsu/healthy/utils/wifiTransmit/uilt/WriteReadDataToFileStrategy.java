@@ -1,4 +1,4 @@
-package com.amsu.healthy.utils.wifiTramit.uilt;
+package com.amsu.healthy.utils.wifiTransmit.uilt;
 
 import java.util.List;
 
@@ -11,5 +11,10 @@ public interface WriteReadDataToFileStrategy {
     List<Integer> readDataFromFile(String fileName);
 
     boolean writeByteDataToFile(byte[] bytes, String fileName);
+
+
+    void writeArrayDataToBinaryFile(final int[] ints);
+    String closeArrayDataStreamResource();
+
 
 }

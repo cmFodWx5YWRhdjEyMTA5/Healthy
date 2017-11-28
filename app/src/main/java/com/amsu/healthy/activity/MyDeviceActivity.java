@@ -24,7 +24,7 @@ import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.LeProxy;
+import com.amsu.healthy.utils.ble.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
@@ -230,8 +230,8 @@ public class MyDeviceActivity extends BaseActivity {
                         }
                     }
                     else {
-                        final MyApplication application = (MyApplication) getApplication();
-                        final Map<String, Device> insoleDeviceBatteryInfos = application.getInsoleDeviceBatteryInfos();
+                        //final MyApplication application = (MyApplication) getApplication();
+                        final Map<String, Device> insoleDeviceBatteryInfos = CommunicateToBleService.getInstance().getInsoleDeviceBatteryInfos();
                         /*boolean isContainNoPower = insoleDeviceBatteryInfos.containsValue(-1);
                         Log.i(TAG,"insoleDeviceBatteryInfos:"+insoleDeviceBatteryInfos);
                         Log.i(TAG,"isContainNoPower:"+isContainNoPower);*/
@@ -253,7 +253,7 @@ public class MyDeviceActivity extends BaseActivity {
                                             e.printStackTrace();
                                         }
 
-                                        boolean isContainNoPower = JudgeIsContainNoPower(application.getInsoleDeviceBatteryInfos());
+                                        boolean isContainNoPower = JudgeIsContainNoPower(CommunicateToBleService.getInstance().getInsoleDeviceBatteryInfos());
                                         Log.i(TAG,"insoleDeviceBatteryInfos:"+insoleDeviceBatteryInfos);
                                         Log.i(TAG,"isContainNoPower:"+isContainNoPower);
 
@@ -396,9 +396,12 @@ public class MyDeviceActivity extends BaseActivity {
                         TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(position).findViewById(R.id.tv_item_state);
                         tv_item_state.setText(getResources().getString(R.string.bound));
 
-                        LeProxy.getInstance().setmClothDeviceType(LeProxy.getInstance().getClothDeviceTypeBySP());
-
+                        LeProxy.getInstance().setmClothDeviceType(Constant.clothDeviceType_Default_NO);
                         MyUtil.putIntValueFromSP(Constant.mClothDeviceType,-1);
+
+                        if (device.getLEName().startsWith("BLE")){
+                            MyUtil.putIntValueFromSP(Constant.mClothDeviceType,Constant.clothDeviceType_old_encrypt);
+                        }
 
                         if (iSNeedUnbind){
                             if (MyApplication.isHaveDeviceConnectted){

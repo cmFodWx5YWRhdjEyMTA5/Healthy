@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -21,21 +19,18 @@ import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.model.LatLng;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
-import com.amsu.healthy.activity.HealthyDataActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.DateFormatUtils;
-import com.amsu.healthy.utils.ECGUtil;
-import com.amsu.healthy.utils.HealthyIndexUtil;
-import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MarathonUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.UStringUtil;
+import com.amsu.healthy.utils.ble.BleDataProxy;
+import com.amsu.healthy.utils.ble.LeProxy;
 import com.amsu.healthy.utils.map.Util;
 import com.amsu.healthy.view.GlideRelativeView;
-import com.ble.api.DataUtil;
 import com.google.gson.Gson;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -43,18 +38,11 @@ import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
-import com.test.utils.DiagnosisNDK;
 
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.amsu.healthy.activity.StartRunActivity.accOneGroupLength;
-import static com.amsu.healthy.service.CommunicateToBleService.ecgFilterUtil_1;
 import static com.amsu.healthy.utils.Constant.ecgLocalFileName;
 import static com.amsu.healthy.utils.Constant.enduranceTest;
 
@@ -80,8 +68,6 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     private TextView sport_speed_tv;
     private TextView stride_frequency_tv;
 
-    boolean isHaveDataTransfer;
-    boolean mIsDataStart;
     public Date mCurrTimeDate;
     private String TAG = "EnduranceTestRuningActivity";
     private Date date;
@@ -90,6 +76,11 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     private View rl_run_lock;
     private GlideRelativeView rl_run_glide;
     private boolean isLockScreen;
+
+    public boolean mIsRunning = false;
+    private ArrayList<Integer> mStridefreData = new ArrayList<>();
+    private MyApplication application;
+    private BleDataProxy mBleDataProxy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +110,9 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
         application.setRunningRecoverType(Constant.sportType_Cloth);
         application.setRunningCurrTimeDate(mCurrTimeDate = new Date(0, 0, 0));
         mIsRunning = true;
+
+        mBleDataProxy = BleDataProxy.getInstance();
+        mBleDataProxy.setRecordingStarted();
     }
 
     private void initEvents() {
@@ -213,6 +207,8 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     private String strideFrequency = "";
 
     private void uploadData() {
+        String ecgLocalFileName = mBleDataProxy.stopWriteEcgToFileAndGetFileName();
+
         RequestParams params = new RequestParams();
         Gson gson = new Gson();
 
@@ -411,241 +407,35 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
-                    dealwithLebDataChange(DataUtil.byteArrayToHex(intent.getByteArrayExtra(LeProxy.EXTRA_DATA)));
+                    //dealwithLebDataChange(DataUtil.byteArrayToHex(intent.getByteArrayExtra(LeProxy.EXTRA_DATA)));
+                    dealwithLebDataChange(intent);
                     break;
             }
         }
     };
 
-    private void dealwithLebDataChange(String hexData) {
-        //Log.i(TAG,"hexData:"+hexData);
-        if (hexData.startsWith("FF 83")) {
-            //心电数据
-            //Log.i(TAG,"心电hexData:"+hexData);
-            //FF 83 0F FF FF FF FF FF FF FF FF FF FF 00 16  长度44
-            if (hexData.length() == 44) {
-                dealWithEcgData(hexData);
-                isHaveDataTransfer = true;
-                mIsDataStart = true;
-            }
-        } else if (hexData.startsWith("FF 86")) {
-            //加速度数据
-            //Log.i(TAG,"加速度hexData:"+hexData);
-            //FF 86 11 00 A4 06 AC 1E 9D 00 A4 06 AC 1E 9D 11 16   长度50
-            if (hexData.length() == 50) {
-                dealWithAccelerationgData(hexData);
-            }
+    private void dealwithLebDataChange(Intent intent) {
+        int stride = intent.getIntExtra(BleDataProxy.EXTRA_STRIDE_DATA,-1);
+        int heartRate = intent.getIntExtra(BleDataProxy.EXTRA_HEART_DATA,-1);
+
+        if (stride!=-1){
+            Log.i(TAG,"stride:"+stride);
+            updateUIStrideData(stride);
+        }
+        else if (heartRate!=-1){
+            Log.i(TAG,"heartRate:"+heartRate);
+            updateUIECGHeartData(heartRate);
         }
     }
 
-    public static final int oneGroupLength = 10; //
-    int[] ecgOneGroupDataInts = new int[oneGroupLength];
-    private int mPreHeartRate;
-    public static final int timeSpanGgroupCalcuLength = 60; //
-    private boolean isNeedUpdateHeartRate = false;
-    public boolean mIsRunning = false;
-    private boolean isFirstCalcu = true;  //是否是第一次计算心率，第一次要连续12秒的数据
-    private int currentGroupIndex = 0;   //组的索引
-    public static final int calGroupCalcuLength = 180; //
-    public int[] calcuEcgRate = new int[calGroupCalcuLength * oneGroupLength]; //1000条数据:（100组，一组有10个数据点）
-    private int[] fourCalcuEcgRate = new int[timeSpanGgroupCalcuLength * oneGroupLength]; //4s的数据*/
-    private int[] preCalcuEcgRate = new int[calGroupCalcuLength * oneGroupLength]; //前一次数的数据，12s
-    public int mCurrentHeartRate = 0;
-    private ArrayList<Integer> mStridefreData = new ArrayList<>();
-    private MyApplication application;
-    public static final int accDataLength = 1800;
-    private int mTempStridefre;
-    private DataOutputStream ecgDataOutputStream;  //二进制文件输出流，写入文件
-    private DataOutputStream accDataOutputStream;  //二进制文件输出流，写入文件
-    private ByteBuffer ecgByteBuffer;
-    private ByteBuffer accByteBuffer;
-    int[] accOneGroupDataInts = new int[accOneGroupLength];
-
-    byte[] accByteData = new byte[accDataLength];
-    private int accCalcuDataIndex = 0;
-
-
-    //处理心电数据
-    private void dealWithEcgData(String hexData) {
-        isNeedUpdateHeartRate = false;
-        ECGUtil.geIntEcgaArr(hexData, " ", 3, oneGroupLength, ecgOneGroupDataInts); //一次的数据，10位
-
-        if (mIsRunning) {
-            writeEcgDataToBinaryFile(ecgOneGroupDataInts);
-        }
-
-        //滤波处理
-        for (int i = 0; i < ecgOneGroupDataInts.length; i++) {
-            ecgOneGroupDataInts[i] = ecgFilterUtil_1.miniEcgFilterLp(ecgFilterUtil_1.miniEcgFilterHp(ecgFilterUtil_1.NotchPowerLine(ecgOneGroupDataInts[i], 1)));
-        }
-
-        if (isFirstCalcu) {
-            if (currentGroupIndex < calGroupCalcuLength) {
-                //未到时间（1800个数据点计算一次心率）
-                System.arraycopy(ecgOneGroupDataInts, 0, calcuEcgRate, currentGroupIndex * oneGroupLength, ecgOneGroupDataInts.length);
-            } else {
-                isNeedUpdateHeartRate = true;
-                isFirstCalcu = false;
-            }
-        } else {
-            if (currentGroupIndex < timeSpanGgroupCalcuLength) { //未到4s
-                System.arraycopy(ecgOneGroupDataInts, 0, fourCalcuEcgRate, currentGroupIndex * oneGroupLength, ecgOneGroupDataInts.length);
-            } else { //到4s,需要前8s+当前4s
-                int i = 0;
-                for (int j = timeSpanGgroupCalcuLength * oneGroupLength; j < preCalcuEcgRate.length; j++) {
-                    calcuEcgRate[i++] = preCalcuEcgRate[j];
-                }
-                System.arraycopy(fourCalcuEcgRate, 0, calcuEcgRate, i, fourCalcuEcgRate.length);
-                isNeedUpdateHeartRate = true;
-            }
-        }
-
-        if (isNeedUpdateHeartRate) {
-            currentGroupIndex = 0;
-            //计算、更新心率，到4s
-            mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
-            if (application != null) {
-                application.setRunningmCurrentHeartRate(mCurrentHeartRate);
-            }
-
-            Log.i(TAG, "mCurrentHeartRate:" + mCurrentHeartRate);
-            //calcuEcgRate = new int[calGroupCalcuLength*10];
-
-            System.arraycopy(calcuEcgRate, 0, preCalcuEcgRate, 0, calcuEcgRate.length);
-            System.arraycopy(ecgOneGroupDataInts, 0, fourCalcuEcgRate, currentGroupIndex * 10, ecgOneGroupDataInts.length);
-
-            mHandler.sendEmptyMessage(1);
-        }
-        currentGroupIndex++;
+    private void updateUIStrideData(int stride) {
+        stride_frequency_tv.setText(String.valueOf(stride));
+        mStridefreData.add(stride);
     }
 
-    Handler mHandler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            switch (msg.what) {
-                case 1:
-                    updateUIECGData();
-                    break;
-                case 2:
-                    updateUIACCData();
-                    break;
-            }
-            return false;
-        }
-    });
-
-    private void updateUIACCData() {
-        stride_frequency_tv.setText(String.valueOf(mTempStridefre));
+    private void updateUIECGHeartData(int heartRate) {
+        heartRate_tv.setText(String.valueOf(heartRate));
+        heartRateDates.add(heartRate);
     }
 
-    //处理加速度数据
-    private void dealWithAccelerationgData(String hexData) {
-        if (!mIsRunning) return;
-        ECGUtil.geIntEcgaArr(hexData, " ", 3, accOneGroupLength, accOneGroupDataInts); //一次的数据，12位
-
-        if (mIsRunning) {
-            writeAccDataToBinaryFile(accOneGroupDataInts);
-        }
-
-        if (accCalcuDataIndex < accDataLength) {
-            for (int i : accOneGroupDataInts) {
-                //accData.add(i);
-                accByteData[accCalcuDataIndex++] = (byte) i;
-            }
-        } else {
-            //计算
-
-            mTempStridefre = MyUtil.getStridefreByAccData(accByteData);
-            mStridefreData.add(mTempStridefre);
-            mHandler.sendEmptyMessage(2);
-
-            accCalcuDataIndex = 0;
-            for (int i : accOneGroupDataInts) {
-                accByteData[accCalcuDataIndex++] = (byte) i;
-            }
-        }
-    }
-
-    //acc数据写到文件里，二进制方式写入
-    private void writeAccDataToBinaryFile(int[] ints) {
-        try {
-            if (accDataOutputStream == null) {
-                String accLocalFileName = MyUtil.getClolthLocalFileName(2, new Date());
-                Log.i(TAG, "accLocalFileName:" + accLocalFileName);
-                //MyUtil.putStringValueFromSP("cacheFileName",fileAbsolutePath);
-                accDataOutputStream = new DataOutputStream(new FileOutputStream(accLocalFileName, true));
-                accByteBuffer = ByteBuffer.allocate(2);
-            }
-            for (int anInt : ints) {
-                accByteBuffer.clear();
-                accByteBuffer.putShort((short) anInt);
-                accDataOutputStream.writeByte(accByteBuffer.get(1));
-                accDataOutputStream.writeByte(accByteBuffer.get(0));
-                //accDataOutputStream.flush();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //ecg数据写到文件里，二进制方式写入
-    private void writeEcgDataToBinaryFile(int[] ints) {
-        try {
-            if (ecgDataOutputStream == null) {
-                ecgLocalFileName = MyUtil.getClolthLocalFileName(1, new Date());
-                ;
-                Log.i(TAG, "fileAbsolutePath:" + ecgLocalFileName);
-                //MyUtil.putStringValueFromSP("cacheFileName",fileAbsolutePath);
-                ecgDataOutputStream = new DataOutputStream(new FileOutputStream(ecgLocalFileName, true));
-                ecgByteBuffer = ByteBuffer.allocate(2);
-            }
-            for (int anInt : ints) {
-                ecgByteBuffer.clear();
-                ecgByteBuffer.putShort((short) anInt);
-                ecgDataOutputStream.writeByte(ecgByteBuffer.get(1));
-                ecgDataOutputStream.writeByte(ecgByteBuffer.get(0));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //更新心率相关数据
-    private void updateUIECGData() {
-        String oxygenState = calcuOxygenState(mCurrentHeartRate);
-        if (mCurrentHeartRate == 0) {
-            heartRate_tv.setText("——");
-        } else {
-            if (mPreHeartRate > 0) {
-                int count = 0;
-                int temp = mCurrentHeartRate - mPreHeartRate;
-                if (temp > HealthyDataActivity.D_valueMaxValue) {
-                    count = (temp) / HealthyDataActivity.D_valueMaxValue + 1;
-                } else if (temp < -HealthyDataActivity.D_valueMaxValue) {
-                    count = (temp) / HealthyDataActivity.D_valueMaxValue - 1;
-                }
-                System.out.println(count);
-                if (count != 0) {
-                    mCurrentHeartRate = mPreHeartRate + Math.abs(temp) / count;
-                }
-            }
-            heartRate_tv.setText(String.valueOf(mCurrentHeartRate));
-        }
-        heartRateDates.add(mCurrentHeartRate);
-        mPreHeartRate = mCurrentHeartRate;
-    }
-
-    private String calcuOxygenState(int heartRate) {
-        int maxRate = 220 - HealthyIndexUtil.getUserAge();
-        if (heartRate <= maxRate * 0.6) {
-            return getResources().getString(R.string.exercise_flat);
-        } else if (maxRate * 0.6 < heartRate && heartRate <= maxRate * 0.75) {
-            return getResources().getString(R.string.exercise_oxygenated);
-        } else if (maxRate * 0.75 < heartRate && heartRate <= maxRate * 0.95) {
-            return getResources().getString(R.string.exercise_without_oxygen);
-        } else if (maxRate * 0.95 < heartRate) {
-            return getResources().getString(R.string.exercise_in_danger);
-        }
-        return getResources().getString(R.string.exercise_oxygenated);
-    }
 }

@@ -1,4 +1,4 @@
-package com.amsu.healthy.utils;
+package com.amsu.healthy.utils.ble;
 
 /**
  * Created by HP on 2016/12/12.

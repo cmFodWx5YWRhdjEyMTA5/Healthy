@@ -19,7 +19,7 @@ import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
+import com.amsu.healthy.utils.wifiTransmit.DeviceOffLineFileUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -744,7 +744,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
             //int allHexlength = Integer.parseInt(allHexString, 16);
 
-            //List<Integer> geIntEcgaArr = ECGUtil.geIntEcgaArrList(allHexString, " ", 12 ,uploadLengthInt);
+            //List<Integer> geIntEcgaArr = EcgAccDataUtil.geIntEcgaArrList(allHexString, " ", 12 ,uploadLengthInt);
             //onePackageData.addAll(geIntEcgaArr);
             onePackageReadLength += length;
             onePackageDataHexString += toHexString;

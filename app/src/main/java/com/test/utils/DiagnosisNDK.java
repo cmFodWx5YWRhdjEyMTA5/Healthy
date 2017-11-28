@@ -1,12 +1,13 @@
 package com.test.utils;
 
+import android.util.Log;
+
+import com.test.objects.HeartRate;
+import com.test.objects.HeartRateResult;
+
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import android.util.Log;
-
-import com.test.objects.HeartRateResult;
 
 
 public class DiagnosisNDK {
@@ -85,8 +86,8 @@ public class DiagnosisNDK {
 	 * 参数3： s_rate   采样率 
 	 * 返回值： 返回心率值
 	 */
-	public native static int getEcgHeart(int[] source,
-			int len, int s_rate,int gain);
+	public native static HeartRate getEcgHeart(int[] raw, int[] source,
+											   int len, int s_rate, int gain);
 	
 	/*
 	 * 涵数名：                    getPedo
@@ -115,9 +116,9 @@ public class DiagnosisNDK {
 	 */
 	public native static float getkcal(int sex,int hr, int age,float weight,float time);
 	
-    public static int ecgHeart(int[] source, int len, int rate) {
+    public static HeartRate ecgHeart(int[] raw,int[] source, int len, int rate) {
 		Log.d("ndk's c++", "len=" + len + " s_rate=" + rate);
-    	return getEcgHeart(source,len, rate,34);
+    	return getEcgHeart(raw,source,len, rate,34);
     }
     
     public static void AnalysisPedo(byte[] source, int len, int[] aout, int fs) {

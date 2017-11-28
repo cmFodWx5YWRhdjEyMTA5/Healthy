@@ -24,9 +24,9 @@ import com.amsu.healthy.fragment.inoutdoortype.OutDoorRunFragment;
 import com.amsu.healthy.fragment.inoutdoortype.OutDoorRunGoogleFragment;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.LeProxy;
+import com.amsu.healthy.utils.ble.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.WebSocketUtil;
+import com.amsu.healthy.utils.WebSocketProxy;
 import com.ble.api.DataUtil;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class PrepareRunningActivity extends BaseActivity {
 
     private static final String TAG = "PrepareRunningActivity";
     private Button bt_choose_offline;
-    private WebSocketUtil mWebSocketUtil;
+    private WebSocketProxy mWebSocketUtil;
     private boolean mIsOutDoor = true;
 
 
@@ -121,7 +121,7 @@ public class PrepareRunningActivity extends BaseActivity {
         int chooseMonitorShowIndex = MyUtil.getIntValueFromSP("chooseMonitorShowIndex");
 
         if (chooseMonitorShowIndex!=-1){
-            mWebSocketUtil = new WebSocketUtil();
+            mWebSocketUtil = new WebSocketProxy();
             //String url = "ws://192.168.0.112:8080/SportMonitor/websocket";
             String url = "ws://www.amsu-new.com:8081/SportMonitorServer/websocket";
 

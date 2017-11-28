@@ -17,7 +17,7 @@ import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.EcgFilterUtil_1;
+import com.amsu.healthy.utils.ble.EcgFilterUtil_1;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.EcgView;
 

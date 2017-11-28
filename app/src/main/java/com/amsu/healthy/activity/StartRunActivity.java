@@ -34,20 +34,19 @@ import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.AppAbortDbAdapterUtil;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.ECGUtil;
-import com.amsu.healthy.utils.EcgFilterUtil_1;
 import com.amsu.healthy.utils.HealthyIndexUtil;
-import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.RunTimerTaskUtil;
-import com.amsu.healthy.utils.WebSocketUtil;
-import com.amsu.healthy.utils.map.DbAdapter;
+import com.amsu.healthy.utils.WebSocketProxy;
+import com.amsu.healthy.utils.ble.BleDataProxy;
+import com.amsu.healthy.utils.ble.EcgFilterUtil_1;
+import com.amsu.healthy.utils.ble.LeProxy;
+import com.amsu.healthy.utils.ble.ResultCalcuUtil;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
-import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
+import com.amsu.healthy.utils.wifiTransmit.DeviceOffLineFileUtil;
 import com.amsu.healthy.view.GlideRelativeView;
-import com.ble.api.DataUtil;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationCallback;
@@ -58,11 +57,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
 import com.test.utils.DiagnosisNDK;
 
-import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -114,26 +108,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private boolean isStartThreeMitTimer;  //是否开始三分钟倒计时计时器
 
 
-    public static final int accDataLength = 1800;
     private static final int saveDataTOLocalTimeSpanSecond = Constant.saveDataTOLocalTimeSpanSecond;  //数据持久化时间间隔 1分钟
     private static final int minimumLimitTimeMillis = 1000 * 10 * 1;  //最短时间限制 3分钟
     public static final String action = "jason.broadcast.action";    //发送广播，将心率值以广播的方式放松出去，在其他Activity可以接受
-
-    private int currentGroupIndex = 0;   //组的索引
-    public static final int calGroupCalcuLength = 180; //
-    public static final int timeSpanGgroupCalcuLength = 60; //
-    public static final int oneGroupLength = 10; //
-    public static final int accOneGroupLength = 12; //
-    public  int[] calcuEcgRate = new int[calGroupCalcuLength *oneGroupLength]; //1000条数据:（100组，一组有10个数据点）
-    private int[] preCalcuEcgRate = new int[calGroupCalcuLength*oneGroupLength]; //前一次数的数据，12s
-    private int[] fourCalcuEcgRate = new int[timeSpanGgroupCalcuLength*oneGroupLength]; //4s的数据*/
-    private boolean isFirstCalcu = true;  //是否是第一次计算心率，第一次要连续12秒的数据
-
-    private DataOutputStream ecgDataOutputStream;  //二进制文件输出流，写入文件
-    private DataOutputStream accDataOutputStream;  //二进制文件输出流，写入文件
-    private ByteBuffer ecgByteBuffer;
-    private ByteBuffer accByteBuffer;
-    private Intent mSendHeartRateBroadcastIntent;
 
     private long startTimeMillis =-1;  //开始有心电数据时的秒数，作为心电文件命名。静态变量，在其他界面会用到
     private boolean mHaveOutSideGpsLocation;
@@ -174,7 +151,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private MyApplication application;
 
     //private WebSocketClient mWebSocketClient;
-    private WebSocketUtil mWebSocketUtil;
+    private WebSocketProxy mWebSocketUtil;
     private boolean mIsOutDoor;
     /*//private String address = "ws://192.168.0.108:8080/sportMonitor/websocket";
     private String address = "ws://192.168.0.110:8080//sportMonitor/websocket";
@@ -295,7 +272,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     }
 
     private void restoreLastRecord() {
-        mAbortData = AppAbortDbAdapterUtil.getAbortDataFromSP(Constant.sportType_Cloth);
+        /*mAbortData = AppAbortDbAdapterUtil.getAbortDataFromSP(Constant.sportType_Cloth);
         Log.i(TAG,"mAbortData:"+mAbortData);
         if (mAbortData!=null){
             createrecord = mAbortData.getMapTrackID();
@@ -355,7 +332,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
 
@@ -643,142 +620,40 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
                     //if (!mIsRunning)return;
                     //byte[] data = intent.getByteArrayExtra(LeProxy.EXTRA_DATA);
-                    dealwithLebDataChange(DataUtil.byteArrayToHex(intent.getByteArrayExtra(LeProxy.EXTRA_DATA)));
+                    //dealwithLebDataChange(DataUtil.byteArrayToHex(intent.getByteArrayExtra(LeProxy.EXTRA_DATA)));
+                    dealwithLebDataChange(intent);
                     break;
             }
         }
     };
 
-    private void dealwithLebDataChange(String hexData) {
-        //Log.i(TAG,"hexData:"+hexData);
-        if (LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_encrypt || LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_noEncrypt) {
-            if (hexData.startsWith("FF 83")) {
-                //心电数据
-                //Log.i(TAG,"心电hexData:"+hexData);
-                //FF 83 0F FF FF FF FF FF FF FF FF FF FF 00 16  长度44
-                if (hexData.length()==44){
-                    ECGUtil.geIntEcgaArr(hexData, " ", 3, oneGroupLength,ecgOneGroupDataInts); //一次的数据，10位
-                    dealWithEcgData();
-                    isHaveDataTransfer = true;
-                    mIsDataStart = true;
+    private void dealwithLebDataChange(Intent intent) {
+        int stride = intent.getIntExtra(BleDataProxy.EXTRA_STRIDE_DATA,-1);
+        int heartRate = intent.getIntExtra(BleDataProxy.EXTRA_HEART_DATA,-1);
 
-                }
-            } else if (hexData.startsWith("FF 86")) {
-                //加速度数据
-                //Log.i(TAG,"加速度hexData:"+hexData);
-                //FF 86 11 00 A4 06 AC 1E 9D 00 A4 06 AC 1E 9D 11 16   长度50
-                if (hexData.length()==50){
-                    ECGUtil.geIntEcgaArr(hexData, " ", 3, accOneGroupLength, accOneGroupDataInts); //一次的数据，12位
-                    dealWithAccelerationgData();
-                }
-            }
+        if (stride!=-1){
+            Log.i(TAG,"stride:"+stride);
+            updateUIStrideData(stride);
         }
-        if (mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration || mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration_our){
-            String[] split = hexData.split(" ");
-            if (split.length==20){
-                for (int i=0;i<split.length/2;i++){
-                    short i1 = (short) Integer.parseInt(split[2 * i] + split[2 * i + 1], 16);
-                    //Log.i(TAG,""+i1);
-                    if (mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration){
-                        ecgOneGroupDataInts[i] = i1 /256+120;
-                    }
-                    else {
-                        ecgOneGroupDataInts[i] = i1 /16;
-                    }
-                    //Log.i(TAG,"ecgInts[i]:"+ecgInts[i]);
-                }
-                dealWithEcgData();
-            }
-            else  if (split.length==1){
-                int curHeartRate = Integer.parseInt(split[0] , 16);
-                //tv_healthydata_rate.setText(curHeartRate+"");
-
-                if (curHeartRate!=mPreHeartRate){
-                    //心率不一样则改变灯的闪烁状态
-                    String data  = "4238FF01";  //导联脱落
-                    byte[] bytes = DataUtil.hexToByteArray(data);
-                    //boolean send = mLeProxy.send(mConnectedAddress, Constant.clothNewSerUuid, Constant.clothNewSendReciveDataCharUuid, bytes, false);
-                    //Log.i(TAG,"send:"+send);
-                }
-
-                mPreHeartRate = curHeartRate;
-            }
-            else if (split.length==12){
-                ECGUtil.geIntEcgaArr(hexData, " ", 0, accOneGroupLength, accOneGroupDataInts); //一次的数据，12位
-                dealWithAccelerationgData();
-            }
+        else if (heartRate!=-1){
+            Log.i(TAG,"heartRate:"+heartRate);
+            updateUIECGHeartData(heartRate);
         }
-
     }
 
-    int [] ecgOneGroupDataInts = new int[oneGroupLength];
-    private int mPreHeartRate;
-    private boolean isNeedUpdateHeartRate = false;
+    private void updateUIStrideData(int stride) {
+        tv_run_stridefre.setText(stride + "");
+        mStridefreData.add(stride);
+    }
 
-    //处理心电数据
-    private void dealWithEcgData() {
-        isNeedUpdateHeartRate = false;
+    private void updateUIECGHeartData(int heartRate) {
+        String showHeartString = heartRate==0?"--":heartRate+"";
+        tv_run_rate.setText(showHeartString);
+        calcuAllkcal(heartRate);
+        heartRateDates.add(heartRate);
 
-        if (mIsRunning) {
-            writeEcgDataToBinaryFile(ecgOneGroupDataInts);
-        }
-
-        //滤波处理
-        for (int i = 0; i < ecgOneGroupDataInts.length; i++) {
-            ecgOneGroupDataInts[i] = ecgFilterUtil_1.miniEcgFilterLp(ecgFilterUtil_1.miniEcgFilterHp(ecgFilterUtil_1.NotchPowerLine(ecgOneGroupDataInts[i], 1)));
-        }
-
-        startRealTimeDataTrasmit(ecgOneGroupDataInts);
-
-        //Log.i(TAG,"currentGroupIndex:"+currentGroupIndex);
-
-        if (isFirstCalcu) {
-            if (currentGroupIndex < calGroupCalcuLength) {
-                //未到时间（1800个数据点计算一次心率）
-                System.arraycopy(ecgOneGroupDataInts, 0, calcuEcgRate, currentGroupIndex * oneGroupLength, ecgOneGroupDataInts.length);
-            } else {
-                isNeedUpdateHeartRate = true;
-                isFirstCalcu = false;
-            }
-        } else {
-            if (currentGroupIndex < timeSpanGgroupCalcuLength) { //未到4s
-                System.arraycopy(ecgOneGroupDataInts, 0, fourCalcuEcgRate, currentGroupIndex * oneGroupLength, ecgOneGroupDataInts.length);
-            } else { //到4s,需要前8s+当前4s
-                int i = 0;
-                for (int j = timeSpanGgroupCalcuLength * oneGroupLength; j < preCalcuEcgRate.length; j++) {
-                    calcuEcgRate[i++] = preCalcuEcgRate[j];
-                }
-                System.arraycopy(fourCalcuEcgRate, 0, calcuEcgRate, i, fourCalcuEcgRate.length);
-                isNeedUpdateHeartRate = true;
-            }
-        }
-
-        if (isNeedUpdateHeartRate) {
-            currentGroupIndex = 0;
-            //计算、更新心率，到4s
-            mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
-            if (application!=null){
-                application.setRunningmCurrentHeartRate(mCurrentHeartRate);
-            }
-
-            Log.i(TAG, "mCurrentHeartRate:" + mCurrentHeartRate);
-            //calcuEcgRate = new int[calGroupCalcuLength*10];
-
-            System.arraycopy(calcuEcgRate, 0, preCalcuEcgRate, 0, calcuEcgRate.length);
-            System.arraycopy(ecgOneGroupDataInts, 0, fourCalcuEcgRate, currentGroupIndex * 10, ecgOneGroupDataInts.length);
-
-            mHandler.sendEmptyMessage(1);
-
-            //String specialFormatTime = tv_run_time.getText().toString();
-            int stridefre = 0;
-            if (mStridefreData.size() > 0) {
-                stridefre = mStridefreData.get(mStridefreData.size() - 1);
-            }
-
-            String userSportData = "A4," + mFinalFormatSpeed + "," + mFormatDistance + "," + tv_run_time.getText().toString() + "," + tv_run_isoxygen.getText().toString() + "," + mCurrentHeartRate + "," + stridefre + "," + (int) mAllKcal;
-            startUserSportDataTrasmit(userSportData);
-        }
-        currentGroupIndex++;
+        String oxygenState = ResultCalcuUtil.calcuOxygenState(heartRate,this);
+        tv_run_isoxygen.setText(oxygenState);
     }
 
     Handler mHandler = new Handler(new Handler.Callback() {
@@ -786,10 +661,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         public boolean handleMessage(Message msg) {
             switch (msg.what){
                 case 1:
-                    updateUIECGData();
+
                     break;
                 case 2:
-                    updateUIACCData();
                     break;
                 case 3:
                     updateUISpeedData();
@@ -799,64 +673,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
     });
 
-
-
-    //更新心率相关数据
-    private void updateUIECGData() {
-        String oxygenState = calcuOxygenState(mCurrentHeartRate);
-        if (mCurrentHeartRate == 0) {
-            tv_run_rate.setText("--");
-            tv_run_isoxygen.setText("--");
-        } else {
-            if (mPreHeartRate > 0) {
-                int count = 0;
-                int temp = mCurrentHeartRate - mPreHeartRate;
-                if (temp > HealthyDataActivity.D_valueMaxValue) {
-                    count = (temp) / HealthyDataActivity.D_valueMaxValue + 1;
-                } else if (temp < -HealthyDataActivity.D_valueMaxValue) {
-                    count = (temp) / HealthyDataActivity.D_valueMaxValue - 1;
-                }
-                System.out.println(count);
-                if (count != 0) {
-                    mCurrentHeartRate = mPreHeartRate + Math.abs(temp) / count;
-                }
-            }
-            tv_run_rate.setText(mCurrentHeartRate + "");
-            tv_run_isoxygen.setText(oxygenState);
-        }
-        heartRateDates.add(mCurrentHeartRate);
-        mPreHeartRate = mCurrentHeartRate;
-
-        if (mSendHeartRateBroadcastIntent == null) {
-            mSendHeartRateBroadcastIntent = new Intent(action);
-        }
-        mSendHeartRateBroadcastIntent.putExtra("data", mCurrentHeartRate);
-        sendBroadcast(mSendHeartRateBroadcastIntent);
-
-
-        if (mIsRunning) {
-            calcuAllkcal();
-
-        }
-
-        if (mWebSocketUtil!=null && !MyUtil.isEmpty(mWebSocketUtil.mCurAppClientID)) {
-            String heartkcalData = "A3," + mWebSocketUtil.mCurAppClientID + "," + mCurrentHeartRate + "," + (int) mAllKcal;
-            //sendSocketMsg(heartkcalData);
-            mWebSocketUtil.sendSocketMsg(heartkcalData);
-        }
-
-        // A4,速度,距离,时间,有氧无氧,心率,步频,卡路里,
-
-        //mCurrTimeDate = new Date(date.getTime()+recoverTimeMillis);
-
-    }
-
-    private void updateUIACCData() {
-        tv_run_stridefre.setText(mTempStridefre +"");
-    }
-
-
-
     private void updateUISpeedData() {
         tv_run_speed.setText(mFinalFormatSpeed);
         String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", mCurrTimeDate);
@@ -864,37 +680,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         Log.i(TAG,"设置通知:"+specialFormatTime);
     }
 
-    //ecg数据写到文件里，二进制方式写入
-    private void writeEcgDataToBinaryFile(int[] ints) {
-        try {
-            if (ecgDataOutputStream==null){
-                ecgLocalFileName = MyUtil.getClolthLocalFileName(1,new Date());;
-                Log.i(TAG,"fileAbsolutePath:"+ecgLocalFileName);
-                //MyUtil.putStringValueFromSP("cacheFileName",fileAbsolutePath);
-                ecgDataOutputStream = new DataOutputStream(new FileOutputStream(ecgLocalFileName,true));
-                ecgByteBuffer = ByteBuffer.allocate(2);
-                if (mAbortData!=null){
-                    mAbortData.setEcgFileName(ecgLocalFileName);
-                    saveOrUpdateAbortDatareordToSP(mAbortData,false);
-                }
-                else {
-                    mAbortData = new AppAbortDataSave(startTimeMillis, ecgLocalFileName, "", -1, 1,mSpeedStringList,mKcalData);
-                    saveOrUpdateAbortDatareordToSP(mAbortData,true);
-                }
-            }
-            for (int anInt : ints) {
-                ecgByteBuffer.clear();
-                ecgByteBuffer.putShort((short) anInt);
-                ecgDataOutputStream.writeByte(ecgByteBuffer.get(1));
-                ecgDataOutputStream.writeByte(ecgByteBuffer.get(0));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+
 
     //计算卡路里，累加
-    private void calcuAllkcal() {
+    private void calcuAllkcal(int heartRate) {
         if (mCalKcalCurrentTimeMillis == 0) {
             mCalKcalCurrentTimeMillis = System.currentTimeMillis();
             mUserSex = MyUtil.getUserSex();
@@ -904,7 +693,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             float time = (float) ((System.currentTimeMillis() - mCalKcalCurrentTimeMillis) / (1000 * 60.0));
             mCalKcalCurrentTimeMillis = System.currentTimeMillis();
             Log.i(TAG, "time:" + time + ",mUserSex:" + mUserSex + ",mUserAge:" + mUserAge + ",mUserWeight" + mUserWeight);
-            float getkcal = DiagnosisNDK.getkcal(mUserSex, mCurrentHeartRate, mUserAge, mUserWeight, time);
+            float getkcal = DiagnosisNDK.getkcal(mUserSex, heartRate, mUserAge, mUserWeight, time);
             Log.i(TAG, "getkcal:" + getkcal);
             if (getkcal < 0) {
                 getkcal = 0;
@@ -928,87 +717,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
     }
 
-    private String calcuOxygenState(int heartRate) {
-        int maxRate = 220-HealthyIndexUtil.getUserAge();
-        if (heartRate<=maxRate*0.6){
-            return getResources().getString(R.string.exercise_flat);
-        }
-        else if (maxRate*0.6<heartRate && heartRate<=maxRate*0.75){
-            return getResources().getString(R.string.exercise_oxygenated);
-        }
-        else if (maxRate*0.75<heartRate && heartRate<=maxRate*0.95){
-            return getResources().getString(R.string.exercise_without_oxygen);
-        }
-        else if (maxRate*0.95<heartRate ){
-            return getResources().getString(R.string.exercise_in_danger);
-        }
-        return getResources().getString(R.string.exercise_oxygenated);
-    }
-
-
-    int [] accOneGroupDataInts = new int[accOneGroupLength];
-
-    byte[] accByteData = new byte[accDataLength];
-    private int accCalcuDataIndex = 0;
-    //处理加速度数据
-    private void dealWithAccelerationgData() {
-        if (!mIsRunning)return;
-
-        if (mIsRunning) {
-            writeAccDataToBinaryFile(accOneGroupDataInts);
-        }
-
-        if (accCalcuDataIndex<accDataLength){
-            for (int i: accOneGroupDataInts){
-                //accData.add(i);
-                accByteData[accCalcuDataIndex++] = (byte)i;
-            }
-        }
-        else {
-            //计算
-            mTempStridefre = MyUtil.getStridefreByAccData(accByteData);
-            Log.i(TAG,"mTempStridefre: "+mTempStridefre);
-            mStridefreData.add(mTempStridefre);
-            mHandler.sendEmptyMessage(2);
-
-            accCalcuDataIndex=0;
-            for (int i: accOneGroupDataInts){
-                accByteData[accCalcuDataIndex++] = (byte)i;
-            }
-        }
-    }
-
-
-    //acc数据写到文件里，二进制方式写入
-    private void writeAccDataToBinaryFile(int[] ints) {
-        try {
-            if (accDataOutputStream==null){
-                long accFiletimeMillis = System.currentTimeMillis();
-                String accLocalFileName = MyUtil.getClolthLocalFileName(2,new Date());
-                Log.i(TAG,"accLocalFileName:"+accLocalFileName);
-                //MyUtil.putStringValueFromSP("cacheFileName",fileAbsolutePath);
-                accDataOutputStream = new DataOutputStream(new FileOutputStream(accLocalFileName,true));
-                accByteBuffer = ByteBuffer.allocate(2);
-                if (mAbortData!=null){
-                    mAbortData.setAccFileName(accLocalFileName);
-                    saveOrUpdateAbortDatareordToSP(mAbortData,false);
-                }
-                else {
-                    mAbortData = new AppAbortDataSave(accFiletimeMillis, "", accLocalFileName, -1, 1,mSpeedStringList,mKcalData);
-                    saveOrUpdateAbortDatareordToSP(mAbortData,true);
-                }
-            }
-            for (int anInt : ints) {
-                accByteBuffer.clear();
-                accByteBuffer.putShort((short) anInt);
-                accDataOutputStream.writeByte(accByteBuffer.get(1));
-                accDataOutputStream.writeByte(accByteBuffer.get(0));
-                //accDataOutputStream.flush();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     /**
@@ -1705,8 +1413,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             mlocationClient = null;
         }
 
-        ecgDataOutputStream = null;
-        accDataOutputStream = null;
         if (deviceOffLineFileUtil!=null){
             deviceOffLineFileUtil.stopTime();
             deviceOffLineFileUtil = null;

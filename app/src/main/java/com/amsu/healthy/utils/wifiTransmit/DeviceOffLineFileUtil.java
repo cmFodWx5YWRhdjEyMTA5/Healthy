@@ -1,13 +1,13 @@
-package com.amsu.healthy.utils.wifiTramit;
+package com.amsu.healthy.utils.wifiTransmit;
 
 import android.os.Environment;
 import android.util.Log;
 
-import com.amsu.healthy.utils.ECGUtil;
+import com.amsu.healthy.utils.ble.EcgAccDataUtil;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.wifiTramit.uilt.WriteReadDataToBinaryFile;
-import com.amsu.healthy.utils.wifiTramit.uilt.WriteReadDataToFileStrategy;
-import com.amsu.healthy.utils.wifiTramit.uilt.WriteReadDataToTextFile;
+import com.amsu.healthy.utils.wifiTransmit.uilt.WriteReadDataToBinaryFile;
+import com.amsu.healthy.utils.wifiTransmit.uilt.WriteReadDataToFileStrategy;
+import com.amsu.healthy.utils.wifiTransmit.uilt.WriteReadDataToTextFile;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -342,7 +342,7 @@ public class DeviceOffLineFileUtil {
         int count = 16; //16为分10个包上传
         for (int i=0;i<count;i++){
             int start = 12+i*(512+14);
-            List<Integer> integers = ECGUtil.geIntEcgaArrList(hexStringData, " ", start, 512);
+            List<Integer> integers = EcgAccDataUtil.geIntEcgaArrList(hexStringData, " ", start, 512);
             mAllData.addAll(integers);
         }
     }
@@ -353,10 +353,10 @@ public class DeviceOffLineFileUtil {
         int countRemain = onePackageReadLength % (512 + 14);
         for (int i=0;i<count;i++){
             int start = 12+i*(512+14);
-            List<Integer> integers = ECGUtil.geIntEcgaArrList(hexStringData, " ", start, 512);
+            List<Integer> integers = EcgAccDataUtil.geIntEcgaArrList(hexStringData, " ", start, 512);
             mAllData.addAll(integers);
         }
-        List<Integer> integers = ECGUtil.geIntEcgaArrList(hexStringData, " ", 12+count*(512+14), countRemain);
+        List<Integer> integers = EcgAccDataUtil.geIntEcgaArrList(hexStringData, " ", 12+count*(512+14), countRemain);
         mAllData.addAll(integers);
     }
 

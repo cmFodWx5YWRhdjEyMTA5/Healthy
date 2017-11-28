@@ -1,4 +1,4 @@
-package com.amsu.healthy.utils.wifiTramit.uilt;
+package com.amsu.healthy.utils.wifiTransmit.uilt;
 
 import java.io.Closeable;
 import java.io.IOException;

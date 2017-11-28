@@ -42,9 +42,9 @@ import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.ApkUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
-import com.amsu.healthy.utils.LeProxy;
+import com.amsu.healthy.utils.ble.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.wifiTramit.DeviceOffLineFileUtil;
+import com.amsu.healthy.utils.wifiTransmit.DeviceOffLineFileUtil;
 import com.amsu.healthy.view.CircleRingView;
 import com.amsu.healthy.view.DashboardView;
 import com.ble.api.DataUtil;
@@ -210,14 +210,14 @@ public class MainActivity extends BaseActivity {
         }
         System.out.println(ecgDataList.size());
 
-        int[] calcuEcgRate = new int[1000];
-        System.out.println(calcuEcgRate.length);
-        int heartCount = ecgDataList.size() / calcuEcgRate.length;
+        int[] calcuEcgRateAfterFilter = new int[1000];
+        System.out.println(calcuEcgRateAfterFilter.length);
+        int heartCount = ecgDataList.size() / calcuEcgRateAfterFilter.length;
         System.out.println(heartCount);
 
         for (int j=0;j<heartCount;j++){
-            for (int i=0;i<calcuEcgRate.length;i++){
-                calcuEcgRate[i] = ecgDataList.get(j*calcuEcgRate.length+i);
+            for (int i=0;i<calcuEcgRateAfterFilter.length;i++){
+                calcuEcgRateAfterFilter[i] = ecgDataList.get(j*calcuEcgRateAfterFilter.length+i);
             }
         }*/
 
@@ -499,13 +499,13 @@ public class MainActivity extends BaseActivity {
         /*Log.i(TAG,"Build.MODEL"+Build.MODEL);
 
 
-        int []calcuEcgRate  = new int[1800];
+        int []calcuEcgRateAfterFilter  = new int[1800];
 
         for (int i=0;i<1800;i++){
-            calcuEcgRate[i] = i%20;
+            calcuEcgRateAfterFilter[i] = i%20;
         }
 
-        int mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
+        int mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRateAfterFilter, calcuEcgRateAfterFilter.length, Constant.oneSecondFrame);
         Log.i(TAG,"mCurrentHeartRate:"+mCurrentHeartRate);*/
 
 
@@ -513,11 +513,11 @@ public class MainActivity extends BaseActivity {
         //计算
         /*byte[] bytes = new byte[1800];
         for (int i=0;i<1800;i++){
-            bytes[i] = (byte)(int)calcuEcgRate[i];
+            bytes[i] = (byte)(int)calcuEcgRateAfterFilter[i];
         }
         int[] results = new int[2];
 
-        DiagnosisNDK.AnalysisPedo(bytes,calcuEcgRate.length,results);
+        DiagnosisNDK.AnalysisPedo(bytes,calcuEcgRateAfterFilter.length,results);
 
         Log.i(TAG,"results: "+results[0]+"  "+results[1]);   //results: 2  30*/
 

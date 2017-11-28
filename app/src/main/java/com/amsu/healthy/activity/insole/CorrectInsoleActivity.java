@@ -14,13 +14,12 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
 import com.amsu.healthy.activity.RunTimeCountdownActivity;
-import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.Insole3ScendCache;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.ble.LeProxy;
 import com.ble.api.DataUtil;
 
 import java.util.ArrayList;
@@ -84,8 +83,8 @@ public class CorrectInsoleActivity extends BaseActivity {
         insole_connecMac2 = CommunicateToBleService.mInsole_connecMac2;*/
 
 
-        MyApplication application = (MyApplication) getApplication();
-        Map<String, Device> insoleDeviceBatteryInfos = application.getInsoleDeviceBatteryInfos();
+        //MyApplication application = (MyApplication) getApplication();
+        Map<String, Device> insoleDeviceBatteryInfos = CommunicateToBleService.mInsoleDeviceBatteryInfos;
 
         int i=0;
         for (Device device : insoleDeviceBatteryInfos.values()) {

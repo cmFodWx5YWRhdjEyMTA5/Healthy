@@ -40,6 +40,8 @@ import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.service.LocalGuardService;
 import com.amsu.healthy.service.MyTestService2;
 import com.amsu.healthy.service.RemoteGuardService;
+import com.amsu.healthy.utils.ble.EcgAccDataUtil;
+import com.amsu.healthy.utils.ble.LeProxy;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.http.RequestParams;
@@ -75,7 +77,7 @@ public class MyUtil {
     private static ProgressDialog dialog;
     private static PopupWindow mPopupWindow;
 
-    public static void showDialog(String message,Activity context){
+    public static void showDialog(String message,Context context){
         try {
             dialog = new ProgressDialog(context);
             dialog.setCanceledOnTouchOutside(false);
@@ -94,8 +96,8 @@ public class MyUtil {
         dialog = null;
     }
 
-    public static void hideDialog(Activity context) {
-        if (context == null || context.isFinishing() || context.isDestroyed()) return;
+    public static void hideDialog(Context context) {
+        if (context == null) return;
         try{
             if (dialog != null && dialog.isShowing()){
                 dialog.dismiss();
@@ -1246,7 +1248,7 @@ public class MyUtil {
             Log.i(TAG,"mkdirs:"+mkdirs);
         }
         filePath += "/"+ MyUtil.getECGFileNameDependFormatTime(date);
-        if (ecg_acc==1){
+        if (ecg_acc== EcgAccDataUtil.fileExtensionType_ECG){
             return filePath+".ecg";
         }
         else {

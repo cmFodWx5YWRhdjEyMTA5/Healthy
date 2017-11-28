@@ -75,9 +75,6 @@ public class CalculateHRRProcessActivity extends BaseActivity {
             animation.cancel();
             animation = null;
 
-
-            HealthyDataActivity.stopTransmitData();
-
             Intent intent = new Intent(this, HeartRateAnalysisActivity.class);
             if (isTimeOut){    //到一分钟，传递恢复心率数据
                 //int hrr = maxHeartRate - minHeartRate;

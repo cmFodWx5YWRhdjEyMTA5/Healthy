@@ -17,13 +17,21 @@ import java.net.URISyntaxException;
  * @time 9/14/2017 3:23 PM
  * @describe
  */
-public class WebSocketUtil {
-    private static final String TAG = "WebSocketUtil";
+public class WebSocketProxy {
+    private static final String TAG = "WebSocketProxy";
     public  WebSocketClient mWebSocketClient;
     public boolean isStartDataTransfer;
     public String mCurBrowserClientID;
     public String mCurAppClientID;
 
+    public static WebSocketProxy webSocketProxy;
+
+    public static WebSocketProxy getInstance() {
+        if (webSocketProxy==null){
+            webSocketProxy = new WebSocketProxy();
+        }
+        return  webSocketProxy;
+    }
 
     //连接
     public void connectWebSocket(String address) {

@@ -1,4 +1,4 @@
-package com.amsu.healthy.utils.wifiTramit.uilt;
+package com.amsu.healthy.utils.wifiTransmit.uilt;
 
 import android.util.Log;
 
@@ -22,29 +22,14 @@ import java.util.List;
 
 public class WriteReadDataToBinaryFile implements WriteReadDataToFileStrategy {
     private static final String TAG = "WriteReadDataToBinaryFile";
+    private int fileExtensionType;
 
-    /*@Override
-    public boolean writeDataToFile(List<Integer> integerList, String fileName) {
-        DataOutputStream dataOutputStream = null;
-        boolean isWriteSuccess = false;
-        try {
-            dataOutputStream = new DataOutputStream(new FileOutputStream(fileName));
-            ByteBuffer byteBuffer = ByteBuffer.allocate(2);
-            for (int anInt : integerList) {
-                byteBuffer.clear();
-                byteBuffer.putShort((short) anInt);
-                dataOutputStream.writeByte(byteBuffer.get(1));
-                dataOutputStream.writeByte(byteBuffer.get(0));
-            }
-            dataOutputStream.flush();
-            isWriteSuccess = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            IOUtil.closeIOStream(dataOutputStream);
-        }
-        return isWriteSuccess;
-    }*/
+    public WriteReadDataToBinaryFile() {
+    }
+
+    public WriteReadDataToBinaryFile(int fileExtensionType) {
+        this.fileExtensionType = fileExtensionType;
+    }
 
     @Override
     public boolean writeDataToFile(List<Integer> integerList, String fileName) {
@@ -137,4 +122,63 @@ public class WriteReadDataToBinaryFile implements WriteReadDataToFileStrategy {
         }
         return isWriteSuccess;
     }
+
+
+    private DataOutputStream dataOutputStream;  //二进制文件输出流，写入文件
+    private ByteBuffer byteBuffer;
+    private String ecgLocalFileName;
+
+    //写到文件里，二进制方式写入
+    @Override
+    public void writeArrayDataToBinaryFile(final int[] ints) {
+        try {
+            if (dataOutputStream==null){
+                ecgLocalFileName = MyUtil.getClolthLocalFileName(fileExtensionType,new Date());
+                Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
+                dataOutputStream = new DataOutputStream(new FileOutputStream(ecgLocalFileName,true));  //追加到文件末尾
+                byteBuffer = ByteBuffer.allocate(2);
+            }
+            for (int anInt : ints) {
+                byteBuffer.clear();
+                byteBuffer.putShort((short) anInt);
+                dataOutputStream.writeByte(byteBuffer.get(1));
+                dataOutputStream.writeByte(byteBuffer.get(0));
+            }
+        } catch (IOException e) {
+            Log.i(TAG,"e:"+e);
+            e.printStackTrace();
+        }
+        /*new Thread(){
+            @Override
+            public void run() {
+                try {
+                    if (dataOutputStream==null){
+                        ecgLocalFileName = MyUtil.getClolthLocalFileName(1,new Date());
+                        Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
+                        dataOutputStream = new DataOutputStream(new FileOutputStream(ecgLocalFileName,true));  //追加到文件末尾
+                        byteBuffer = ByteBuffer.allocate(2);
+                    }
+                    for (int anInt : ints) {
+                        byteBuffer.clear();
+                        byteBuffer.putShort((short) anInt);
+                        dataOutputStream.writeByte(byteBuffer.get(1));
+                        dataOutputStream.writeByte(byteBuffer.get(0));
+                    }
+                } catch (IOException e) {
+                    Log.i(TAG,"e:"+e);
+                    e.printStackTrace();
+                }
+            }
+        }.start();*/
+    }
+
+    @Override
+    public String closeArrayDataStreamResource() {
+        IOUtil.closeIOStream(dataOutputStream);
+        dataOutputStream = null;
+        byteBuffer = null;
+        return ecgLocalFileName;
+    }
+
+
 }

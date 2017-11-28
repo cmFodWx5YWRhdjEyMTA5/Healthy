@@ -22,11 +22,11 @@ import com.amsu.healthy.activity.MainActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.JsonBase;
+import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.InputTextAlertDialogUtil;
-import com.amsu.healthy.utils.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
-import com.google.gson.Gson;
+import com.amsu.healthy.utils.ble.LeProxy;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -189,13 +189,13 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
     }
 
     private void setDeviceBattery() {
-        Map<String, Device> insoleDeviceBatteryInfos = application.getInsoleDeviceBatteryInfos();
+        Map<String, Device> insoleDeviceBatteryInfos = CommunicateToBleService.getInstance().getInsoleDeviceBatteryInfos();
 
-        String stringValueFromSP = MyUtil.getStringValueFromSP(Constant.insoleDeviceBatteryInfos);
+        /*String stringValueFromSP = MyUtil.getStringValueFromSP(Constant.insoleDeviceBatteryInfos);
         Gson gson = new Gson();
         Map<String, Device> insoleDeviceBatteryInfosSP = gson.fromJson(stringValueFromSP, new TypeToken<Map<String, Device>>() {
         }.getType());
-
+*/
 
         mConnectedDeviceList = new ArrayList<>();
         for (Device device : insoleDeviceBatteryInfos.values()) {

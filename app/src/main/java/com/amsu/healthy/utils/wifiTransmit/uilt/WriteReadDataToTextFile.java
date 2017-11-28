@@ -1,4 +1,4 @@
-package com.amsu.healthy.utils.wifiTramit.uilt;
+package com.amsu.healthy.utils.wifiTransmit.uilt;
 
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -61,11 +61,22 @@ public class WriteReadDataToTextFile implements WriteReadDataToFileStrategy {
         return false;
     }
 
+
     private void parStringDataToList(String fileStringData,List<Integer> integerList) {
         String[] split = fileStringData.split(" ");
         for (String s:split){
             integerList.add(Integer.parseInt(s));
         }
+    }
+
+    @Override
+    public void writeArrayDataToBinaryFile(int[] ints) {
+
+    }
+
+    @Override
+    public String closeArrayDataStreamResource() {
+        return null;
     }
 
 }

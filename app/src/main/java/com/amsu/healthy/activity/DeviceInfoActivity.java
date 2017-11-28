@@ -17,10 +17,9 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.JsonBase;
-import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.InputTextAlertDialogUtil;
-import com.amsu.healthy.utils.LeProxy;
+import com.amsu.healthy.utils.ble.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
@@ -29,9 +28,6 @@ import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
-
-import java.util.Iterator;
-import java.util.List;
 
 public class DeviceInfoActivity extends BaseActivity {
 
@@ -238,6 +234,9 @@ public class DeviceInfoActivity extends BaseActivity {
                             if (MyApplication.isHaveDeviceConnectted){
                                 //断开蓝牙连接
                                 mLeProxy.disconnect(MyApplication.clothConnectedMacAddress);
+
+                                LeProxy.getInstance().setmClothDeviceType(Constant.clothDeviceType_Default_NO);
+                                MyUtil.putIntValueFromSP(Constant.mClothDeviceType,-1);
                             }
                         }
                         else {
@@ -246,6 +245,7 @@ public class DeviceInfoActivity extends BaseActivity {
                                 mLeProxy.disconnect(oldStr);
                             }
                         }
+                        finish();
                     }
                     else {
                         //设备已被其他人绑定！
