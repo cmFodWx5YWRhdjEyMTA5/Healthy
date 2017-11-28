@@ -269,6 +269,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
         startRunning();
 
+
+
+
     }
 
     private void restoreLastRecord() {
@@ -1425,6 +1428,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         deleteAbortDataRecordFomeSP();
         CommunicateToBleService.detoryServiceForegrounByNotify();
+
+
 
         /*if (mWebSocketUtil!=null){
             mWebSocketUtil.closeConnectWebSocket();
