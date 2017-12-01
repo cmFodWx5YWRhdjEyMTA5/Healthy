@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.amsu.healthy.utils.Constant.ecgLocalFileName;
 import static com.amsu.healthy.utils.Constant.enduranceTest;
 
 /**
@@ -317,6 +316,7 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
             public void onFailure(HttpException e, String s) {
                 MyUtil.hideDialog(EnduranceTestRuningActivity.this);
             }
+
         });
     }
 

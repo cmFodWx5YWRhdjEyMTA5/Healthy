@@ -22,6 +22,7 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +36,7 @@ public class HealthyPlanCalenActivity extends BaseActivity {
     private List<HealthyPlan> mMonthHealthyPlanList;
     private TextView tv_healthycalen_title;
     private int[] planDays;
+    private ArrayList<HealthyPlan> healthyPlanListFromLastYear;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class HealthyPlanCalenActivity extends BaseActivity {
                 finish();
             }
         });
+
         vl_healthycalen_calen = (MyCalendarView) findViewById(R.id.vl_healthycalen_calen);
         tv_plancalen_yearndmouth = (TextView) findViewById(R.id.tv_plancalen_yearndmouth);
         tv_healthycalen_title = (TextView) findViewById(R.id.tv_healthycalen_title);
@@ -153,17 +156,74 @@ public class HealthyPlanCalenActivity extends BaseActivity {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH)+1;
+
+        String dataInfo = "";
         Log.i(TAG,"year:"+year+",month:"+month);
         if (month<10){
-            getHealthPlanData(year+"","0"+month+"");
+            dataInfo = year+"-"+"0"+month;
         }
         else {
-            getHealthPlanData(year+"",month+"");
+            dataInfo = year+"-"+ month;
         }
+
         tv_plancalen_yearndmouth.setText(year+"年"+month+"月");
 
+        Intent intent = getIntent();
+        Bundle bundle = intent.getBundleExtra("bundle");
+        if (bundle!=null){
+            healthyPlanListFromLastYear = bundle.getParcelableArrayList("healthyPlanListFromLastYear");
+        }
+        Log.i(TAG,"healthyPlanListFromLastYear:"+healthyPlanListFromLastYear);
+
+        if (healthyPlanListFromLastYear==null || healthyPlanListFromLastYear.size()==0){
+            //从服务器上取数据
+            healthyPlanListFromLastYear = new ArrayList<>();
+            getHealthPlanDataFromLastYear();
+        }
+        else {
+            List<HealthyPlan> monthHealthDataFromAllList = getMonthHealthDataFromAllList(dataInfo);
+            mMonthHealthyPlanList = monthHealthDataFromAllList;
+            updatePlanDaysList(monthHealthDataFromAllList);
+        }
+    }
+
+    private void getHealthPlanDataFromLastYear(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR,calendar.get(Calendar.YEAR)-1);
+        String date = MyUtil.getSpecialFormatTime("", calendar.getTime());
+
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("date",date);
+
+        MyUtil.addCookieForHttp(params);
+        MyUtil.showDialog(getResources().getString(R.string.loading),this);
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getAfter20ItemHealthyPlanListURL, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                MyUtil.hideDialog(getApplication());
+                Log.i(TAG,"上传onSuccess==result:"+result);
+                JsonBase<List<HealthyPlan>> jsonBase = MyUtil.commonJsonParse(result, new TypeToken<JsonBase<List<HealthyPlan>>>() {}.getType());
+                Log.i(TAG,"jsonBase:"+jsonBase);
+                if (jsonBase!=null&&jsonBase.getRet()==0){
+                    if (jsonBase.errDesc!=null && jsonBase.errDesc.size()>0){
+                        healthyPlanListFromLastYear.addAll(jsonBase.errDesc);
+                        updatePlanDaysList(mMonthHealthyPlanList);
+                    }
+                    Log.i(TAG,"healthyPlanListFromLastYear:"+healthyPlanListFromLastYear.size());
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                MyUtil.hideDialog(getApplication());
+                Log.i(TAG,"上传onFailure==s:"+s);
+            }
+        });
 
     }
+
 
     private void getHealthPlanData(String year, String month) {
         HttpUtils httpUtils = new HttpUtils();
@@ -218,7 +278,7 @@ public class HealthyPlanCalenActivity extends BaseActivity {
                     JsonBase<List<HealthyPlan>> commonJsonParse = MyUtil.commonJsonParse(result, new TypeToken<JsonBase<List<HealthyPlan>>>() {}.getType());
                     if (commonJsonParse!=null){
                         mMonthHealthyPlanList = commonJsonParse.errDesc;
-                        updatePlanDaysList(mMonthHealthyPlanList);
+
                     }
                 }
                 else {
@@ -232,6 +292,9 @@ public class HealthyPlanCalenActivity extends BaseActivity {
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });
+
+
+
 
     }
 
@@ -268,26 +331,81 @@ public class HealthyPlanCalenActivity extends BaseActivity {
     public void preMouth(View view) {
 
         /*int[] planDays = {3,27};
-        vl_healthycalen_calen.setPlanDays(planDays);*/
+        vl_healthycalen_calen.setPlanDays(planDays);*//*
 
         tv_healthycalen_title.setText("--");
         String leftYearAndmonth = vl_healthycalen_calen.clickLeftMonth();
         String[] ya = leftYearAndmonth.split("-");
         tv_plancalen_yearndmouth.setText(ya[0]+"年"+ya[1]+"月");
 
+        String yearMonth = null;
+
         if (ya[1].length()==1){
-            getHealthPlanData(ya[0],"0"+ya[1]);
+            //getHealthPlanData(ya[0],"0"+ya[1]);
+            yearMonth = ya[0]+"-"+"0"+ya[1];
         }
         else {
-            getHealthPlanData(ya[0],ya[1]);
+            //getHealthPlanData(ya[0],ya[1]);
+            yearMonth = ya[0]+"-"+"0"+ya[1];
         }
 
+        List<HealthyPlan> monthHealthDataFromAllList = getMonthHealthDataFromAllList(yearMonth);
+        updatePlanDaysList(monthHealthDataFromAllList);*/
+
+        setHealthInfo(leftRightType_Left);
+
+
+    }
+
+    int leftRightType_Left = 0;
+    int leftRightType_Right = 1;
+
+    private void setHealthInfo(int leftRightType){
+        String dataInfo = "";
+        if (leftRightType==leftRightType_Left){
+            dataInfo = vl_healthycalen_calen.clickLeftMonth();
+        }
+        else if (leftRightType==leftRightType_Right){
+            dataInfo = vl_healthycalen_calen.clickRightMonth();
+        }
+
+        tv_healthycalen_title.setText("--");
+        String[] ya = dataInfo.split("-");
+        tv_plancalen_yearndmouth.setText(ya[0]+"年"+ya[1]+"月");
+
+        String yearMonth = null;
+
+        if (ya[1].length()==1){
+            //getHealthPlanData(ya[0],"0"+ya[1]);
+            yearMonth = ya[0]+"-"+"0"+ya[1];
+        }
+        else {
+            //getHealthPlanData(ya[0],ya[1]);
+            yearMonth = ya[0]+"-"+ya[1];
+        }
+
+        List<HealthyPlan> monthHealthDataFromAllList = getMonthHealthDataFromAllList(yearMonth);
+        mMonthHealthyPlanList = monthHealthDataFromAllList;
+        updatePlanDaysList(monthHealthDataFromAllList);
+
+    }
+
+    private List<HealthyPlan> getMonthHealthDataFromAllList(String yearMonth){
+        List<HealthyPlan> healthyPlans = new ArrayList<>();
+        if (healthyPlanListFromLastYear!=null && healthyPlanListFromLastYear.size()>0){
+            for (HealthyPlan healthyPlan:healthyPlanListFromLastYear){
+                if (healthyPlan.getDate().startsWith(yearMonth)){//2016-10-24
+                    healthyPlans.add(healthyPlan);
+                }
+            }
+        }
+        return healthyPlans;
     }
 
     //点击下一月
     public void nextMouth(View view) {
 
-        tv_healthycalen_title.setText("--");
+        /*tv_healthycalen_title.setText("--");
         String rightYearAndmonth = vl_healthycalen_calen.clickRightMonth();
         String[] ya = rightYearAndmonth.split("-");
         tv_plancalen_yearndmouth.setText(ya[0]+"年"+ya[1]+"月");
@@ -297,7 +415,9 @@ public class HealthyPlanCalenActivity extends BaseActivity {
         }
         else {
             getHealthPlanData(ya[0],ya[1]);
-        }
+        }*/
+        setHealthInfo(leftRightType_Right);
+
 
     }
 }

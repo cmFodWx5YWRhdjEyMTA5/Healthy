@@ -22,7 +22,6 @@ import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class SearchDevicehActivity extends BaseActivity {
     private static final String TAG = "SearchDevicehActivity";
@@ -62,7 +61,7 @@ public class SearchDevicehActivity extends BaseActivity {
 
         iv_heartrate_rotateimage.setAnimation(animation);
 
-        MyTimeTask.startCountDownTimerTask(1000 * 4, new MyTimeTask.OnTimeOutListener() {
+        MyTimeTask.startCountDownTimerTask(1000 * 3, new MyTimeTask.OnTimeOutListener() {
             @Override
             public void onTomeOut() {
                 Log.i(TAG,"4秒钟定时器onTomeOut");
@@ -76,7 +75,7 @@ public class SearchDevicehActivity extends BaseActivity {
             }
         });
 
-        MyTimeTask.startCountDownTimerTask(1000 * 20, new MyTimeTask.OnTimeOutListener() {
+        MyTimeTask.startCountDownTimerTask(1000 * 12, new MyTimeTask.OnTimeOutListener() {
             @Override
             public void onTomeOut() {
                 Log.i(TAG,"20s定时器：onTomeOut");

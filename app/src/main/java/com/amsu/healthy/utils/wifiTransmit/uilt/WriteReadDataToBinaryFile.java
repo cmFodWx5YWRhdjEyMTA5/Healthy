@@ -137,6 +137,7 @@ public class WriteReadDataToBinaryFile implements WriteReadDataToFileStrategy {
                 Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
                 dataOutputStream = new DataOutputStream(new FileOutputStream(ecgLocalFileName,true));  //追加到文件末尾
                 byteBuffer = ByteBuffer.allocate(2);
+                //ResultCalcuUtil.writeECGFileHeadBytes(dataOutputStream);
             }
             for (int anInt : ints) {
                 byteBuffer.clear();
@@ -148,6 +149,11 @@ public class WriteReadDataToBinaryFile implements WriteReadDataToFileStrategy {
             Log.i(TAG,"e:"+e);
             e.printStackTrace();
         }
+
+
+
+
+
         /*new Thread(){
             @Override
             public void run() {
@@ -179,6 +185,5 @@ public class WriteReadDataToBinaryFile implements WriteReadDataToFileStrategy {
         byteBuffer = null;
         return ecgLocalFileName;
     }
-
 
 }

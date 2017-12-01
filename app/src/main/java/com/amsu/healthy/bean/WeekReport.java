@@ -39,6 +39,14 @@ public  class WeekReport{
         public class Zaoboloubo{
             public int zaoboTimes;
             public int louboTimes;
+
+            @Override
+            public String toString() {
+                return "Zaoboloubo{" +
+                        "zaoboTimes=" + zaoboTimes +
+                        ", louboTimes=" + louboTimes +
+                        '}';
+            }
         }
 
         @Override

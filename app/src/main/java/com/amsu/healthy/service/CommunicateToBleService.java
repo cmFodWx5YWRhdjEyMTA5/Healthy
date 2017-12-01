@@ -248,7 +248,7 @@ public class CommunicateToBleService extends Service {
     }
 
 
-    //检查衣服电量
+    //检查设备电量
     private void checkDeviceCharge() {
         deviceOffLineFileUtil = new DeviceOffLineFileUtil();
         deviceOffLineFileUtil.setTransferTimeOverTime(new DeviceOffLineFileUtil.OnTimeOutListener() {
@@ -295,10 +295,22 @@ public class CommunicateToBleService extends Service {
                 Log.i(TAG,"startLeScan:"+b);
 
                 if (!b){
-                    bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                    mBluetoothAdapter.disable();  //关闭蓝牙
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            mBluetoothAdapter.enable();  //打开蓝牙
+                        }
+                    }.start();
+                    /*bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
                     mBluetoothAdapter = bluetoothManager.getAdapter();
                     boolean sendAgain = mBluetoothAdapter.startLeScan(mLeScanCallback);
-                    Log.i(TAG,"startLeScan  sendAgain:"+sendAgain);
+                    Log.i(TAG,"startLeScan  sendAgain:"+sendAgain);*/
                 }
             } else {
                 Log.i(TAG,"蓝牙未连接");
@@ -338,10 +350,13 @@ public class CommunicateToBleService extends Service {
             String leName = device.getName();
             if (MyUtil.isEmpty(leName))return;
 
+            Log.i(TAG,"MyApplication.deivceType："+MyApplication.deivceType);
+
             if (MyApplication.deivceType==Constant.sportType_Cloth && (leName.startsWith("BLE") || leName.startsWith("AMSU")) ) {
 
                 //String stringValueFromSP = MyUtil.getStringValueFromSP(Constant.currectDeviceLEMac);
                 Device deviceFromSP = MyUtil.getDeviceFromSP();
+                Log.i(TAG,"deviceFromSP："+deviceFromSP);
                 if (deviceFromSP==null) return;
                 if (device.getAddress().equals(deviceFromSP.getMac())){  //只有扫描到的蓝牙是sp里的当前设备时（激活状态），才能进行连接
                     Log.i(TAG,"stringValueFromSP:"+deviceFromSP.getMac());

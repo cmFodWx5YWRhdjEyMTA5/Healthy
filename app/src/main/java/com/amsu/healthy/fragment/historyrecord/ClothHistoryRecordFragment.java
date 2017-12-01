@@ -12,10 +12,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.ConnectToWifiGudieActivity1;
 import com.amsu.healthy.activity.HeartRateAnalysisActivity;
 import com.amsu.healthy.activity.HeartRateResultShowActivity;
-import com.amsu.healthy.activity.HistoryRecordActivity;
 import com.amsu.healthy.adapter.HistoryRecordAdapter;
 import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.bean.HistoryRecord;
@@ -96,6 +94,15 @@ public class ClothHistoryRecordFragment extends Fragment {
             }
         });
 
+        /*lv_history_all.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                HistoryRecord historyRecord = historyRecords.get(position);
+                deleteRecordByID(historyRecord.getId(),position);
+                return false;
+            }
+        });*/
+
         lv_history_all.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -141,7 +148,6 @@ public class ClothHistoryRecordFragment extends Fragment {
                         startActivity(intent);
                     }
                 }
-
             }
         });
 
@@ -195,11 +201,10 @@ public class ClothHistoryRecordFragment extends Fragment {
         RequestParams params = new RequestParams();
         params.addBodyParameter("record_number","50");
         params.addBodyParameter("page",page+"");
+        //params.addBodyParameter("state", "3");
         MyUtil.addCookieForHttp(params);
 
         Log.i(TAG,"page:"+page);
-
-
 
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHistoryReportListURL, params, new RequestCallBack<String>() {
             @Override

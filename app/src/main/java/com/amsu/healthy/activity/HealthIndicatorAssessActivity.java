@@ -235,6 +235,8 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                         //本周数据
                         thisWeekReport = gson.fromJson(result, WeekReport.class);
                         Log.i(TAG,"thisWeekReport:"+ thisWeekReport.toString());
+                        Log.i(TAG,"zaoboloubo:"+ thisWeekReport.errDesc.zaoboloubo);
+
 
 
                     }
@@ -642,7 +644,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                         tv_item_value.setText("--");
                     }
                     else {
-                        tv_item_value.setText(indicatorAssess.getPercent()+"("+differenceValueString+")");
+                        tv_item_value.setText(indicatorAssess.getValue()+"("+differenceValueString+")");
                     }
                 }
                 else {

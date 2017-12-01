@@ -109,7 +109,7 @@ public class DeviceInfoActivity extends BaseActivity {
                 public void run() {
                     super.run();
                     while (true){
-                        if (MyApplication.clothCurrBatteryPowerPercent !=-1){
+                        if (MyApplication.clothCurrBatteryPowerPercent !=-1 && MyApplication.isHaveDeviceConnectted){
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {

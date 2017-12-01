@@ -24,6 +24,7 @@ import com.amsu.healthy.R;
  */
 public class OutDoorRunFragment extends Fragment implements LocationSource,
         AMapLocationListener {
+    private static final String TAG = "OutDoorRunFragment";
     private MapView mv_item_map;
     private View inflate;
 
@@ -48,7 +49,10 @@ public class OutDoorRunFragment extends Fragment implements LocationSource,
         mv_item_map = (MapView) inflate.findViewById(R.id.mv_item_map);
         mv_item_map.onCreate(savedInstanceState);// 此方法必须重写
 
-        setUpMap();
+        if (mAMap == null) {
+            setUpMap();
+        }
+        //setUpMap();
     }
 
 
@@ -106,10 +110,17 @@ public class OutDoorRunFragment extends Fragment implements LocationSource,
         // 设置定位的类型为定位模式 ，可以由定位、跟随或地图根据面向方向旋转几种
         mAMap.setMyLocationType(AMap.LOCATION_TYPE_LOCATE);
         mAMap.getUiSettings().setScaleControlsEnabled(true);
+
+        mAMap.setLocationSource(this);// 设置定位监听
+        mAMap.getUiSettings().setMyLocationButtonEnabled(true);// 设置默认定位按钮是否显示
+        mAMap.setMyLocationEnabled(true);// 设置为true表示显示定位层并可触发定位，false表示隐藏定位层并不可触发定位，默认是false
+        // 设置定位的类型为定位模式 ，可以由定位、跟随或地图根据面向方向旋转几种
+        mAMap.setMyLocationType(AMap.LOCATION_TYPE_LOCATE);
     }
 
     @Override
     public void activate(OnLocationChangedListener listener) {
+        Log.i(TAG,"activate:"+listener);
         mListener = listener;
         startlocation();
     }
@@ -132,8 +143,9 @@ public class OutDoorRunFragment extends Fragment implements LocationSource,
     boolean isFirtst = true;
     @Override
     public void onLocationChanged(AMapLocation amapLocation) {
+        Log.i(TAG,"amapLocation:"+amapLocation);
         if (mListener != null && amapLocation != null) {
-            if (amapLocation != null && amapLocation.getErrorCode() == 0) {
+            if (amapLocation.getErrorCode() == 0) {
                 mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
                 LatLng mylocation = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
                 mAMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mylocation,16));
@@ -148,7 +160,7 @@ public class OutDoorRunFragment extends Fragment implements LocationSource,
 
             } else {
                 String errText = "定位失败," + amapLocation.getErrorCode() + ": " + amapLocation.getErrorInfo();
-                Log.e("AmapErr", errText);
+                Log.e(TAG, errText);
             }
         }
     }
@@ -158,12 +170,14 @@ public class OutDoorRunFragment extends Fragment implements LocationSource,
      */
     private void startlocation() {
         if (mLocationClient == null) {
-            mLocationClient = new AMapLocationClient(getActivity());
+            mLocationClient = new AMapLocationClient(getContext());
             mLocationOption = new AMapLocationClientOption();
             // 设置定位监听
             mLocationClient.setLocationListener(this);
             // 设置为高精度定位模式
             mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+            mLocationOption.setNeedAddress(false);
+            mLocationOption.setMockEnable(true);
 
             mLocationOption.setInterval(2000);
 
@@ -174,6 +188,8 @@ public class OutDoorRunFragment extends Fragment implements LocationSource,
             // 在定位结束后，在合适的生命周期调用onDestroy()方法
             // 在单次定位情况下，定位无论成功与否，都无需调用stopLocation()方法移除请求，定位sdk内部会移除
             mLocationClient.startLocation();
+
+
 
         }
     }

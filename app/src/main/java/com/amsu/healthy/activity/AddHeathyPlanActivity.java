@@ -82,7 +82,9 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
             public void onClick(View v) {
                 String title = et_addplan_title.getText().toString();
                 String content = et_addplan_content.getText().toString();
+                time  = tv_addplan_time.getText().toString();
                 Log.i(TAG,"time:"+time);
+
                 if (!MyUtil.isEmpty(title.trim()) && !MyUtil.isEmpty(content.trim())){
                     final HealthyPlan healthyPlan = new HealthyPlan(title,content,time);
                     MyUtil.showDialog("正在上传",AddHeathyPlanActivity.this);
@@ -112,7 +114,7 @@ public class AddHeathyPlanActivity extends BaseActivity implements DateTimeDialo
                                 int ret = jsonObject.getInt("ret");
                                 String errDesc = jsonObject.getString("errDesc");
                                 if (ret==0){
-                                    MyUtil.showToask(AddHeathyPlanActivity.this,"成功");
+                                    MyUtil.showToask(AddHeathyPlanActivity.this,"保存成功");
                                     healthyPlan.setId(errDesc);
                                     Intent intent = getIntent();
                                     Bundle bundle = new Bundle();

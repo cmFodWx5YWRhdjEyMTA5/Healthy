@@ -7,6 +7,8 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.IndicatorAssess;
 import com.amsu.healthy.fragment.analysis.HRVFragment;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.test.objects.HeartRateResult;
 
 import java.util.Date;
@@ -103,56 +105,59 @@ public class HealthyIndexUtil {
         int age = getUserAge();
         if (age!=0){
             int hrReserve;
-            int restingHR = Integer.parseInt(MyUtil.getStringValueFromSP(Constant.restingHR));
-            if (restingHR !=0){
-                hrReserve = 220-age-restingHR;
-                Log.i(TAG,"hrReserveeserve:"+hrReserve);
-                int scorehrReserve = 0;
-                String suggestion = "";
-                if (hrReserve>=200){
-                    scorehrReserve = 100;
-                    suggestion =context.getResources().getString(R.string.reserverate_suggetstion_lev1);
-                }
-                else if (190<=hrReserve && hrReserve<=199){
-                    //91-100
-                    scorehrReserve = (int) (91+(hrReserve-190)*(float)((100.0-91.0)/(199.0-190.0)));
-                    suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev2);
-                }
-                else if (160<hrReserve && hrReserve<=189){
-                    //81-90
-                    scorehrReserve = (int) (81+(hrReserve-160)*(float)((90.0-81.0)/(189.0-160.0)));
-                    suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev3);
-                }
-                else if (130<=hrReserve && hrReserve<=159){
-                    //71-80
-                    scorehrReserve = (int) (71+(hrReserve-130)*(float)((80.0-71.0)/(159.0-130.0)));
-                    suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev4);
-                }
-                else if (100<=hrReserve && hrReserve<=129){
-                    //61-70
-                    scorehrReserve = (int) (61+(hrReserve-100)*(float)((70.0-61.0)/(129.0-100.0)));
-                    suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev5);
-                }
-                else if (70<=hrReserve && hrReserve<=99){
-                    //31-60
-                    scorehrReserve = (int) (31+(hrReserve-70)*(float)((60.0-31.0)/(99.0-70.0)));
-                    suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev6);
-                }
-                else if (11<=hrReserve && hrReserve<=69){
-                    //1-30
-                    scorehrReserve = (int) (hrReserve*(float)(30.0/(69.0-11.0)));
-                    suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev6);
-                }
-                else if (0<=hrReserve && hrReserve<=10){
-                    //0
-                    scorehrReserve =0;
-                    suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev6);
-                }
-                Log.i(TAG,"scorehrReserve:"+scorehrReserve);
-                IndicatorAssess indicatorAssess = new IndicatorAssess(hrReserve,scorehrReserve,context.getResources().getString(R.string.heart_rate_reserve),suggestion);
+            if (!MyUtil.isEmpty(MyUtil.getStringValueFromSP(Constant.restingHR))){
+                int restingHR = Integer.parseInt(MyUtil.getStringValueFromSP(Constant.restingHR));
+                if (restingHR !=0){
+                    hrReserve = 220-age-restingHR;
+                    Log.i(TAG,"hrReserveeserve:"+hrReserve);
+                    int scorehrReserve = 0;
+                    String suggestion = "";
+                    if (hrReserve>=200){
+                        scorehrReserve = 100;
+                        suggestion =context.getResources().getString(R.string.reserverate_suggetstion_lev1);
+                    }
+                    else if (190<=hrReserve && hrReserve<=199){
+                        //91-100
+                        scorehrReserve = (int) (91+(hrReserve-190)*(float)((100.0-91.0)/(199.0-190.0)));
+                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev2);
+                    }
+                    else if (160<hrReserve && hrReserve<=189){
+                        //81-90
+                        scorehrReserve = (int) (81+(hrReserve-160)*(float)((90.0-81.0)/(189.0-160.0)));
+                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev3);
+                    }
+                    else if (130<=hrReserve && hrReserve<=159){
+                        //71-80
+                        scorehrReserve = (int) (71+(hrReserve-130)*(float)((80.0-71.0)/(159.0-130.0)));
+                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev4);
+                    }
+                    else if (100<=hrReserve && hrReserve<=129){
+                        //61-70
+                        scorehrReserve = (int) (61+(hrReserve-100)*(float)((70.0-61.0)/(129.0-100.0)));
+                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev5);
+                    }
+                    else if (70<=hrReserve && hrReserve<=99){
+                        //31-60
+                        scorehrReserve = (int) (31+(hrReserve-70)*(float)((60.0-31.0)/(99.0-70.0)));
+                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev6);
+                    }
+                    else if (11<=hrReserve && hrReserve<=69){
+                        //1-30
+                        scorehrReserve = (int) (hrReserve*(float)(30.0/(69.0-11.0)));
+                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev6);
+                    }
+                    else if (0<=hrReserve && hrReserve<=10){
+                        //0
+                        scorehrReserve =0;
+                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev6);
+                    }
+                    Log.i(TAG,"scorehrReserve:"+scorehrReserve);
+                    IndicatorAssess indicatorAssess = new IndicatorAssess(hrReserve,scorehrReserve,context.getResources().getString(R.string.heart_rate_reserve),suggestion);
 
-                return indicatorAssess;
+                    return indicatorAssess;
+                }
             }
+
         }
         return null;
     }
@@ -351,7 +356,14 @@ public class HealthyIndexUtil {
         String suggestion = "";
         String state = "";
         //if (181<=hrv && hrv<=200){
-        if (181<=hrv){
+        if (hrv>200){
+            //	91-100
+            //scoreHRV = (int) (91+(hrv-181)*((100.0-91.0)/(200.0-181.0)));
+            scoreHRV = 100;
+            suggestion = context.getResources().getString(R.string.rv_suggetstion_lev1);
+            state = "优秀";
+        }
+        if (181<=hrv && hrv<=200){
             //	91-100
             //scoreHRV = (int) (91+(hrv-181)*((100.0-91.0)/(200.0-181.0)));
             scoreHRV = ((int) (91+(10)*(hrv-181.0)/(1200-181.0)));
@@ -542,7 +554,7 @@ public class HealthyIndexUtil {
         String suggestion = context.getResources().getString(R.string.missbeat_suggetstion_lev1);
         if (over_slow>0){
             //	100
-            slowType = 1;
+            slowType = 2;
             suggestion = context.getResources().getString(R.string.missbeat_suggetstion_lev2);
         }
         IndicatorAssess indicatorAssess = new IndicatorAssess(over_slow,slowType,"漏博",suggestion);
@@ -606,6 +618,7 @@ public class HealthyIndexUtil {
 
     //过缓/过速(心电分析算法得出)
     public static IndicatorAssess calculateScoreOver_slow(int over_slow,Context context){
+        Log.i(TAG,"over_slow:"+over_slow);
         int scoreOver_slow = 0;
         String suggestion = "";
         if (56<=over_slow && over_slow<=70){
@@ -644,6 +657,15 @@ public class HealthyIndexUtil {
             scoreOver_slow = 60- (int) ((Math.abs(81.0-over_slow))*(float)((60.0-0.0)/(200-81.0)));
             suggestion = context.getString(R.string.over_slow_suggetstion_lev6);
         }
+
+        scoreOver_slow = (int) (100-Math.abs(over_slow-60)*1.5);
+
+        if (scoreOver_slow<0){
+            scoreOver_slow = 0;
+        }
+
+
+
         IndicatorAssess indicatorAssess = new IndicatorAssess(over_slow,scoreOver_slow,context.getString(R.string.too_fast_too_slow),suggestion);
 
         return indicatorAssess;
@@ -690,7 +712,7 @@ public class HealthyIndexUtil {
 
     }
 
-    //早搏/漏搏
+    /*//早搏/漏搏
     public static IndicatorAssess calculateScoreBeat(int prematureBeat, int missedBeat,Context context){
         int scoreBeat = 0;
         String suggestion = "";
@@ -726,7 +748,56 @@ public class HealthyIndexUtil {
         IndicatorAssess indicatorAssess = new IndicatorAssess(0,scoreBeat,context.getString(R.string.premature_beat_missed_beat),suggestion);
 
         return indicatorAssess;
+    }*/
 
+    //早搏/漏搏
+    /*  漏搏一次减10分，最多减50分。
+        早搏一次减2分，最多减50分。
+        文字格式：
+        累计有**次漏搏，（**次早搏）。
+
+
+        漏搏<=3次：通常可能因为精神紧张、吸烟、饮酒、生活不规律、夜间没有好好休息等原因所导致。如果单纯出现心脏漏跳一拍的感觉，但没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。还是可以保持一些较重负荷的锻炼计划的！
+        漏搏>3次：漏博次数较多，如果没有诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。可以适当进行有氧训练，提升心肺能力。
+        早搏>0 && 漏搏>3：您的心脏功能不容乐观建议到医院进行详细的心电检查，请经常关注心脏是否有不适感。适度进行锻炼，劳逸结合
+        早搏>0 && 漏搏>5您的心脏有病理风险，建议您尽快到医院进行详细的心电检查。运动有风险，请减少高强度运动！
+        早搏>0 && 漏搏=0 偶尔的早搏可见于正常人，不需要担心。*/
+    public static IndicatorAssess calculateScoreBeat(int prematureBeat, int missedBeat,Context context){
+        int scoreBeat = 0;
+        String suggestion = "";
+
+        int missedBeatSub = missedBeat*10;
+        missedBeatSub = missedBeatSub>50?50:missedBeatSub;
+
+        int prematureBeatSub = prematureBeat*2;
+        prematureBeatSub = prematureBeatSub>50?50:prematureBeatSub;
+
+        scoreBeat = 100-missedBeatSub-prematureBeatSub;
+
+        suggestion = "早搏"+prematureBeat+"次，漏搏"+missedBeat+"次。";
+
+        if (prematureBeat==0 && missedBeat<=3){
+            suggestion += "通常可能因为精神紧张、吸烟、饮酒、生活不规律、夜间没有好好休息等原因所导致。如果单纯出现心脏漏跳一拍的感觉，但没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。还是可以保持一些较重负荷的锻炼计划的！";
+        }
+        else if (prematureBeat==0 && missedBeat>3){
+            suggestion += "漏博次数较多，如果没有诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。可以适当进行有氧训练，提升心肺能力。";
+        }
+        else if (prematureBeat>0 && missedBeat<=3){
+            suggestion += "通常可能因为精神紧张、吸烟、饮酒、生活不规律、夜间没有好好休息等原因所导致。如果单纯出现心脏漏跳一拍的感觉，但没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。可以进行一些轻负荷的锻炼计划了。";
+        }
+        else if (prematureBeat>0 && missedBeat>3 && missedBeat<=5){
+            suggestion += "您的心脏功能不容乐观建议到医院进行详细的心电检查，请经常关注心脏是否有不适感。适度进行锻炼，劳逸结合。";
+        }
+        else if (prematureBeat>0 && missedBeat>5){
+            suggestion += "您的心脏有病理风险，建议您尽快到医院进行详细的心电检查。运动有风险，请减少高强度运动！";
+        }
+        else if (prematureBeat>0 && missedBeat==0){
+            suggestion += " 偶尔的早搏可见于正常人，不需要担心。";
+        }
+
+        IndicatorAssess indicatorAssess = new IndicatorAssess(0,scoreBeat,context.getString(R.string.premature_beat_missed_beat),suggestion);
+
+        return indicatorAssess;
     }
 
     //健康储备(按训练时间计算)
@@ -1073,7 +1144,7 @@ public class HealthyIndexUtil {
         String suggestion = "";
 
 
-        /*if (sdnn>200){
+        if (sdnn>200){
             state = 5;
             suggestion="您的身体充满活力。";
         }
@@ -1101,15 +1172,37 @@ public class HealthyIndexUtil {
             state = 90;
             suggestion=" 您看起来身体很疲惫，你需要休息了，但是你有一个充满活力的大脑，想一想自己还有那些没有解决的问题吧，可能灵感就在眼前！";
         }
-*/
         if (sdnn>=290){
             sdnn = 290;
         }
+
         state = (int) (95*(sdnn/300.0));
 
         IndicatorAssess indicatorAssess = new IndicatorAssess(sdnn,state,"运动疲劳",suggestion);
         return indicatorAssess;
     }
+
+    private static String mentalFatigueData = "mentalFatigueData";
+    private static String physicalFatigueStatic = "physicalFatigueStatic";
+    private static String physicalFatigueSport = "physicalFatigueSport";
+
+    private static void putHRVResultToSP(HRVFragment.HRVResult hrvResult, String name){
+        Gson gson = new Gson();
+        String s = gson.toJson(hrvResult);
+        MyUtil.putStringValueFromSP(name,s);
+    }
+
+    private static HRVFragment.HRVResult getHRVResultFromSP(String name){
+        try {
+            Gson gson = new Gson();
+            String stringValueFromSP = MyUtil.getStringValueFromSP(name);
+            if (!MyUtil.isEmpty(stringValueFromSP)){
+                return gson.fromJson(stringValueFromSP,new TypeToken<HRVFragment.HRVResult>() {}.getType());
+            }
+        }catch (Exception e){}
+        return null;
+    }
+
 
 
     public static String getHeartRateSuggetstion(int state,int heartRate,Context context){
@@ -1248,8 +1341,19 @@ public class HealthyIndexUtil {
         }catch (ArithmeticException e){
             e.printStackTrace();
         }
-        return new HRVFragment.HRVResult(state,suggestion);
 
+        HRVFragment.HRVResult hrvResult = new HRVFragment.HRVResult(state, suggestion);
+
+        if (hrvResult.state==0){
+            HRVFragment.HRVResult hrvResultFromSP = getHRVResultFromSP(mentalFatigueData);
+            if (hrvResultFromSP!=null){
+                hrvResult = hrvResultFromSP;
+            }
+        }
+        else {
+            putHRVResultToSP(hrvResult,mentalFatigueData);
+        }
+        return hrvResult;
     }
 
     //身体疲劳度 静态
@@ -1289,7 +1393,19 @@ public class HealthyIndexUtil {
             e.printStackTrace();
         }
 
-        return new HRVFragment.HRVResult(state,suggestion);
+        HRVFragment.HRVResult hrvResult = new HRVFragment.HRVResult(state, suggestion);
+
+        if (hrvResult.state==0){
+            HRVFragment.HRVResult hrvResultFromSP = getHRVResultFromSP(physicalFatigueStatic);
+            if (hrvResultFromSP!=null){
+                hrvResult = hrvResultFromSP;
+            }
+        }
+        else {
+            putHRVResultToSP(hrvResult,physicalFatigueStatic);
+        }
+
+        return hrvResult;
     }
 
     //身体疲劳度 动态
@@ -1323,7 +1439,20 @@ public class HealthyIndexUtil {
         } catch (ArithmeticException e){
                 e.printStackTrace();
         }
-        return new HRVFragment.HRVResult(state,suggestion);
+        HRVFragment.HRVResult hrvResult = new HRVFragment.HRVResult(state, suggestion);
+
+        if (hrvResult.state==0){
+            HRVFragment.HRVResult hrvResultFromSP = getHRVResultFromSP(physicalFatigueSport);
+            if (hrvResultFromSP!=null){
+                hrvResult = hrvResultFromSP;
+                hrvResult.suggestion += "  ";
+            }
+        }
+        else {
+            putHRVResultToSP(hrvResult,physicalFatigueSport);
+        }
+
+        return hrvResult;
     }
 
 

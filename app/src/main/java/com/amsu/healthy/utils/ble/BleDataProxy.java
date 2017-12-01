@@ -18,6 +18,7 @@ import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.WebSocketProxy;
 import com.ble.api.DataUtil;
+import com.test.objects.HeartRate;
 
 import java.util.UUID;
 
@@ -62,8 +63,9 @@ public class BleDataProxy {
         mResultCalcuUtil = new ResultCalcuUtil();
         mResultCalcuUtil.setOnHeartCalcuListener(new ResultCalcuUtil.OnHeartCalcuListener() {
             @Override
-            public void onReceiveHeart(int heartRate) {
-                updateUIECGHeartData(heartRate);
+            public void onReceiveHeart(HeartRate heartRate) {
+                updateUIECGHeartData(heartRate.rate);
+                updateDeviceConnectedUnstabitily(heartRate.noiseLevel);
             }
 
             @Override
@@ -75,7 +77,6 @@ public class BleDataProxy {
     }
 
 
-
     void bleCharacteristicChanged(String address, BluetoothGattCharacteristic characteristic){
         String hexData = DataUtil.byteArrayToHex(characteristic.getValue());
         String uuid = characteristic.getUuid().toString();
@@ -84,7 +85,7 @@ public class BleDataProxy {
         int[] valuableEcgData = EcgAccDataUtil.getValuableEcgACCData(hexData,mLeProxy);
         if (valuableEcgData!=null){
             if (valuableEcgData.length== EcgAccDataUtil.ecgOneGroupLength){
-                dealWithOnePackageEcgData(hexData, valuableEcgData);
+                dealWithOnePackageEcgData(valuableEcgData,false);
             }
             else if (valuableEcgData.length== EcgAccDataUtil.accOneGroupLength){
                 dealWithOnePackageAccData(valuableEcgData);
@@ -124,32 +125,28 @@ public class BleDataProxy {
         }
     }
 
-
-
-
-    private void dealWithOnePackageEcgData(String hexData, int[] valuableEcgData) {
+    private void dealWithOnePackageEcgData(int[] valuableEcgData,boolean isDeviceDropData) {
         communicateToBleService.setmIsDataStart(true);
 
-        if (!hexData.equals(CLOTH_CONNECTED_DROP_RECEIVER_DATA)){
-            //新版衣服，不是导联脱落状态
-            mIsDeviceDroped = false;
-        }
-
-        String intString = "";
-        for (int i:valuableEcgData){
-            intString+=i+",";
-        }
-        Log.i(TAG,"滤波前心电:"+intString +"  ");
-
         int[] clone = valuableEcgData.clone();
-        ecgDataFilter(valuableEcgData);
+        if (!isDeviceDropData){
+            mIsDeviceDroped = false;
 
-        String intStringA = "";
-        for (int i:valuableEcgData){
-            intStringA+=i+",";
+            String intString = "";
+            for (int i:valuableEcgData){
+                intString+=i+",";
+            }
+            Log.i(TAG,"滤波前心电:"+intString +"  ");
+
+
+            ecgDataFilter(valuableEcgData);
+
+            String intStringA = "";
+            for (int i:valuableEcgData){
+                intStringA+=i+",";
+            }
+            Log.w(TAG,"滤波后心电:"+intStringA);
         }
-        Log.w(TAG,"滤波后心电:"+intStringA);
-
 
         mResultCalcuUtil.calcuHeart(clone,valuableEcgData);
 
@@ -169,12 +166,19 @@ public class BleDataProxy {
         }
     }
 
+    //收到心率，4s一次
     private void updateUIECGHeartData(int heartRate) {
         Intent intent = new Intent(LeProxy.ACTION_DATA_AVAILABLE);
         intent.putExtra(EXTRA_HEART_DATA, heartRate);
         mLeProxy.updateBroadcast(intent);
     }
 
+    //收到连接是否稳定状态：  noiseLevel   1：不稳定，需要提示    0：正常
+    private void updateDeviceConnectedUnstabitily(int noiseLevel) {
+
+    }
+
+    //收到步频
     private void updateUIStrideData(int stride) {
         Intent intent = new Intent(LeProxy.ACTION_DATA_AVAILABLE);
         intent.putExtra(EXTRA_STRIDE_DATA, stride);
@@ -207,15 +211,8 @@ public class BleDataProxy {
         else if (uuid.equals(Constant.readSecondGenerationClothECGCharUuid)) {  //新版衣服吊链脱落：会发一个字节 00
             if (hexData.equals("00")){
                 mIsDeviceDroped = true;
-
-                BluetoothGattCharacteristic bluetoothGattCharacteristic = new BluetoothGattCharacteristic(UUID.fromString(Constant.readSecondGenerationClothECGCharUuid),
-                        BluetoothGattCharacteristic.PROPERTY_NOTIFY,
-                        BluetoothGattCharacteristic.PERMISSION_READ);
-
-                String dealutValue="0000000000000000000000000000000000000000";
-                bluetoothGattCharacteristic.setValue(DataUtil.hexToByteArray(dealutValue));
-                mLeProxy.updateBroadcast(address,bluetoothGattCharacteristic);
-                Log.i(TAG,"导联脱落，广播00...");
+                int[] ecgDropData = new int[]{0,0,0,0,0,0,0,0,0,0};
+                dealWithOnePackageEcgData(ecgDropData,true);
             }
         }
         else {
@@ -270,8 +267,14 @@ public class BleDataProxy {
     }
 
 
-    //新版衣服硬件版本  V2.0.1  软件版本  V1.0.1
-    ////神念56 32 2E 30 2E 31    自己32 2E 30 2E 30
+    /*
+    *   新主机硬件版本：
+        神念主机版本：V2.0.1
+        阿木新主机版本：V2.0.0
+
+        新版衣服硬件版本  V2.0.1  软件版本  V1.0.1
+        神念56 32 2E 30 2E 31
+    * */
     private void newClothDeviceVersionInfo(String hexData, String uuid) {
         String deviceVersionString = MyUtil.convertHexToString(hexData);
         if (uuid.equals(Constant.readInsoleDeviceInfoHardwareRevisionCharUuid)){
@@ -287,7 +290,7 @@ public class BleDataProxy {
         Log.i(TAG,"mLeProxy.getClothDeviceType "+mLeProxy.getClothDeviceType());
         //sendReadDeviceState();
 
-        if(MyApplication.deivceType==Constant.sportType_Cloth && mLeProxy.getClothDeviceType()==Constant.clothDeviceType_AMSU_EStartWith){
+        /*if(MyApplication.deivceType==Constant.sportType_Cloth && mLeProxy.getClothDeviceType()==Constant.clothDeviceType_AMSU_EStartWith){
             if (uuid.equals(Constant.readInsoleDeviceInfoHardwareRevisionCharUuid) || uuid.equals(Constant.readInsoleDeviceInfoSoftwareRevisionCharUuid)){
                 //旧版AMSU＿E开头的设备版本信息和鞋垫的相似
                 mLeProxy.setmClothDeviceType(Constant.clothDeviceType_secondGeneration);
@@ -295,7 +298,19 @@ public class BleDataProxy {
                 //sendReadDeviceState();
             }
 
+        }*/
+
+        if(MyApplication.deivceType==Constant.sportType_Cloth){
+            if (deviceVersionString.equals("V2.0.0")){
+                mLeProxy.setmClothDeviceType(Constant.clothDeviceType_secondGeneration_our);
+                MyUtil.putIntValueFromSP(Constant.mClothDeviceType,Constant.clothDeviceType_secondGeneration_our);
+            }
+            else if (deviceVersionString.equals("V2.0.1")){
+                mLeProxy.setmClothDeviceType(Constant.clothDeviceType_secondGeneration);
+                MyUtil.putIntValueFromSP(Constant.mClothDeviceType,Constant.clothDeviceType_secondGeneration);
+            }
         }
+
     }
 
     //设备版本信息   56 32 2E 33

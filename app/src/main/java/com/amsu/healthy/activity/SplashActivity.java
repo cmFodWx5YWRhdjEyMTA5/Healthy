@@ -86,7 +86,7 @@ public class SplashActivity extends Activity {
         int mCurrWeekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
         downlaodWeekReport(mCurrYear,mCurrWeekOfYear,false,null);
 
-        if (!Constant.isInnerUpdateAllowed){
+        if (Constant.isInnerUpdateAllowed){
             ApkUtil.checkUpdate(this);
         }
 
@@ -272,6 +272,7 @@ public class SplashActivity extends Activity {
                 scoreOver_slow = HealthyIndexUtil.calculateScoreOver_slow(0,MyApplication.appContext);
             }
 
+
             IndicatorAssess zaoboIndicatorAssess = null;
             IndicatorAssess louboIndicatorAssess = null;
             IndicatorAssess scoreBeat = null;
@@ -297,17 +298,20 @@ public class SplashActivity extends Activity {
             HealthyIndexUtil.calcuIndexWarringHeartIcon(scoreSlow,scoreOver,zaoboIndicatorAssess,louboIndicatorAssess);
 
             // 健康储备(按训练时间计算)
-            IndicatorAssess scoreReserveHealth = HealthyIndexUtil.calculateScoreReserveHealth();
+            //IndicatorAssess scoreReserveHealth = HealthyIndexUtil.calculateScoreReserveHealth();
+            IndicatorAssess scoreReserveHealth = HealthyIndexUtil.calculateScoreReserveHealth((int) (Float.parseFloat(weekReport.errDesc.chubeijiankang)/60),MyApplication.appContext);
+
 
             Log.i(TAG,"scoreBMI:"+scoreBMI);
             Log.i(TAG,"scorehrReserve:"+scorehrReserve);
-            Log.i(TAG,"scorehrReserve:"+scorehrReserve);
+            Log.i(TAG,"scoreHRR:"+scoreHRR);
             Log.i(TAG,"scoreHRV:"+scoreHRV);
             Log.i(TAG,"scoreOver_slow:"+scoreOver_slow);
             Log.i(TAG,"scoreBeat:"+scoreBeat);
             Log.i(TAG,"scoreReserveHealth:"+scoreReserveHealth);
 
-            int healthyIindexvalue = HealthyIndexUtil.calculateIndexvalue(scoreBMI, scorehrReserve, scorehrReserve, scoreHRV, scoreOver_slow, scoreBeat, scoreReserveHealth);
+
+            int healthyIindexvalue = HealthyIndexUtil.calculateIndexvalue(scoreBMI, scorehrReserve, scoreHRR, scoreHRV, scoreOver_slow, scoreBeat, scoreReserveHealth);
             Log.i(TAG,"healthyIindexvalue:"+healthyIindexvalue);
             MyUtil.putIntValueFromSP("healthyIindexvalue",healthyIindexvalue);
 

@@ -11,12 +11,14 @@
         android:id="@+id/rl_base_head">
     </include>
 
-    <com.amsu.healthy.view.QQListView
+    <com.amsu.healthy.view.SwipeListView
         android:id="@+id/lv_sos_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#FFFFFF"
-       ></com.amsu.healthy.view.QQListView>
+        android:divider="#dddbdb"
+        android:dividerHeight="@dimen/x1"
+       ></com.amsu.healthy.view.SwipeListView>
 
     <!--<RelativeLayout
         android:id="@+id/rl_sos_add"

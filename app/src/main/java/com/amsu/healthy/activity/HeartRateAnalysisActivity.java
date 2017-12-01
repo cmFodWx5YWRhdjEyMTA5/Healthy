@@ -144,10 +144,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                             Log.i(TAG,"ecgDataList"+ ecgDataList);
 
                             for (int j=0;j<heartCount;j++){
-                                if(j%100==3) {
-                                    Log.d("ecgRaw ", "ecgRaw ="+ ecgDataList.get(j));
-                                }
-
                                 for (int i=0;i<calcuEcgRate.length;i++){
                                     calcuEcgRate[i] = ecgDataList.get(j*calcuEcgRate.length+i);
                                     calcuEcgRateraw[i] = ecgDataList.get(j*calcuEcgRate.length+i);
@@ -161,7 +157,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                                 //int mCurrentHeartRate = DiagnosisNDK.ecgHeart(calcuEcgRate, calcuEcgRate.length, Constant.oneSecondFrame);
                                 Log.i(TAG,"heartRate:"+ heartRate);
 
-                                int mCurrentHeartRate = 0;
+                                int mCurrentHeartRate = heartRate.rate;
                                 Log.i(TAG,"mCurrentHeartRate:"+ mCurrentHeartRate);
                                 heartDataList_static.add(mCurrentHeartRate);
 
@@ -359,7 +355,9 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         uploadRecord.datatime = datatime;
         uploadRecord.state = sportState;
 
-
+        if (calData!=null && calData.size()>0){
+            uploadRecord.calorie = calData;
+        }
 
         //设置心电数据
 
@@ -424,16 +422,16 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 ES = (heartRateResult.LF / heartRateResult.HF);
             }
 
-            PI = -1;   //新版本计算时PI=-1，为标识新旧版本
-            FI = heartRateResult.RR_SDNN;
+            PI = FI = heartRateResult.RR_SDNN;
 
-            if (PI>0 || ES>0){
-                HRVs = HealthyIndexUtil.getHRVSuggetstion(PI, ES,this);
+            if (FI>0 || ES>0){
+                HRVs = HealthyIndexUtil.getHRVSuggetstion(FI, ES,this);
                 Log.i(TAG,"hrvs:"+HRVs);
             }
 
             int timeOneMinuteCount = 150*60;
-            int timeAnalysisMinuteCount = 150*60;
+            int timeAnalysisMinuteCount = timeOneMinuteCount;
+
             if (calcuData.length<timeOneMinuteCount*4){
                 //不足4分钟，提示时间不足
             }
@@ -441,7 +439,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 //4~6分钟，取前后2分钟的数据
                 timeAnalysisMinuteCount = timeOneMinuteCount*2;
             }
-            else if (calcuData.length>=timeOneMinuteCount*6 && calcuData.length<timeOneMinuteCount*8){
+            else if (calcuData.length>=timeOneMinuteCount*6 && calcuData.length<timeOneMinuteCount*10){
                 //6~8分钟，取前后3分钟的数据
                 timeAnalysisMinuteCount = timeOneMinuteCount*3;
             }
@@ -453,20 +451,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             if (calcuData.length>=timeOneMinuteCount*4){   //大于4分钟则进行后2次分析
                 final int[] analysisStartData  = new int[timeAnalysisMinuteCount];
                 final int[] analysisEndData  = new int[timeAnalysisMinuteCount];
-               /* final int[] analysisStartData  = new int[timeOneMinuteCount];
-                final int[] analysisEndData  = new int[timeOneMinuteCount];*/
-                /*for (int i=0;i<timeOneMinuteCount;i++){
-                    calcuData1[i] = calcuData[i];
-                }
-                for (int i=0;i<timeOneMinuteCount;i++){
-                    calcuData2[i] = calcuData[timeOneMinuteCount+i];
-                }*/
-                /*for (int i=0;i<timeAnalysisMinuteCount;i++){
-                    analysisStartData[timeAnalysisMinuteCount-1-i] = calcuData[calcuData.length-1-timeAnalysisMinuteCount-i];
-                }
-                for (int i=0;i<timeAnalysisMinuteCount;i++){
-                    analysisEndData[timeAnalysisMinuteCount-1-i] = calcuData[calcuData.length-1-i];
-                }*/
 
                 for (int i=0;i<timeAnalysisMinuteCount;i++){
                     analysisStartData[i] = calcuData[i];  //原始数据calcuData的前面timeAnalysisMinuteCount个数据点
@@ -492,7 +476,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 uploadRecord.lf = heartRateResult.LF;
                 uploadRecord.hf = heartRateResult.HF;
 
-                PI = -2;
                /* HeartRateResult heartRateResult3 = DiagnosisNDK.AnalysisEcg(analysisStartData, analysisStartData.length, Constant.oneSecondFrame);
                 Log.i(TAG,"heartRateResult3:"+heartRateResult3.toString());
 
@@ -590,13 +573,13 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         ArrayList<Integer> mStridefreData = intent.getIntegerArrayListExtra(Constant.mStridefreData);//
         ArrayList<Integer> mSpeedStringListData = intent.getIntegerArrayListExtra(Constant.mSpeedStringListData);//
 
-        if (mSpeedStringListData!=null){
+        if (mSpeedStringListData!=null && mSpeedStringListData.size()>0){
             uploadRecord.ae = mSpeedStringListData;
         }
-        if (mKcalData!=null ){
+        if (mKcalData!=null && mKcalData.size()>0){
             uploadRecord.calorie = mKcalData;
         }
-        if (mStridefreData!=null){
+        if (mStridefreData!=null && mStridefreData.size()>0){
             uploadRecord.cadence = mStridefreData;
         }
 
@@ -765,14 +748,16 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             params.addBodyParameter("latitudeLongitude",latitudeLongitude+"");
             params.addBodyParameter("time",uploadRecord.time+"");
             params.addBodyParameter("distance",(int)uploadRecord.distance+"");
+
             boolean isMarathonSportType = MyUtil.getBooleanValueFromSP(Constant.isMarathonSportType);
-            if (isMarathonSportType) {
+            if (isMarathonSportType && uploadRecord.state!=0) {  //state=0为静态数据，归为衣服历史记录
                 params.addBodyParameter("state", "3");
                 params.addBodyParameter("ae", Constant.sportAe);
             } else {
                 params.addBodyParameter("ae",ae+"");
                 params.addBodyParameter("state", uploadRecord.state + "");
             }
+
             params.addBodyParameter("zaobo",uploadRecord.zaobo+"");
             params.addBodyParameter("loubo",uploadRecord.loubo+"");
             params.addBodyParameter("inuse",uploadRecord.inuse+"");

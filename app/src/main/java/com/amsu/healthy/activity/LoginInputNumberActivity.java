@@ -3,8 +3,6 @@ package com.amsu.healthy.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -90,7 +88,7 @@ public class LoginInputNumberActivity extends BaseActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                MyUtil.showToask(LoginInputNumberActivity.this, getResources().getString(R.string.verify_code_sent_successfully));
+                                //MyUtil.showToask(LoginInputNumberActivity.this, getResources().getString(R.string.verify_code_sent_successfully));
                                 MyUtil.hideDialog(LoginInputNumberActivity.this);
                                 Intent intent = new Intent(LoginInputNumberActivity.this, LoginActivity.class);
                                 String zonecode = tv_login_zonecode.getText().toString().trim();
@@ -191,12 +189,23 @@ public class LoginInputNumberActivity extends BaseActivity {
         String phone = et_login_phone.getText().toString().trim();
         Log.i(TAG,"zonecode:"+zonecode+",phone:"+phone);
 
-        if (phone.isEmpty()){
+        boolean numeric = MyUtil.isNumeric(phone);
+
+        if (phone.isEmpty() || !numeric){
             Toast.makeText(this,getResources().getString(R.string.enter_cell_phone_number), Toast.LENGTH_SHORT).show();
             return;
         }
-        getMESCode(zonecode,phone);  //86为国家代码
-        MyUtil.showDialog(getResources().getString(R.string.getting_validation_code),this);
+
+        if (phone.equals("13923475272")){  //测试手机号
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.putExtra("zonecode",zonecode);
+            intent.putExtra("phone",phone);
+            startActivity(intent);
+        }
+        else {
+            getMESCode(zonecode,phone);  //86为国家代码
+            MyUtil.showDialog(getResources().getString(R.string.getting_validation_code),this);
+        }
     }
 
     public void getMESCode(String country, final String phone) {

@@ -119,7 +119,7 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
 
         mUploadRecord = HeartRateResultShowActivity.mUploadRecord;
 
-        if (HeartRateResultShowActivity.state==1){  // 1为室外
+        if (HeartRateResultShowActivity.state!=0){  // 1为室外
             mIsOutDoor = true;
         }
         else {

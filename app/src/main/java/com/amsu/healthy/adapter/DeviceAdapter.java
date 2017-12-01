@@ -64,7 +64,7 @@ public class DeviceAdapter extends BaseAdapter{
             tv_item_state.setText("已激活");
         }*/
 
-        if (!MyUtil.isEmpty(MyApplication.clothConnectedMacAddress) && MyApplication.clothConnectedMacAddress.equals(device.getMac())){
+        if (!MyUtil.isEmpty(MyApplication.clothConnectedMacAddress) && MyApplication.clothConnectedMacAddress.equals(device.getMac()) && MyApplication.isHaveDeviceConnectted){
             //已经连接上，则显示设备已连接（连上的默认已绑定过）
             tv_item_state.setText(R.string.connected);
             tv_item_state.setTextColor(Color.parseColor("#43CD80"));
@@ -82,6 +82,9 @@ public class DeviceAdapter extends BaseAdapter{
         else {
             tv_item_state.setText(device.getState());
         }
+
         return inflate;
     }
+
+
 }

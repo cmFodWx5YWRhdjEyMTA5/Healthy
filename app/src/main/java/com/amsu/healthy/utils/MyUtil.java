@@ -55,6 +55,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -65,6 +67,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
@@ -128,22 +131,30 @@ public class MyUtil {
         return height;
     }
 
+    private static Toast mToast;
+
     public static void showToask(Context context ,String text){
-        if (context instanceof Activity) {
-            Toast.makeText(context,text,Toast.LENGTH_SHORT).show();
+        if (mToast!=null){
+            mToast.cancel();
         }
+        mToast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+        mToast.show();
     }
 
     public static void showToask(Context context ,int id){
-        if (context instanceof Activity) {
-            Toast.makeText(context,id,Toast.LENGTH_SHORT).show();
+        if (mToast!=null){
+            mToast.cancel();
         }
+        mToast = Toast.makeText(context,id,Toast.LENGTH_SHORT);
+        mToast.show();
     }
 
     public static void showToask(Context context ,String text,int  time){
-        if (context instanceof Activity) {
-            Toast.makeText(context,text,time).show();
+        if (mToast!=null){
+            mToast.cancel();
         }
+        mToast = Toast.makeText(context,text,time);
+        mToast.show();
     }
 
     public static void saveUserToSP(User user) {
@@ -954,6 +965,18 @@ public class MyUtil {
         return jsonBase;
     }
 
+    public static  <T> List<T>  parseListJson(String result, Type type){
+        try {
+            Gson gson = new Gson();
+            if (!MyUtil.isEmpty(result) && !result.equals(Constant.uploadRecordDefaultString)){
+                return gson.fromJson(result,type);
+            }
+        }catch (Exception e){
+            Log.i(TAG,"e:"+e);
+        }
+        return new ArrayList<>();
+    }
+
     public static void startAllService(final Context context) {
         new Thread(){
             @Override
@@ -1247,6 +1270,7 @@ public class MyUtil {
             boolean mkdirs = file.mkdirs();
             Log.i(TAG,"mkdirs:"+mkdirs);
         }
+
         filePath += "/"+ MyUtil.getECGFileNameDependFormatTime(date);
         if (ecg_acc== EcgAccDataUtil.fileExtensionType_ECG){
             return filePath+".ecg";
@@ -1329,6 +1353,7 @@ public class MyUtil {
         int[] results = new int[2];
 
         int fs = 26;
+
         //新版主机步频计算频率为52
         if (LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_secondGeneration || LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_secondGeneration_our){
             fs = 52;
@@ -1338,7 +1363,64 @@ public class MyUtil {
         Log.i(TAG,"results: "+results[0]+"  "+results[1]);
 
         //每分钟的步数
-        return (int) (results[1] * 5.21f);     //
+        float step = results[1] * 5.21f;
+
+        if (fs == 52){
+            step *= 2;
+        }
+        return (int) step;     //
+    }
+
+    //获取当前APK使用的签明文件SHA1
+    public static String getApkSHA1(Context context) {
+        try {
+            PackageInfo info = null;
+            try {
+                info = context.getPackageManager().getPackageInfo(
+                        context.getPackageName(), PackageManager.GET_SIGNATURES);
+
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+            byte[] cert = info.signatures[0].toByteArray();
+            MessageDigest md = MessageDigest.getInstance("SHA1");
+            byte[] publicKey = md.digest(cert);
+            StringBuffer hexString = new StringBuffer();
+            for (int i = 0; i < publicKey.length; i++) {
+                String appendString = Integer.toHexString(0xFF & publicKey[i])
+                        .toUpperCase(Locale.US);
+                if (appendString.length() == 1)
+                    hexString.append("0");
+                hexString.append(appendString);
+                hexString.append(":");
+            }
+            String result = hexString.toString();
+            return result.substring(0, result.length()-1);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 验证Email
+     * @param email email地址，格式：zhangsan@zuidaima.com，zhangsan@xxx.com.cn，xxx代表邮件服务商
+     * @return 验证成功返回true，验证失败返回false
+     */
+    public static boolean checkEmail(String email) {
+        String regex = "\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*";
+        return Pattern.matches(regex, email);
+    }
+
+    //判断字符串是否为数字的方法:
+    public static boolean isNumeric(String str){
+        for (int i = 0; i < str.length(); i++){
+            System.out.println(str.charAt(i));
+            if (!Character.isDigit(str.charAt(i))){
+                return false;
+            }
+        }
+        return true;
     }
 
 }

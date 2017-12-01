@@ -151,12 +151,11 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         if (userFromSP!=null){
             tv_persiondata_name.setText(userFromSP.getUsername());
 
-
             String birthday = userFromSP.getBirthday();  //	1998/12/21  ===1999-11-11
             tv_persiondata_birthday.setText(birthday);
             upLoadbirthday = birthday;
 
-            Log.i(TAG,"birthday:"+birthday);
+            Log.i(TAG,"userFromSP:"+userFromSP);
             /*if (!birthday.equals("")){
                 String[] split = birthday.split("-");
                 String newBirthday = split[0]+"-"+split[1]+"-"+split[2];
@@ -238,10 +237,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     break;
                 case R.id.rl_persiondata_name:
                     intent.putExtra("modifyType", Constant.MODIFY_USERNSME);
-                    if (userFromSP!=null){
-                        intent.putExtra("modifyValue",userFromSP.getUsername());
-                    }
-
+                    intent.putExtra("modifyValue",tv_persiondata_name.getText().toString());
                     startActivityForResult(intent,100);
                     break;
                 case R.id.rl_persiondata_sex:
@@ -253,16 +249,13 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     break;
                 case R.id.rl_persiondata_email:
                     intent.putExtra("modifyType", Constant.MODIFY_EMAIL);
-                    if (userFromSP!=null) {
-                        intent.putExtra("modifyValue", userFromSP.getEmail());
-                    }
+                    intent.putExtra("modifyValue", tv_persiondata_email.getText().toString());
+
                     startActivityForResult(intent,100);
                     break;
                 case R.id.rl_persiondata_stillrate:
                     intent.putExtra("modifyType", Constant.MODIFY_STILLRATE);
-                    if (userFromSP!=null) {
-                        intent.putExtra("modifyValue", userFromSP.getStillRate());
-                    }
+                    intent.putExtra("modifyValue", tv_persiondata_stillrate.getText().toString());
                     startActivityForResult(intent,100);
                     break;
                 case R.id.rl_persiondata_birthday:
@@ -666,7 +659,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
             upLoadSex = "1";
         }
         else if (sex.equals("女")){
-            upLoadSex = "0";
+            upLoadSex = "2";
         }
 
         if (username.isEmpty()){

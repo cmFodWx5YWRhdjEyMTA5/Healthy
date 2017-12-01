@@ -89,6 +89,7 @@ public class ModifyPersionDataActivity extends BaseActivity {
         else if (modifyType ==Constant.MODIFY_EMAIL){
             setCenterText(getResources().getString(R.string.modify_email));
             et_modify_value.setText(modifyValue);
+
         }
         else if (modifyType ==Constant.MODIFY_PHONE){
             setCenterText(getResources().getString(R.string.modify_email));
@@ -131,9 +132,15 @@ public class ModifyPersionDataActivity extends BaseActivity {
         else if (modifyType==Constant.MODIFY_STILLRATE){
             modifyValue= et_modify_value.getText().toString();
             if(!MyUtil.isEmpty(modifyValue)){
-                float floatValue = Float.parseFloat(modifyValue);
-                int intValue = (int) floatValue;
-                if (floatValue!=intValue){
+                boolean numeric = MyUtil.isNumeric(modifyValue);
+                if (numeric){
+                    int i = Integer.parseInt(modifyValue);
+                    if (i<30 || i>170){
+                        MyUtil.showToask(this,"静息心率不在合理范围里");
+                        return;
+                    }
+                }
+                else {
                     MyUtil.showToask(this,"静息心率必须是整数，请重新输入");
                     return;
                 }
@@ -144,9 +151,32 @@ public class ModifyPersionDataActivity extends BaseActivity {
             }
 
         }
+        else if (modifyType==Constant.MODIFY_USERNSME){
+            modifyValue= et_modify_value.getText().toString();
+            if (!MyUtil.isEmpty(modifyValue) ){
+                if (modifyValue.length()>15){
+                    MyUtil.showToask(this,"用户名太长了，请重新输入");
+                }
+            }
+            else {
+                MyUtil.showToask(this,"用户名为空，请重新输入");
+            }
+        }
+        else if (modifyType==Constant.MODIFY_EMAIL){
+            modifyValue= et_modify_value.getText().toString();
+            boolean b = MyUtil.checkEmail(modifyValue);
+            if (b){
+                modifyValue= et_modify_value.getText().toString();
+            }
+            else {
+               MyUtil.showToask(this,"邮箱格式不对，请重新输入");
+               return;
+            }
+        }
         else {
             modifyValue= et_modify_value.getText().toString();
         }
+
         Log.i(TAG,"###modifyType:"+modifyType+",modifyValue:"+modifyValue);
         Intent intent = getIntent();
         if (MyUtil.isEmpty(modifyValue)){

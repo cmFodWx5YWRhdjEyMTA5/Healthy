@@ -60,10 +60,7 @@ public class HRVFragment extends BaseFragment {
             LinearLayout.LayoutParams resistLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_resist.getLayoutParams());
             LinearLayout.LayoutParams moodLayoutParams =   new LinearLayout.LayoutParams(iv_hrv_mood.getLayoutParams());
 
-            String allSuggestion = "";
-
-
-
+            String allSuggestion = getResources().getString(R.string.HeartRate_suggetstion_nodata);
 
             Log.i(TAG,"mUploadRecord.sdnn1:"+mUploadRecord.sdnn1);
             Log.i(TAG,"mUploadRecord.sdnn2:"+mUploadRecord.sdnn2);
@@ -78,6 +75,9 @@ public class HRVFragment extends BaseFragment {
 
             int ecgTime = (8+hrList.size()*4)/60;  //时间（分钟）
 
+            Log.i(TAG,"hrList.size():"+hrList.size());
+            Log.i(TAG,"ecgTime:"+ecgTime);
+
             int calTime = 0;
 
             if (ecgTime<4){
@@ -87,7 +87,7 @@ public class HRVFragment extends BaseFragment {
                 //4~6分钟，取前后2分钟的数据
                 calTime = 2;
             }
-            else if (ecgTime>=6 && ecgTime<8){
+            else if (ecgTime>=6 && ecgTime<10){
                 //6~8分钟，取前后3分钟的数据
                 calTime = 3;
             }
@@ -96,7 +96,82 @@ public class HRVFragment extends BaseFragment {
                 calTime = 5;
             }
 
-            //pi=-2,表示用新的计算方式
+            Log.i(TAG,"calTime:"+calTime);
+
+
+            if (mUploadRecord.sdnn1==0 && mUploadRecord.sdnn2==0 && mUploadRecord.lf1==0 && mUploadRecord.lf2==0 && mUploadRecord.hf1==0 && mUploadRecord.hf2==0
+                    && mUploadRecord.hf==0 && mUploadRecord.lf==0){
+                //用旧算法
+
+                Log.i(TAG,"fi:"+mUploadRecord.fi+",pi:"+mUploadRecord.pi+",es:"+mUploadRecord.es);
+                if (mUploadRecord.fi>0){
+                    IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(mUploadRecord.fi);
+                    int FINeed = ESIndicatorAssess.getPercent();
+                    tiredLayoutParams.setMargins((int) ((FINeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+                    iv_hrv_tired.setLayoutParams(tiredLayoutParams);
+                }
+
+                if (mUploadRecord.fi>0){
+                    IndicatorAssess PIIndicatorAssess = HealthyIndexUtil.calculateSDNNPressureIndex(mUploadRecord.fi);
+                    int PINeed = PIIndicatorAssess.getPercent();
+                    resistLayoutParams.setMargins((int) ((PINeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+                    iv_hrv_resist.setLayoutParams(resistLayoutParams);
+                }
+
+                if (mUploadRecord.fi>0 || mUploadRecord.es>0){
+                    allSuggestion = HealthyIndexUtil.getHRVSuggetstion(mUploadRecord.fi, mUploadRecord.es,getActivity());
+                    Log.i(TAG,"allSuggestion:"+allSuggestion);
+                }
+                else {
+                    allSuggestion = getResources().getString(R.string.HeartRate_suggetstion_nodata);
+                }
+            }
+            else {
+                if (calTime>0 || mUploadRecord.sdnn1>0){
+                    calTime = calTime==0?1:calTime;
+
+                    //大于4分钟,新的计算方式
+                    HRVResult mentalFatigueNumber = HealthyIndexUtil.judgeHRVMentalFatigueData(getContext(),mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.hf1, mUploadRecord.lf1, mUploadRecord.sdnn1,
+                            mUploadRecord.hf2, mUploadRecord.lf2, mUploadRecord.sdnn2,calTime);
+
+                    if (mentalFatigueNumber.state>0){
+                        tiredLayoutParams.setMargins((int) ((mentalFatigueNumber.state*24/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+                        iv_hrv_resist.setLayoutParams(tiredLayoutParams);
+                    }
+
+                    HRVResult physicalFatigueNumber;
+                    if (mUploadRecord.state==0){
+                        //静态
+                        physicalFatigueNumber = HealthyIndexUtil.judgeHRVPhysicalFatigueStatic(getContext(),mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.sdnn1,
+                                mUploadRecord.hf2, mUploadRecord.lf2, mUploadRecord.sdnn2,calTime);
+                    }
+                    else {
+                        physicalFatigueNumber = HealthyIndexUtil.judgeHRVPhysicalFatigueSport(getContext(),mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.hf, mUploadRecord.lf, mUploadRecord.sdnn1,
+                                mUploadRecord.hf2, mUploadRecord.lf2, mUploadRecord.sdnn2,calTime);
+                    }
+
+                    if (physicalFatigueNumber.state>0){
+                        resistLayoutParams.setMargins((int) ((physicalFatigueNumber.state*32/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
+                        iv_hrv_tired.setLayoutParams(resistLayoutParams);
+                    }
+
+                    Log.i(TAG,"mentalFatigueNumber:"+mentalFatigueNumber);
+                    Log.i(TAG,"physicalFatigueNumber:"+physicalFatigueNumber);
+
+                    String mentalSuggestion = mentalFatigueNumber.suggestion;
+                    String physicalSuggestion = physicalFatigueNumber.suggestion;
+
+                    if (!MyUtil.isEmpty(mentalSuggestion) || !MyUtil.isEmpty(physicalSuggestion)){
+                        allSuggestion = physicalSuggestion+mentalSuggestion;
+                    }
+
+                    if (MyUtil.isEmpty(mentalSuggestion) && MyUtil.isEmpty(physicalSuggestion)){
+                        allSuggestion = getResources().getString(R.string.HeartRate_suggetstion_nodata);
+                    }
+                }
+            }
+
+           /* //pi=-2,表示用新的计算方式
             if (mUploadRecord.pi==-2 || (mUploadRecord.sdnn1!=0 || mUploadRecord.sdnn2!=0 || mUploadRecord.lf1!=0 || mUploadRecord.hf!=0)){
                 //新的计算方式
                 //精神疲劳度
@@ -167,6 +242,10 @@ public class HRVFragment extends BaseFragment {
                     allSuggestion = HealthyIndexUtil.getHRVSuggetstion(mUploadRecord.pi, mUploadRecord.es,getActivity());
                     Log.i(TAG,"allSuggestion:"+allSuggestion);
                 }
+            }*/
+
+            if (mUploadRecord.es==0){
+                mUploadRecord.es = mUploadRecord.pi;
             }
 
             if (mUploadRecord.es>0){

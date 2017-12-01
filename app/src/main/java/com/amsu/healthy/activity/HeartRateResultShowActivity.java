@@ -25,7 +25,6 @@ import com.amsu.healthy.fragment.analysis.SportFragment;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.OffLineDbAdapter;
-
 import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
@@ -336,24 +335,33 @@ public class HeartRateResultShowActivity extends BaseActivity {
             uploadRecord.timestamp =Long.parseLong(timestamp);
             uploadRecord.datatime =datatime;
 
-            Gson gson = new Gson();
-            if (!MyUtil.isEmpty(hr) && !hr.equals(Constant.uploadRecordDefaultString)  && !hr.equals("-1")){
+            Log.i(TAG,"ae:"+ae);
+
+            /*if (!MyUtil.isEmpty(hr) && !hr.equals(Constant.uploadRecordDefaultString)  && !hr.equals("-1")){
                 uploadRecord.hr = gson.fromJson(hr,new TypeToken<List<Integer>>() {}.getType());
-            }
-            if (!MyUtil.isEmpty(ae) && !ae.equals(Constant.uploadRecordDefaultString)){
+            }*/
+            /*if (!MyUtil.isEmpty(ae) && !ae.equals(Constant.uploadRecordDefaultString)){
                 uploadRecord.ae =gson.fromJson(ae,new TypeToken<List<Integer>>() {}.getType());
-            }
-            if (!MyUtil.isEmpty(cadence) && !cadence.equals(Constant.uploadRecordDefaultString) ){
+            }*/
+
+            uploadRecord.hr = MyUtil.parseListJson(hr,new TypeToken<List<Integer>>() {}.getType());
+            uploadRecord.ae = MyUtil.parseListJson(ae,new TypeToken<List<Integer>>() {}.getType());
+            uploadRecord.cadence = MyUtil.parseListJson(cadence,new TypeToken<List<Integer>>() {}.getType());
+            uploadRecord.calorie =MyUtil.parseListJson(calorie,new TypeToken<List<String>>() {}.getType());
+            uploadRecord.latitudeLongitude = MyUtil.parseListJson(latitudeLongitude,new TypeToken<List<ParcelableDoubleList>>() {}.getType());
+
+            /*if (!MyUtil.isEmpty(cadence) && !cadence.equals(Constant.uploadRecordDefaultString) ){
                 uploadRecord.cadence = gson.fromJson(cadence,new TypeToken<List<Integer>>() {}.getType());
             }
             if (!MyUtil.isEmpty(calorie) && !calorie.equals(Constant.uploadRecordDefaultString)){
                 uploadRecord.calorie =gson.fromJson(calorie,new TypeToken<List<String>>() {}.getType());
-            }
-            Log.i(TAG,"latitudeLongitude:"+latitudeLongitude);
+            }*/
+
+           /* Log.i(TAG,"latitudeLongitude:"+latitudeLongitude);
             Log.i(TAG,"latitudeLongitude:"+latitudeLongitude.length());
             if (!MyUtil.isEmpty(latitudeLongitude) && !latitudeLongitude.equals(Constant.uploadRecordDefaultString) && latitudeLongitude.length()>5){
                 uploadRecord.latitudeLongitude = gson.fromJson(latitudeLongitude,new TypeToken<List<ParcelableDoubleList>>() {}.getType());
-            }
+            }*/
 
             uploadRecord.distance = Float.parseFloat(distance);
             uploadRecord.time = (long) Float.parseFloat(time);
@@ -389,13 +397,16 @@ public class HeartRateResultShowActivity extends BaseActivity {
                 uploadRecord.lf = Double.parseDouble(lf);
             }
 
-            if (!MyUtil.isEmpty(chaosPlotPoint) && !chaosPlotPoint.equals(Constant.uploadRecordDefaultString) ){
+            uploadRecord.chaosPlotPoint = MyUtil.parseListJson(chaosPlotPoint,new TypeToken<List<Integer>>() {}.getType());
+            uploadRecord.frequencyDomainDiagramPoint = MyUtil.parseListJson(frequencyDomainDiagramPoint,new TypeToken<List<Double>>() {}.getType());
+
+            /*if (!MyUtil.isEmpty(chaosPlotPoint) && !chaosPlotPoint.equals(Constant.uploadRecordDefaultString) ){
                 uploadRecord.chaosPlotPoint = gson.fromJson(chaosPlotPoint,new TypeToken<List<Integer>>() {}.getType());
             }
 
             if (!MyUtil.isEmpty(frequencyDomainDiagramPoint) && !frequencyDomainDiagramPoint.equals(Constant.uploadRecordDefaultString) ){
                 uploadRecord.frequencyDomainDiagramPoint = gson.fromJson(frequencyDomainDiagramPoint,new TypeToken<List<Double>>() {}.getType());
-            }
+            }*/
 
             if (!MyUtil.isEmpty(chaosPlotMajorAxis) && !chaosPlotMajorAxis.equals("null") && !chaosPlotMajorAxis.equals(iosDefaultString)){
                 uploadRecord.chaosPlotMajorAxis =  (int) Float.parseFloat(chaosPlotMajorAxis);
@@ -434,6 +445,8 @@ public class HeartRateResultShowActivity extends BaseActivity {
             Log.e(TAG,"e1:"+e);
         }
     }
+
+
 
     private void adjustFeagmentCount(int state) {
         fragmentList.clear();

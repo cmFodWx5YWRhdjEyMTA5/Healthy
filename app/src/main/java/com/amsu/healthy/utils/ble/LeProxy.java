@@ -88,7 +88,7 @@ public class LeProxy {
             decode = false;
         }
 
-        mBleService.setDecode(decode);//设置是否解密接收的数据（仅限于默认的接收通道【0x1002】，依据模透传块数据是否加密而定）
+        mBleService.setDecode(decode); //设置是否解密接收的数据（仅限于默认的接收通道【0x1002】，依据模透传块数据是否加密而定）
         mBleService.setConnectTimeout(5000);//设置APP端的连接超时时间（单位ms）
         mBleService.initialize();// 必须调用初始化函数
     }

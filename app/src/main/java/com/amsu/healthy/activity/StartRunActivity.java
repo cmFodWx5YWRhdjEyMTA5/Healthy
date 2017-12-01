@@ -160,6 +160,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private String mCurBrowserClientID;*/
     private boolean isMarathonSportType;
     private LeProxy mLeProxy;
+    private BleDataProxy mBleDataProxy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -269,7 +270,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         }
         startRunning();
 
-
+        mBleDataProxy = BleDataProxy.getInstance();
+        mBleDataProxy.setRecordingStarted();
 
 
     }
@@ -1429,6 +1431,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         deleteAbortDataRecordFomeSP();
         CommunicateToBleService.detoryServiceForegrounByNotify();
 
+        ecgLocalFileName = mBleDataProxy.stopWriteEcgToFileAndGetFileName();
 
 
         /*if (mWebSocketUtil!=null){

@@ -9,18 +9,16 @@ import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.adapter.SosListAdapter;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.view.QQListView;
+import com.amsu.healthy.view.SwipeListView;
 import com.google.gson.Gson;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -61,9 +59,8 @@ public class SosActivity extends BaseActivity {
             }
         });
 
-
-        final QQListView lv_sos_list = (QQListView) findViewById(R.id.lv_sos_list);
-
+        final SwipeListView lv_sos_list = (SwipeListView) findViewById(R.id.lv_sos_list);
+        lv_sos_list.setLoadMoreOpened(false);
 
         View footView = View.inflate(this, R.layout.view_foot_add_contant, null);
         lv_sos_list.addFooterView(footView);
@@ -81,24 +78,43 @@ public class SosActivity extends BaseActivity {
 
         sosNumberList = new ArrayList<>();
 
-        sosListAdapter = new SosListAdapter();
+        sosListAdapter = new SosListAdapter(sosNumberList,lv_sos_list.getRightViewWidth(),getApplication());
         lv_sos_list.setAdapter(sosListAdapter);
 
-        lv_sos_list.setDelButtonClickListener(new QQListView.DelButtonClickListener() {
+        sosListAdapter.setOnRightItemClickListener(new SosListAdapter.onRightItemClickListener() {
+
+            @Override
+            public void onRightItemClick(View v, int position) {
+                //Toast.makeText(getActivity(), "删除第  " + (position+1)+" 对话记录", Toast.LENGTH_SHORT).show();
+                deleteSosContact(position);
+            }
+        });
+
+       /* lv_sos_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                deleteSosContact(position);
+                return false;
+            }
+        });*/
+
+        /*lv_sos_list.setDelButtonClickListener(new QQListView.DelButtonClickListener() {
             @Override
             public void clickHappend(int position) {
                 deleteSosContact(position);
             }
-        });
+        });*/
     }
 
     private void deleteSosContact(final int position) {
         MyUtil.showDialog(getResources().getString(R.string.deleting),this);
         SosNumber sosNumber = sosNumberList.get(position);
+
         HttpUtils httpUtils = new HttpUtils();
         final RequestParams params = new RequestParams();
         params.addBodyParameter("id",sosNumber.id);
         MyUtil.addCookieForHttp(params);
+
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.deleteSosContact, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
@@ -193,7 +209,7 @@ public class SosActivity extends BaseActivity {
         List<SosNumber> sosNumbers = MyUtil.getSosNumberList();
         if (sosNumbers!=null && sosNumbers.size()>0){
             //本地有
-            sosNumberList = sosNumbers;
+            sosNumberList.addAll(sosNumbers);
             sosListAdapter.notifyDataSetChanged();
         }
         else {
@@ -379,34 +395,7 @@ public class SosActivity extends BaseActivity {
         });
     }
 
-    private class SosListAdapter extends BaseAdapter{
 
-        @Override
-        public int getCount() {
-            return sosNumberList.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            SosNumber sosNumber = sosNumberList.get(position);
-            View inflate = View.inflate(SosActivity.this, R.layout.item_sosnumber_list, null);
-            TextView tv_item_name = (TextView) inflate.findViewById(R.id.tv_item_name);
-            TextView tv_item_number = (TextView) inflate.findViewById(R.id.tv_item_number);
-            tv_item_name.setText(sosNumber.name);
-            tv_item_number.setText(sosNumber.phone);
-            return inflate;
-        }
-    }
 
     class SosInfo{
         public String ret;
@@ -436,7 +425,7 @@ public class SosActivity extends BaseActivity {
 
     public class SosNumber {
         private String id;
-        private String name;
+        public String name;
         public String phone;
 
         public SosNumber(String name, String phone) {
@@ -457,6 +446,8 @@ public class SosActivity extends BaseActivity {
             this.id = id;
         }
     }
+
+
 
 
 }

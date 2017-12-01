@@ -22,6 +22,7 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class HealthyPlanActivity extends BaseActivity {
     private static final String TAG = "HealthyPlanActivity";
     private ListView lv_healthplan_plan;
     private List<HealthyPlan> healthyPlanList;
+    private ArrayList<HealthyPlan> healthyPlanListFromLastYear;
     private HealthyPlanDataAdapter healthyPlanDataAdapter;
     private int mClickPositon = -1;
 
@@ -56,8 +58,11 @@ public class HealthyPlanActivity extends BaseActivity {
         getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(HealthyPlanActivity.this,HealthyPlanCalenActivity.class));
-                finish();
+                Intent intent = new Intent(HealthyPlanActivity.this, HealthyPlanCalenActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArrayList("healthyPlanListFromLastYear",healthyPlanListFromLastYear);
+                intent.putExtra("bundle",bundle);
+                startActivity(intent);
             }
         });
 
@@ -66,6 +71,7 @@ public class HealthyPlanActivity extends BaseActivity {
 
     private void initData() {
         healthyPlanList = new ArrayList<>();
+        healthyPlanListFromLastYear = new ArrayList<>();
         healthyPlanDataAdapter = new HealthyPlanDataAdapter(HealthyPlanActivity.this,healthyPlanList);
         lv_healthplan_plan.setAdapter(healthyPlanDataAdapter);
         lv_healthplan_plan.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -88,9 +94,12 @@ public class HealthyPlanActivity extends BaseActivity {
         params.addBodyParameter("date",formatTime);
         params.addBodyParameter("page","1");
         MyUtil.addCookieForHttp(params);
+
+        MyUtil.showDialog("正在获取健康计划列表",HealthyPlanActivity.this);
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getAfter20ItemHealthyPlanListURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
+                MyUtil.hideDialog(getApplication());
                 String result = responseInfo.result;
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 JsonBase<List<HealthyPlan>> jsonBase = MyUtil.commonJsonParse(result, new TypeToken<JsonBase<List<HealthyPlan>>>() {}.getType());
@@ -106,10 +115,47 @@ public class HealthyPlanActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.hideDialog(HealthyPlanActivity.this);
+                MyUtil.hideDialog(getApplication());
                 Log.i(TAG,"上传onFailure==s:"+s);
             }
         });
+
+
+        getHealthPlanDataFromLastYear();
+
+    }
+
+    private void getHealthPlanDataFromLastYear(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR,calendar.get(Calendar.YEAR)-1);
+        String date = MyUtil.getSpecialFormatTime("yyyy-MM-dd", calendar.getTime());
+
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("date",date);
+
+        MyUtil.addCookieForHttp(params);
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHealthyPlanListURL, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                String result = responseInfo.result;
+                Log.i(TAG,"上传onSuccess==result:"+result);
+                JsonBase<List<HealthyPlan>> jsonBase = MyUtil.commonJsonParse(result, new TypeToken<JsonBase<List<HealthyPlan>>>() {}.getType());
+                Log.i(TAG,"jsonBase:"+jsonBase);
+                if (jsonBase!=null&&jsonBase.getRet()==0){
+                    if (jsonBase.errDesc!=null && jsonBase.errDesc.size()>0){
+                        healthyPlanListFromLastYear.addAll(jsonBase.errDesc);
+                    }
+                    Log.i(TAG,"healthyPlanListFromLastYear:"+healthyPlanListFromLastYear.size());
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                Log.i(TAG,"上传onFailure==s:"+s);
+            }
+        });
+
     }
 
     public void addHealthyPlan(View view) {

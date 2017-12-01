@@ -12,19 +12,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.HeartRateAnalysisActivity;
-import com.amsu.healthy.activity.HeartRateResultShowActivity;
-import com.amsu.healthy.activity.HistoryRecordActivity;
 import com.amsu.healthy.activity.insole.InsoleAnalyticFinshResultActivity;
-import com.amsu.healthy.adapter.HistoryRecordAdapter;
 import com.amsu.healthy.adapter.InsoleHistoryRecordAdapter;
-import com.amsu.healthy.bean.AppAbortDataSave;
-import com.amsu.healthy.bean.HistoryRecord;
 import com.amsu.healthy.bean.InsoleHistoryRecord;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.view.LoadMoreListView;
 import com.amsu.healthy.view.SwipeListView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -102,6 +95,15 @@ public class InsoleHistoryRecordFragment extends Fragment {
             }
         });
 
+        /*lv_history_insole.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                InsoleHistoryRecord historyRecord = insoleHistoryRecords.get(position);
+                deleteRecordByID(historyRecord.getId(),position);
+                return false;
+            }
+        });*/
+
 
 
         lv_history_insole.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -114,7 +116,6 @@ public class InsoleHistoryRecordFragment extends Fragment {
                     intent.putExtra("bundle",bundle);
                     startActivity(intent);
                 }
-
             }
         });
 

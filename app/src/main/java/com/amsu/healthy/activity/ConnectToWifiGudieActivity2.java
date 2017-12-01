@@ -16,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.wifiTransmit.DeviceOffLineFileUtil;
 import com.amsu.healthy.utils.wifiTransmit.WifiAutoConnectManager;
@@ -106,6 +107,11 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
             et_wifi_password.setText(wifiPassword);
         }
 
+        boolean isHaveIP = getIntent().getBooleanExtra("isHaveIP", false);
+        if (isHaveIP){
+            connectNow(null);
+        }
+
     }
 
     public void connectNow(View view) {
@@ -115,7 +121,7 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
         if (!MyUtil.isEmpty(wifiNname) && !MyUtil.isEmpty(wifiPassword)){
             showProgressDialog();
 
-            String moduleIP = MyUtil.getStringValueFromSP("moduleIP");
+            String moduleIP = MyUtil.getStringValueFromSP(Constant.moduleIP);
 
             Log.i(TAG,"moduleIP:"+moduleIP);
 
@@ -548,7 +554,7 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
             }
         });
 
-        Thread.sleep(1500);
+        Thread.sleep(800);
 
         runOnUiThread(new Runnable() {
             @Override

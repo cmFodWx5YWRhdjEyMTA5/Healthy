@@ -9,9 +9,11 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.HistoryRecordAdapter;
@@ -68,7 +70,8 @@ public class UploadOfflineFileActivity extends BaseActivity {
     private int analyCount;
     private DeviceOffLineFileUtil deviceOffLineFileUtil;
     private InputStream inputStream;
-
+    private ImageView iv_base_myreport;
+    private boolean isGetFileList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,60 +84,56 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
-        setCenterText(getResources().getString(R.string.connected_synced_offline_files));
+        setCenterText("同步离线文件");
         setLeftImage(R.drawable.back_icon);
         setRightImage(R.drawable.tongbu_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                judgeIsFinshActivity();
             }
         });
+
         getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyUtil.showDialog(getResources().getString(R.string.connected_synced_offline_files),UploadOfflineFileActivity.this);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getFileList();
-                    }
-                }){}.start();
+                if (isGetFileList){
+                    MyUtil.showToask(UploadOfflineFileActivity.this,"正在传输数据，不需要重传");
+                }else {
+                    MyUtil.showDialog(getResources().getString(R.string.connected_check_offline_files),UploadOfflineFileActivity.this);
+                    mUploadHistoryRecords.clear();
+                    uploadHistoryRecordAdapter.notifyDataSetChanged();
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            getFileList();
+                            sleepWaitGetFileList();
+                        }
+                    }){}.start();
+                }
             }
         });
 
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int needAnalyCount = mEcgOffLineFileNameList.size() - mEmptyIndexItemArray.size(); //不是空的列表,需要分析
-                if (needAnalyCount==analyCount){
-                    //都分析了
-                    finish();
-
-                }
-                else {
-                    AlertDialog alertDialog = new AlertDialog.Builder(UploadOfflineFileActivity.this)
-
-                            .setTitle(getResources().getString(R.string.exit_sure_offline_files))
-                            .setPositiveButton(getResources().getString(R.string.exit_confirm), new DialogInterface.OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
-                                }
-                            })
-                            .setNegativeButton(getResources().getString(R.string.exit_cancel), new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                }
-                            })
-                            .create();
-                    alertDialog.setCanceledOnTouchOutside(false);
-                    alertDialog.show();
-                }
+                judgeIsFinshActivity();
             }
         });
+
+        iv_base_myreport = (ImageView) findViewById(R.id.iv_base_myreport);
+        iv_base_myreport.setImageResource(R.drawable.ic_settings_white_24dp);
+        iv_base_myreport.setVisibility(View.VISIBLE);
+
+        iv_base_myreport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(UploadOfflineFileActivity.this, ConnectToWifiGudieActivity1.class));
+            }
+        });
+
+
 
         lv_history_upload = (ListView) findViewById(R.id.lv_history_upload);
 
@@ -176,6 +175,36 @@ public class UploadOfflineFileActivity extends BaseActivity {
             }
         });
 
+    }
+
+    private void judgeIsFinshActivity() {
+        int needAnalyCount = mEcgOffLineFileNameList.size() - mEmptyIndexItemArray.size(); //不是空的列表,需要分析
+        if (needAnalyCount==analyCount){
+            //都分析了
+            finish();
+
+        }
+        else {
+            AlertDialog alertDialog = new AlertDialog.Builder(UploadOfflineFileActivity.this)
+
+                    .setTitle(getResources().getString(R.string.exit_sure_offline_files))
+                    .setPositiveButton(getResources().getString(R.string.exit_confirm), new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .setNegativeButton(getResources().getString(R.string.exit_cancel), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .create();
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.show();
+        }
     }
 
     private boolean isAnalyed;
@@ -248,6 +277,29 @@ public class UploadOfflineFileActivity extends BaseActivity {
         }
     }
 
+    private void sleepWaitGetFileList(){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                MyUtil.hideDialog(getApplication());
+                if (!isGetFileList){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MyUtil.showToask(UploadOfflineFileActivity.this,"获取文件列表失败，请检查主机是否放在底座上，或拔掉电源重新连底座", Toast.LENGTH_LONG);
+                        }
+                    });
+                }
+            }
+        }.start();
+    }
+
     private void initData() {
         MyUtil.showDialog(getResources().getString(R.string.connected_check_offline_files),this);
         if (ConnectToWifiGudieActivity2.mSock!=null){
@@ -261,6 +313,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
 
                         getFileList();
+                        sleepWaitGetFileList();
 
                         //byte[] bytes = new byte[2048];
                         final byte[] bytes = new byte[1024*10];
@@ -481,6 +534,8 @@ public class UploadOfflineFileActivity extends BaseActivity {
             fileListHexData = "";
         }
 
+        isGetFileList = true;
+
         boolean isFirstFile = true;
         int pre_file_type = 0;
         int file_type_ecg = 1;
@@ -573,6 +628,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                 lv_history_upload.setVisibility(View.GONE);
                 uploadHistoryRecordAdapter.notifyDataSetChanged();
                 lv_history_upload.setVisibility(View.VISIBLE);
+                MyUtil.showToask(UploadOfflineFileActivity.this,"开始传输，次过程可能需要几分钟时间，请耐心等待", Toast.LENGTH_LONG);
             }
         });
 
@@ -1063,7 +1119,6 @@ public class UploadOfflineFileActivity extends BaseActivity {
                 sendHexStringDeviceOrder(DeviceOffLineFileUtil.readDeviceVersion);
             }
         }){}.start();
-
     }
 
     public void readLength(View view) {
@@ -1084,11 +1139,4 @@ public class UploadOfflineFileActivity extends BaseActivity {
         }){}.start();
     }
 }
-
-
-
-
-
-
-
 

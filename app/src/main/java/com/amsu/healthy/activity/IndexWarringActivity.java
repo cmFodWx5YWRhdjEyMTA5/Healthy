@@ -582,6 +582,7 @@ public class IndexWarringActivity extends BaseActivity {
             tv_wring_year.setText(split[0]);
             tv_wring_day.setText(split[1]);
             return inflate;
+
         }
     }
 }

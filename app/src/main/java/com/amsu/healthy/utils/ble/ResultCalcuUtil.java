@@ -8,12 +8,17 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.DataTypeConversionUtil;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.wifiTransmit.uilt.WriteReadDataToBinaryFile;
 import com.amsu.healthy.utils.wifiTransmit.uilt.WriteReadDataToFileStrategy;
 import com.test.objects.HeartRate;
 import com.test.utils.DiagnosisNDK;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * @anthor haijun
@@ -100,8 +105,9 @@ public class ResultCalcuUtil {
             Log.i(TAG,"heartRate:"+ heartRate);
 
             if (onHeartCalcuListener!=null && heartRate!=null){
-                onHeartCalcuListener.onReceiveHeart(heartRate.rate);
+                onHeartCalcuListener.onReceiveHeart(heartRate);
             }
+
             /*if (onHeartCalcuListener!=null ){
                 onHeartCalcuListener.onReceiveHeart(heartRate);
             }*/
@@ -237,10 +243,173 @@ public class ResultCalcuUtil {
         return context.getResources().getString(R.string.exercise_oxygenated);
     }
 
+    public static void writeECGFileHeadBytes(DataOutputStream dataOutputStream){
+        byte[] head = DataTypeConversionUtil.getBytesByAsciiString("AMSU_BETA1",10);
+        byte[] clothes_identifier = DataTypeConversionUtil.getBytesByAsciiString("AMSU_E9087896590",24);
+        byte[] version = DataTypeConversionUtil.getBytesByAsciiString("v1",4);;  // 硬件版本  v1  v2 …..      ASSIC
+        long date_time = System.currentTimeMillis() ;   //date_time[0] = (char)(2017-2000)   // 年月日时分秒
+        byte[] name = DataTypeConversionUtil.getBytesByAsciiString("18689463192",16);;
+        byte age = 11;   // 年龄
+        byte sex = 1;    //男=1 女=2
+        short height = 165;   //cm
+        short weight = 60;   //kg
+        short gain = 3; //增益
+        byte leads = 4; //导联数
+        short sample_fre = 150;//采样率
+        byte ad = 8;//ad位，一代是8位，二代是16位
+        byte[] remark = DataTypeConversionUtil.getBytesByAsciiString("xxxxxxx",182);;   //备注   以后备用
+
+        try {
+            dataOutputStream.write(head);
+            dataOutputStream.write(clothes_identifier);
+            dataOutputStream.write(version);
+
+            byte[] date_timeByteArray = DataTypeConversionUtil.longToByteArray(date_time);
+            dataOutputStream.write(date_timeByteArray);
+
+            dataOutputStream.write(name);
+            dataOutputStream.writeByte(age);
+            dataOutputStream.writeByte(sex);
+
+            byte[] heightByteArray = DataTypeConversionUtil.shortToByteArray(height);
+            dataOutputStream.write(heightByteArray);
+
+            byte[] weightByteArray = DataTypeConversionUtil.shortToByteArray(weight);
+            dataOutputStream.write(weightByteArray);
+
+            byte[] gainByteArray = DataTypeConversionUtil.shortToByteArray(gain);
+            dataOutputStream.write(gainByteArray);
+
+            dataOutputStream.writeByte(leads);
+
+            byte[] sample_freByteArray = DataTypeConversionUtil.shortToByteArray(sample_fre);
+            dataOutputStream.write(sample_freByteArray);
+
+            dataOutputStream.writeByte(ad);
+            dataOutputStream.write(remark);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static EcgFileHead readEcgFileHead(DataInputStream dataInputStream) {
+        try {
+            byte[] head = new byte[10];
+            dataInputStream.read(head);
+            String headString = DataTypeConversionUtil.getStringByAsciiBytes(head);
+
+            byte[] clothes_identifier = new byte[24];
+            dataInputStream.read(clothes_identifier);
+            String clothes_identifierString = DataTypeConversionUtil.getStringByAsciiBytes(clothes_identifier);
+
+            byte[] version = new byte[4];
+            dataInputStream.read(version);
+            String versionString = DataTypeConversionUtil.getStringByAsciiBytes(version);
+
+            byte[] date_time = new byte[8];
+            dataInputStream.read(date_time);
+
+            long date_timeLong = DataTypeConversionUtil.bytesToLong(date_time);
+
+            byte[] name = new byte[16];
+            dataInputStream.read(name);
+            String nameString = DataTypeConversionUtil.getStringByAsciiBytes(name);
+
+            byte age = dataInputStream.readByte();
+
+            byte sex = dataInputStream.readByte();    //男=1 女=2
+
+            byte[] height = new byte[2];
+            dataInputStream.read(height);
+
+            short heightShort = DataTypeConversionUtil.bytesToShort(height);
+
+            byte[] weight = new byte[2];
+            dataInputStream.read(weight);
+            short weightShort = DataTypeConversionUtil.bytesToShort(weight);
+
+
+            byte[] gain = new byte[2];
+            dataInputStream.read(gain);
+            short gainShort = DataTypeConversionUtil.bytesToShort(gain);
+
+            byte leads = dataInputStream.readByte(); //导联数
+
+            byte[] sample_fre = new byte[2];
+            dataInputStream.read(sample_fre);
+
+            short sample_freShort = DataTypeConversionUtil.bytesToShort(sample_fre);
+
+            byte ad = dataInputStream.readByte(); ;//ad位，一代是8位，二代是16位
+
+            byte[] remark = new byte[182];
+            dataInputStream.read(remark);
+            String remarkString = DataTypeConversionUtil.getStringByAsciiBytes(remark);
+
+            System.out.println("headString:"+headString);
+            System.out.println("clothes_identifierString:"+clothes_identifierString);
+            System.out.println("versionString:"+versionString);
+            System.out.println("date_timeLong:"+date_timeLong);
+            System.out.println("nameString:"+nameString);
+            System.out.println("age:"+age);
+            System.out.println("sex:"+sex);
+            System.out.println("heightShort:"+heightShort);
+            System.out.println("weightShort:"+weightShort);
+            System.out.println("gainShort:"+gainShort);
+            System.out.println("leads:"+leads);
+            System.out.println("sample_freShort:"+sample_freShort);
+            System.out.println("ad:"+ad);
+            System.out.println("remarkString:"+remarkString);
+
+            if (!MyUtil.isEmpty(headString) && headString.equals("AMSU_BETA1")){
+                return new EcgFileHead(headString,clothes_identifierString,versionString,date_timeLong,nameString,age,sex,heightShort,weightShort,gainShort,leads,sample_freShort,ad,remarkString);
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static class EcgFileHead{
+        public String head;
+        public String clothesIdentifier;
+        public String version;
+        public long dateTime;
+        public String name;
+        public  byte age;
+        public  byte sex;
+        public short height;
+        public short weight;
+        public short gain;
+        public byte leads;
+        public short sampleFre;
+        public byte ad;
+        public String remark;
+
+        public EcgFileHead(String head, String clothesIdentifier, String version, long dateTime, String name, byte age, byte sex, short height, short weight, short gain, byte leads, short sampleFre, byte ad, String remark) {
+            this.head = head;
+            this.clothesIdentifier = clothesIdentifier;
+            this.version = version;
+            this.dateTime = dateTime;
+            this.name = name;
+            this.age = age;
+            this.sex = sex;
+            this.height = height;
+            this.weight = weight;
+            this.gain = gain;
+            this.leads = leads;
+            this.sampleFre = sampleFre;
+            this.ad = ad;
+            this.remark = remark;
+        }
+    }
+
     private OnHeartCalcuListener onHeartCalcuListener;
 
     public interface OnHeartCalcuListener{
-        void onReceiveHeart(int currentHeartRate);
+        void onReceiveHeart(HeartRate heartRate);
         void onReceiveStride(int currentHeartRate);
     }
 

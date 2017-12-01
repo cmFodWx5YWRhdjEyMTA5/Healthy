@@ -1,25 +1,19 @@
 package com.amsu.healthy.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.adapter.FragmentListRateAdapter;
 import com.amsu.healthy.fragment.historyrecord.ClothHistoryRecordFragment;
 import com.amsu.healthy.fragment.historyrecord.InsoleHistoryRecordFragment;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.MyUtil;
 
 public class HistoryRecordAllActivity extends BaseActivity {
 
@@ -48,7 +42,16 @@ public class HistoryRecordAllActivity extends BaseActivity {
         iv_base_rightimage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(HistoryRecordAllActivity.this,ConnectToWifiGudieActivity1.class));
+                String moduleIP = MyUtil.getStringValueFromSP(Constant.moduleIP);
+                if (!MyUtil.isEmpty(moduleIP)){
+                    Intent intent = new Intent(HistoryRecordAllActivity.this, ConnectToWifiGudieActivity2.class);
+                    intent.putExtra("isHaveIP",true);
+                    startActivity(intent);
+                }
+                else {
+                    startActivity(new Intent(HistoryRecordAllActivity.this,ConnectToWifiGudieActivity1.class));
+                }
+
             }
         });
 

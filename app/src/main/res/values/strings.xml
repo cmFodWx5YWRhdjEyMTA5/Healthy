@@ -22,7 +22,7 @@
     <string name="verification_Code">验证码</string>
     <string name="user_agreement">用户协议</string>
     <string name="agree">同意</string>
-    <string name="enter_cell_phone_number">请输入手机号</string>
+    <string name="enter_cell_phone_number">请输入正确的手机号</string>
     <string name="input_validation_code">请输入验证码</string>
     <string name="code">获取验证码</string>
     <string name="non_consent_logon_protocol">未同意登录协议</string>
@@ -58,7 +58,7 @@
     <string name="connectting_wifi_fail">WiFi连接失败，请重试 </string>
     <string name="connectted_socket_dialog">WiFi连接成功，正在创建socket连接</string>
     <string name="connected_check_offline_files">检查离线文件</string>
-    <string name="connected_synced_offline_files">同步离线文件</string>
+    <string name="connected_synced_offline_files">获取文件列表</string>
     <string name="exit_sure_offline_files">还有未分析的离线数据，确定要退出吗？</string>
     <string name="exit_confirm">确定</string>
     <string name="exit_cancel">取消</string>

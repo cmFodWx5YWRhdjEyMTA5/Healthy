@@ -412,7 +412,7 @@ public class SwipeListView extends ListView {
         this.mRightViewWidth = mRightViewWidth;
     }
 
-LoadMoreListView.LoadMoreDataListener refreshDataListener;
+    LoadMoreListView.LoadMoreDataListener refreshDataListener;
 
     public void setLoadMorehDataListener(LoadMoreListView.LoadMoreDataListener refreshDataListener){
         this.refreshDataListener = refreshDataListener;

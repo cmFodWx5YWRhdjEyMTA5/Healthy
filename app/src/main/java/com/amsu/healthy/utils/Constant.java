@@ -133,6 +133,8 @@ public class Constant {
      */
     public static final int sportType_Insole = 2;
 
+    public static final int sportType_Marathon = 3;
+
 
     public static final int clothDeviceType_old_encrypt = 1;  //加密
     public static final int clothDeviceType_old_noEncrypt = 2;  //不加密
@@ -195,6 +197,7 @@ public class Constant {
     public static boolean isInnerUpdateAllowed = true;  //是否开启应用内部更新，谷歌应用市场不允许更新
 
     public static final String mClothDeviceType = "mClothDeviceType";
+    public static final String moduleIP = "moduleIP";
 
 
 

@@ -185,7 +185,6 @@ public class UploadRecord implements Parcelable,Cloneable {
                 ", minhr=" + minhr +
                 ", hrr='" + hrr + '\'' +
                 ", hrs='" + hrs + '\'' +
-                ", ec='" + ec + '\'' +
                 ", ecr=" + ecr +
                 ", ecs='" + ecs + '\'' +
                 ", ra=" + ra +
@@ -218,6 +217,7 @@ public class UploadRecord implements Parcelable,Cloneable {
                 ", frequencyDomainDiagramPoint=" + frequencyDomainDiagramPoint +
                 ", chaosPlotMajorAxis=" + chaosPlotMajorAxis +
                 ", chaosPlotMinorAxis=" + chaosPlotMinorAxis +
+                ", ec='" + ec + '\'' +
                 '}';
     }
 

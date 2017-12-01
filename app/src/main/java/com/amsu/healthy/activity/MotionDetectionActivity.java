@@ -60,6 +60,7 @@ public class MotionDetectionActivity extends BaseActivity implements View.OnClic
         rl_marathon.setOnClickListener(this);
 
 
+        mSportType = MyUtil.getIntValueFromSP(Constant.sportType);
         switchSelectedState(MyApplication.deivceType);
 
     }
@@ -86,6 +87,7 @@ public class MotionDetectionActivity extends BaseActivity implements View.OnClic
         alertDialog.show();*/
 
         MyUtil.putBooleanValueFromSP(isMarathonSportType, false);
+
         switch (v.getId()) {
             case R.id.rl_dection_cloth:
                 switchSelectedState(Constant.sportType_Cloth);
@@ -100,33 +102,47 @@ public class MotionDetectionActivity extends BaseActivity implements View.OnClic
         }
     }
 
+    int choosedType = -1;
+    int preChoosedType = -1;
+
     private void switchSelectedState(int type) {
         switch (type) {
             case Constant.sportType_Cloth:
                 iv_detction_cloth.setBackgroundResource(R.drawable.bg_center_circle);
                 iv_detction_insole1.setBackgroundResource(R.drawable.bg_sport_type);
                 iv_detction_marathon.setBackgroundResource(R.drawable.bg_sport_type);
+
+                choosedType = 1;
+
                 boolean is = MyUtil.getBooleanValueFromSP(isMarathonSportType);
                 if (is) {
                     iv_detction_cloth.setBackgroundResource(R.drawable.bg_sport_type);
                     iv_detction_insole1.setBackgroundResource(R.drawable.bg_sport_type);
                     iv_detction_marathon.setBackgroundResource(R.drawable.bg_center_circle);
+                    choosedType = 2;
                 }
-                /*if (mSportType!=-1){
-                    MyUtil.showToask(this,"衣服切换成功");
-                }*/
                 break;
+
             case Constant.sportType_Insole:
                 iv_detction_cloth.setBackgroundResource(R.drawable.bg_sport_type);
                 iv_detction_insole1.setBackgroundResource(R.drawable.bg_center_circle);
                 iv_detction_marathon.setBackgroundResource(R.drawable.bg_sport_type);
-                /*if (mSportType!=-1){
-                    MyUtil.showToask(this,"鞋垫切换成功");
-                }*/
+                choosedType = 3;
                 break;
         }
+
+
         mSportType = type;
         MyUtil.putIntValueFromSP(Constant.sportType, mSportType);
         MyApplication.deivceType = mSportType;
+
+        if (preChoosedType!=-1 && preChoosedType != choosedType){
+            MyUtil.showToask(getApplication(),"运动模式切换成功");
+        }
+        preChoosedType = choosedType;
+
     }
+
+    boolean isFirst = true;
+
 }

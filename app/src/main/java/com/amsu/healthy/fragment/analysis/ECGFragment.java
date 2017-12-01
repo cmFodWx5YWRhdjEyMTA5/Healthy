@@ -17,8 +17,8 @@ import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.ble.EcgFilterUtil_1;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.ble.EcgFilterUtil_1;
 import com.amsu.healthy.view.EcgView;
 
 import java.io.DataInputStream;
@@ -178,6 +178,14 @@ public class ECGFragment extends BaseFragment {
                             if (file.exists()){
                                 fileInputStream = new FileInputStream(eCGFilePath);
                                 DataInputStream dataInputStream = new DataInputStream(fileInputStream); //读取二进制文件
+
+                                /*ResultCalcuUtil.EcgFileHead ecgFileHead = ResultCalcuUtil.readEcgFileHead(dataInputStream);
+
+
+                                if (ecgFileHead!=null){
+                                    //新的ecg文件格式
+
+                                }*/
 
                                 try {
 

@@ -166,9 +166,9 @@ public class LoginActivity extends BaseActivity {
     private void initData() {
         mTimer = new Timer();
         //获取验证码成功
-//提交验证码成功
-//返回支持发送验证码的国家列表
-//event:2,result:0,data:java.lang.Throwable: {"status":603,"detail":"请填写正确的手机号码"}
+        //提交验证码成功
+        //返回支持发送验证码的国家列表
+        //event:2,result:0,data:java.lang.Throwable: {"status":603,"detail":"请填写正确的手机号码"}
         eventHandler = new EventHandler(){
 
             @Override
@@ -241,11 +241,13 @@ public class LoginActivity extends BaseActivity {
         String inputVerifycode = et_login_code.getText().toString();
         String regioncode = tv_login_regioncode.getText().toString();
 
-        if (phone.isEmpty()){
+        boolean phoneNumeric = MyUtil.isNumeric(phone);
+        boolean codeNumeric = MyUtil.isNumeric(phone);
+        if (phone.isEmpty() || !phoneNumeric){
             Toast.makeText(this,getResources().getString(R.string.enter_cell_phone_number), Toast.LENGTH_SHORT).show();
             return;
         }
-        else if(inputVerifycode.isEmpty()){
+        else if(inputVerifycode.isEmpty() || !codeNumeric){
             Toast.makeText(this,getResources().getString(R.string.input_validation_code), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -256,12 +258,14 @@ public class LoginActivity extends BaseActivity {
     public void getVerifyCode(View view) {
         String phone = et_login_phone.getText().toString();
         String regioncode = tv_login_regioncode.getText().toString();
-        if(!TextUtils.isEmpty(phone)){
+        boolean phoneNumeric = MyUtil.isNumeric(phone);
+
+        if(!TextUtils.isEmpty(phone) && phoneNumeric){
             getMESCode(regioncode,phone);  //86为国家代码
             MyUtil.showDialog(getResources().getString(R.string.getting_validation_code),this);
             isSendSuccessNotified = false;
         }else{
-            Toast.makeText(this,getResources().getString(R.string.input_validation_code), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,getResources().getString(R.string.enter_cell_phone_number), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -286,7 +290,8 @@ public class LoginActivity extends BaseActivity {
         }
     }
 
-    Handler myHandler = new Handler(){
+    private Handler myHandler = new Handler(){
+
         @Override
         public void dispatchMessage(Message msg) {
             super.dispatchMessage(msg);
@@ -308,25 +313,25 @@ public class LoginActivity extends BaseActivity {
             }
             else if (msg.what==MSG_TOAST_FAIL){
                 String detail = (String) msg.obj;
-                Toast.makeText(LoginActivity.this,detail, Toast.LENGTH_SHORT).show();
-                MyUtil.hideDialog(LoginActivity.this);
+                Toast.makeText(getApplication(), detail, Toast.LENGTH_SHORT).show();
+                MyUtil.hideDialog(getApplication());
             }
             else if (msg.what==MSG_TOAST_SUCCESS){
                 getCodeSuccessSetTextState();
             }
         }
+
     };
 
     boolean isSendSuccessNotified;
-
     private void getCodeSuccessSetTextState() {
         if (!isSendSuccessNotified){
             bt_login_getcode.setClickable(false);
             //bt_login_getcode.setBackgroundResource(R.drawable.bg_button_code_disable);
             //bt_login_getcode.setTextSize(15);
             bt_login_getcode.setText(60+"");
-            MyUtil.hideDialog(LoginActivity.this);
-            Toast.makeText(LoginActivity.this,getResources().getString(R.string.verify_code_sent_successfully), Toast.LENGTH_SHORT).show();
+            MyUtil.hideDialog(getApplication());
+            Toast.makeText(getApplication(),getResources().getString(R.string.verify_code_sent_successfully), Toast.LENGTH_SHORT).show();
             timeUpdate = 60;
 
             if (mTimerTask != null){
