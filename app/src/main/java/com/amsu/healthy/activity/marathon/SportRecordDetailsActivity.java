@@ -51,6 +51,10 @@ public class SportRecordDetailsActivity extends BaseActivity {
         return intent;
     }
 
+    public static Intent createIntent(Context context) {
+        return new Intent(context, SportRecordDetailsActivity.class);
+    }
+
     private ViewPager mViewPager;
     private View sportRecordDetailsStatistic;
     private View sportRecordDetailsSpeed;
@@ -60,15 +64,16 @@ public class SportRecordDetailsActivity extends BaseActivity {
     private SportRecordSpeedFragment sportRecordSpeedFragment;
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sport_record_details);
         initViews();
         initEvents();
-        getHistoryReportDetail(getIntent().getIntExtra("id", 0));
+        int id = getIntent().getIntExtra("id", 0);
+        if (id != 0) {
+            getHistoryReportDetail(id);
+        }
     }
 
     private void initViews() {

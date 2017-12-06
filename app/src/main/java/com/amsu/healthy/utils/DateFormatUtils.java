@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -93,9 +94,23 @@ public class DateFormatUtils {
      */
     public static String getFormatTime(Date date, String format) {
         String str = "";
-        SimpleDateFormat sdFormat = new SimpleDateFormat(format);
+        SimpleDateFormat sdFormat = new SimpleDateFormat(format, Locale.CHINA);
         str = sdFormat.format(date);
         return str;
+    }
+
+    /**
+     * 时间转换
+     */
+    public static long getFormatTime(String date, String format) {
+        SimpleDateFormat sdFormat = new SimpleDateFormat(format, Locale.CHINA);
+        try {
+            Date str = sdFormat.parse(date);
+            return str.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     /**

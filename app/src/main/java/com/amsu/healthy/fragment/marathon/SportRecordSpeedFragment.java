@@ -48,6 +48,7 @@ public class SportRecordSpeedFragment extends BaseFragment {
             parent.removeView(mView);
         }
         initView();
+        initUi();
         return mView;
     }
 

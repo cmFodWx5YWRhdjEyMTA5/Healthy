@@ -64,7 +64,7 @@ public class MarathonActivity extends BaseActivity implements View.OnClickListen
     private void test() {
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         // 判断GPS模块是否开启，如果没有则开启
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             MyUtil.chooseOpenGps(this);
         } else {
             Intent intent = new Intent(this, RunTimeCountdownActivity.class);

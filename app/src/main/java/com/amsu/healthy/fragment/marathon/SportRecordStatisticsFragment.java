@@ -135,6 +135,7 @@ public class SportRecordStatisticsFragment extends BaseFragment implements AMap.
             }
         });
         initIndexView(fragmentList.size());
+        initUi();
     }
 
     private void initMapView() {
@@ -297,7 +298,10 @@ public class SportRecordStatisticsFragment extends BaseFragment implements AMap.
             return b.build();
         }
         for (int i = 0; i < mOriginLatLngList.size(); i++) {
-            b.include(mOriginLatLngList.get(i));
+            LatLng latLng = mOriginLatLngList.get(i);
+            if (latLng.longitude != 0 && latLng.latitude != 0) {
+                b.include(latLng);
+            }
         }
         return b.build();
     }
