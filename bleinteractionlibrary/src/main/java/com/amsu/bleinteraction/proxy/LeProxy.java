@@ -1,21 +1,16 @@
-package com.amsu.healthy.utils.ble;
+package com.amsu.bleinteraction.proxy;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.amsu.healthy.appication.MyApplication;
-import com.amsu.healthy.bean.Device;
-import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.MyUtil;
+import com.amsu.bleinteraction.utils.BleConstant;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
 import com.ble.ble.BleService;
@@ -50,6 +45,11 @@ public class LeProxy {
     public static final String ACTION_REG_DATA_AVAILABLE = ".LeProxy.ACTION_REG_DATA_AVAILABLE";
     public static final String ACTION_RSSI_AVAILABLE = ".LeProxy.ACTION_RSSI_AVAILABLE";
 
+    public static final String ACTION_BATTERY_DATA_AVAILABLE = ".LeProxy.ACTION_BATTERY_DATA_AVAILABLE";  //电量
+    public static final String ACTION_DEVICE_CONNECTED = ".LeProxy.ACTION_DEVICE_CONNECTED";   //设备连接
+    public static final String ACTION_DEVICE_DISCONNECTED = ".LeProxy.ACTION_DEVICE_DISCONNECTED";   //设备断开
+    public static final String ACTION_RECEIVE_EXIT_OFFLINEFILE = ".LeProxy.ACTION_RECEIVE_EXIT_OFFLINEFILE";   //主机发现离线文件
+
     public static final String EXTRA_ADDRESS = ".LeProxy.EXTRA_ADDRESS";
     public static final String EXTRA_DATA = ".LeProxy.EXTRA_DATA";
     public static final String EXTRA_UUID = ".LeProxy.EXTRA_UUID";
@@ -59,10 +59,8 @@ public class LeProxy {
 
 
     private static LeProxy mInstance;
-    //public static BleDataProxy mBleDataProxy;
-
     private BleService mBleService;
-    private int mClothDeviceType = Constant.clothDeviceType_Default_NO;
+    private boolean mBleDataEncrypt;
 
     private LeProxy(){
     }
@@ -71,24 +69,15 @@ public class LeProxy {
         if (mInstance == null) {
             mInstance = new LeProxy();
         }
-        //mBleDataProxy = BleDataProxy.getInstance();
         return mInstance;
     }
 
-    public void setBleService(IBinder binder){
+    //bleDataEncrypt为数据是否加密
+    public void setBleService(IBinder binder,boolean bleDataEncrypt){
+        mBleDataEncrypt = bleDataEncrypt;
         mBleService = ((BleService.LocalBinder) binder).getService(mBleCallBack);
         // mBleService.setMaxConnectedNumber(max);// 设置最大可连接从机数量，默认为4
-
-        boolean decode ;
-
-        if (mClothDeviceType == Constant.clothDeviceType_old_encrypt){
-            decode = true;
-        }
-        else {
-            decode = false;
-        }
-
-        mBleService.setDecode(decode); //设置是否解密接收的数据（仅限于默认的接收通道【0x1002】，依据模透传块数据是否加密而定）
+        mBleService.setDecode(bleDataEncrypt); //设置是否解密接收的数据（仅限于默认的接收通道【0x1002】，依据模透传块数据是否加密而定）
         mBleService.setConnectTimeout(5000);//设置APP端的连接超时时间（单位ms）
         mBleService.initialize();// 必须调用初始化函数
     }
@@ -114,8 +103,6 @@ public class LeProxy {
         }
     }
 
-
-
     public void disconnect(String address){
         if (mBleService != null) {
             mBleService.setAutoConnect(address, false);
@@ -139,18 +126,9 @@ public class LeProxy {
     }
 
     //向默认通道【0x1001】发送数据
-    public boolean send(String address, byte[] data, boolean encode){
-        if (mClothDeviceType == Constant.clothDeviceType_old_encrypt){
-            encode = true;
-        }
-        else {
-            encode = false;
-        }
-
-        Log.i(TAG,"encode:"+encode);
-
+    public boolean send(String address, byte[] data){
         if (mBleService != null) {
-            return mBleService.send(address, data, encode);
+            return mBleService.send(address, data, mBleDataEncrypt);
         }
         return false;
     }
@@ -197,13 +175,13 @@ public class LeProxy {
     public boolean enableNotification(String address, UUID serUuid, UUID charUuid){
         BluetoothGatt gatt = mBleService.getBluetoothGatt(address);
         BluetoothGattCharacteristic c = GattUtil.getGattCharacteristic(gatt, serUuid, charUuid);
-        Log.e(TAG, "gatt=" + gatt + ", characteristic=" + c);
         return setCharacteristicNotification(gatt, c, true);
     }
 
     public boolean setCharacteristicNotification(BluetoothGatt gatt, BluetoothGattCharacteristic c, boolean enable){
         if (mBleService != null) {
             return mBleService.setCharacteristicNotification(gatt, c, enable);
+            //return mBleService.enableCharacteristicIndication(gatt, c);
         }
         return false;
     }
@@ -227,7 +205,6 @@ public class LeProxy {
     }
 
     public boolean readCharacteristic(String address, UUID serUuid, UUID charUuid){
-        Log.i(TAG,"mBleService:"+mBleService);
         if (mBleService != null) {
             BluetoothGatt gatt = mBleService.getBluetoothGatt(address);
             BluetoothGattCharacteristic c = GattUtil.getGattCharacteristic(gatt, serUuid, charUuid);
@@ -236,6 +213,23 @@ public class LeProxy {
         return false;
     }
 
+    public static IntentFilter makeFilter(){
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(LeProxy.ACTION_GATT_CONNECTED);
+        filter.addAction(LeProxy.ACTION_GATT_DISCONNECTED);
+        filter.addAction(LeProxy.ACTION_CONNECT_ERROR);
+        filter.addAction(LeProxy.ACTION_CONNECT_TIMEOUT);
+        filter.addAction(LeProxy.ACTION_GATT_SERVICES_DISCOVERED);
+
+        filter.addAction(LeProxy.ACTION_DEVICE_CONNECTED);
+        filter.addAction(LeProxy.ACTION_DEVICE_DISCONNECTED);
+        filter.addAction(LeProxy.ACTION_GATT_DISCONNECTED);
+        filter.addAction(LeProxy.ACTION_RSSI_AVAILABLE);
+        filter.addAction(LeProxy.ACTION_DATA_AVAILABLE);
+        filter.addAction(LeProxy.ACTION_BATTERY_DATA_AVAILABLE);
+        filter.addAction(LeProxy.ACTION_RECEIVE_EXIT_OFFLINEFILE);
+        return filter;
+    }
 
 
 
@@ -255,6 +249,7 @@ public class LeProxy {
         public void onConnectTimeout(String address) {
             Log.e(TAG, "onConnectTimeout() - " + address);
             updateBroadcast(address, ACTION_CONNECT_TIMEOUT);
+
         }
 
         @Override
@@ -364,7 +359,7 @@ public class LeProxy {
         LocalBroadcastManager.getInstance(mBleService).sendBroadcast(intent);
     }
 
-    private void updateBroadcast(String address, String action){
+    public void updateBroadcast(String address, String action){
         Intent intent = new Intent(action);
         intent.putExtra(EXTRA_ADDRESS, address);
         LocalBroadcastManager.getInstance(mBleService).sendBroadcast(intent);
@@ -398,17 +393,64 @@ public class LeProxy {
         public void run() {
             switch (i) {
                 case 0:
-                    if (MyApplication.deivceType == Constant.sportType_Cloth) {
-                        //衣服
-                        //打开模组默认的数据接收通道【0x1002】，这一步成功才能保证APP收到数据
+                    BleConnectionProxy.ConnectionConfiguration connectionConfiguration = BleConnectionProxy.getInstance().getmConnectionConfiguration();
 
-                        boolean success = enableNotification(address, BleUUIDS.PRIMARY_SERVICE, BleUUIDS.CHARACTERS[1]);
-                        Log.i(TAG, "Enable 0x1002 notification: " + success);
+                    if (connectionConfiguration.deviceType == BleConstant.sportType_Cloth) {
+                        //衣服
+                        Log.i(TAG, "connectionConfiguration.clothDeviceType: " + connectionConfiguration.clothDeviceType);
+
+                        //打开模组默认的数据接收通道【0x1002】，这一步成功才能保证APP收到数据
+                        if (connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_old_encrypt ||
+                                connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_old_noEncrypt
+                                || connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_AMSU_EStartWith){
+                            boolean success = enableNotification(address, BleUUIDS.PRIMARY_SERVICE, BleUUIDS.CHARACTERS[1]);
+                            Log.i(TAG, "Enable 0x1002 notification: " + success);
+                        }
+
+                        if (connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_AMSU_EStartWith ||
+                                connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_secondGeneration_AMSU
+                                || connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_secondGeneration_IOE) {
+                            {
+                                UUID serUuid = UUID.fromString(BleConstant.readSecondGenerationInfoSerUuid);
+                                //UUID charUuid_2 = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_1);
+                                UUID charUuid_notify = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_2);
+                                UUID charUuid_ecg = UUID.fromString(BleConstant.readSecondGenerationClothECGCharUuid);
+                                UUID charUuid_acc = UUID.fromString(BleConstant.readSecondGenerationClothACCCharUuid);
+                                UUID charUuid_heart = UUID.fromString(BleConstant.readSecondGenerationClothHeartRateCharUuid);
+
+                                try {
+                                /*Thread.sleep(100);
+                                boolean success_2 = enableNotification(address, serUuid, charUuid_2);
+                                Log.i(TAG, "success_2: " + success_2);*/
+
+                                    Thread.sleep(1000);
+                                    boolean success_charUuid_ecg = enableNotification(address, serUuid, charUuid_ecg);
+                                    Log.i(TAG, "success_charUuid_ecg: " + success_charUuid_ecg);
+
+                                    Thread.sleep(2000);
+                                    boolean success_charUuid_acc = enableNotification(address, serUuid, charUuid_acc);
+                                    Log.i(TAG, "success_charUuid_acc: " + success_charUuid_acc);
+
+                                    Thread.sleep(2000);
+                                    boolean success_charUuid_heart = enableNotification(address, serUuid, charUuid_heart);
+                                    Log.i(TAG, "success_charUuid_heart: " + success_charUuid_heart);
+
+                                    Thread.sleep(2000);
+                                    boolean success_charUuid_notify = enableNotification(address, serUuid, charUuid_notify);
+                                    Log.i(TAG, "success_charUuid_notify: " + success_charUuid_notify);
+
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                    Log.i(TAG, "打开通道e: " + e);
+                                }
+                            }
+
+                        }
 
 
                         /*while (true){
                             Log.i(TAG,"mClothDeviceType:"+mClothDeviceType);
-                            if (mClothDeviceType != Constant.clothDeviceType_AMSU_EStartWith){
+                            if (mClothDeviceType != BleConstant.clothDeviceType_AMSU_EStartWith){
                                 break;
                             }
                             try {
@@ -418,45 +460,14 @@ public class LeProxy {
                             }
                         }*/
 
-                        //if (mClothDeviceType ==Constant.clothDeviceType_secondGeneration || mClothDeviceType ==Constant.clothDeviceType_secondGeneration_our){
-                            UUID serUuid = UUID.fromString(Constant.readSecondGenerationInfoSerUuid);
-                            UUID charUuid_2 = UUID.fromString(Constant.sendReceiveSecondGenerationClothCharUuid_1);
-                            UUID charUuid_3 = UUID.fromString(Constant.sendReceiveSecondGenerationClothCharUuid_1);
-                            UUID charUuid_4 = UUID.fromString(Constant.readSecondGenerationClothECGCharUuid);
-                            UUID charUuid_5 = UUID.fromString(Constant.readSecondGenerationClothACCCharUuid);
-                            UUID charUuid_6 = UUID.fromString(Constant.readSecondGenerationClothHeartRateCharUuid);
+                        //if (mClothDeviceType ==BleConstant.clothDeviceType_secondGeneration_IOE || mClothDeviceType ==BleConstant.clothDeviceType_secondGeneration_AMSU){
 
-                            try {
-                                Thread.sleep(100);
-                                boolean success_2 = enableNotification(address, serUuid, charUuid_2);
-                                Log.i(TAG, "success_2: " + success_2);
-
-
-
-                                boolean success_3 = enableNotification(address, serUuid, charUuid_3);
-                                Log.i(TAG, "success_3: " + success_3);
-
-
-                                Thread.sleep(100);
-                                boolean success_4 = enableNotification(address, serUuid, charUuid_4);
-                                Log.i(TAG, "success_4: " + success_4);
-
-                                Thread.sleep(100);
-                                boolean success_5 = enableNotification(address, serUuid, charUuid_5);
-                                Log.i(TAG, "success_5: " + success_5);
-
-                                Thread.sleep(100);
-                                boolean success_6 = enableNotification(address, serUuid, charUuid_6);
-                                Log.i(TAG, "success_6: " + success_6);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
                         //}
                        // else {
 
                         //}
                     }
-                    else if(MyApplication.deivceType==Constant.sportType_Insole){
+                    else if(connectionConfiguration.deviceType==BleConstant.sportType_Insole){
                         UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
                         UUID charUuid_order = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
                         UUID charUuid_data = UUID.fromString("6e400004-b5a3-f393-e0a9-e50e24dcca9e");
@@ -533,81 +544,5 @@ public class LeProxy {
         }
     };
 
-    public int getClothDeviceTypeBySP(){
-        Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
-        Log.i(TAG,"deviceFromSP:"+deviceFromSP);
-        if (deviceFromSP!=null && !MyUtil.isEmpty(deviceFromSP.getLEName())){
-            if (deviceFromSP.getLEName().startsWith("BLE")){  //旧版衣服不加密，BLE开头 BLE#0x44A6E51B5BF8
-                return Constant.clothDeviceType_old_encrypt;
-            }
-            else if (deviceFromSP.getLEName().startsWith("AMSU_E")){
-                //新版衣服AMSU_E开头，则数据不加密，encode为false。   就衣服版本BLE开头，需要加密
-                //二代衣服AMSU_E开头，数据不加密，但是数据协议有变，需要区分
-                ///return Constant.clothDeviceType_old_noEncrypt;
-                return Constant.clothDeviceType_AMSU_EStartWith;
-            }
-            /*else if (deviceFromSP.getLEName().startsWith("AMSU_E")){  //
-                return Constant.clothDeviceType_secondGeneration;
-            }*/
-        }
-        return Constant.clothDeviceType_old_encrypt;
-    }
 
-    public int getClothDeviceType() {
-        if (mClothDeviceType==Constant.clothDeviceType_Default_NO){
-            mClothDeviceType = getClothDeviceTypeBySP();
-        }
-        return mClothDeviceType;
-    }
-
-    public void setmClothDeviceType(int mClothDeviceType) {
-        this.mClothDeviceType = mClothDeviceType;
-    }
-
-    private BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
-
-
-        @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            super.onConnectionStateChange(gatt, status, newState);
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                gatt.discoverServices();
-            }
-        }
-
-
-        @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            List<BluetoothGattService> services = gatt.getServices();
-            Log.i(TAG,"services:"+services);
-        }
-        @Override
-        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            super.onCharacteristicRead(gatt, characteristic, status);
-        }
-
-
-        @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            super.onCharacteristicWrite(gatt, characteristic, status);
-        }
-
-
-        @Override
-        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            super.onDescriptorRead(gatt, descriptor, status);
-        }
-
-        @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            super.onCharacteristicChanged(gatt, characteristic);
-
-        }
-
-
-        @Override
-        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-            super.onReadRemoteRssi(gatt, rssi, status);
-        }
-    };
 }

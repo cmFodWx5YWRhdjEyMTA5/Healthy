@@ -119,6 +119,11 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
         String wifiPassword = et_wifi_password.getText().toString();
 
         if (!MyUtil.isEmpty(wifiNname) && !MyUtil.isEmpty(wifiPassword)){
+
+            //重新保存密码等信息
+            MyUtil.putStringValueFromSP("wifiNname",wifiNname);
+            MyUtil.putStringValueFromSP("wifiPassword",wifiPassword);
+
             showProgressDialog();
 
             String moduleIP = MyUtil.getStringValueFromSP(Constant.moduleIP);
@@ -148,10 +153,6 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
 
                 moduleWifiSocketTryConnectedCount = 0;
                 homeWifiSocketTryConnectedCount = 0;
-
-                MyUtil.putStringValueFromSP("wifiNname",wifiNname);
-                MyUtil.putStringValueFromSP("wifiPassword",wifiPassword);
-
 
                 setProgressUpadteState(progressState_contoAmsu);
 

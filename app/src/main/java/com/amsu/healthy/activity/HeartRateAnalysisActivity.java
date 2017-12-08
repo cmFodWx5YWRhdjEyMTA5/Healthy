@@ -11,6 +11,8 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
+import com.amsu.bleinteraction.utils.EcgAccDataUtil;
+import com.amsu.bleinteraction.utils.EcgFilterUtil_1;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.ParcelableDoubleList;
@@ -22,8 +24,6 @@ import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.OffLineDbAdapter;
 import com.amsu.healthy.utils.WebSocketProxy;
-import com.amsu.healthy.utils.ble.EcgAccDataUtil;
-import com.amsu.healthy.utils.ble.EcgFilterUtil_1;
 import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
@@ -139,7 +139,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                             int heartCount = ecgDataList.size() / calcuEcgRate.length;
 
                             //EcgFilterUtil_1 ecgFilterUtil_1 = CommunicateToBleService.ecgFilterUtil_1;
-                            EcgFilterUtil_1 ecgFilterUtil_1 = new EcgFilterUtil_1();
+                            EcgFilterUtil_1 ecgFilterUtil_1 = EcgFilterUtil_1.getInstance();
 
                             Log.i(TAG,"ecgDataList"+ ecgDataList);
 
@@ -208,6 +208,10 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                     }
                 }.start();
 
+            }
+            else {
+                MyUtil.showToask(this,"分析出现错误，本地文件不存在或者没有读写本地sd卡权限");
+                finish();
             }
         }
         else if (sportCreateRecordID!=-1){

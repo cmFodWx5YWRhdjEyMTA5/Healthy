@@ -71,6 +71,7 @@ public class SplashActivity extends Activity {
                     startActivity(new Intent(SplashActivity.this,InstallGuideActivity.class));
                     MyApplication.sharedPreferences.edit().putBoolean("isInstall",true).apply();
                 }*/
+                Log.i(TAG,"跳转MainActivity");
                 startActivity(new Intent(SplashActivity.this,MainActivity.class));
                 finish();
             }

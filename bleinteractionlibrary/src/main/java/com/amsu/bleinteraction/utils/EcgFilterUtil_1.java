@@ -1,4 +1,4 @@
-package com.amsu.healthy.utils.ble;
+package com.amsu.bleinteraction.utils;
 
 /**
  * Created by HP on 2016/12/12.
@@ -7,6 +7,8 @@ package com.amsu.healthy.utils.ble;
 
 
 public class EcgFilterUtil_1 {
+    private static EcgFilterUtil_1 ecgFilterUtil_1;
+
     private  final int SAMPRATE = 150;
     private  final float PI = 3.1415926f;
 
@@ -30,6 +32,14 @@ public class EcgFilterUtil_1 {
             int  nDelay;   //延迟点数
         }sFiltInfo;
      */
+
+    public static EcgFilterUtil_1 getInstance(){
+        if (ecgFilterUtil_1==null){
+            ecgFilterUtil_1 = new EcgFilterUtil_1();
+        }
+        return ecgFilterUtil_1;
+    }
+
     public class FILTINFO{
         int  nFilterData;  //滤波后值
         int  nDelay;   //延迟点数
@@ -124,7 +134,8 @@ public class EcgFilterUtil_1 {
         return y;
 
     }
-    public   int NotchPowerLine(int data,int Filter_Mark)
+
+    public int NotchPowerLine(int data,int Filter_Mark)
     {
         int i,posx;
         double y;

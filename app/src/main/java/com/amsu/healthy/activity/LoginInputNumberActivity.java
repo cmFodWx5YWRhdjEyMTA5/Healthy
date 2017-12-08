@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +43,7 @@ public class LoginInputNumberActivity extends BaseActivity {
 
     private void initView() {
         initHeadView();
+        initHeadView();
         setCenterText(getResources().getString(R.string.login));
         setLeftImage(R.drawable.guanbi_icon);
         getIv_base_leftimage().setOnClickListener(new View.OnClickListener() {
@@ -57,6 +59,8 @@ public class LoginInputNumberActivity extends BaseActivity {
         tv_login_national_region = (TextView) findViewById(R.id.tv_login_national_region);
         tv_login_zonecode = (TextView) findViewById(R.id.tv_login_zonecode);
         et_login_phone = (TextView) findViewById(R.id.et_login_phone);
+
+        et_login_phone.setInputType(EditorInfo.TYPE_CLASS_PHONE);
 
         if (!MyApplication.mActivities.contains(this)){
             MyApplication.mActivities.add(this);

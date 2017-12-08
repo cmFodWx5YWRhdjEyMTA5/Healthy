@@ -11,15 +11,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.amsu.bleinteraction.bean.BleDevice;
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
 import com.amsu.healthy.activity.RunTimeCountdownActivity;
-import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.Insole3ScendCache;
-import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.ble.LeProxy;
 import com.ble.api.DataUtil;
 
 import java.util.ArrayList;
@@ -84,16 +84,16 @@ public class CorrectInsoleActivity extends BaseActivity {
 
 
         //MyApplication application = (MyApplication) getApplication();
-        Map<String, Device> insoleDeviceBatteryInfos = CommunicateToBleService.mInsoleDeviceBatteryInfos;
+        Map<String, BleDevice> insoleDeviceBatteryInfos = BleConnectionProxy.getInstance().getmInsoleDeviceBatteryInfos();
 
         int i=0;
-        for (Device device : insoleDeviceBatteryInfos.values()) {
-            if (!MyUtil.isEmpty(device.getMac())){
+        for (BleDevice bleDevice : insoleDeviceBatteryInfos.values()) {
+            if (!MyUtil.isEmpty(bleDevice.getMac())){
                 if (i==0){
-                    insole_connecMac1 = device.getMac();
+                    insole_connecMac1 = bleDevice.getMac();
                 }
                 else if (i==1){
-                    insole_connecMac2 = device.getMac();
+                    insole_connecMac2 = bleDevice.getMac();
                 }
                 i++;
             }
@@ -102,7 +102,7 @@ public class CorrectInsoleActivity extends BaseActivity {
         Log.i(TAG,"insole_connecMac1:"+insole_connecMac1);
         Log.i(TAG,"insole_connecMac2:"+insole_connecMac2);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
     }
 
     private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {

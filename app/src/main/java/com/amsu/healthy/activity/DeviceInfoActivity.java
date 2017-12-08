@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -13,13 +13,14 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.amsu.bleinteraction.bean.BleDevice;
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+import com.amsu.bleinteraction.proxy.BleDataProxy;
+import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.healthy.R;
-import com.amsu.healthy.appication.MyApplication;
-import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.InputTextAlertDialogUtil;
-import com.amsu.healthy.utils.ble.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
@@ -29,11 +30,14 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
+import java.util.Collection;
+import java.util.Map;
+
 public class DeviceInfoActivity extends BaseActivity {
 
     private static final String TAG = "DeviceInfoActivity";
     private TextView tv_device_devicename;
-    private Device deviceFromSP;
+    private BleDevice bleDeviceFromSP;
     private TextView tv_device_electric;
     private ImageView iv_deviceinfo_switvh;
     private boolean mIsAutoOffline;
@@ -75,17 +79,17 @@ public class DeviceInfoActivity extends BaseActivity {
 
         mLeProxy = LeProxy.getInstance();
 
-        deviceFromSP = MyUtil.getDeviceFromSP();
-        if (deviceFromSP!=null){
-            String deviceNickName = MyUtil.getStringValueFromSP(deviceFromSP.getMac());
+        bleDeviceFromSP = MyUtil.getDeviceFromSP();
+        if (bleDeviceFromSP !=null){
+            String deviceNickName = MyUtil.getStringValueFromSP(bleDeviceFromSP.getMac());
             //String myDeceiveName = MyUtil.getStringValueFromSP(Constant.myDeceiveName);
             if (!MyUtil.isEmpty(deviceNickName)){
                 tv_device_devicename.setText(deviceNickName);
             }
             else {
                 //String username = MyUtil.getStringValueFromSP("username");
-                if (!MyUtil.isEmpty(deviceFromSP.getLEName())){
-                    tv_device_devicename.setText(deviceFromSP.getName()+deviceFromSP.getLEName());
+                if (!MyUtil.isEmpty(bleDeviceFromSP.getLEName())){
+                    tv_device_devicename.setText(bleDeviceFromSP.getName()+ bleDeviceFromSP.getLEName());
                 }
             }
         }
@@ -99,41 +103,13 @@ public class DeviceInfoActivity extends BaseActivity {
             tv_device_software.setText(softWareVersion);
         }
 
-        if (MyApplication.clothCurrBatteryPowerPercent !=-1 && MyApplication.isHaveDeviceConnectted){
-            tv_device_electric.setText(MyApplication.clothCurrBatteryPowerPercent +"");
-        }
-        else {
-            Log.i(TAG,"电量未计算出");
-            new Thread(){
-                @Override
-                public void run() {
-                    super.run();
-                    while (true){
-                        if (MyApplication.clothCurrBatteryPowerPercent !=-1 && MyApplication.isHaveDeviceConnectted){
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Log.i(TAG,"有电量值");
-                                    tv_device_electric.setText(MyApplication.clothCurrBatteryPowerPercent +"");
-                                    if (!MyUtil.isEmpty(hardWareVersion)){
-                                        tv_device_hardware.setText(hardWareVersion);
-                                    }
-                                    if (!MyUtil.isEmpty(softWareVersion)){
-                                        tv_device_software.setText(softWareVersion);
-                                    }
-                                }
-                            });
-                            break;
-                        }
-                    }
-                }
-            }.start();
-
+        BleConnectionProxy instance = BleConnectionProxy.getInstance();
+        if (instance.ismIsConnectted() && instance.getClothCurrBatteryPowerPercent()!=-1){
+            tv_device_electric.setText(instance.getClothCurrBatteryPowerPercent() +"%");
         }
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(MainActivity.ACTION_CHARGE_CHANGE);
-        registerReceiver(mchargeReceiver, filter);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
 
 
         mIsAutoOffline = MyUtil.getBooleanValueFromSP("mIsAutoOffline");
@@ -151,25 +127,26 @@ public class DeviceInfoActivity extends BaseActivity {
         }
     }
 
-    private final BroadcastReceiver mchargeReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent!=null){
-                Log.i(TAG,"onReceive:"+intent.getAction());
-                int calCuelectricVPercent = intent.getIntExtra("clothCurrBatteryPowerPercent", -1);
-                Log.i(TAG,"clothCurrBatteryPowerPercent:"+calCuelectricVPercent);
-
-                if (calCuelectricVPercent==-1){
-                    //设备已断开
-                    tv_device_electric.setText("--");
-                    MyApplication.clothCurrBatteryPowerPercent = -1;
-                }
-                else {
-                    tv_device_electric.setText(calCuelectricVPercent+"");
-                }
+            switch (intent.getAction()){
+                case LeProxy.ACTION_BATTERY_DATA_AVAILABLE:// 接收到电量数据
+                    int intExtra = intent.getIntExtra(BleDataProxy.EXTRA_BATTERY_DATA, -1);
+                    Log.i(TAG,"电量变化:"+intExtra);
+                    if (intExtra==-1){
+                        //设备已断开
+                        tv_device_electric.setText("--");
+                    }
+                    else {
+                        tv_device_electric.setText(intExtra+"");
+                    }
+                    break;
             }
         }
+
     };
+
 
     public void changeDeviceName(View view) {
         InputTextAlertDialogUtil textAlertDialogUtil = new InputTextAlertDialogUtil(this);
@@ -180,23 +157,23 @@ public class DeviceInfoActivity extends BaseActivity {
             public void onConfirmClick(String inputText) {
                 Log.i(TAG,"inputText:"+inputText);
                 tv_device_devicename.setText(inputText+"");
-                if (deviceFromSP!=null){
-                    MyUtil.putStringValueFromSP(deviceFromSP.getMac(),inputText+"");   //用户修改蓝牙名称时只在app上修改，然后保存在sp里，通过蓝牙设备的mac地址和自定义的蓝牙名称对应
+                if (bleDeviceFromSP !=null){
+                    MyUtil.putStringValueFromSP(bleDeviceFromSP.getMac(),inputText+"");   //用户修改蓝牙名称时只在app上修改，然后保存在sp里，通过蓝牙设备的mac地址和自定义的蓝牙名称对应
                 }
             }
         });
     }
 
     public void unBindDevice(View view) {
-        Device deviceFromSP = MyUtil.getDeviceFromSP(mDevicetype);
-        if (deviceFromSP!=null){
+        BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(mDevicetype);
+        if (bleDeviceFromSP !=null){
             HttpUtils httpUtils = new HttpUtils();
             RequestParams params = new RequestParams();
 
             String url = "";
 
             if (mDevicetype==Constant.sportType_Cloth){
-                params.addBodyParameter("deviceMAC",System.currentTimeMillis()+deviceFromSP.getLEName());
+                params.addBodyParameter("deviceMAC",System.currentTimeMillis()+ bleDeviceFromSP.getLEName());
                 url= Constant.bindingDeviceURL;
             }
             else if (mDevicetype==Constant.sportType_Insole){
@@ -229,20 +206,23 @@ public class DeviceInfoActivity extends BaseActivity {
                         Intent intent = getIntent();
                         setResult(RESULT_OK, intent);
 
+
+
                         if (mDevicetype==Constant.sportType_Cloth){
                             //将连接的衣服断开
-                            if (MyApplication.isHaveDeviceConnectted){
+                            if (BleConnectionProxy.getInstance().ismIsConnectted()){
                                 //断开蓝牙连接
-                                mLeProxy.disconnect(MyApplication.clothConnectedMacAddress);
-
-                                LeProxy.getInstance().setmClothDeviceType(Constant.clothDeviceType_Default_NO);
-                                MyUtil.putIntValueFromSP(Constant.mClothDeviceType,-1);
+                                mLeProxy.disconnect(BleConnectionProxy.getInstance().getmClothDeviceConnecedMac());
                             }
+                            BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType = Constant.clothDeviceType_Default_NO;
+                            MyUtil.putIntValueFromSP(Constant.mClothDeviceType,Constant.clothDeviceType_Default_NO);
                         }
                         else {
                             //将连接的鞋垫断开
-                            for (String oldStr : MyApplication.insoleConnectedMacAddress) {
-                                mLeProxy.disconnect(oldStr);
+                            Map<String, BleDevice> stringBleDeviceMap = BleConnectionProxy.getInstance().getmInsoleDeviceBatteryInfos();
+                            Collection<BleDevice> values = stringBleDeviceMap.values();
+                            for (BleDevice bleDevice : values) {
+                                mLeProxy.disconnect(bleDevice.getMac());
                             }
                         }
                         finish();
@@ -283,7 +263,6 @@ public class DeviceInfoActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mchargeReceiver);
     }
 
     public void switchState(View view) {

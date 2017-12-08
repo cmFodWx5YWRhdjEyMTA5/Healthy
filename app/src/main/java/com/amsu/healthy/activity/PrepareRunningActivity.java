@@ -15,6 +15,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.insole.CorrectInsoleActivity;
 import com.amsu.healthy.adapter.FragmentListRateAdapter;
@@ -22,9 +24,7 @@ import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.fragment.inoutdoortype.InDoorRunFragment;
 import com.amsu.healthy.fragment.inoutdoortype.OutDoorRunFragment;
 import com.amsu.healthy.fragment.inoutdoortype.OutDoorRunGoogleFragment;
-import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.ble.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.WebSocketProxy;
 import com.ble.api.DataUtil;
@@ -114,7 +114,7 @@ public class PrepareRunningActivity extends BaseActivity {
             bt_choose_offline.setVisibility(View.GONE);
         }
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
 
         //boolean mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
 
@@ -215,7 +215,8 @@ public class PrepareRunningActivity extends BaseActivity {
 
     public void goStartOffLineRun(View view) {
         Log.i(TAG,"关闭数据指令");
-        if (!MyUtil.isEmpty(CommunicateToBleService.clothDeviceConnecedMac)){
+        final String clothDeviceConnecedMac = BleConnectionProxy.getInstance().getmClothDeviceConnecedMac();
+        if (!MyUtil.isEmpty(clothDeviceConnecedMac)){
 
 
             MyUtil.showDialog("正在发送离线指令",this);
@@ -229,7 +230,7 @@ public class PrepareRunningActivity extends BaseActivity {
                     super.run();
                     while (mSendOrderCount <30 && !isDeviceDisconnected){
                         if (mSendOrderCount<15){
-                            boolean send = LeProxy.getInstance().send(CommunicateToBleService.clothDeviceConnecedMac, DataUtil.hexToByteArray(Constant.stopDataTransmitOrder), true);
+                            boolean send = LeProxy.getInstance().send(clothDeviceConnecedMac, DataUtil.hexToByteArray(Constant.stopDataTransmitOrder));
                             Log.i(TAG,"send:"+send);
                         }
                         mSendOrderCount++;

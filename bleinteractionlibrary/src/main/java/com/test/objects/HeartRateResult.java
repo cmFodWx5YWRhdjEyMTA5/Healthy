@@ -1,9 +1,5 @@
 package com.test.objects;
 
-import java.util.Arrays;
-
-import android.util.Log;
-
 /**
  * 该类用于记录心电分析的结果
  */

@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.Constant;
@@ -138,6 +139,7 @@ public class MotionDetectionActivity extends BaseActivity implements View.OnClic
 
         if (preChoosedType!=-1 && preChoosedType != choosedType){
             MyUtil.showToask(getApplication(),"运动模式切换成功");
+            BleConnectionProxy.getInstance().getmConnectionConfiguration().deviceType = mSportType;
         }
         preChoosedType = choosedType;
 

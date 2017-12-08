@@ -16,15 +16,15 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.amsu.bleinteraction.bean.BleDevice;
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.insole.InsoleDeviceInfoActivity;
 import com.amsu.healthy.adapter.DeviceAdapter;
 import com.amsu.healthy.appication.MyApplication;
-import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.JsonBase;
-import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.ble.LeProxy;
 import com.amsu.healthy.utils.MyUtil;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
@@ -35,6 +35,7 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -42,7 +43,7 @@ import java.util.Map;
 
 public class MyDeviceActivity extends BaseActivity {
     private static final String TAG = "MyDeviceActivity";
-    List<Device>  deviceList;
+    List<BleDevice> bleDeviceList;
     private DeviceAdapter deviceAdapter;
     private ListView lv_device_devicelist;
     private int mBndDevicePostion = 0;
@@ -68,45 +69,45 @@ public class MyDeviceActivity extends BaseActivity {
             }
         });
 
-        deviceList = new ArrayList<>();
+        bleDeviceList = new ArrayList<>();
         lv_device_devicelist = (ListView) findViewById(R.id.lv_device_devicelist);
-        /*List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
+        /*List<BleDevice> deviceListFromSP = MyUtil.getDeviceListFromSP();
 
         Log.i(TAG,"deviceListFromSP:"+deviceListFromSP);
-        for (Device device:deviceListFromSP){
-            Device deviceFromSP = MyUtil.getDeviceFromSP();
-            if (deviceFromSP!=null && deviceFromSP.getMac().equals(device.getMac())){
-                deviceList.add(device);
+        for (BleDevice device:deviceListFromSP){
+            BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP();
+            if (bleDeviceFromSP!=null && bleDeviceFromSP.getMac().equals(device.getMac())){
+                bleDeviceList.add(device);
             }
         }
 
-        Log.i(TAG,"deviceList:"+deviceList.toString());
+        Log.i(TAG,"bleDeviceList:"+bleDeviceList.toString());
         DeviceList tempDeviceList = new DeviceList();
-        tempDeviceList.setDeviceList(this.deviceList);
+        tempDeviceList.setBleDeviceList(this.bleDeviceList);
         MyUtil.putDeviceListToSP(tempDeviceList);*/
 
         mLeProxy = LeProxy.getInstance();
 
-        Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
-        Device deviceClothFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
-        if (deviceFromSP!=null){
-            deviceList.add(deviceFromSP);
+        BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
+        BleDevice bleDeviceClothFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
+        if (bleDeviceFromSP !=null){
+            bleDeviceList.add(bleDeviceFromSP);
         }
-        if (deviceClothFromSP!=null){
-            deviceList.add(deviceClothFromSP);
+        if (bleDeviceClothFromSP !=null){
+            bleDeviceList.add(bleDeviceClothFromSP);
         }
 
-        Log.i(TAG,"deviceFromSP:"+deviceFromSP);
-        Log.i(TAG,"deviceClothFromSP:"+deviceClothFromSP);
+        Log.i(TAG,"bleDeviceFromSP:"+ bleDeviceFromSP);
+        Log.i(TAG,"bleDeviceClothFromSP:"+ bleDeviceClothFromSP);
 
-        /*List<Device> deviceListFromSP = MyUtil.getDeviceListFromSP();
+        /*List<BleDevice> deviceListFromSP = MyUtil.getDeviceListFromSP();
         if (deviceListFromSP!=null){
             for (int i=0;i<deviceListFromSP.size();i++){
-                deviceList.add(deviceListFromSP.get(i));
+                bleDeviceList.add(deviceListFromSP.get(i));
             }
         }*/
 
-        deviceAdapter = new DeviceAdapter(this, this.deviceList);
+        deviceAdapter = new DeviceAdapter(this, this.bleDeviceList);
         lv_device_devicelist.setAdapter(deviceAdapter);
 
         RelativeLayout rl_device_adddevice = (RelativeLayout) findViewById(R.id.rl_device_adddevice);
@@ -138,26 +139,26 @@ public class MyDeviceActivity extends BaseActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 mCurClickPosition = position;
-                final Device device = deviceList.get(position);
-                Log.i(TAG,"device:"+device);
+                final BleDevice bleDevice = bleDeviceList.get(position);
+                Log.i(TAG,"bleDevice:"+ bleDevice);
 
-                if (device.getDeviceType()==Constant.sportType_Cloth){
-                    Device deviceFromSP = MyUtil.getDeviceFromSP();
-                    if (deviceFromSP == null ){
+                if (bleDevice.getDeviceType()==Constant.sportType_Cloth){
+                    BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP();
+                    if (bleDeviceFromSP == null ){
                         //没有绑定过，直接绑定
-                        if(device.getState().equals(getResources().getString(R.string.click_bind))){
-                            bingDeviceToServer(device,position,false,Constant.sportType_Cloth);
+                        if(bleDevice.getState().equals(getResources().getString(R.string.click_bind))){
+                            bingDeviceToServer(bleDevice,position,false,Constant.sportType_Cloth);
                         }
                     }
-                    else if (!device.getMac().equals(deviceFromSP.getMac())){
+                    else if (!bleDevice.getMac().equals(bleDeviceFromSP.getMac())){
                         //有绑定过，点击的不是绑定过的那个（切换）
-                        if(device.getState().equals(getResources().getString(R.string.click_bind))){
+                        if(bleDevice.getState().equals(getResources().getString(R.string.click_bind))){
                             AlertDialog alertDialog = new AlertDialog.Builder(MyDeviceActivity.this)
                                     .setTitle(getResources().getString(R.string.sure_you_want_to_switch))
                                     .setPositiveButton(getResources().getString(R.string.exit_confirm), new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            bingDeviceToServer(device,position,true,Constant.sportType_Cloth);
+                                            bingDeviceToServer(bleDevice,position,true,Constant.sportType_Cloth);
                                         }
                                     })
                                     .setNegativeButton(getResources().getString(R.string.exit_cancel), new DialogInterface.OnClickListener() {
@@ -173,49 +174,51 @@ public class MyDeviceActivity extends BaseActivity {
                     }
                     else {
                         //点击的是绑定过的那个，跳到详情页
-                        if (MyApplication.clothCurrBatteryPowerPercent ==-1){
-                            new Thread(){
-                                @Override
-                                public void run() {
+                        final BleConnectionProxy instance = BleConnectionProxy.getInstance();
+                        if (instance.ismIsConnectted()){
+                            if (instance.getClothCurrBatteryPowerPercent() ==-1){
+                                new Thread(){
+                                    @Override
+                                    public void run() {
 
-                                    while (true){
-                                        CommunicateToBleService.sendLookEleInfoOrder(mLeProxy);
+                                        while (true){
+                                            BleConnectionProxy.getInstance().sendLookBleBatteryInfoOrder();
 
-                                        try {
-                                            Thread.sleep(500);
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
+                                            try {
+                                                Thread.sleep(500);
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
 
-                                        if (MyApplication.clothCurrBatteryPowerPercent!=-1){
-                                            break;
+                                            if (instance.getClothCurrBatteryPowerPercent() !=- 1){
+                                                break;
+                                            }
                                         }
                                     }
-                                }
-                            }.start();
+                                }.start();
+                            }
                         }
-
                         startActivityForResult(new Intent(MyDeviceActivity.this,DeviceInfoActivity.class),201);
                     }
                 }
-                else if (device.getDeviceType()==Constant.sportType_Insole){
+                else if (bleDevice.getDeviceType()==Constant.sportType_Insole){
                     //需要绑定到服务器
                     //这里现在本地缓存
 
-                    Device deviceClothFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
-                    if (deviceClothFromSP==null){
-                        if(device.getState().equals(getResources().getString(R.string.click_bind))){
-                            bingDeviceToServer(device,position,false,Constant.sportType_Insole);
+                    BleDevice bleDeviceClothFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
+                    if (bleDeviceClothFromSP ==null){
+                        if(bleDevice.getState().equals(getResources().getString(R.string.click_bind))){
+                            bingDeviceToServer(bleDevice,position,false,Constant.sportType_Insole);
                         }
                     }
-                    else if (!device.getMac().equals(deviceClothFromSP.getMac())){
-                        if(device.getState().equals(getResources().getString(R.string.click_bind))){
+                    else if (!bleDevice.getMac().equals(bleDeviceClothFromSP.getMac())){
+                        if(bleDevice.getState().equals(getResources().getString(R.string.click_bind))){
                             AlertDialog alertDialog = new AlertDialog.Builder(MyDeviceActivity.this)
                                     .setTitle("您已经绑定过鞋垫，确定要切换吗？")
                                     .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            bingDeviceToServer(device,position,true,Constant.sportType_Insole);
+                                            bingDeviceToServer(bleDevice,position,true,Constant.sportType_Insole);
                                         }
                                     })
                                     .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -231,7 +234,7 @@ public class MyDeviceActivity extends BaseActivity {
                     }
                     else {
                         //final MyApplication application = (MyApplication) getApplication();
-                        final Map<String, Device> insoleDeviceBatteryInfos = CommunicateToBleService.getInstance().getInsoleDeviceBatteryInfos();
+                        final Map<String, BleDevice> insoleDeviceBatteryInfos = BleConnectionProxy.getInstance().getmInsoleDeviceBatteryInfos();
                         /*boolean isContainNoPower = insoleDeviceBatteryInfos.containsValue(-1);
                         Log.i(TAG,"insoleDeviceBatteryInfos:"+insoleDeviceBatteryInfos);
                         Log.i(TAG,"isContainNoPower:"+isContainNoPower);*/
@@ -245,7 +248,7 @@ public class MyDeviceActivity extends BaseActivity {
                                 public void run() {
 
                                     while (true){
-                                        CommunicateToBleService.sendLookEleInfoOrder(mLeProxy);
+                                        BleConnectionProxy.getInstance().sendLookBleBatteryInfoOrder();
 
                                         try {
                                             Thread.sleep(1000);
@@ -253,7 +256,7 @@ public class MyDeviceActivity extends BaseActivity {
                                             e.printStackTrace();
                                         }
 
-                                        boolean isContainNoPower = JudgeIsContainNoPower(CommunicateToBleService.getInstance().getInsoleDeviceBatteryInfos());
+                                        boolean isContainNoPower = JudgeIsContainNoPower(BleConnectionProxy.getInstance().getmInsoleDeviceBatteryInfos());
                                         Log.i(TAG,"insoleDeviceBatteryInfos:"+insoleDeviceBatteryInfos);
                                         Log.i(TAG,"isContainNoPower:"+isContainNoPower);
 
@@ -276,11 +279,11 @@ public class MyDeviceActivity extends BaseActivity {
             }
         });
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
     }
 
-    private boolean JudgeIsContainNoPower(Map<String, Device> insoleDeviceBatteryInfos) {
-        for (Device d:insoleDeviceBatteryInfos.values()){
+    private boolean JudgeIsContainNoPower(Map<String, BleDevice> insoleDeviceBatteryInfos) {
+        for (BleDevice d:insoleDeviceBatteryInfos.values()){
             if (d.getBattery()==0){
                 return true;
             }
@@ -301,8 +304,8 @@ public class MyDeviceActivity extends BaseActivity {
                     if (MyApplication.deivceType==Constant.sportType_Cloth || MyApplication.insoleConnectedMacAddress.size()==2){
                         Log.i(TAG,"设备连接");
                         if (MyApplication.deivceType==Constant.sportType_Cloth){
-                            Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
-                            if (deviceFromSP!=null && deviceFromSP.getMac().equals(deviceList.get(mBndDevicePostion).getMac())){
+                            BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
+                            if (bleDeviceFromSP !=null && bleDeviceFromSP.getMac().equals(bleDeviceList.get(mBndDevicePostion).getMac())){
                                 tv_item_state.setText(getResources().getString(R.string.connected));
                                 tv_item_state.setTextColor(Color.parseColor("#43CD80"));
                             }
@@ -333,8 +336,8 @@ public class MyDeviceActivity extends BaseActivity {
         }
     };
 
-    private void bingDeviceToServer(final Device device, final int position, final boolean iSNeedUnbind, final int deviceType) {
-        Log.i(TAG,"绑定：device "+device.toString());
+    private void bingDeviceToServer(final BleDevice bleDevice, final int position, final boolean iSNeedUnbind, final int deviceType) {
+        Log.i(TAG,"绑定：bleDevice "+ bleDevice.toString());
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
         MyUtil.addCookieForHttp(params);
@@ -343,12 +346,12 @@ public class MyDeviceActivity extends BaseActivity {
 
         if (deviceType==Constant.sportType_Cloth){
             url = Constant.bindingDeviceURL;
-            params.addBodyParameter("deviceMAC",device.getLEName());
+            params.addBodyParameter("deviceMAC", bleDevice.getLEName());
             MyUtil.showDialog(getResources().getString(R.string.The_clothe_is_binding),this);
         }
         else if (deviceType==Constant.sportType_Insole){
             url = Constant.bindDeviceInsoleUrl;
-            String[] split = device.getMac().split(",");
+            String[] split = bleDevice.getMac().split(",");
             if (split!=null && split.length==2){
                 params.addBodyParameter("leftDeviceMAC",split[0]);
                 params.addBodyParameter("rightDeviceMAC",split[1]);
@@ -391,24 +394,28 @@ public class MyDeviceActivity extends BaseActivity {
                 if (jsonBase.getRet() == 0){
                     //绑定成功
                     if (deviceType==Constant.sportType_Cloth){
-                        device.setState(getResources().getString(R.string.unconnected));
-                        MyUtil.saveDeviceToSP(device,Constant.sportType_Cloth);
+                        bleDevice.setState(getResources().getString(R.string.unconnected));
+                        MyUtil.saveDeviceToSP(bleDevice,Constant.sportType_Cloth);
                         TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(position).findViewById(R.id.tv_item_state);
                         tv_item_state.setText(getResources().getString(R.string.bound));
 
-                        LeProxy.getInstance().setmClothDeviceType(Constant.clothDeviceType_Default_NO);
-                        MyUtil.putIntValueFromSP(Constant.mClothDeviceType,-1);
 
-                        if (device.getLEName().startsWith("BLE")){
+
+                        if (bleDevice.getLEName().startsWith("BLE")){
                             MyUtil.putIntValueFromSP(Constant.mClothDeviceType,Constant.clothDeviceType_old_encrypt);
+                            BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType = Constant.clothDeviceType_old_encrypt;
+                        }
+                        else if (bleDevice.getLEName().startsWith("AMSU")){
+                            MyUtil.putIntValueFromSP(Constant.mClothDeviceType,Constant.clothDeviceType_AMSU_EStartWith);
+                            BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType = Constant.clothDeviceType_AMSU_EStartWith;
                         }
 
                         if (iSNeedUnbind){
-                            if (MyApplication.isHaveDeviceConnectted){
+                            if (BleConnectionProxy.getInstance().ismIsConnectted()){
                                 //断开蓝牙连接
-                                mLeProxy.disconnect(MyApplication.clothConnectedMacAddress);
+                                mLeProxy.disconnect(BleConnectionProxy.getInstance().getmClothDeviceConnecedMac());
 
-                                deviceList.get(mBndDevicePostion).setState(getResources().getString(R.string.click_bind));
+                                bleDeviceList.get(mBndDevicePostion).setState(getResources().getString(R.string.click_bind));
                                 TextView tv_item_state1 = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);
                                 tv_item_state1.setText(getResources().getString(R.string.click_bind));
                                 tv_item_state1.setTextColor(Color.parseColor("#c7c7cc"));
@@ -416,12 +423,18 @@ public class MyDeviceActivity extends BaseActivity {
                         }
                     }
                     else if (deviceType==Constant.sportType_Insole){
-                        device.setState(getResources().getString(R.string.unconnected));
+                        bleDevice.setState(getResources().getString(R.string.unconnected));
 
-                        //device.setDeviceType(Constant.sportType_Insole);
-                        MyUtil.saveDeviceToSP(device,Constant.sportType_Insole);
+                        //bleDevice.setDeviceType(Constant.sportType_Insole);
+                        MyUtil.saveDeviceToSP(bleDevice,Constant.sportType_Insole);
                         TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(position).findViewById(R.id.tv_item_state);
                         tv_item_state.setText(getResources().getString(R.string.bound));
+
+                        Map<String, BleDevice> stringBleDeviceMap = BleConnectionProxy.getInstance().getmInsoleDeviceBatteryInfos();
+                        Collection<BleDevice> values = stringBleDeviceMap.values();
+                        for (BleDevice bleDevice : values) {
+                            mLeProxy.disconnect(bleDevice.getMac());
+                        }
                     }
                     mBndDevicePostion = position;
                 }
@@ -444,43 +457,43 @@ public class MyDeviceActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode==130 &  resultCode==RESULT_OK && data!=null){
-            List<Device> searchDeviceLists = data.getParcelableArrayListExtra("searchDeviceList");
+            List<BleDevice> searchBleDeviceLists = data.getParcelableArrayListExtra("searchBleDeviceList");
 
-            deviceList.clear();
-            if (searchDeviceLists!=null && searchDeviceLists.size()>0){
-                Log.i(TAG,"searchDeviceLists:"+searchDeviceLists);
-                Collections.sort(searchDeviceLists,new RssiComparator());
-                Log.i(TAG,"searchDeviceLists:"+searchDeviceLists);
+            bleDeviceList.clear();
+            if (searchBleDeviceLists !=null && searchBleDeviceLists.size()>0){
+                Log.i(TAG,"searchBleDeviceLists:"+ searchBleDeviceLists);
+                Collections.sort(searchBleDeviceLists,new RssiComparator());
+                Log.i(TAG,"searchBleDeviceLists:"+ searchBleDeviceLists);
 
                 int count = 0;
-                Device tempDevice = null;
-                for (Device device:searchDeviceLists){
-                    Log.i(TAG,"device:"+device.toString());
+                BleDevice tempBleDevice = null;
+                for (BleDevice bleDevice : searchBleDeviceLists){
+                    Log.i(TAG,"bleDevice:"+ bleDevice.toString());
 
-                    if (device.getDeviceType()==Constant.sportType_Insole){
+                    if (bleDevice.getDeviceType()==Constant.sportType_Insole){
                         count++;
                         if (count==1){
-                            tempDevice = device;
+                            tempBleDevice = bleDevice;
                         }
                         else if (count==2){
                             //2个算一双鞋垫
-                            if (tempDevice!=null){
-                                device.setLEName(":鞋垫1("+tempDevice.getLEName().substring(tempDevice.getMac().length()-3)+
-                                        ")+鞋垫2("+device.getLEName().substring(device.getMac().length()-3)+")");
-                                device.setMac(tempDevice.getMac()+","+device.getMac());
-                                device.setState(getResources().getString(R.string.click_bind));
-                                //device.setDeviceType(Constant.sportType_Insole);
-                                Log.i(TAG,"添加一双鞋垫："+device.toString());
-                                deviceList.add(device);
-                                tempDevice = null;
+                            if (tempBleDevice !=null){
+                                bleDevice.setLEName(":鞋垫1("+ tempBleDevice.getLEName().substring(tempBleDevice.getMac().length()-3)+
+                                        ")+鞋垫2("+ bleDevice.getLEName().substring(bleDevice.getMac().length()-3)+")");
+                                bleDevice.setMac(tempBleDevice.getMac()+","+ bleDevice.getMac());
+                                bleDevice.setState(getResources().getString(R.string.click_bind));
+                                //bleDevice.setDeviceType(Constant.sportType_Insole);
+                                Log.i(TAG,"添加一双鞋垫："+ bleDevice.toString());
+                                bleDeviceList.add(bleDevice);
+                                tempBleDevice = null;
                                 count = 0;
                             }
                         }
                     }
-                    else  if (device.getDeviceType()==Constant.sportType_Cloth){  //衣服有BLE、AMSU开头的
-                        device.setState(getResources().getString(R.string.click_bind));
-                        //device.setDeviceType(Constant.sportType_Cloth);
-                        deviceList.add(device);
+                    else  if (bleDevice.getDeviceType()==Constant.sportType_Cloth){  //衣服有BLE、AMSU开头的
+                        bleDevice.setState(getResources().getString(R.string.click_bind));
+                        //bleDevice.setDeviceType(Constant.sportType_Cloth);
+                        bleDeviceList.add(bleDevice);
                     }
                 }
             }
@@ -488,11 +501,11 @@ public class MyDeviceActivity extends BaseActivity {
                 //没有搜索到设备
             }
 
-            Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
-            if (deviceFromSP!=null){
+            BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
+            if (bleDeviceFromSP !=null){
                 boolean isNeedAdd = true;
-                for (int i=0;i<deviceList.size();i++){
-                    if (deviceList.get(i).getLEName().equals(deviceFromSP.getLEName())){
+                for (int i = 0; i< bleDeviceList.size(); i++){
+                    if (bleDeviceList.get(i).getLEName().equals(bleDeviceFromSP.getLEName())){
                         mBndDevicePostion = i;
                         isNeedAdd =  false;
                         break;
@@ -500,57 +513,57 @@ public class MyDeviceActivity extends BaseActivity {
                 }
 
                 if (isNeedAdd && MyApplication.isHaveDeviceConnectted){
-                    deviceList.add(deviceFromSP);
-                    mBndDevicePostion = deviceList.size()-1;
+                    bleDeviceList.add(bleDeviceFromSP);
+                    mBndDevicePostion = bleDeviceList.size()-1;
                 }
             }
 
             /*if (MyApplication.isHaveDeviceConnectted){
-                if (deviceFromSP!=null){
+                if (bleDeviceFromSP!=null){
                     boolean isNeedAdd = true;
-                    for (int i=0;i<deviceList.size();i++){
-                        if (deviceList.get(i).getLEName().equals(deviceFromSP.getLEName())){
+                    for (int i=0;i<bleDeviceList.size();i++){
+                        if (bleDeviceList.get(i).getLEName().equals(bleDeviceFromSP.getLEName())){
                             isNeedAdd =  false;
                             break;
                         }
                     }
                     if (isNeedAdd){
-                        deviceList.add(deviceFromSP);
+                        bleDeviceList.add(bleDeviceFromSP);
                     }
                 }
             }*/
 
-            /*Log.i(TAG,"deviceList:"+deviceList);
+            /*Log.i(TAG,"bleDeviceList:"+bleDeviceList);
 
-            Collections.sort(deviceList,new RssiComparator());
-            Log.i(TAG,"deviceList:"+deviceList);*/
+            Collections.sort(bleDeviceList,new RssiComparator());
+            Log.i(TAG,"bleDeviceList:"+bleDeviceList);*/
             deviceAdapter.notifyDataSetChanged();
         }
         else if (requestCode==201 &  resultCode==RESULT_OK ){
-            /*for (int i=0;i<deviceList.size();i++){
+            /*for (int i=0;i<bleDeviceList.size();i++){
                 if (mBndDevicePostion == i){
-                    deviceList.get(i).setState("点击绑定");
+                    bleDeviceList.get(i).setState("点击绑定");
                 }
             }*/
 
-            /*deviceList.get(mBndDevicePostion).setState("点击绑定");
+            /*bleDeviceList.get(mBndDevicePostion).setState("点击绑定");
             deviceAdapter.notifyDataSetChanged();*/
 
-            /*deviceList.get(mBndDevicePostion).setState(getResources().getString(R.string.click_bind));
+            /*bleDeviceList.get(mBndDevicePostion).setState(getResources().getString(R.string.click_bind));
             TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);
             tv_item_state.setText(getResources().getString(R.string.click_bind));
             tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));*/
 
-            if (mCurClickPosition<deviceList.size()){
-                deviceList.remove(mCurClickPosition);
+            if (mCurClickPosition< bleDeviceList.size()){
+                bleDeviceList.remove(mCurClickPosition);
                 deviceAdapter.notifyDataSetChanged();
             }
         }
     }
 
-    private class RssiComparator implements Comparator<Device>{
+    private class RssiComparator implements Comparator<BleDevice>{
         @Override
-        public int compare(Device o1, Device o2) {
+        public int compare(BleDevice o1, BleDevice o2) {
             return o2.getRssi().compareTo(o1.getRssi());
         }
     }

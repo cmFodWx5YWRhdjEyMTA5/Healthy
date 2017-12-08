@@ -159,10 +159,10 @@ public class ResultDetailsFragment extends Fragment {
                     allSagitalString = "足跟/";
                 }
                 else if ("flatfoot".equals(left_sagital)){
-                    allSagitalString = "足跟/";
+                    allSagitalString = "足中/";
                 }
                 else if ("toe".equals(left_sagital)){
-                    allSagitalString = "足跟/";
+                    allSagitalString = "足尖/";
                 }
                 else {
                     allSagitalString = "--/";
@@ -172,10 +172,10 @@ public class ResultDetailsFragment extends Fragment {
                     allSagitalString += "足跟";
                 }
                 else if ("flatfoot".equals(right_sagital)){
-                    allSagitalString += "足跟";
+                    allSagitalString += "足中";
                 }
                 else if ("toe".equals(right_sagital)){
-                    allSagitalString += "足跟";
+                    allSagitalString += "足尖";
                 }
                 else {
                     allSagitalString += "--";

@@ -14,8 +14,8 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amsu.bleinteraction.bean.BleDevice;
 import com.amsu.healthy.R;
-import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.DeviceList;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyTimeTask;
@@ -27,10 +27,10 @@ public class SearchDevicehActivity extends BaseActivity {
     private static final String TAG = "SearchDevicehActivity";
     private Animation animation;
     private TextView tv_search_state;
-    private ArrayList<Device> searchDeviceList;
+    private ArrayList<BleDevice> searchDeviceList;
     DeviceList deviceList;
     private boolean timeTask10ScendOver;
-    private Device mDeviceFromSP;
+    private BleDevice mDeviceFromSP;
     private BluetoothAdapter mBluetoothAdapter;
 
     @Override
@@ -139,7 +139,7 @@ public class SearchDevicehActivity extends BaseActivity {
             //MyUtil.showToask(SearchDevicehActivity.this,"设备切换成功");
 
             Intent intent = getIntent();
-            intent.putParcelableArrayListExtra("searchDeviceList",searchDeviceList);
+            intent.putParcelableArrayListExtra("searchBleDeviceList",searchDeviceList);
             setResult(RESULT_OK, intent);
             finish();
             Log.i(TAG,"finish");
@@ -213,49 +213,10 @@ public class SearchDevicehActivity extends BaseActivity {
             Log.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
 
             String leName = device.getName();
-            if (leName!=null && (leName.startsWith("BLE") || leName.startsWith("AMSU") || leName.startsWith("AMSU_P"))){
-                /*if (deviceListFromSP.size()==0){
-                    deviceListFromSP.add(new Device("智能运动衣1","",device.getAddress(), leName,1));
-                    DeviceList deviceList = new DeviceList();
-                    deviceList.setDeviceList(deviceListFromSP);
-                    MyUtil.putDeviceListToSP(deviceList);
-                    Log.i(TAG,"添加新设备成功");
-                    MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
-                    //tv_search_state.setText("查找成功");
-                    MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,leName);
-                    animation.cancel();
-                    setResult(RESULT_OK,getIntent());
-                    finish();
-                    Log.i(TAG,"finish");
-                }
-                else {
-                    boolean isAdded = false;
-                    for (int i=0;i<deviceListFromSP.size();i++){
-                        if (deviceListFromSP.get(i).getLEName().equals(leName)){
-                            isAdded  = true;
-                        }
-                    }
-                    if (!isAdded){
-                        int currentIndex = deviceListFromSP.get(deviceListFromSP.size() - 1).getDeviceType()+1;
-                        deviceListFromSP.add(new Device("智能运动衣"+currentIndex,"",device.getAddress(), leName,currentIndex));
-                        DeviceList deviceList = new DeviceList();
-                        deviceList.setDeviceList(deviceListFromSP);
-                        MyUtil.putDeviceListToSP(deviceList);
-                        Log.i(TAG,"添加新设备成功");
-                        MainActivity.mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
-                        //tv_search_state.setText("查找成功");
-                        MyUtil.putStringValueFromSP(Constant.currectDeviceLEMac,leName);
-                        animation.cancel();
-                        setResult(RESULT_OK,getIntent());
-                        finish();
-                        Log.i(TAG,"finish");
-                    }
-                }*/
-
-               
+            if (leName!=null && (leName.startsWith("BLE") || leName.startsWith("AMSU") || leName.startsWith("AMSU_P")) && device.getName().length()<25){
 
                 boolean isAddToList = true;
-                for (Device device1:searchDeviceList){
+                for (BleDevice device1:searchDeviceList){
                     if (device1.getLEName().equals(leName)){
                         isAddToList = false;
                     }
@@ -263,10 +224,10 @@ public class SearchDevicehActivity extends BaseActivity {
                 if (isAddToList){
                     if (leName.startsWith("AMSU_P")){
                         //鞋垫
-                        searchDeviceList.add(new Device(getResources().getString(R.string.insole),"",device.getAddress(), leName, Constant.sportType_Insole,rssi));
+                        searchDeviceList.add(new BleDevice(getResources().getString(R.string.insole),"",device.getAddress(), leName, Constant.sportType_Insole,rssi));
                     }
                     else {
-                        searchDeviceList.add(new Device(getResources().getString(R.string.sportswear),"",device.getAddress(), leName,Constant.sportType_Cloth,rssi));
+                        searchDeviceList.add(new BleDevice(getResources().getString(R.string.sportswear),"",device.getAddress(), leName,Constant.sportType_Cloth,rssi));
                     }
                 }
                 if (timeTask10ScendOver){
@@ -286,8 +247,8 @@ public class SearchDevicehActivity extends BaseActivity {
         if (animation!=null){
             animation.cancel();
         }
-       if (mBluetoothAdapter!=null){
-           mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
-       }
+        if (mBluetoothAdapter!=null){
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
+        }
     }
 }

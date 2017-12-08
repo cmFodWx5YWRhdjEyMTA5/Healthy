@@ -51,7 +51,7 @@
     <string name="not_synchronized">Not synchronized</string>
     <string name="synced_data">Synced data</string>
     <string name="charging">Charging</string>
-    <string name="connected_guide1">Connect device to the bottom of the charging station</string>
+    <string name="connected_guide1">Connect bleDevice to the bottom of the charging station</string>
     <string name="connecteto_wifi">Connect to WiFi</string>
     <string name="connecteto_wifi_name">WiFi Name:Amsu</string>
     <string name="connecteto_wifi_password">WiFi Password:0123456789</string>
@@ -193,9 +193,9 @@
     <string name="male">male</string>
     <string name="female">female</string>
 
-    <string name="add_new_device">Add new device</string>
-    <string name="searching_for_new_device">Searching for new device</string>
-    <string name="device_close_to_your_cell">Please put the device close to your cell phone</string>
+    <string name="add_new_device">Add new bleDevice</string>
+    <string name="searching_for_new_device">Searching for new bleDevice</string>
+    <string name="device_close_to_your_cell">Please put the bleDevice close to your cell phone</string>
     <string name="searching">Searching</string>
     <string name="The_clothe_is_binding">The clothe is binding</string>
     <string name="sure_you_want_to_switch">You have bound your clothes. Are you sure you want to switch them?</string>
@@ -290,7 +290,7 @@
 
     <string name="HeartRate_suggetstion_fast">Heart rate too fast: for a healthy individual,stress and other factor could lead to fast heart rate. Please have enough rest, keep a happy mood, and consult to your doctor when it gets worse. </string>
     <string name="HeartRate_suggetstion_slow">Heart rate too slow: it is normal for a healthy individual, but consult to your doctor if it gets worse. </string>
-    <string name="HeartRate_suggetstion_nodata">Time is less than four minutes or bad connection with the device</string>
+    <string name="HeartRate_suggetstion_nodata">Time is less than four minutes or bad connection with the bleDevice</string>
     <string name="HeartRate_suggetstion_normal">normal heart rate</string>
 
     <string name="premature_beat_times">Premature beat </string>
@@ -390,8 +390,8 @@
     <string name="keep_running">Keep running </string>
     <string name="end_the_run">end the run</string>
 
-    <string name="modify_device_name">Modify device name</string>
-    <string name="input_device_name">Input device name</string>
+    <string name="modify_device_name">Modify bleDevice name</string>
+    <string name="input_device_name">Input bleDevice name</string>
     <string name="actual_age">Actual age</string>
     <string name="loading_more">Loading more</string>
 

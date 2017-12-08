@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -98,6 +99,7 @@ public class ModifyPersionDataActivity extends BaseActivity {
         else if (modifyType ==Constant.MODIFY_STILLRATE){
             setCenterText(getResources().getString(R.string.modify_rest_heart));
             et_modify_value.setText(modifyValue);
+            et_modify_value.setInputType(EditorInfo.TYPE_CLASS_PHONE);
         }
 
 

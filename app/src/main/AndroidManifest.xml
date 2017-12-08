@@ -32,8 +32,10 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <!-- sharesdk短信 -->
-    <!--<uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />-->
+    <!--
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    -->
     <!-- <uses-permission android:name="android.permission.READ_SMS" /> -->
     <!-- <uses-permission android:name="android.permission.WRITE_CONTACTS" /> -->
 
@@ -42,9 +44,9 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
 
     <!-- 写入消息 -->
-    <!--<uses-permission android:name="android.permission.WRITE_SMS" />-->
+    <!-- <uses-permission android:name="android.permission.WRITE_SMS" /> -->
     <uses-permission android:name="android.permission.VIBRATE" />
-    <!--<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />-->
+    <!-- <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" /> -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!--
         <uses-permission android:name="android.permission.BROADCAST_PACKAGE_ADDED" />
@@ -59,7 +61,6 @@
     <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -69,7 +70,6 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -104,10 +104,10 @@
             android:value="0c1784d4bf495891bf142767b314651c" />
 
         <!-- 高德地图 -->
-        <!--<meta-data-->
-        <!--android:name="com.amap.api.v2.apikey"-->
-        <!--android:value="00a9a61217c28973e9bceba073d5ac52" />-->
-        <!--wanglei 测试key-->
+        <!-- <meta-data -->
+        <!-- android:name="com.amap.api.v2.apikey" -->
+        <!-- android:value="00a9a61217c28973e9bceba073d5ac52" /> -->
+        <!-- wanglei 测试key -->
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="00a9a61217c28973e9bceba073d5ac52" />
@@ -135,7 +135,7 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB3bpYzgR9ZQmnae55yeK7TQOyhY2Aigio" />
-        <!--我的-->
+        <!-- 我的 -->
         <activity
             android:name=".activity.MeActivity"
             android:screenOrientation="portrait" />
@@ -280,7 +280,7 @@
         <activity
             android:name=".activity.RunTrailMapActivity"
             android:screenOrientation="portrait" />
-        <!--运动模式-->
+        <!-- 运动模式 -->
         <activity
             android:name=".activity.MotionDetectionActivity"
             android:screenOrientation="portrait" />
@@ -325,6 +325,11 @@
             android:screenOrientation="portrait" />
 
         <service
+            android:name=".service.CoreService"
+            android:enabled="true"
+            android:exported="true"/>
+
+        <service
             android:name=".service.LocalGuardService"
             android:enabled="true"
             android:exported="true"
@@ -346,10 +351,6 @@
             android:enabled="true"
             android:exported="true"
             android:process="com.remote2" />
-        <service
-            android:name=".service.CommunicateToBleService"
-            android:enabled="true"
-            android:exported="true" />
 
         <receiver
             android:name=".receiver.ServiceListenerReceiver"
@@ -397,8 +398,10 @@
             -->
         </activity>
         <activity android:name=".activity.RunTimeCountdownActivity" />
-        <activity android:name=".activity.insole.InsoleRunningActivity"
-            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".activity.insole.InsoleRunningActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
         <activity android:name=".activity.insole.InsoleAnalyticFinshResultActivity">
 
             <!--
@@ -423,7 +426,7 @@
         <activity android:name=".utils.scancode.activity.CaptureActivity" />
         <activity android:name=".activity.ConfirmScanLoginActivity" />
         <activity android:name=".activity.insole.InsoleAnalysisActivity" />
-        <!--历史记录-->
+        <!-- 历史记录 -->
         <activity android:name=".activity.HistoryRecordAllActivity" />
         <activity android:name=".activity.insole.InsoleDeviceInfoActivity" />
         <activity
@@ -431,34 +434,36 @@
             android:launchMode="singleTask" />
         <activity android:name=".activity.LoginInputNumberActivity" />
         <activity android:name=".activity.LoginCountryListActivity" />
-        <!--马拉松-->
+        <!-- 马拉松 -->
         <activity
             android:name=".activity.marathon.MarathonActivity"
             android:screenOrientation="portrait" />
-        <!--耐力测试-->
+        <!-- 耐力测试 -->
         <activity
             android:name=".activity.marathon.EnduranceTestActivity"
             android:screenOrientation="portrait" />
-        <!--耐力测试成绩-->
+        <!-- 耐力测试成绩 -->
         <activity
             android:name=".activity.marathon.EnduranceTestResultGradeActivity"
             android:screenOrientation="portrait" />
-        <!--耐力测试运动中-->
+        <!-- 耐力测试运动中 -->
         <activity
             android:name=".activity.marathon.EnduranceTestRuningActivity"
             android:screenOrientation="portrait" />
-        <!--耐力测试结束-->
+        <!-- 耐力测试结束 -->
         <activity
             android:name=".activity.marathon.EnduranceTestResultActivity"
             android:screenOrientation="portrait" />
-        <!--马拉松运动记录-->
+        <!-- 马拉松运动记录 -->
         <activity
             android:name=".activity.marathon.SportRecordActivity"
             android:screenOrientation="portrait" />
-        <!--马拉松运动记录详情-->
+        <!-- 马拉松运动记录详情 -->
         <activity
             android:name=".activity.marathon.SportRecordDetailsActivity"
             android:screenOrientation="portrait" />
+
+
     </application>
 
 </manifest>

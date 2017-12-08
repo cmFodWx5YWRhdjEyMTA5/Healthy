@@ -1,5 +1,7 @@
 package com.amsu.healthy.bean;
 
+import com.amsu.bleinteraction.bean.BleDevice;
+
 import java.util.List;
 
 /**
@@ -7,14 +9,14 @@ import java.util.List;
  */
 
 public class DeviceList{
-    List<Device> deviceList;
+    List<BleDevice> bleDeviceList;
 
-    public List<Device> getDeviceList() {
-        return deviceList;
+    public List<BleDevice> getBleDeviceList() {
+        return bleDeviceList;
     }
 
-    public void setDeviceList(List<Device> deviceList) {
-        this.deviceList = deviceList;
+    public void setBleDeviceList(List<BleDevice> bleDeviceList) {
+        this.bleDeviceList = bleDeviceList;
     }
 
 }

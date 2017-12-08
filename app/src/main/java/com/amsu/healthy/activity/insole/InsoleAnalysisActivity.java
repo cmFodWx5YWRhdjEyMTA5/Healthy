@@ -338,8 +338,8 @@ public class InsoleAnalysisActivity extends BaseActivity {
     }
 
     private int calcuIntervalTime(long duration) {
-        int intervalTime = 60*((int) (duration/60f)/25);
-        return intervalTime==0?60:intervalTime;
+        int intervalTime = (int) ((duration-25*60)/25);
+        return intervalTime<60?60:intervalTime;
     }
 
     private void showResultData(InsoleUploadRecord insoleUploadRecord) {

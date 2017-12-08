@@ -29,19 +29,18 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amsu.bleinteraction.bean.BleDevice;
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+import com.amsu.bleinteraction.utils.FileWriteHelper;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.SosActivity;
 import com.amsu.healthy.appication.MyApplication;
-import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.DeviceList;
 import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.User;
-import com.amsu.healthy.service.CommunicateToBleService;
+import com.amsu.healthy.service.CoreService;
 import com.amsu.healthy.service.LocalGuardService;
-import com.amsu.healthy.service.MyTestService2;
 import com.amsu.healthy.service.RemoteGuardService;
-import com.amsu.healthy.utils.ble.EcgAccDataUtil;
-import com.amsu.healthy.utils.ble.LeProxy;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.http.RequestParams;
@@ -209,22 +208,22 @@ public class MyUtil {
         return user;
     }
 
-    public static void saveDeviceToSP(Device device) {
+    public static void saveDeviceToSP(BleDevice bleDevice) {
         SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
-        if (device !=null){
-            if (!MyUtil.isEmpty(device.getName())){
-                edit.putString("name",device.getName());
+        if (bleDevice !=null){
+            if (!MyUtil.isEmpty(bleDevice.getName())){
+                edit.putString("name", bleDevice.getName());
             }
-            if (!MyUtil.isEmpty(device.getLEName())){
-                edit.putString("LEName",device.getLEName());
+            if (!MyUtil.isEmpty(bleDevice.getLEName())){
+                edit.putString("LEName", bleDevice.getLEName());
             }
-            if (!MyUtil.isEmpty(device.getState())){
-                edit.putString("state",device.getState());
+            if (!MyUtil.isEmpty(bleDevice.getState())){
+                edit.putString("state", bleDevice.getState());
             }
-            if (!MyUtil.isEmpty(device.getMac())){
-                edit.putString("mac",device.getMac());
+            if (!MyUtil.isEmpty(bleDevice.getMac())){
+                edit.putString("mac", bleDevice.getMac());
             }
-            edit.putInt("deviceType_insole",device.getDeviceType());
+            edit.putInt("deviceType_insole", bleDevice.getDeviceType());
         }
         else {
             edit.putString("name","");
@@ -236,30 +235,30 @@ public class MyUtil {
         edit.apply();
     }
 
-    public static void saveDeviceToSP(Device device,int type) {
+    public static void saveDeviceToSP(BleDevice bleDevice, int type) {
         SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
         if (type==2){
-            if (device !=null){
-                if (!MyUtil.isEmpty(device.getName())){
-                    edit.putString("name_insole",device.getName());
+            if (bleDevice !=null){
+                if (!MyUtil.isEmpty(bleDevice.getName())){
+                    edit.putString("name_insole", bleDevice.getName());
                 }
-                if (!MyUtil.isEmpty(device.getLEName())){
-                    edit.putString("LEName_insole",device.getLEName());
+                if (!MyUtil.isEmpty(bleDevice.getLEName())){
+                    edit.putString("LEName_insole", bleDevice.getLEName());
                 }
-                if (!MyUtil.isEmpty(device.getState())){
-                    edit.putString("state_insole",device.getState());
+                if (!MyUtil.isEmpty(bleDevice.getState())){
+                    edit.putString("state_insole", bleDevice.getState());
                 }
-                if (!MyUtil.isEmpty(device.getMac())){
-                    edit.putString("mac_insole",device.getMac());
+                if (!MyUtil.isEmpty(bleDevice.getMac())){
+                    edit.putString("mac_insole", bleDevice.getMac());
                 }
-                if (!MyUtil.isEmpty(device.getHardWareVersion())){
-                    edit.putString("hardWareVersion_insole",device.getHardWareVersion());
+                if (!MyUtil.isEmpty(bleDevice.getHardWareVersion())){
+                    edit.putString("hardWareVersion_insole", bleDevice.getHardWareVersion());
                 }
-                if (!MyUtil.isEmpty(device.getSoftWareVersion())){
-                    edit.putString("softWareVersion_insole",device.getSoftWareVersion());
+                if (!MyUtil.isEmpty(bleDevice.getSoftWareVersion())){
+                    edit.putString("softWareVersion_insole", bleDevice.getSoftWareVersion());
                 }
-                edit.putInt("deviceType_insole",device.getDeviceType());
-                edit.putInt("battery_insole",device.getBattery());
+                edit.putInt("deviceType_insole", bleDevice.getDeviceType());
+                edit.putInt("battery_insole", bleDevice.getBattery());
             }
             else {
                 edit.putString("name_insole","");
@@ -273,27 +272,27 @@ public class MyUtil {
             }
         }
         else {
-            if (device !=null){
-                if (!MyUtil.isEmpty(device.getName())){
-                    edit.putString("name",device.getName());
+            if (bleDevice !=null){
+                if (!MyUtil.isEmpty(bleDevice.getName())){
+                    edit.putString("name", bleDevice.getName());
                 }
-                if (!MyUtil.isEmpty(device.getLEName())){
-                    edit.putString("LEName",device.getLEName());
+                if (!MyUtil.isEmpty(bleDevice.getLEName())){
+                    edit.putString("LEName", bleDevice.getLEName());
                 }
-                if (!MyUtil.isEmpty(device.getState())){
-                    edit.putString("state",device.getState());
+                if (!MyUtil.isEmpty(bleDevice.getState())){
+                    edit.putString("state", bleDevice.getState());
                 }
-                if (!MyUtil.isEmpty(device.getMac())){
-                    edit.putString("mac",device.getMac());
+                if (!MyUtil.isEmpty(bleDevice.getMac())){
+                    edit.putString("mac", bleDevice.getMac());
                 }
-                if (!MyUtil.isEmpty(device.getHardWareVersion())){
-                    edit.putString("hardWareVersion",device.getHardWareVersion());
+                if (!MyUtil.isEmpty(bleDevice.getHardWareVersion())){
+                    edit.putString("hardWareVersion", bleDevice.getHardWareVersion());
                 }
-                if (!MyUtil.isEmpty(device.getSoftWareVersion())){
-                    edit.putString("softWareVersion",device.getSoftWareVersion());
+                if (!MyUtil.isEmpty(bleDevice.getSoftWareVersion())){
+                    edit.putString("softWareVersion", bleDevice.getSoftWareVersion());
                 }
-                edit.putInt("deviceType_cloth",device.getDeviceType());
-                edit.putInt("battery",device.getBattery());
+                edit.putInt("deviceType_cloth", bleDevice.getDeviceType());
+                edit.putInt("battery", bleDevice.getBattery());
             }
             else {
                 edit.putString("name","");
@@ -309,19 +308,19 @@ public class MyUtil {
         edit.apply();
     }
 
-    public static Device getDeviceFromSP(){
+    public static BleDevice getDeviceFromSP(){
         String name = getStringValueFromSP("name");
         String LEName = getStringValueFromSP("LEName");
         String state = getStringValueFromSP("state");
         String mac = getStringValueFromSP("mac");
-        Device device = null;
+        BleDevice bleDevice = null;
         if (!LEName.equals("") && !mac.equals("")){
-            device = new Device(name,state,mac,LEName,0);
+            bleDevice = new BleDevice(name,state,mac,LEName,0);
         }
-        return device;
+        return bleDevice;
     }
 
-    public static Device getDeviceFromSP(int deviceType){
+    public static BleDevice getDeviceFromSP(int deviceType){
         String name ;
         String LEName ;
         String state ;
@@ -351,23 +350,23 @@ public class MyUtil {
             softWareVersion = getStringValueFromSP("softWareVersion");
             battery = getIntValueFromSP("battery");
         }
-        Device device = null;
+        BleDevice bleDevice = null;
         if (!LEName.equals("") && !mac.equals("")){
-            device = new Device(name,state,mac,LEName,type,hardWareVersion,softWareVersion,battery);
+            bleDevice = new BleDevice(name,state,mac,LEName,type,hardWareVersion,softWareVersion,battery);
         }
-        return device;
+        return bleDevice;
     }
 
-    public static Device getClothDeviceFromSP(){
+    public static BleDevice getClothDeviceFromSP(){
         String name = getStringValueFromSP("name");
         String LEName = getStringValueFromSP("LEName");
         String state = getStringValueFromSP("state");
         String mac = getStringValueFromSP("mac");
-        Device device = null;
+        BleDevice bleDevice = null;
         if (!LEName.equals("") && !mac.equals("")){
-            device = new Device(name,state,mac,LEName,0);
+            bleDevice = new BleDevice(name,state,mac,LEName,0);
         }
-        return device;
+        return bleDevice;
     }
 
     public static String getStringValueFromSP(String key){
@@ -380,6 +379,9 @@ public class MyUtil {
 
     public static int getIntValueFromSP(String key){
         return MyApplication.sharedPreferences.getInt(key,-1);
+    }
+    public static int getIntValueFromSP(String key,int defaultValue){
+        return MyApplication.sharedPreferences.getInt(key,defaultValue);
     }
 
 
@@ -454,7 +456,7 @@ public class MyUtil {
         return format.format(date);
     }
 
-    public static List<Device> getDeviceListFromSP(){
+    public static List<BleDevice> getDeviceListFromSP(){
         String name = "devicelist";
         String stringValueFromSP = MyUtil.getStringValueFromSP(name);
         Log.i("stringValueFromSP",stringValueFromSP);
@@ -463,7 +465,7 @@ public class MyUtil {
         DeviceList deviceList = gson.fromJson(stringValueFromSP, DeviceList.class);
 
         if (deviceList!=null){
-            return deviceList.getDeviceList();
+            return deviceList.getBleDeviceList();
         }
         else{
             return new ArrayList<>();
@@ -983,7 +985,7 @@ public class MyUtil {
             public void run() {
                 startServices(context);
                 //每隔1s判断其他2个服务是否运行，没有运行则开始运行
-                MyTimeTask.startTimeRiseTimerTask(50, new MyTimeTask.OnTimeChangeAtScendListener() {
+                MyTimeTask.startTimeRiseTimerTask(1000, new MyTimeTask.OnTimeChangeAtScendListener() {
                     @Override
                     public void onTimeChange(Date date) {
                         startServices(context);
@@ -1024,11 +1026,11 @@ public class MyUtil {
                 Log.i(TAG, "Start LocalGuardService");
             }
 
-            if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService2")) {
+            /*if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.MyTestService2")) {
                 Intent service = new Intent(context, MyTestService2.class);
                 context.startService(service);
                 Log.i(TAG, "Start MyTestService2");
-            }
+            }*/
 
             if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.RemoteGuardService")) {
                 Intent service = new Intent(context, RemoteGuardService.class);
@@ -1044,10 +1046,16 @@ public class MyUtil {
             }
         }
 
-        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.CommunicateToBleService")) {
+        /*if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.CommunicateToBleService")) {
             Intent service = new Intent(context, CommunicateToBleService.class);
             context.startService(service);
             Log.i(TAG, "Start CommunicateToBleService");
+        }*/
+
+        if(!MyUtil.isServiceWorked(context, "com.amsu.healthy.service.CoreService")) {
+            Intent service = new Intent(context, CoreService.class);
+            context.startService(service);
+            Log.i(TAG, "Start CoreService");
         }
 
     }
@@ -1086,12 +1094,6 @@ public class MyUtil {
             context.startService(service);
             Log.i(TAG, "Start MyTestService4");
         }*/
-
-        if(MyUtil.isServiceWorked(context, "com.amsu.healthy.service.CommunicateToBleService")) {
-            Intent service = new Intent(context, CommunicateToBleService.class);
-            context.stopService(service);
-            Log.i(TAG, "stop CommunicateToBleService");
-        }
     }
 
     public static void stopAllServices(Context context) {
@@ -1104,9 +1106,6 @@ public class MyUtil {
         boolean b1 = context.stopService(service1);
         Log.i(TAG, "stop RemoteGuardService："+b1);
 
-        Intent service2 = new Intent(context, CommunicateToBleService.class);
-        boolean b2 = context.stopService(service2);
-        Log.i(TAG, "stop CommunicateToBleService："+b2);
     }
 
     //判断一个字符是不是Long型
@@ -1272,7 +1271,7 @@ public class MyUtil {
         }
 
         filePath += "/"+ MyUtil.getECGFileNameDependFormatTime(date);
-        if (ecg_acc== EcgAccDataUtil.fileExtensionType_ECG){
+        if (ecg_acc== FileWriteHelper.fileExtensionType_ECG){
             return filePath+".ecg";
         }
         else {
@@ -1316,7 +1315,6 @@ public class MyUtil {
         return stringBuilder.toString();
     }
 
-
     public static String convertStringToHex(String str){
 
         char[] chars = str.toCharArray();
@@ -1354,8 +1352,10 @@ public class MyUtil {
 
         int fs = 26;
 
+        int clothDeviceType = BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType;
+
         //新版主机步频计算频率为52
-        if (LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_secondGeneration || LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_secondGeneration_our){
+        if (clothDeviceType==Constant.clothDeviceType_secondGeneration || clothDeviceType==Constant.clothDeviceType_secondGeneration_our){
             fs = 52;
         }
 

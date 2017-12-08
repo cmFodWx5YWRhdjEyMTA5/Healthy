@@ -26,23 +26,24 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.model.LatLng;
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+import com.amsu.bleinteraction.proxy.BleDataProxy;
+import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.AppAbortDataSave;
 import com.amsu.healthy.bean.JsonBase;
-import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.AppAbortDbAdapterUtil;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
+import com.amsu.healthy.utils.HeartShowWayUtil;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.RunTimerTaskUtil;
+import com.amsu.healthy.utils.ShowNotificationBarUtil;
 import com.amsu.healthy.utils.WebSocketProxy;
-import com.amsu.healthy.utils.ble.BleDataProxy;
-import com.amsu.healthy.utils.ble.EcgFilterUtil_1;
-import com.amsu.healthy.utils.ble.LeProxy;
-import com.amsu.healthy.utils.ble.ResultCalcuUtil;
+import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
 import com.amsu.healthy.utils.wifiTransmit.DeviceOffLineFileUtil;
@@ -120,8 +121,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     private List<String> mKcalData ;
     private ArrayList<Integer> mStridefreData ;
-    public  int mCurrentHeartRate = 0;
-    private String ecgLocalFileName;
+    private String mEcgLocalFileName;
+    private String mAccLocalFileName;
     private DeviceOffLineFileUtil deviceOffLineFileUtil;
     private AppAbortDataSave mAbortData;
     private DeviceOffLineFileUtil saveDeviceOffLineFileUtil;
@@ -140,7 +141,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private long recoverTimeMillis = 0;
 
     private long addDuration;
-    private EcgFilterUtil_1 ecgFilterUtil_1;
     private float mPreOutDoorDistance;
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
@@ -159,7 +159,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private String mCurAppClientID;
     private String mCurBrowserClientID;*/
     private boolean isMarathonSportType;
-    private LeProxy mLeProxy;
     private BleDataProxy mBleDataProxy;
 
     @Override
@@ -223,7 +222,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         bt_run_location.setOnClickListener(myOnClickListener);
         bt_run_lock.setOnClickListener(myOnClickListener);
 
-        ecgFilterUtil_1 = new EcgFilterUtil_1();
 
 
         bt_run_start.setOnLongClickListener(new View.OnLongClickListener() {
@@ -257,10 +255,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         mIsOutDoor = getIntent().getBooleanExtra(Constant.mIsOutDoor, false);
         Log.i(TAG,"mIsOutDoor:"+mIsOutDoor);
-        mLeProxy = LeProxy.getInstance();
 
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
 
         Intent intent = getIntent();
         isNeedRecoverAbortData = intent.getBooleanExtra(Constant.isNeedRecoverAbortData, false);
@@ -271,13 +267,24 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         startRunning();
 
         mBleDataProxy = BleDataProxy.getInstance();
-        mBleDataProxy.setRecordingStarted();
 
+        String ecgFileName = null;
+        String accFileName = null;
+        if (mAbortData!=null){
+            ecgFileName = mAbortData.getEcgFileName();
+            accFileName = mAbortData.getAccFileName();
+        }
+        Log.i(TAG,"ecgFileName:"+ecgFileName);
+        Log.i(TAG,"accFileName:"+accFileName);
+
+        String[] fileNames = mBleDataProxy.setRecordingStarted(ecgFileName, accFileName);  //开始记录并返回需要写入的文件
+        mEcgLocalFileName = fileNames[0];
+        mAccLocalFileName = fileNames[1];
 
     }
 
     private void restoreLastRecord() {
-        /*mAbortData = AppAbortDbAdapterUtil.getAbortDataFromSP(Constant.sportType_Cloth);
+        mAbortData = AppAbortDbAdapterUtil.getAbortDataFromSP(Constant.sportType_Cloth);
         Log.i(TAG,"mAbortData:"+mAbortData);
         if (mAbortData!=null){
             createrecord = mAbortData.getMapTrackID();
@@ -322,22 +329,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 tv_run_kcal.setText((int)mAllKcal+"");
             }
 
-            ecgLocalFileName  =mAbortData.getEcgFileName();
-            ecgByteBuffer = ByteBuffer.allocate(2);
-            accByteBuffer = ByteBuffer.allocate(2);
-
-            try {
-                if (!MyUtil.isEmpty(mAbortData.getEcgFileName())){
-                    ecgDataOutputStream = new DataOutputStream(new FileOutputStream(mAbortData.getEcgFileName(),true));
-                }
-                if (!MyUtil.isEmpty(mAbortData.getAccFileName())){
-                    accDataOutputStream = new DataOutputStream(new FileOutputStream(mAbortData.getAccFileName(),true));
-                }
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }*/
+        }
     }
 
 
@@ -399,7 +391,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                     }
 
                     if (mAbortData==null){
-                        mAbortData = new AppAbortDataSave(startTimeMillis, "", "", createrecord, 1,mSpeedStringList);
+                        mAbortData = new AppAbortDataSave(startTimeMillis, mEcgLocalFileName, mAccLocalFileName, createrecord, 1,mSpeedStringList);
                         mAbortData.isOutDoor = mIsOutDoor;
                         saveOrUpdateAbortDatareordToSP(mAbortData,true);
                     }
@@ -444,7 +436,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         startCalSpeedTimerStask();
 
         String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", mCurrTimeDate);
-        CommunicateToBleService.setServiceForegrounByNotify(getResources().getString(R.string.running),getResources().getString(R.string.distance)+": "+mFormatDistance+"KM       "+getResources().getString(R.string.exercise_time)+": "+specialFormatTime,1);
+        ShowNotificationBarUtil.setServiceForegrounByNotify(getResources().getString(R.string.running),getResources().getString(R.string.distance)+": "+mFormatDistance+"KM       "+getResources().getString(R.string.exercise_time)+": "+specialFormatTime,ShowNotificationBarUtil.notifyActivityIndex_StartRunActivity);
         Log.i(TAG,"设置通知:"+specialFormatTime);
 
         //boolean mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
@@ -531,7 +523,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             }
             isonResumeEd = true;
         }
-        setDeviceConnectedState(MyApplication.isHaveDeviceConnectted);
+
+        setDeviceConnectedState(BleConnectionProxy.getInstance().ismIsConnectted());
     }
 
     //高德地图
@@ -606,26 +599,15 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()){
-                case LeProxy.ACTION_GATT_CONNECTED:
+                case LeProxy.ACTION_DEVICE_CONNECTED:
                     Log.i(TAG,"已连接 " );
                     setDeviceConnectedState(true);
                     break;
-                case LeProxy.ACTION_GATT_DISCONNECTED:
+                case LeProxy.ACTION_DEVICE_DISCONNECTED:
                     Log.w(TAG,"已断开 ");
-                    setDeviceConnectedState(true);
-                    break;
-                case LeProxy.ACTION_CONNECT_ERROR:
-                    Log.w(TAG,"连接异常 ");
-                    setDeviceConnectedState(true);
-                    break;
-                case LeProxy.ACTION_CONNECT_TIMEOUT:
-                    Log.w(TAG,"连接超时 ");
-                    setDeviceConnectedState(true);
+                    setDeviceConnectedState(false);
                     break;
                 case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
-                    //if (!mIsRunning)return;
-                    //byte[] data = intent.getByteArrayExtra(LeProxy.EXTRA_DATA);
-                    //dealwithLebDataChange(DataUtil.byteArrayToHex(intent.getByteArrayExtra(LeProxy.EXTRA_DATA)));
                     dealwithLebDataChange(intent);
                     break;
             }
@@ -652,12 +634,13 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     }
 
     private void updateUIECGHeartData(int heartRate) {
-        String showHeartString = heartRate==0?"--":heartRate+"";
-        tv_run_rate.setText(showHeartString);
+       /* String showHeartString = heartRate==0?"--":heartRate+"";
+        tv_run_rate.setText(showHeartString);*/
+        HeartShowWayUtil.updateHeartUI(heartRate,tv_run_rate,this);
         calcuAllkcal(heartRate);
         heartRateDates.add(heartRate);
 
-        String oxygenState = ResultCalcuUtil.calcuOxygenState(heartRate,this);
+        String oxygenState = HeartShowWayUtil.calcuOxygenState(heartRate,this);
         tv_run_isoxygen.setText(oxygenState);
     }
 
@@ -681,7 +664,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     private void updateUISpeedData() {
         tv_run_speed.setText(mFinalFormatSpeed);
         String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", mCurrTimeDate);
-        CommunicateToBleService.setServiceForegrounByNotify(getResources().getString(R.string.running),getResources().getString(R.string.distance)+": "+mFormatDistance+"KM       "+getResources().getString(R.string.exercise_time)+": "+specialFormatTime,1);
+        ShowNotificationBarUtil.setServiceForegrounByNotify(getResources().getString(R.string.running),getResources().getString(R.string.distance)+": "+mFormatDistance+"KM       "+getResources().getString(R.string.exercise_time)+": "+specialFormatTime,1);
         Log.i(TAG,"设置通知:"+specialFormatTime);
     }
 
@@ -1282,8 +1265,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                             intent.putExtra(Constant.sportState,Constant.SPORTSTATE_INDOOR);
                         }
 
-                        if (!MyUtil.isEmpty(ecgLocalFileName)){
-                            intent.putExtra(Constant.ecgLocalFileName,ecgLocalFileName);
+                        if (!MyUtil.isEmpty(mEcgLocalFileName)){
+                            intent.putExtra(Constant.ecgLocalFileName, mEcgLocalFileName);
                         }
                         if (createrecord!=-1){
                             intent.putExtra(Constant.sportCreateRecordID,createrecord);
@@ -1324,8 +1307,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                         else {
                             intent.putExtra(Constant.sportState,Constant.SPORTSTATE_INDOOR);
                         }
-                        if (!MyUtil.isEmpty(ecgLocalFileName)){
-                            intent.putExtra(Constant.ecgLocalFileName,ecgLocalFileName);
+                        if (!MyUtil.isEmpty(mEcgLocalFileName)){
+                            intent.putExtra(Constant.ecgLocalFileName, mEcgLocalFileName);
                         }
                         if (createrecord!=-1){
                             intent.putExtra(Constant.sportCreateRecordID,createrecord);
@@ -1360,8 +1343,8 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 else {
                     intent.putExtra(Constant.sportState,Constant.SPORTSTATE_INDOOR);
                 }
-                if (!MyUtil.isEmpty(ecgLocalFileName)){
-                    intent.putExtra(Constant.ecgLocalFileName,ecgLocalFileName);
+                if (!MyUtil.isEmpty(mEcgLocalFileName)){
+                    intent.putExtra(Constant.ecgLocalFileName, mEcgLocalFileName);
                 }
                 if (createrecord!=-1){
                     intent.putExtra(Constant.sportCreateRecordID,createrecord);
@@ -1429,10 +1412,11 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         mCurrTimeDate = null;
 
         deleteAbortDataRecordFomeSP();
-        CommunicateToBleService.detoryServiceForegrounByNotify();
+        ShowNotificationBarUtil.detoryServiceForegrounByNotify();
 
-        ecgLocalFileName = mBleDataProxy.stopWriteEcgToFileAndGetFileName();
-
+        String s = mBleDataProxy.stopWriteEcgToFileAndGetFileName();
+        Log.i(TAG,"结束："+s);
+        mEcgLocalFileName = s;
 
         /*if (mWebSocketUtil!=null){
             mWebSocketUtil.closeConnectWebSocket();
@@ -1465,7 +1449,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         MyApplication.runningActivity = MyApplication.MainActivity;
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
-        CommunicateToBleService.detoryServiceForegrounByNotify();
+        ShowNotificationBarUtil.detoryServiceForegrounByNotify();
     }
 
     //初始化谷歌地图连接

@@ -3,7 +3,7 @@ package com.amsu.healthy.utils.wifiTransmit;
 import android.os.Environment;
 import android.util.Log;
 
-import com.amsu.healthy.utils.ble.EcgAccDataUtil;
+import com.amsu.bleinteraction.utils.EcgAccDataUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.wifiTransmit.uilt.WriteReadDataToBinaryFile;
 import com.amsu.healthy.utils.wifiTransmit.uilt.WriteReadDataToFileStrategy;

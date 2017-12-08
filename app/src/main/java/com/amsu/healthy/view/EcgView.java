@@ -10,8 +10,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.amsu.bleinteraction.utils.EcgAccDataUtil;
 import com.amsu.healthy.R;
-import com.amsu.healthy.utils.ble.EcgAccDataUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

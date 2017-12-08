@@ -11,14 +11,13 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.amsu.bleinteraction.utils.EcgFilterUtil_1;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.HeartRateResultShowActivity;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.fragment.BaseFragment;
-import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.ble.EcgFilterUtil_1;
 import com.amsu.healthy.view.EcgView;
 
 import java.io.DataInputStream;
@@ -210,7 +209,7 @@ public class ECGFragment extends BaseFragment {
                                     Log.i(TAG,"new Date(System.currentTimeMillis()):"+new Date(System.currentTimeMillis()));
                                     datas = new ArrayList<>();
 
-                                    EcgFilterUtil_1 ecgFilterUtil_1 = CommunicateToBleService.ecgFilterUtil_1;
+                                    EcgFilterUtil_1 ecgFilterUtil_1 = EcgFilterUtil_1.getInstance();
 
 
                                     while(dataInputStream.available() >0){
@@ -222,6 +221,7 @@ public class ECGFragment extends BaseFragment {
                                             //滤波处理
                                             int shortByTwoBytes = MyUtil.getShortByTwoBytes(bytes[0], bytes[1]);
                                             int temp = ecgFilterUtil_1.miniEcgFilterLp(ecgFilterUtil_1.miniEcgFilterHp (ecgFilterUtil_1.NotchPowerLine( shortByTwoBytes, 1)));
+
                                             /*int temp = EcgFilterUtil.miniEcgFilterLp((int)MyUtil.getShortByTwoBytes(bytes[0],bytes[1]), 0);
                                             temp = EcgFilterUtil.miniEcgFilterHp(temp, 0);*/
                                             datas.add(temp);

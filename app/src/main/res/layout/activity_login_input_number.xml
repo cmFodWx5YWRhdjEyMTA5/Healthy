@@ -18,6 +18,7 @@
         android:textSize="@dimen/x72"
         android:textColor="@color/app_main_color"
         android:text="@string/enter_cell_phone_number"
+        android:singleLine="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/x200"/>
 

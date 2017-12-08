@@ -1,14 +1,17 @@
 package com.amsu.healthy.utils;
 
 import android.content.Context;
-import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AlertDialog;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.activity.HealthyDataActivity;
-import com.amsu.healthy.activity.MoveStateActivity;
 
 /**
  * Created by HP on 2017/4/5.
@@ -40,11 +43,11 @@ public class ChooseAlertDialogUtil {
     }
 
     public void setAlertDialogText(String title,String content,String confirmString,String cancelString){
-        View inflate = View.inflate(context, R.layout.view_dialog_showchoose, null);
+        View inflate = View.inflate(context, R.layout.confirm_dialog, null);
         TextView tv_choose_title = (TextView) inflate.findViewById(R.id.tv_choose_title);
         TextView tv_choose_tip = (TextView) inflate.findViewById(R.id.tv_choose_tip);
-        TextView bt_choose_cancel = (TextView) inflate.findViewById(R.id.bt_choose_cancel);
-        TextView bt_choose_ok = (TextView) inflate.findViewById(R.id.bt_choose_ok);
+        Button bt_choose_cancel = (Button) inflate.findViewById(R.id.bt_choose_cancel);
+        Button bt_choose_ok = (Button) inflate.findViewById(R.id.bt_choose_ok);
 
         if (!MyUtil.isEmpty(title)){
             tv_choose_title.setText(title);
@@ -65,11 +68,26 @@ public class ChooseAlertDialogUtil {
         final AlertDialog alertDialog = new AlertDialog.Builder(context, R.style.myCorDialog).setView(inflate).create();
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();
+
+        Window dialogWindow = alertDialog.getWindow();
+        dialogWindow.setBackgroundDrawable(new ColorDrawable(0));//设置window背景
+        WindowManager.LayoutParams lp = dialogWindow.getAttributes();
+        DisplayMetrics d = context.getResources().getDisplayMetrics();//获取屏幕尺寸
+        lp.width = (int) (d.widthPixels * 0.7); //宽度为屏幕80%
+        lp.gravity = Gravity.CENTER;  //中央居中
+        dialogWindow.setAttributes(lp);
+
+
+        /*final AlertDialog alertDialog = new AlertDialog.Builder(context, R.style.myCorDialog).setView(inflate).create();
+
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
         float width = context.getResources().getDimension(R.dimen.x800);
         float height = context.getResources().getDimension(R.dimen.x500);
 
 
-        alertDialog.getWindow().setLayout(new Float(width).intValue(),new Float(height).intValue());
+        alertDialog.getWindow().setLayout(new Float(width).intValue(),new Float(height).intValue());*/
+
 
         bt_choose_cancel.setOnClickListener(new View.OnClickListener() {
             @Override

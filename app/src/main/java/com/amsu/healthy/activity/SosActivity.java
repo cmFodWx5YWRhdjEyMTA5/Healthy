@@ -307,15 +307,17 @@ public class SosActivity extends BaseActivity {
                 if(data==null) { return; }
                 //处理返回的data,获取选择的联系人信息
                 Uri uri=data.getData();
+                Log.i(TAG,"uri:"+uri);
                 String[] contacts=getPhoneContacts(uri);
-                Log.i(TAG,"contacts:"+contacts[0]+", "+contacts[1]);
-                //严莹莹, 13714387129
-                if (contacts[1]!=null && contacts[1].startsWith("+")){
-                    contacts[1] = contacts[1].substring(3);
+                if (contacts!=null){
+                    Log.i(TAG,"contacts:"+contacts[0]+", "+contacts[1]);
+                    //严莹莹, 13714387129
+                    if (contacts[1]!=null && contacts[1].startsWith("+")){
+                        contacts[1] = contacts[1].substring(3);
+                    }
+                    SosNumber sosNumber = new SosNumber(contacts[0],contacts[1]);
+                    addSosNumberToServer(sosNumber);
                 }
-                SosNumber sosNumber = new SosNumber(contacts[0],contacts[1]);
-                addSosNumberToServer(sosNumber);
-
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -326,7 +328,7 @@ public class SosActivity extends BaseActivity {
         ContentResolver cr = getContentResolver();
         //取得电话本中开始一项的光标
         Cursor cursor=cr.query(uri,null,null,null,null);
-        if(cursor!=null) {
+        if(cursor!=null && cursor.getCount()>0) {
             cursor.moveToFirst();
             //取得联系人姓名
             int nameFieldColumnIndex=cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
@@ -338,18 +340,21 @@ public class SosActivity extends BaseActivity {
             Log.i(TAG,"contactId :"+contactId);
             Cursor phone = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + contactId, null, null);
 
-            Log.i(TAG,"phone.getCount(): "+phone.getCount());
-             boolean moveToFirst = phone.moveToFirst();
-            if(phone != null && moveToFirst){
+            if (phone != null && phone.getCount()>0) {
+                Log.i(TAG,"phone.getCount(): "+phone.getCount());
+                boolean moveToFirst = phone.moveToFirst();
                 Log.i(TAG,"moveToFirst: "+moveToFirst);
-                contact[1] = phone.getString(phone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                if(moveToFirst){
+                    contact[1] = phone.getString(phone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                }
+                else {
+                    MyUtil.showToask(SosActivity.this,"号码格式不正确");
+                }
+                phone.close();
+                cursor.close();
             }
-            else {
-                MyUtil.showToask(SosActivity.this,"号码格式不正确");
-            }
-            phone.close();
-            cursor.close();
         } else {
+            MyUtil.showToask(SosActivity.this,"读取联系人信息出错，可能是没有读取联系人权限，请在设置里面添加权限！");
             return null;
         }
         return contact;

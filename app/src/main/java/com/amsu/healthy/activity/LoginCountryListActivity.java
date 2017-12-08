@@ -1,12 +1,9 @@
 package com.amsu.healthy.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.nfc.Tag;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -15,34 +12,24 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.appication.MyApplication;
-import com.amsu.healthy.bean.Device;
-import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
-import com.mob.tools.utils.ResHelper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 import cn.smssdk.gui.SearchEngine;
-import cn.smssdk.gui.layout.SizeHelper;
-import cn.smssdk.utils.SMSLog;
 
 public class LoginCountryListActivity extends BaseActivity implements TextWatcher {
     private static final String TAG = "LoginCountryListActivity";
@@ -132,7 +119,15 @@ public class LoginCountryListActivity extends BaseActivity implements TextWatche
     }
 
     private void initData() {
-        mGgroupedCountryList = SMSSDK.getGroupedCountryList();
+        mGgroupedCountryList = new HashMap<>();
+        try {
+            mGgroupedCountryList = SMSSDK.getGroupedCountryList();
+        }
+        catch (Exception e){
+            Log.i(TAG,"e:"+e);
+        }
+
+
 
         mCountryList = new ArrayList<>();
 
@@ -144,10 +139,7 @@ public class LoginCountryListActivity extends BaseActivity implements TextWatche
         mCountryList.add(new String[]{getResources().getString(R.string.all_countries_regions),"-1","0"});
 
         for (ArrayList<String[]> characterList: mGgroupedCountryList.values()){
-            for (String[] s:characterList){
-                System.out.println(s);
-                mCountryList.add(s);
-            }
+            mCountryList.addAll(characterList);
         }
 
         Log.i(TAG,"countryList:"+ mCountryList);
@@ -165,6 +157,8 @@ public class LoginCountryListActivity extends BaseActivity implements TextWatche
             }
         }
         sEngine.setIndex(countries);
+
+        Log.i(TAG,"setIndex:");
 
 
         //Log.i(TAG,"groupedCountryList:"+groupedCountryList.toString());
@@ -191,6 +185,8 @@ public class LoginCountryListActivity extends BaseActivity implements TextWatche
         SMSSDK.registerEventHandler(handler);
         // 获取国家列表
         SMSSDK.getSupportedCountries();
+
+        Log.i(TAG,"registerEventHandler:");
     }
 
     private void onCountryListGot(ArrayList<HashMap<String, Object>> countries) {
@@ -312,7 +308,7 @@ public class LoginCountryListActivity extends BaseActivity implements TextWatche
 
                 int dp6 = (int) getResources().getDimension(R.dimen.x36);
                 textView.setPadding(dp6, 0, dp6, 0);textView.setGravity(Gravity.CENTER_VERTICAL);
-                textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.x88)));
+                textView.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.x88)));
 
                 textView.setText(strings[0]);
                 return textView;

@@ -11,15 +11,16 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amsu.bleinteraction.bean.BleDevice;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
-import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MD5Util;
@@ -91,6 +92,9 @@ public class LoginActivity extends BaseActivity {
         bt_login_getcode = (Button) findViewById(R.id.bt_login_getcode);
         cb_login_isagree = (CheckBox) findViewById(R.id.cb_login_isagree);
         final Button bt_login_nextstep = (Button) findViewById(R.id.bt_login_nextstep);
+
+        et_login_phone.setInputType(EditorInfo.TYPE_CLASS_PHONE);
+        et_login_code.setInputType(EditorInfo.TYPE_CLASS_PHONE);
 
         cb_login_isagree.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -555,14 +559,14 @@ public class LoginActivity extends BaseActivity {
                         JSONObject jsonObject1 = new JSONObject(errDesc);
                         String leftDeviceMAC = jsonObject1.getString("leftdevicemac");
                         String rightDeviceMAC = jsonObject1.getString("rightdevicemac");
-                        Device device = new Device();
-                        device.setMac(leftDeviceMAC+","+rightDeviceMAC);
-                        device.setLEName("：鞋垫1("+leftDeviceMAC.substring(leftDeviceMAC.length()-2)+
+                        BleDevice bleDevice = new BleDevice();
+                        bleDevice.setMac(leftDeviceMAC+","+rightDeviceMAC);
+                        bleDevice.setLEName("：鞋垫1("+leftDeviceMAC.substring(leftDeviceMAC.length()-2)+
                                 ")+鞋垫2("+rightDeviceMAC.substring(rightDeviceMAC.length()-2)+")");
-                        device.setName("鞋垫");
-                        device.setDeviceType(Constant.sportType_Insole);
-                        MyUtil.saveDeviceToSP(device,Constant.sportType_Insole);
-                        Log.i(TAG,"device:"+device);
+                        bleDevice.setName("鞋垫");
+                        bleDevice.setDeviceType(Constant.sportType_Insole);
+                        MyUtil.saveDeviceToSP(bleDevice,Constant.sportType_Insole);
+                        Log.i(TAG,"bleDevice:"+ bleDevice);
                     }
 
                 } catch (JSONException e) {

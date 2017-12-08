@@ -98,7 +98,7 @@ public final class CameraConfigurationManager {
         Camera.Parameters parameters = camera.getParameters();
 
         if (parameters == null) {
-            Log.w(TAG, "Device error: no camera parameters are available. Proceeding without configuration.");
+            Log.w(TAG, "BleDevice error: no camera parameters are available. Proceeding without configuration.");
             return;
         }
 
@@ -144,7 +144,7 @@ public final class CameraConfigurationManager {
     private Point findBestPreviewSizeValue(Camera.Parameters parameters, Point screenResolution) {
         List<Camera.Size> rawSupportedSizes = parameters.getSupportedPreviewSizes();
         if (rawSupportedSizes == null) {
-            Log.w(TAG, "Device returned no supported preview sizes; using default");
+            Log.w(TAG, "BleDevice returned no supported preview sizes; using default");
             Camera.Size defaultSize = parameters.getPreviewSize();
             return new Point(defaultSize.width, defaultSize.height);
         }

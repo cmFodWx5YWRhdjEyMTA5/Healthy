@@ -1,19 +1,8 @@
-package com.amsu.healthy.utils.ble;
+package com.amsu.bleinteraction.utils;
 
-import android.content.Context;
-import android.support.design.widget.BottomSheetDialog;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.Window;
-import android.widget.SeekBar;
 
-import com.amsu.healthy.R;
-import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.HealthyIndexUtil;
-import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.view.EcgView;
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,14 +20,11 @@ public class EcgAccDataUtil {
     public static final int accOneGroupLength = 12; //
     public static final int accDataLength = 1800;
 
-    private static double ECGSCALE_MODE_HALF = 0.5;
-    private static double ECGSCALE_MODE_ORIGINAL = 1;
-    private static double ECGSCALE_MODE_DOUBLE = 2;
-    private static double ECGSCALE_MODE_QUADRUPLE = 4;
+    public static double ECGSCALE_MODE_HALF = 0.5;
+    public static double ECGSCALE_MODE_ORIGINAL = 1;
+    public static double ECGSCALE_MODE_DOUBLE = 2;
+    public static double ECGSCALE_MODE_QUADRUPLE = 4;
     public static double ECGSCALE_MODE_CURRENT = ECGSCALE_MODE_ORIGINAL;
-
-    public static final int fileExtensionType_ECG = 1; //
-    public static final int fileExtensionType_ACC = 2; //
 
 
     public static void geIntEcgaArr(String hexString,String splitSring,int startIndex,int parseLength,int[] ecgInts) {
@@ -62,13 +48,14 @@ public class EcgAccDataUtil {
 
 
 
-    public static int[] getValuableEcgACCData(String hexData, LeProxy mLeProxy){
+    public static int[] getValuableEcgACCData(String hexData){
         Log.i(TAG,"hexData:"+hexData);
+        int clothDeviceType = BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType;
 
         int [] ecgInts ;
         int [] accInts ;
 
-        if (LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_old_encrypt || LeProxy.getInstance().getClothDeviceType()==Constant.clothDeviceType_old_noEncrypt){
+        if (clothDeviceType==BleConstant.clothDeviceType_old_encrypt || clothDeviceType==BleConstant.clothDeviceType_old_noEncrypt){
             if(hexData.startsWith("FF 83") && hexData.length()==44){   //旧版心电数据
                 //Log.i(TAG,"心电hexData:"+hexData);
                 ecgInts = new int[ecgOneGroupLength];
@@ -85,7 +72,7 @@ public class EcgAccDataUtil {
             }
         }
 
-        else if (mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration || mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration_our) {
+        else if (clothDeviceType==BleConstant.clothDeviceType_secondGeneration_IOE || clothDeviceType==BleConstant.clothDeviceType_secondGeneration_AMSU) {
             if (hexData.length() == 59) {  // 新版心电数据  00 C3 00 A5 00 B8 00 D7 00 79 00 58 00 37 00 25 00 27 FF E2
                 //心电数据
                 ecgInts = new int[ecgOneGroupLength];
@@ -93,7 +80,7 @@ public class EcgAccDataUtil {
                 for (int i=0;i<split.length/2;i++){
                     short i1 = (short) Integer.parseInt(split[2 * i] + split[2 * i + 1], 16);
                     //Log.i(TAG,""+i1);
-                    if (mLeProxy.getClothDeviceType()==Constant.clothDeviceType_secondGeneration){
+                    if (clothDeviceType==BleConstant.clothDeviceType_secondGeneration_IOE){
                         ecgInts[i] = i1 /256+128;
                     }
                     else {
@@ -113,7 +100,7 @@ public class EcgAccDataUtil {
         return null;
     }
 
-    public static String getDataHexString(){
+    public static String getWriteConfigureOrderHexString(int userAge,boolean isAutoOffline){
         SimpleDateFormat formatter = new SimpleDateFormat("yy MM dd HH mm ss");
         Date curDate = new Date();
         String dateString = formatter.format(curDate);
@@ -128,8 +115,8 @@ public class EcgAccDataUtil {
             dateHexString += hex;
         }
 
-        int maxHeart  = (int) (0.95*(220- HealthyIndexUtil.getUserAge()));
-        int minHeart  = (int) (0.75*(220-HealthyIndexUtil.getUserAge()));
+        int maxHeart  = (int) (0.95*(220- userAge));
+        int minHeart  = (int) (0.75*(220-userAge));
 
         String maxHeartHex = Integer.toHexString(maxHeart);
         String minHeartHex = Integer.toHexString(minHeart);
@@ -137,21 +124,23 @@ public class EcgAccDataUtil {
             maxHeartHex = "0"+maxHeartHex;;
         }
         if (minHeartHex!=null && minHeartHex.length()==1){
-            minHeartHex = "0"+minHeartHex;;
+            minHeartHex = "0"+minHeartHex;
         }
 
         dateHexString += maxHeartHex+minHeartHex;
 
-
-        boolean mIsAutoOffline = MyUtil.getBooleanValueFromSP("mIsAutoOffline");
-        if (mIsAutoOffline){
+        if (isAutoOffline){
             dateHexString += "01";
         }
         else {
             dateHexString += "00";
         }
         //Log.i(TAG,"dateHexString:"+dateHexString);
-        return dateHexString;
+
+        String writeConfigureOrder = "FF010E"+ dateHexString +"0016";
+        Log.i(TAG,"writeConfigureOrder:"+writeConfigureOrder);
+
+        return writeConfigureOrder;
     }
 
 
@@ -173,73 +162,8 @@ public class EcgAccDataUtil {
         return dateHexString;
     }
 
-    private static BottomSheetDialog mBottomAdjustRateLineDialog;
 
-    public static void showAlertAdjustLineSeekBar(final EcgView pv_healthydata_path, Context context) {
-        if (mBottomAdjustRateLineDialog==null){
-            mBottomAdjustRateLineDialog = new BottomSheetDialog(context);
-            View inflate = LayoutInflater.from(context).inflate(R.layout.view_adjustline, null);
 
-            mBottomAdjustRateLineDialog.setContentView(inflate);
-            Window window = mBottomAdjustRateLineDialog.getWindow();
-            window.setGravity(Gravity.BOTTOM);  //此处可以设置dialog显示的位置
-            window.setWindowAnimations(R.style.mystyle);  //添加动画
-
-            SeekBar sb_adjust = (SeekBar) inflate.findViewById(R.id.sb_adjust);
-            sb_adjust.setMax(80);  //设置最大值，分成4个级别，0-20,20-40,40-60,60-80
-
-            sb_adjust.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    Log.i(TAG,"onProgressChanged:"+progress);
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                    Log.i(TAG,"onStart:"+seekBar.getProgress());
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                    Log.i(TAG,"onStop:"+seekBar.getProgress());
-                    int endProgress = seekBar.getProgress();
-                    adjustRateLineRToEcgView(endProgress,pv_healthydata_path);
-                }
-            });
-        }
-        mBottomAdjustRateLineDialog.show();
-    }
-
-    /*根据进度给心电View设置放大的倍数
-        *  可以在 ecgAmpSum < 5时 放大4倍
-            在 5<=ecgAmpSum<12 时放大2倍
-            在 12<=ecgAmpSum<26 时 不放大大不缩小。
-            在ecgAmpSum>=26时 缩小两倍
-        * */
-    public static void adjustRateLineRToEcgView(int endProgress,EcgView pv_healthydata_path) {
-        double type = 0;
-        Log.i(TAG,"currentType:"+ECGSCALE_MODE_CURRENT);
-        if (endProgress<=20){
-            type = ECGSCALE_MODE_HALF;
-        }
-        else if(20<endProgress && endProgress<=40){
-            type = ECGSCALE_MODE_ORIGINAL;
-        }
-        else if(40<endProgress && endProgress<=60){
-            type = ECGSCALE_MODE_DOUBLE;
-        }
-        else if(60<endProgress && endProgress<=80){
-            type = ECGSCALE_MODE_QUADRUPLE;
-        }
-
-        if (type!=ECGSCALE_MODE_CURRENT){
-            ECGSCALE_MODE_CURRENT = type;
-            //重新绘图
-            Log.i(TAG,"调在增益");
-            pv_healthydata_path.setRateLineR(type);
-        }
-    }
 
 
 }

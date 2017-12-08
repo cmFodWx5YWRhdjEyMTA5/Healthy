@@ -3,6 +3,7 @@ package com.amsu.healthy.appication;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
+import android.app.Service;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -32,7 +33,7 @@ public class MyApplication extends Application{
     public static SharedPreferences sharedPreferences;
     public static List<Activity> mActivities;
     public static boolean isHaveDeviceConnectted = false;
-    public static BaseActivity mCurrApplicationActivity;
+    private BaseActivity mCurrApplicationActivity;
     public static boolean isBlueServiceWorked;
     public static final int MainActivity = 1;
     public static final int HealthyDataActivity = 2;
@@ -42,7 +43,6 @@ public class MyApplication extends Application{
     public static int currentHeartRate;
     public static String clothConnectedMacAddress;
     private Handler handler;
-    public static boolean isNeedSynMsgToDevice;
     public static String insoleAccessToken;
     public static int deivceType = Constant.sportType_Cloth;
     public static int languageType = 1;
@@ -62,20 +62,12 @@ public class MyApplication extends Application{
     public String runningmCurrentAvespeed;
 
     public int runningRecoverType = -1;
-
-    public String getRunningmCurrentAvespeed() {
-        return runningmCurrentAvespeed;
-    }
-
-    public void setRunningmCurrentAvespeed(String runningmCurrentAvespeed) {
-        this.runningmCurrentAvespeed = runningmCurrentAvespeed;
-    }
+    private static MyApplication myApplication;
 
     public WebSocketProxy webSocketUtil;
     public static int IndexWarringHeartIconType = -1;
 
-    private int insoleLeftCurrBatteryPowerPercent = -1;
-    private int insoleRightCurrBatteryPowerPercent = -1;
+    public Service mCoreService;
 
     @Override
     public void onCreate() {
@@ -94,7 +86,8 @@ public class MyApplication extends Application{
 
         if (currentProcessName.equals("com.amsu.healthy")){
             MyUtil.startServices(this);
-            isNeedSynMsgToDevice = true;
+
+
 
             CrashReport.initCrashReport(this, "d139ea916b", false);   //腾讯Bugly
 
@@ -123,6 +116,21 @@ public class MyApplication extends Application{
             insoleAccessToken = MyUtil.getStringValueFromSP("insoleAccessToken");
         }
 
+    }
+
+    public static MyApplication getInstance(){
+        if (myApplication==null){
+            myApplication = new MyApplication();
+        }
+        return myApplication;
+    }
+
+    public String getRunningmCurrentAvespeed() {
+        return runningmCurrentAvespeed;
+    }
+
+    public void setRunningmCurrentAvespeed(String runningmCurrentAvespeed) {
+        this.runningmCurrentAvespeed = runningmCurrentAvespeed;
     }
 
     private String getCurrentProcessName() {
@@ -187,24 +195,6 @@ public class MyApplication extends Application{
         this.webSocketUtil = webSocketUtil;
     }
 
-    public int getInsoleLeftCurrBatteryPowerPercent() {
-        return insoleLeftCurrBatteryPowerPercent;
-    }
-
-    public void setInsoleLeftCurrBatteryPowerPercent(int insoleLeftCurrBatteryPowerPercent) {
-        this.insoleLeftCurrBatteryPowerPercent = insoleLeftCurrBatteryPowerPercent;
-    }
-
-    public int getInsoleRightCurrBatteryPowerPercent() {
-        return insoleRightCurrBatteryPowerPercent;
-    }
-
-    public void setInsoleRightCurrBatteryPowerPercent(int insoleRightCurrBatteryPowerPercent) {
-        this.insoleRightCurrBatteryPowerPercent = insoleRightCurrBatteryPowerPercent;
-    }
-
-
-
     public int getRunningmCurrentStepCount() {
         return runningmCurrentStepCount;
     }
@@ -221,5 +211,13 @@ public class MyApplication extends Application{
 
     public void setRunningRecoverType(int runningRecoverType) {
         this.runningRecoverType = runningRecoverType;
+    }
+
+    public BaseActivity getmCurrApplicationActivity() {
+        return mCurrApplicationActivity;
+    }
+
+    public void setmCurrApplicationActivity(BaseActivity mCurrApplicationActivity) {
+        this.mCurrApplicationActivity = mCurrApplicationActivity;
     }
 }

@@ -13,21 +13,21 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+import com.amsu.bleinteraction.proxy.BleDataProxy;
+import com.amsu.bleinteraction.proxy.LeProxy;
+import com.amsu.bleinteraction.utils.EcgAccDataUtil;
 import com.amsu.healthy.R;
-import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.receiver.SmsReceiver;
-import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.HeartShowWayUtil;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.ShowNotificationBarUtil;
 import com.amsu.healthy.utils.SosSendUtil;
-import com.amsu.healthy.utils.ble.BleDataProxy;
-import com.amsu.healthy.utils.ble.EcgAccDataUtil;
-import com.amsu.healthy.utils.ble.LeProxy;
 import com.amsu.healthy.view.EcgView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class HealthyDataActivity extends BaseActivity {
     private static final String TAG = "HealthyDataActivity";
@@ -45,9 +45,10 @@ public class HealthyDataActivity extends BaseActivity {
     private SmsReceiver mReceiver01, mReceiver02;
     private ImageView iv_base_connectedstate;
     private TextView tv_base_charge;
-    private int mCclothDeviceType;
-    private LeProxy mLeProxy;
+
     private BleDataProxy mBleDataProxy;
+    private BleConnectionProxy mBleConnectionProxy;
+    private TextView tv_healthydata_analysis;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,12 +79,14 @@ public class HealthyDataActivity extends BaseActivity {
 
         pv_healthydata_path = (EcgView) findViewById(R.id.pv_healthydata_path);
         tv_healthydata_rate = (TextView) findViewById(R.id.tv_healthydata_rate);
-        TextView tv_healthydata_analysis = (TextView) findViewById(R.id.tv_healthydata_analysis);
+        tv_healthydata_analysis = (TextView) findViewById(R.id.tv_healthydata_analysis);
 
         iv_base_connectedstate = (ImageView) findViewById(R.id.iv_base_connectedstate);
         iv_base_connectedstate.setVisibility(View.VISIBLE);
         tv_base_charge = (TextView) findViewById(R.id.tv_base_charge);
+    }
 
+    private void initData() {
         Intent intent = getIntent();
 
         mIsLookupECGDataFromSport = intent.getBooleanExtra(Constant.isLookupECGDataFromSport, false);
@@ -92,91 +95,43 @@ public class HealthyDataActivity extends BaseActivity {
             getTv_base_centerText().setVisibility(View.GONE);
         }
 
-        LocalBroadcastManager.getInstance(HealthyDataActivity.this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
+        LocalBroadcastManager.getInstance(HealthyDataActivity.this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
 
         heartRateDates = new ArrayList<>();
-        MyApplication.runningActivity = MyApplication.HealthyDataActivity;
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(MainActivity.ACTION_CHARGE_CHANGE);
-        registerReceiver(mchargeReceiver, filter);
+        int clothCurrBatteryPowerPercent = BleConnectionProxy.getInstance().getClothCurrBatteryPowerPercent();
 
-        if (MyApplication.clothCurrBatteryPowerPercent !=-1){
+        if (clothCurrBatteryPowerPercent !=-1){
             tv_base_charge.setVisibility(View.VISIBLE);
-            tv_base_charge.setText(MyApplication.clothCurrBatteryPowerPercent +"%");
+            tv_base_charge.setText(clothCurrBatteryPowerPercent +"%");
         }
 
-        mLeProxy = LeProxy.getInstance();
+
         mBleDataProxy = BleDataProxy.getInstance();
+
         mBleDataProxy.setRecordingStarted();
 
-        mCclothDeviceType = mLeProxy.getClothDeviceType();
-        Log.i(TAG,"mCclothDeviceType:"+mCclothDeviceType);
-
-    }
-
-    private final BroadcastReceiver mchargeReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent!=null){
-                Log.i(TAG,"onReceive:"+intent.getAction());
-                int calCuelectricVPercent = intent.getIntExtra("clothCurrBatteryPowerPercent", -1);
-                Log.i(TAG,"clothCurrBatteryPowerPercent:"+calCuelectricVPercent);
-                if (calCuelectricVPercent==-1){
-                    //设备已断开
-                    tv_base_charge.setVisibility(View.GONE);
-                }
-                else {
-                    tv_base_charge.setVisibility(View.VISIBLE);
-                    tv_base_charge.setText(calCuelectricVPercent+"%");
-                }
-            }
-        }
-    };
-
-    private void initData() {
-
+        mBleConnectionProxy = BleConnectionProxy.getInstance();
     }
 
     private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()){
-                case LeProxy.ACTION_GATT_CONNECTED:
-                    Log.i(TAG,"已连接 " );
-                    iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
-                    break;
-                case LeProxy.ACTION_GATT_DISCONNECTED:
-                    Log.w(TAG,"已断开 ");
-                    iv_base_connectedstate.setImageResource(R.drawable.duankai);
-                    break;
-                case LeProxy.ACTION_CONNECT_ERROR:
-                    Log.w(TAG,"连接异常 ");
-                    iv_base_connectedstate.setImageResource(R.drawable.duankai);
-                    break;
-                case LeProxy.ACTION_CONNECT_TIMEOUT:
-                    Log.w(TAG,"连接超时 ");
-                    iv_base_connectedstate.setImageResource(R.drawable.duankai);
-                    break;
                 case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
-                    //Log.i(TAG,"接收到从机数据");
-                    /*if (isonResumeEd){
-                        byte[] data = intent.getByteArrayExtra(LeProxy.EXTRA_DATA);
-                        dealwithLebDataChange(DataUtil.byteArrayToHex(data));
-                    }*/
                     dealwithLebDataChange(intent);
                     break;
             }
         }
-
     };
 
     private void dealwithLebDataChange(Intent intent) {
+        //Log.i(TAG,"接收到从机数据");
         int[] intArrayExtra = intent.getIntArrayExtra(BleDataProxy.EXTRA_ECG_DATA);
         int heartRate = intent.getIntExtra(BleDataProxy.EXTRA_HEART_DATA,-1);
 
-        if (intArrayExtra!=null && intArrayExtra.length==EcgAccDataUtil.ecgOneGroupLength){
-            Log.i(TAG,"heartRate:"+ Arrays.toString(intArrayExtra));
+        if (intArrayExtra!=null && intArrayExtra.length== EcgAccDataUtil.ecgOneGroupLength){
+            //Log.i(TAG,"intArrayExtra:"+ Arrays.toString(intArrayExtra));
             dealWithEcgData(intArrayExtra);
         }
         else if (heartRate!=-1){
@@ -199,14 +154,15 @@ public class HealthyDataActivity extends BaseActivity {
 
     private void updateUIECGHeartData(int heartRate) {
         updateNotify(heartRate);
-        mBleDataProxy.updateHeartUI(heartRate,tv_healthydata_rate);
+        HeartShowWayUtil.updateHeartUI(heartRate,tv_healthydata_rate,this);
+        //tv_healthydata_rate.setText(heartRate+"");
         heartRateDates.add(heartRate);
     }
 
     private void updateNotify(int heartRate) {
         String showHeartString = heartRate==0?"--":heartRate+"";
         if (!mIsLookupECGDataFromSport){
-            CommunicateToBleService.setServiceForegrounByNotify("正在测试静态心率","心率："+showHeartString+" BPM",0);
+            ShowNotificationBarUtil.setServiceForegrounByNotify("正在测试静态心率","心率："+showHeartString+" BPM",ShowNotificationBarUtil.notifyActivityIndex_HealthyDataActivity);
         }
     }
 
@@ -219,7 +175,7 @@ public class HealthyDataActivity extends BaseActivity {
     }
 
     private void alertAdjustLineSeekBar() {
-        EcgAccDataUtil.showAlertAdjustLineSeekBar(pv_healthydata_path,getApplication());
+        HeartShowWayUtil.showAlertAdjustLineSeekBar(pv_healthydata_path,this);
     }
 
     //求助，暂时只发短信
@@ -289,11 +245,16 @@ public class HealthyDataActivity extends BaseActivity {
             //pv_healthydata_path.startThread();
         }
 
-        if (MyApplication.isHaveDeviceConnectted){
+        if (mBleConnectionProxy.ismIsConnectted()){
             iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
+            if (mBleConnectionProxy.getClothCurrBatteryPowerPercent() !=-1){
+                tv_base_charge.setVisibility(View.VISIBLE);
+                tv_base_charge.setText(mBleConnectionProxy.getClothCurrBatteryPowerPercent() +"%");
+            }
         }
         else {
             iv_base_connectedstate.setImageResource(R.drawable.duankai);
+            tv_base_charge.setVisibility(View.GONE);
         }
         registerSmsReciver();
     }
@@ -334,14 +295,10 @@ public class HealthyDataActivity extends BaseActivity {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
 
-        MyApplication.runningActivity = MyApplication.MainActivity;
-
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
         if (heartRateDates.size()>0){
-            CommunicateToBleService.detoryServiceForegrounByNotify();
+            ShowNotificationBarUtil.detoryServiceForegrounByNotify();
         }
-
-        unregisterReceiver(mchargeReceiver);
     }
 
     //按返回键时的处理

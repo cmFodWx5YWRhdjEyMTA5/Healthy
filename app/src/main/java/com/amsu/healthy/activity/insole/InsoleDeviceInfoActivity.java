@@ -16,17 +16,17 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.amsu.bleinteraction.bean.BleDevice;
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
 import com.amsu.healthy.activity.MainActivity;
 import com.amsu.healthy.appication.MyApplication;
-import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.JsonBase;
-import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.InputTextAlertDialogUtil;
 import com.amsu.healthy.utils.MyUtil;
-import com.amsu.healthy.utils.ble.LeProxy;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -43,7 +43,7 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
 
     private static final String TAG = "InsoleDeviceInfoActivity";
     private TextView tv_insoledevice_devicename;
-    private Device deviceFromSP;
+    private BleDevice bleDeviceFromSP;
     private TextView tv_device_electricleft;
     private TextView tv_device_electricright;
     public LeProxy mLeProxy;
@@ -52,7 +52,7 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
     private TextView tv_deviceinsole_right;
     private ViewPager vp_insoledevice_info;
     private View v_analysis_select;
-    private List<Device> mConnectedDeviceList;
+    private List<BleDevice> mConnectedBleDeviceList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,19 +133,19 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
     }
 
     private void initData() {
-        deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
-        Log.i(TAG,"deviceFromSP:"+deviceFromSP);
+        bleDeviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
+        Log.i(TAG,"bleDeviceFromSP:"+ bleDeviceFromSP);
 
-        if (deviceFromSP!=null){
-            /*String deviceNickName = MyUtil.getStringValueFromSP(deviceFromSP.getMac());
+        if (bleDeviceFromSP !=null){
+            /*String deviceNickName = MyUtil.getStringValueFromSP(bleDeviceFromSP.getMac());
             //String myDeceiveName = MyUtil.getStringValueFromSP(Constant.myDeceiveName);
             if (!MyUtil.isEmpty(deviceNickName)){
                 tv_insoledevice_devicename.setText(deviceNickName);
             }
             else {
                 //String username = MyUtil.getStringValueFromSP("username");
-                if (!MyUtil.isEmpty(deviceFromSP.getLEName())){
-                    tv_insoledevice_devicename.setText(deviceFromSP.getName()+deviceFromSP.getLEName());
+                if (!MyUtil.isEmpty(bleDeviceFromSP.getLEName())){
+                    tv_insoledevice_devicename.setText(bleDeviceFromSP.getName()+bleDeviceFromSP.getLEName());
                 }
             }
 
@@ -155,7 +155,7 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
             if (!MyUtil.isEmpty(hardWareVersion)){ //sp当前保存的版本信息和当前使用的Mac地址是否一致校验，一致则是使用设备的版本信息，否则为上传使用的版本信息
                 String[] spDeviceVersionInfo = hardWareVersion.split(",");
                 if (spDeviceVersionInfo.length==2){
-                    String[] insoleMacs = deviceFromSP.getMac().split(",");
+                    String[] insoleMacs = bleDeviceFromSP.getMac().split(",");
                     if (insoleMacs.length==2){
                         for (String s:insoleMacs){
                             if (s.equals(spDeviceVersionInfo[0])){
@@ -168,7 +168,7 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
             if (!MyUtil.isEmpty(softWareVersion)){ //sp当前保存的版本信息和当前使用的Mac地址是否一致校验，一致则是使用设备的版本信息，否则为上传使用的版本信息
                 String[] spDeviceVersionInfo = softWareVersion.split(",");
                 if (spDeviceVersionInfo.length==2){
-                    String[] insoleMac = deviceFromSP.getMac().split(",");
+                    String[] insoleMac = bleDeviceFromSP.getMac().split(",");
                     if (insoleMac.length==2){
                         for (String s:insoleMac){
                             if (s.equals(spDeviceVersionInfo[0])){
@@ -189,17 +189,17 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
     }
 
     private void setDeviceBattery() {
-        Map<String, Device> insoleDeviceBatteryInfos = CommunicateToBleService.getInstance().getInsoleDeviceBatteryInfos();
+        Map<String, BleDevice> insoleDeviceBatteryInfos = BleConnectionProxy.getInstance().getmInsoleDeviceBatteryInfos();
 
         /*String stringValueFromSP = MyUtil.getStringValueFromSP(Constant.insoleDeviceBatteryInfos);
         Gson gson = new Gson();
-        Map<String, Device> insoleDeviceBatteryInfosSP = gson.fromJson(stringValueFromSP, new TypeToken<Map<String, Device>>() {
+        Map<String, BleDevice> insoleDeviceBatteryInfosSP = gson.fromJson(stringValueFromSP, new TypeToken<Map<String, BleDevice>>() {
         }.getType());
 */
 
-        mConnectedDeviceList = new ArrayList<>();
-        for (Device device : insoleDeviceBatteryInfos.values()) {
-            mConnectedDeviceList.add(device);
+        mConnectedBleDeviceList = new ArrayList<>();
+        for (BleDevice bleDevice : insoleDeviceBatteryInfos.values()) {
+            mConnectedBleDeviceList.add(bleDevice);
         }
 
 
@@ -242,16 +242,16 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
             public void onConfirmClick(String inputText) {
                 Log.i(TAG,"inputText:"+inputText);
                 tv_insoledevice_devicename.setText(inputText+"");
-                if (deviceFromSP!=null){
-                    MyUtil.putStringValueFromSP(deviceFromSP.getMac(),inputText+"");   //用户修改蓝牙名称时只在app上修改，然后保存在sp里，通过蓝牙设备的mac地址和自定义的蓝牙名称对应
+                if (bleDeviceFromSP !=null){
+                    MyUtil.putStringValueFromSP(bleDeviceFromSP.getMac(),inputText+"");   //用户修改蓝牙名称时只在app上修改，然后保存在sp里，通过蓝牙设备的mac地址和自定义的蓝牙名称对应
                 }
             }
         });
     }
 
     public void unBindDevice(View view) {
-        Device deviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
-        if (deviceFromSP!=null){
+        BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
+        if (bleDeviceFromSP !=null){
             HttpUtils httpUtils = new HttpUtils();
             RequestParams params = new RequestParams();
 
@@ -338,16 +338,16 @@ public class InsoleDeviceInfoActivity extends BaseActivity {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             View inflate = View.inflate(InsoleDeviceInfoActivity.this, R.layout.view_item_viewpage_insoledevice, null);
-            if (position<=mConnectedDeviceList.size()-1){
-                Device device = mConnectedDeviceList.get(position);
+            if (position<= mConnectedBleDeviceList.size()-1){
+                BleDevice bleDevice = mConnectedBleDeviceList.get(position);
                 TextView tv_device_electric = (TextView) inflate.findViewById(R.id.tv_device_electric);
                 TextView tv_insoledevice_hardware = (TextView) inflate.findViewById(R.id.tv_insoledevice_hardware);
                 TextView tv_insoledevice_software = (TextView) inflate.findViewById(R.id.tv_insoledevice_software);
 
-                if (device!=null){
-                    tv_device_electric.setText(device.getBattery()+"");
-                    tv_insoledevice_hardware.setText(device.getHardWareVersion());
-                    tv_insoledevice_software.setText(device.getSoftWareVersion());
+                if (bleDevice !=null){
+                    tv_device_electric.setText(bleDevice.getBattery()+"");
+                    tv_insoledevice_hardware.setText(bleDevice.getHardWareVersion());
+                    tv_insoledevice_software.setText(bleDevice.getSoftWareVersion());
                 }
             }
 

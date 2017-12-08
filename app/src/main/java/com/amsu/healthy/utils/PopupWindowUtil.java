@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
-import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.appication.MyApplication;
 
 /**
@@ -26,17 +25,20 @@ import com.amsu.healthy.appication.MyApplication;
 public class PopupWindowUtil {
     private static final String TAG = "MyUtil";
     private static ProgressDialog dialog;
+    public static final int connectTypeDisConnected = 0;
+    public static final int connectTypeConnected = 1;
+    public static final int connectTypeUnstabitily = 2;
 
 
-    //显示PopWindow，提示连接状态，connectType是连接状态（1:连接,0:断开）   msg提示信息
-    public void showDeviceConnectedChangePopWindow(final int connectType, final String msg) {
+    //显示PopWindow，提示连接状态，connectType是连接状态（1:连接,0:断开,2:连接不稳定）   msg提示信息
+    public static void showDeviceConnectedChangePopWindow(final int connectType, final String msg) {
         new Thread(){
             @Override
             public void run() {
                 super.run();
                 //Log.i(TAG,"showDeviceConnectedChangePopWindow:"+activity.getClass());
-                final BaseActivity activity = MyApplication.mCurrApplicationActivity;
-                Log.i(TAG,"MyApplication.mCurrApplicationActivity:"+MyApplication.mCurrApplicationActivity);
+                final BaseActivity activity = MyApplication.getInstance().getmCurrApplicationActivity();
+                Log.i(TAG,"activity:"+activity);
                 //Log.i(TAG,"activity:"+activity.getClass());
 
                 final boolean isConnectedSuccess;
@@ -47,17 +49,20 @@ public class PopupWindowUtil {
                 TextView tv_pop_text = (TextView) popupView.findViewById(R.id.tv_pop_text);
 
                 tv_pop_text.setText(msg);
-                if (connectType == 0) {
+                if (connectType == connectTypeDisConnected) {
                     //断开
                     iv_pop_icon.setImageResource(R.drawable.duankai);
                     isConnectedSuccess = false;
 
-                } else {
+                } else  if (connectType == connectTypeConnected){
                     //连接
                     iv_pop_icon.setImageResource(R.drawable.yilianjie);
                     isConnectedSuccess = true;
                 }
-
+                else  if (connectType == connectTypeUnstabitily){
+                    //连接不稳定
+                    iv_pop_icon.setImageResource(R.drawable.duankai);
+                }
 
                 final PopupWindow mPopupWindow = new PopupWindow(popupView, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true);
                 mPopupWindow.setTouchable(true);
@@ -71,7 +76,7 @@ public class PopupWindowUtil {
                         //showToask(finalActivity,"设备连接或断开");
                         //mPopupWindow.showAsDropDown(activity.getTv_base_rightText());
 
-                        if (activity.isFinishing() || activity.isDestroyed() || activity != MyApplication.mCurrApplicationActivity) return;
+                        if (activity.isFinishing() || activity.isDestroyed() || activity != MyApplication.getInstance().getmCurrApplicationActivity()) return;
                         if (!mPopupWindow.isShowing()) {
                             TextView tv_base_rightText = activity.getTv_base_rightText();
                             if (tv_base_rightText!=null){
@@ -84,7 +89,7 @@ public class PopupWindowUtil {
 
                 try {
                     Thread.sleep(2000);
-                    if (activity.isFinishing() || activity.isDestroyed() || activity != MyApplication.mCurrApplicationActivity) return;
+                    if (activity.isFinishing() || activity.isDestroyed() || activity != MyApplication.getInstance().getmCurrApplicationActivity()) return;
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

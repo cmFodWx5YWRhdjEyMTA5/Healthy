@@ -1,4 +1,4 @@
-package com.amsu.healthy.bean;
+package com.amsu.bleinteraction.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * Created by HP on 2016/12/23.
  */
-public class Device implements Parcelable {
+public class BleDevice implements Parcelable {
     String name;
     String state;
     String mac;
@@ -17,15 +17,15 @@ public class Device implements Parcelable {
     String softWareVersion;
     int battery;
 
-    public Device() {
+    public BleDevice() {
     }
 
-    public Device(String hardWareVersion, String softWareVersion) {
+    public BleDevice(String hardWareVersion, String softWareVersion) {
         this.hardWareVersion = hardWareVersion;
         this.softWareVersion = softWareVersion;
     }
 
-    public Device(String name, String state, String mac, String LEName, int deviceType, int rssi) {
+    public BleDevice(String name, String state, String mac, String LEName, int deviceType, int rssi) {
         this.name = name;
         this.state = state;
         this.mac = mac;
@@ -34,7 +34,7 @@ public class Device implements Parcelable {
         this.rssi = rssi;
     }
 
-    public Device(String name, String state, String mac, String LEName, int deviceType) {
+    public BleDevice(String name, String state, String mac, String LEName, int deviceType) {
         this.name = name;
         this.state = state;
         this.mac = mac;
@@ -42,7 +42,7 @@ public class Device implements Parcelable {
         this.deviceType = deviceType;
     }
 
-    public Device(String name, String state, String mac, String LEName, int deviceType, String hardWareVersion, String softWareVersion,int battery) {
+    public BleDevice(String name, String state, String mac, String LEName, int deviceType, String hardWareVersion, String softWareVersion, int battery) {
         this.name = name;
         this.state = state;
         this.mac = mac;
@@ -100,20 +100,20 @@ public class Device implements Parcelable {
         dest.writeInt(rssi);
     }
 
-    public static final Creator<Device> CREATOR = new Creator<Device>() {
+    public static final Creator<BleDevice> CREATOR = new Creator<BleDevice>() {
         @Override
-        public Device createFromParcel(Parcel source) {
-            return new Device(source.readString(),source.readString(),source.readString(),source.readString(),source.readInt(),source.readInt());
+        public BleDevice createFromParcel(Parcel source) {
+            return new BleDevice(source.readString(),source.readString(),source.readString(),source.readString(),source.readInt(),source.readInt());
         }
 
         @Override
-        public Device[] newArray(int size) {
-            return new Device[size];
+        public BleDevice[] newArray(int size) {
+            return new BleDevice[size];
         }
     };
 
 
-    public Device(String name, String state, String mac, String LEName) {
+    public BleDevice(String name, String state, String mac, String LEName) {
         this.name = name;
         this.state = state;
         this.mac = mac;

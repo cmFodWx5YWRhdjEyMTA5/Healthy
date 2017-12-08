@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -26,22 +27,22 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.model.LatLng;
+import com.amsu.bleinteraction.bean.BleDevice;
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.RunTrailMapActivity;
 import com.amsu.healthy.activity.StartRunActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.AppAbortDataSaveInsole;
-import com.amsu.healthy.bean.Device;
 import com.amsu.healthy.bean.Insole3ScendCache;
-import com.amsu.healthy.service.CommunicateToBleService;
 import com.amsu.healthy.utils.AppAbortDbAdapterUtil;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
-import com.amsu.healthy.utils.ble.EcgFilterUtil_1;
-import com.amsu.healthy.utils.ble.LeProxy;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.RunTimerTaskUtil;
+import com.amsu.healthy.utils.ShowNotificationBarUtil;
 import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
 import com.amsu.healthy.utils.map.Util;
@@ -150,7 +151,6 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     private long recoverTimeMillis = 0;
 
     private long addDuration;
-    private EcgFilterUtil_1 ecgFilterUtil_1;
     private float mPreOutDoorDistance;
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
@@ -242,7 +242,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
         //commitToServerAnaly("/storage/emulated/0/amsu/insole/20170802092924.is");
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, CommunicateToBleService.makeFilter());
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
 
         tv_test = (TextView) findViewById(R.id.tv_test);
 
@@ -270,7 +270,11 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                     //if (!mIsRunning)return;
                     //byte[] data = intent.getByteArrayExtra(LeProxy.EXTRA_DATA);
                     if (mIsRunning){
-                        dealwithLebDataChange(DataUtil.byteArrayToHex(intent.getByteArrayExtra(LeProxy.EXTRA_DATA)),address);
+                        try{
+                            dealwithLebDataChange(DataUtil.byteArrayToHex(intent.getByteArrayExtra(LeProxy.EXTRA_DATA)),address);
+                        }catch (Exception e){
+                            Log.i(TAG,"e:"+e);
+                        }
                     }
 
                     break;
@@ -281,9 +285,15 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     private void dealwithLebDataChange(String hexData,String address) {
         //Log.i(TAG,"hexData："+hexData);
 
-
         String[] allDataSplit = hexData.split(" ");
-        int startInt = Integer.parseInt(allDataSplit[0], 16);
+        int startInt;
+        if (!TextUtils.isEmpty(allDataSplit[0])){
+            startInt = Integer.parseInt(allDataSplit[0], 16);
+        }
+        else {
+            return;
+        }
+
         //Log.i(TAG,"startInt:"+startInt);
         //Log.i(TAG,"allDataSplit.length:"+allDataSplit.length);
 
@@ -1201,7 +1211,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
         startCalSpeedTimerStask();
         String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", mCurrTimeDate);
-        CommunicateToBleService.setServiceForegrounByNotify(getResources().getString(R.string.running),getResources().getString(R.string.distance)+": "+mFormatDistance+"KM       "+getResources().getString(R.string.exercise_time)+": "+specialFormatTime,1);
+        ShowNotificationBarUtil.setServiceForegrounByNotify(getResources().getString(R.string.running),getResources().getString(R.string.distance)+": "+mFormatDistance+"KM       "+getResources().getString(R.string.exercise_time)+": "+specialFormatTime,ShowNotificationBarUtil.notifyActivityIndex_InsoleRunningActivity);
         Log.i(TAG,"设置通知:"+specialFormatTime);
 
 
@@ -1526,7 +1536,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
         //tv_run_speed.setText(mFinalFormatSpeed);
         String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", mCurrTimeDate);
-        CommunicateToBleService.setServiceForegrounByNotify(getResources().getString(R.string.running),getResources().getString(R.string.distance)+": "+mFormatDistance+"KM       "+getResources().getString(R.string.exercise_time)+": "+specialFormatTime,1);
+        ShowNotificationBarUtil.setServiceForegrounByNotify(getResources().getString(R.string.running),getResources().getString(R.string.distance)+": "+mFormatDistance+"KM       "+getResources().getString(R.string.exercise_time)+": "+specialFormatTime,ShowNotificationBarUtil.notifyActivityIndex_InsoleRunningActivity);
         Log.i(TAG,"设置通知:"+specialFormatTime);
 
 
@@ -1688,15 +1698,15 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             String rightDeviceSoftware = "";
 
             //MyApplication application = (MyApplication) getApplication();
-            Map<String, Device> insoleDeviceBatteryInfos = CommunicateToBleService.getInstance().getInsoleDeviceBatteryInfos();
-            for (Device device : insoleDeviceBatteryInfos.values()) {
-                if (!MyUtil.isEmpty(mLeftMacAddress) && mLeftMacAddress.equals(device.getMac())){
-                    leftDeviceHardware = device.getHardWareVersion();
-                    leftDeviceSoftware = device.getSoftWareVersion();
+            Map<String, BleDevice> insoleDeviceBatteryInfos = BleConnectionProxy.getInstance().getmInsoleDeviceBatteryInfos();
+            for (BleDevice bleDevice : insoleDeviceBatteryInfos.values()) {
+                if (!MyUtil.isEmpty(mLeftMacAddress) && mLeftMacAddress.equals(bleDevice.getMac())){
+                    leftDeviceHardware = bleDevice.getHardWareVersion();
+                    leftDeviceSoftware = bleDevice.getSoftWareVersion();
                 }
-                else if(!MyUtil.isEmpty(mRightMacAddress) && mRightMacAddress.equals(device.getMac())){
-                    rightDeviceHardware = device.getHardWareVersion();
-                    rightDeviceSoftware = device.getSoftWareVersion();
+                else if(!MyUtil.isEmpty(mRightMacAddress) && mRightMacAddress.equals(bleDevice.getMac())){
+                    rightDeviceHardware = bleDevice.getHardWareVersion();
+                    rightDeviceSoftware = bleDevice.getSoftWareVersion();
                 }
             }
 
@@ -1753,7 +1763,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
         mCurrTimeDate = null;
 
         deleteAbortDataRecordFomeSP();
-        CommunicateToBleService.detoryServiceForegrounByNotify();
+        ShowNotificationBarUtil.detoryServiceForegrounByNotify();
 
         if ((System.currentTimeMillis()-mPaceCurrTimeMillis)/1000>10){
             paceList.add((int) ((System.currentTimeMillis()-mPaceCurrTimeMillis)/1000)); //最后一公里
@@ -1803,7 +1813,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
         MyApplication.runningActivity = MyApplication.MainActivity;
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
-        CommunicateToBleService.detoryServiceForegrounByNotify();
+        ShowNotificationBarUtil.detoryServiceForegrounByNotify();
     }
 
     //初始化谷歌地图连接
