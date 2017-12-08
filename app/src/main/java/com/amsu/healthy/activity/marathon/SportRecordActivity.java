@@ -11,6 +11,7 @@ import android.widget.ExpandableListView;
 
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
+import com.amsu.healthy.bean.JsonBase;
 import com.amsu.healthy.bean.SportRecord;
 import com.amsu.healthy.bean.SportRecordList;
 import com.amsu.healthy.utils.Constant;
@@ -81,6 +82,15 @@ public class SportRecordActivity extends BaseActivity implements SwipeRefreshLay
             @Override
             public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
                 return true;
+            }
+        });
+        adapter.setOnItemDeleteListener(new SportRecordAdapter.OnItemDeleteListener() {
+            @Override
+            public void onDelete(int groupPosition, int childPosition) {
+                SportRecord recordList = (SportRecord) adapter.getChild(groupPosition, childPosition);
+                if (recordList != null) {
+                    deleteRecordByID(String.valueOf(recordList.getId()), groupPosition, childPosition);
+                }
             }
         });
         mExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -173,6 +183,38 @@ public class SportRecordActivity extends BaseActivity implements SwipeRefreshLay
             public void onFailure(HttpException e, String s) {
                 mSwipeRefreshLayout.setRefreshing(false);
                 inLoading = false;
+            }
+        });
+    }
+
+    private void deleteRecordByID(String id, final int groupPosition, final int childPosition) {
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+        params.addBodyParameter("id", id);
+        MyUtil.addCookieForHttp(params);
+
+        MyUtil.showDialog(getResources().getString(R.string.deleting), this);
+
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.deleteHistoryRecordURL, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+
+                MyUtil.hideDialog(SportRecordActivity.this);
+                String result = responseInfo.result;
+                JsonBase jsonBase = MyUtil.commonJsonParse(result, JsonBase.class);
+                if (jsonBase != null && jsonBase.ret == 0) {
+                    MyUtil.showToask(SportRecordActivity.this, getResources().getString(R.string.delete_successfully));
+                    adapter.removeChildItem(groupPosition, childPosition);
+                } else {
+                    MyUtil.showToask(SportRecordActivity.this, getResources().getString(R.string.delete_failed));
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                //lv_history_all.loadMoreSuccessd();
+                MyUtil.hideDialog(SportRecordActivity.this);
+                MyUtil.showToask(SportRecordActivity.this, Constant.noIntentNotifyMsg);
             }
         });
     }

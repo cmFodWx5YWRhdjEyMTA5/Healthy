@@ -21,6 +21,7 @@ import com.amsu.bleinteraction.proxy.BleDataProxy;
 import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
+import com.amsu.healthy.activity.HealthyDataActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
 import com.amsu.healthy.utils.Constant;
@@ -96,7 +97,6 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     private void initViews() {
         setLeftImage(R.drawable.back_icon);
         setCenterText(getResources().getString(R.string.endurance_test));
-//        setRightImage(R.drawable.xindianbo);
         sportTime = (TextView) findViewById(R.id.sportTime);
         sport_distance_tv = (TextView) findViewById(R.id.sport_distance_tv);
         heartRate_tv = (TextView) findViewById(R.id.heartRate_tv);
@@ -129,14 +129,15 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
                 backJudge();
             }
         });
-//        getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(EnduranceTestRuningActivity.this, HealthyDataActivity.class);
-//                intent.putExtra(Constant.isLookupECGDataFromSport,true);
-//                startActivity(intent);
-//            }
-//        });
+        setRightImage(R.drawable.xindiantu_icon);
+        getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(EnduranceTestRuningActivity.this, HealthyDataActivity.class);
+                intent.putExtra(Constant.isLookupECGDataFromSport, true);
+                startActivity(intent);
+            }
+        });
         findViewById(R.id.tv_run_lock).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -163,7 +164,7 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (isLockScreen) {
             return false;
-        } else if (keyCode == KeyEvent.KEYCODE_BACK ){
+        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
             backJudge();
         }
         return super.onKeyDown(keyCode, event);
@@ -276,6 +277,9 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
         } else {
             vo2 = 22.34 * dis - 11.29;
         }
+        if (vo2 < 0) {
+            vo2 = 0;
+        }
         MyUtil.showDialog(getResources().getString(R.string.please_wait_a_moment), this);
         final double Vo2max = vo2;
         final String dateStr = DateFormatUtils.getFormatTime(date, DateFormatUtils.YYYY_MM_DD_HH_MM_SS_);
@@ -359,7 +363,7 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
         float speed = aMapLocation.getSpeed();
-        if (speed > 300) {
+        if (speed > 50) {
             speed = 0;
         }
         speedList.add(speed);
@@ -424,15 +428,14 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     };
 
     private void dealwithLebDataChange(Intent intent) {
-        int stride = intent.getIntExtra(BleDataProxy.EXTRA_STRIDE_DATA,-1);
-        int heartRate = intent.getIntExtra(BleDataProxy.EXTRA_HEART_DATA,-1);
+        int stride = intent.getIntExtra(BleDataProxy.EXTRA_STRIDE_DATA, -1);
+        int heartRate = intent.getIntExtra(BleDataProxy.EXTRA_HEART_DATA, -1);
 
-        if (stride!=-1){
-            Log.i(TAG,"stride:"+stride);
+        if (stride != -1) {
+            Log.i(TAG, "stride:" + stride);
             updateUIStrideData(stride);
-        }
-        else if (heartRate!=-1){
-            Log.i(TAG,"heartRate:"+heartRate);
+        } else if (heartRate != -1) {
+            Log.i(TAG, "heartRate:" + heartRate);
             updateUIECGHeartData(heartRate);
         }
     }

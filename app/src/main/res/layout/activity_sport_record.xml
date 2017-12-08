@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ExpandableListView
+        <com.amsu.healthy.view.SwipeExpandableListView
             android:id="@+id/mExpandableListView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

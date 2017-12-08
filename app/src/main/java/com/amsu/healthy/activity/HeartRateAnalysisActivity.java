@@ -14,15 +14,18 @@ import android.widget.ImageView;
 import com.amsu.bleinteraction.utils.EcgAccDataUtil;
 import com.amsu.bleinteraction.utils.EcgFilterUtil_1;
 import com.amsu.healthy.R;
+import com.amsu.healthy.activity.marathon.SportRecordDetailsActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.ParcelableDoubleList;
 import com.amsu.healthy.bean.ScoreInfo;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.Constant;
+import com.amsu.healthy.utils.DateFormatUtils;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.OffLineDbAdapter;
+import com.amsu.healthy.utils.UStringUtil;
 import com.amsu.healthy.utils.WebSocketProxy;
 import com.amsu.healthy.utils.map.DbAdapter;
 import com.amsu.healthy.utils.map.PathRecord;
@@ -287,21 +290,27 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 e.printStackTrace();
             }
         }
-        Intent intentToRateAnalysis = new Intent(HeartRateAnalysisActivity.this, HeartRateResultShowActivity.class);
-        if (uploadRecord!=null){
-            Bundle bundle = new Bundle();
-            uploadRecord.ec = "";
-            if (uploadRecord.latitudeLongitude.size()>0){
-                uploadRecord.latitudeLongitude = new ArrayList<>();
-                uploadRecord.sportCreateRecordID = sportCreateRecordID;
+        final boolean isMarathonSportType = MyUtil.getBooleanValueFromSP(Constant.isMarathonSportType);
+        if (isMarathonSportType) {
+            startActivity(SportRecordDetailsActivity.createIntent(this));
+            finish();
+        } else {
+            Intent intentToRateAnalysis = new Intent(HeartRateAnalysisActivity.this, HeartRateResultShowActivity.class);
+            if (uploadRecord != null) {
+                Bundle bundle = new Bundle();
+                uploadRecord.ec = "";
+                if (uploadRecord.latitudeLongitude.size() > 0) {
+                    uploadRecord.latitudeLongitude = new ArrayList<>();
+                    uploadRecord.sportCreateRecordID = sportCreateRecordID;
+                }
+                bundle.putParcelable("uploadRecord", uploadRecord);
+                intentToRateAnalysis.putExtra("bundle", bundle);
+                Log.i(TAG, "uploadRecord: putParcelable  " + uploadRecord);
             }
-            bundle.putParcelable("uploadRecord",uploadRecord);
-            intentToRateAnalysis.putExtra("bundle",bundle);
-            Log.i(TAG,"uploadRecord: putParcelable  "+uploadRecord);
+            //intentToRateAnalysis.putExtra(Constant.sportState,sportState);
+            startActivity(intentToRateAnalysis);
+            finish();
         }
-        //intentToRateAnalysis.putExtra(Constant.sportState,sportState);
-        startActivity(intentToRateAnalysis);
-        finish();
     }
 
     @Override
@@ -601,7 +610,12 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         if (mIsAutoMonitor){
             uploadAnlysisREsultToSocket(uploadRecord);
         }
-
+        HeartRateResultShowActivity.mUploadRecord = uploadRecord;
+        String datatime1 = HeartRateResultShowActivity.mUploadRecord.datatime;
+        if (!UStringUtil.isNullOrEmpty(datatime1) && datatime1.contains(":")) {
+            long longTime = DateFormatUtils.getFormatTime(datatime1, DateFormatUtils.YYYY_MM_DD_HH_MM_SS_);
+            HeartRateResultShowActivity.mUploadRecord.datatime = String.valueOf(longTime);
+        }
     }
 
 
@@ -753,7 +767,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             params.addBodyParameter("time",uploadRecord.time+"");
             params.addBodyParameter("distance",(int)uploadRecord.distance+"");
 
-            boolean isMarathonSportType = MyUtil.getBooleanValueFromSP(Constant.isMarathonSportType);
+            final boolean isMarathonSportType = MyUtil.getBooleanValueFromSP(Constant.isMarathonSportType);
             if (isMarathonSportType && uploadRecord.state!=0) {  //state=0为静态数据，归为衣服历史记录
                 params.addBodyParameter("state", "3");
                 params.addBodyParameter("ae", Constant.sportAe);

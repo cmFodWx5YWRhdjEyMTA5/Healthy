@@ -114,7 +114,7 @@ public class SportRecordAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
+    public View getChildView(final int i, final int i1, boolean b, View view, ViewGroup viewGroup) {
         ChildHolder holder = null;
         if (view == null) {
             view = mInflater.inflate(R.layout.item_child_sport_record, null);
@@ -124,6 +124,7 @@ public class SportRecordAdapter extends BaseExpandableListAdapter {
             holder.sport_time = (TextView) view.findViewById(R.id.sport_time);
             holder.sport_speed = (TextView) view.findViewById(R.id.sport_speed);
             holder.sport_heart = (TextView) view.findViewById(R.id.sport_heart);
+            holder.item_right = view.findViewById(R.id.item_right);
             view.setTag(holder);
         } else {
             holder = (ChildHolder) view.getTag();
@@ -137,7 +138,14 @@ public class SportRecordAdapter extends BaseExpandableListAdapter {
             holder.sport_heart.setText(String.valueOf(ahr));
             holder.sport_distance.setText(UStringUtil.formatNumber(distance / 1000, 2));
             holder.sport_date.setText(DateFormatUtils.getFormatTime(datatime, DateFormatUtils.HH_MM));
-
+            holder.item_right.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (onItemDeleteListener != null) {
+                        onItemDeleteListener.onDelete(i, i1);
+                    }
+                }
+            });
             if (time < 60) {
                 holder.sport_time.setText("" + "00:" + (time < 10 ? "0" + time : time));
             } else {
@@ -156,6 +164,32 @@ public class SportRecordAdapter extends BaseExpandableListAdapter {
         return view;
     }
 
+    public interface OnItemDeleteListener {
+        void onDelete(int groupPosition, int childPosition);
+    }
+
+    private OnItemDeleteListener onItemDeleteListener;
+
+    public void setOnItemDeleteListener(OnItemDeleteListener onItemDeleteListener) {
+        this.onItemDeleteListener = onItemDeleteListener;
+    }
+
+    public void removeChildItem(int groupPosition, int childPosition) {
+        Object o = getGroup(groupPosition);
+        if (o instanceof SportRecordList) {
+            SportRecordList sportRecordList = (SportRecordList) o;
+            List<SportRecord> recordList = sportRecordList.getValue();
+            if (!recordList.isEmpty()) {
+                SportRecord sportRecord = sportRecordList.getValue().get(childPosition);
+                recordList.remove(sportRecord);
+                if (recordList.isEmpty()) {
+                    datas.remove(o);
+                }
+                notifyDataSetChanged();
+            }
+        }
+    }
+
     @Override
     public boolean isChildSelectable(int i, int i1) {
         return true;
@@ -171,5 +205,6 @@ public class SportRecordAdapter extends BaseExpandableListAdapter {
         TextView sport_time;
         TextView sport_speed;
         TextView sport_heart;
+        View item_right;
     }
 }

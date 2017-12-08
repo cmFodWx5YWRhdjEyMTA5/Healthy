@@ -1,8 +1,11 @@
 package com.amsu.healthy.activity;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import com.amsu.healthy.R;
@@ -31,7 +34,11 @@ public class RunTimeCountdownActivity extends Activity {
     private void initData() {
 
     }
-
+    private void startAnimation(View playView) {
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(ObjectAnimator.ofFloat(playView, "scaleX", 2.0f, 1.0f), ObjectAnimator.ofFloat(playView, "scaleY", 2.0f, 1.0f));
+        set.setDuration(500).start();
+    }
     private void initView() {
         tv_countdown_count = (TextView) findViewById(R.id.tv_countdown_count);
 
@@ -46,6 +53,7 @@ public class RunTimeCountdownActivity extends Activity {
                             @Override
                             public void run() {
                                 tv_countdown_count.setText(String.valueOf(count));
+                                startAnimation(tv_countdown_count);
                             }
                         });
                         Thread.sleep(1000);
