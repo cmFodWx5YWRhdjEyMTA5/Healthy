@@ -396,6 +396,8 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 }
             }
 
+
+
             Log.i(TAG,"ecgDataList.size(): ====================="+ecgDataList.size());
 
             if (ecgDataList.size()/(150*60)>3){  // 心电数据是否有用（以三分钟来计）
