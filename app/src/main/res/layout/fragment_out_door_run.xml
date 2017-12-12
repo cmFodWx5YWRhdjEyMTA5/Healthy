@@ -8,13 +8,13 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <com.amap.api.maps.MapView
+        <com.amsu.healthy.view.MyMapView
             android:id="@+id/mv_item_map"
             android:layout_width="match_parent"
             android:layout_height="@dimen/x672"
             android:layout_below="@+id/rl_base_head"
             android:background="#4444">
-        </com.amap.api.maps.MapView>
+        </com.amsu.healthy.view.MyMapView>
 
         <RelativeLayout
             android:layout_width="@dimen/x496"

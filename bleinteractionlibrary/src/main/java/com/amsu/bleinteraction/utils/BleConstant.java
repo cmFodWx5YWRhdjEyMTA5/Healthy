@@ -56,5 +56,10 @@ public class BleConstant {
     public static final String mClothDeviceType = "mClothDeviceType";
     public static int oneSecondFrame = 150; //帧为150，即1s有150个数据点
 
+    public static final String blueLightAlwaysOnOrder = "42382B03FF";//蓝灯
+    public static final String greenLightAlwaysOnOrder = "42382B02FF";//绿灯
+    public static final String redLightAlwaysOnOrder = "42382B01FF";//红灯
+    public static final String threenlightSpacedFlickerOrder = "42382BFF03";//循环闪,间隔0.3s
+
 
 }

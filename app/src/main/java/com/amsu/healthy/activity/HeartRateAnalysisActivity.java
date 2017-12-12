@@ -106,7 +106,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
         Log.i(TAG,"integerArrayListExtra: "+integerArrayListExtra);
 
-        if (!MyUtil.isEmpty(ecgLocalFileName)) {
+        if (!MyUtil.isEmpty(ecgLocalFileName) && new File(ecgLocalFileName).exists()) {
             //心电数据 or 心电+运动
             final File file = new File(ecgLocalFileName);
             if (file.exists()){
@@ -213,8 +213,8 @@ public class HeartRateAnalysisActivity extends BaseActivity {
 
             }
             else {
-                MyUtil.showToask(this,"分析出现错误，本地文件不存在或者没有读写本地sd卡权限");
-                finish();
+               /* MyUtil.showToask(this,"分析出现错误，本地文件不存在或者没有读写本地sd卡权限");
+                finish();*/
             }
         }
         else if (sportCreateRecordID!=-1){
@@ -285,7 +285,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             UploadRecord uploadRecordCopy;
             try {
                 uploadRecordCopy = (UploadRecord) uploadRecord.clone();   //后面会有对对象的重新改变值，所以获取该对象的克隆，以后对此对象的改变将不会影响克隆对象
-                uploadRecordDataToServer(uploadRecordCopy,HeartRateAnalysisActivity.this,false);
+                uploadRecordDataToServer(uploadRecordCopy,getApplicationContext(),false);
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
@@ -836,9 +836,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
 
                     long orUpdateUploadReportObject = offLineDbAdapter.createOrUpdateUploadReportObject(uploadRecord);
                     Log.i(TAG,"orUpdateUploadReportObject:"+orUpdateUploadReportObject);
-
-                    List<UploadRecord> uploadRecords = offLineDbAdapter.queryRecordAll();
-                    Log.i(TAG,"uploadRecords:"+uploadRecords);
 
                     try {
                         offLineDbAdapter.close();

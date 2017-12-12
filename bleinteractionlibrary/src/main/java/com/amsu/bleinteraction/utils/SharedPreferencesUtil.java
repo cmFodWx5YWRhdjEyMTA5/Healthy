@@ -19,7 +19,8 @@ public class SharedPreferencesUtil {
     public static final String spName = "userinfo";
     //创建一个写入器
     private static SharedPreferences mPreferences;
-    private static SharedPreferencesUtil mSharedPreferencesUtil;
+
+
 
     //初始化mPreferences对象
     public static void initSharedPreferences(Context context) {

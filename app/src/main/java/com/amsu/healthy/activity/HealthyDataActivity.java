@@ -209,6 +209,7 @@ public class HealthyDataActivity extends BaseActivity {
             isNeedDrawEcgData = false;
             isActivityFinsh = true;
             heartRateDates.clear();
+            ShowNotificationBarUtil.detoryServiceForegrounByNotify();
             finish();
         }
         else {
@@ -309,6 +310,7 @@ public class HealthyDataActivity extends BaseActivity {
             chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
                 @Override
                 public void onConfirmClick() {
+                    ShowNotificationBarUtil.detoryServiceForegrounByNotify();
                     finish();
                 }
             });

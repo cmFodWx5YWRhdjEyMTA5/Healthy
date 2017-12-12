@@ -281,6 +281,10 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         mEcgLocalFileName = fileNames[0];
         mAccLocalFileName = fileNames[1];
 
+        Log.i(TAG,"mEcgLocalFileName:"+mEcgLocalFileName);
+        Log.i(TAG,"mAccLocalFileName:"+mAccLocalFileName);
+
+
     }
 
     private void restoreLastRecord() {
@@ -642,6 +646,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         String oxygenState = HeartShowWayUtil.calcuOxygenState(heartRate,this);
         tv_run_isoxygen.setText(oxygenState);
+        isHaveDataTransfer = true;
     }
 
     Handler mHandler = new Handler(new Handler.Callback() {
@@ -667,8 +672,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         ShowNotificationBarUtil.setServiceForegrounByNotify(getResources().getString(R.string.running),getResources().getString(R.string.distance)+": "+mFormatDistance+"KM       "+getResources().getString(R.string.exercise_time)+": "+specialFormatTime,1);
         Log.i(TAG,"设置通知:"+specialFormatTime);
     }
-
-
 
     //计算卡路里，累加
     private void calcuAllkcal(int heartRate) {
@@ -1416,7 +1419,6 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
         String s = mBleDataProxy.stopWriteEcgToFileAndGetFileName();
         Log.i(TAG,"结束："+s);
-        mEcgLocalFileName = s;
 
         /*if (mWebSocketUtil!=null){
             mWebSocketUtil.closeConnectWebSocket();

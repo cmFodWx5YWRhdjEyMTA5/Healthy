@@ -84,7 +84,7 @@ public class BleDataProxy {
         int[] valuableEcgData = EcgAccDataUtil.getValuableEcgACCData(hexData);
         if (valuableEcgData!=null){
             if (valuableEcgData.length== EcgAccDataUtil.ecgOneGroupLength){
-                dealWithOnePackageEcgData(valuableEcgData,false);
+                dealWithOnePackageEcgData(valuableEcgData,address,hexData);
             }
             else if (valuableEcgData.length== EcgAccDataUtil.accOneGroupLength){
                 dealWithOnePackageAccData(valuableEcgData);
@@ -124,28 +124,44 @@ public class BleDataProxy {
         }
     }
 
-    private void dealWithOnePackageEcgData(int[] valuableEcgData,boolean isDeviceDropData) {
+
+    private void dealWithOnePackageEcgData(int[] valuableEcgData,String address,String hexData) {
         mConnectionProxy.setmIsDataStart(true);
 
-        int[] clone = valuableEcgData.clone();
-        if (!isDeviceDropData){
-            mIsDeviceDroped = false;
-
-            String intString = "";
-            for (int i:valuableEcgData){
-                intString+=i+",";
+        if (hexData.equals(CLOTH_CONNECTED_DROP_RECEIVER_DATA)){
+            //导联脱落,让硬件灯闪烁(注：在导联脱落时立马发送命令让灯闪烁，以后便收到这个数据不再发命令，而是根据收到心率后判断是否脱落，脱落就发送)
+            if (!mIsDeviceDroped){
+                Log.i(TAG,"脱落，开始循序闪");
+                sendControlLightOrder(BleConstant.threenlightSpacedFlickerOrder,address);
+                mIsDeviceDroped = true;
             }
-            //Log.i(TAG,"滤波前心电:"+intString +"  ");
-
-
-            ecgDataFilter(valuableEcgData);
-
-            String intStringA = "";
-            for (int i:valuableEcgData){
-                intStringA+=i+",";
-            }
-            //Log.w(TAG,"滤波后心电:"+intStringA);
         }
+        else {
+            if (mIsDeviceDroped){
+                //之前是脱落，需要重置灯的状态，默认设置为蓝灯常亮
+                sendControlLightOrder(BleConstant.blueLightAlwaysOnOrder,address);
+                Log.i(TAG,"设备连接恢复正常");
+            }
+            mIsDeviceDroped = false;
+        }
+
+        int[] clone = valuableEcgData.clone();
+
+        String intString = "";
+        for (int i:valuableEcgData){
+            intString+=i+",";
+        }
+        //Log.i(TAG,"滤波前心电:"+intString +"  ");
+
+
+        ecgDataFilter(valuableEcgData);
+
+        String intStringA = "";
+        for (int i:valuableEcgData){
+            intStringA+=i+",";
+        }
+        //Log.w(TAG,"滤波后心电:"+intStringA);
+
 
         mResultCalcuUtil.notifyReciveAcgPackageData(clone,valuableEcgData);
 
@@ -240,36 +256,44 @@ public class BleDataProxy {
             if (hexData.equals("00")){
                 mIsDeviceDroped = true;
                 int[] ecgDropData = new int[]{0,0,0,0,0,0,0,0,0,0};
-                dealWithOnePackageEcgData(ecgDropData,true);
+                dealWithOnePackageEcgData(ecgDropData,"",CLOTH_CONNECTED_DROP_RECEIVER_DATA);
             }
         }
         else {
             if (intValue!=mPreHeartRate && intValue!=0 && !mIsDeviceDroped){
-                //心率不一样则改变灯的闪烁状态,  42382B01FF(1号灯常亮)，42382B0100(1号灯关闭)
+                //心率不一样则改变灯的闪烁状态,  42382B01FF(1号灯常亮)，42382B0100(1号灯关闭),   42382BFF03(导联脱落,03为间隔0.3s)
                 int maxRate = 220- mConnectionProxy.getmConnectionConfiguration().userAge;
                 String data  = "";
                 if (intValue <=maxRate*0.75){
-                    data  = "42382B03FF";  //蓝灯
+                    data  = BleConstant.blueLightAlwaysOnOrder;  //蓝灯
                 }
                 else if (maxRate*0.75<intValue && intValue<=maxRate*0.95){
-                    data  = "42382B02FF";  //绿灯
+                    data  = BleConstant.greenLightAlwaysOnOrder;  //绿灯
                 }
                 else if (maxRate*0.95<intValue){
-                    data  = "42382B01FF";  //红灯
+                    data  = BleConstant.redLightAlwaysOnOrder;  //红灯
                 }
 
                 //if (!MyUtil.isEmpty(data) && !data.equals(mPreControlLightOrder)){
                 if (!TextUtils.isEmpty(data)){
-                    Log.i(TAG,"data:"+data);
-                    byte[] bytes = DataUtil.hexToByteArray(data);
-                    UUID serUuid = UUID.fromString(BleConstant.readSecondGenerationInfoSerUuid);
-                    UUID charUuid = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_1);
-                    boolean send = mLeProxy.send(address, serUuid, charUuid, bytes, false);
-                    Log.i(TAG,"send:"+send);
+                    sendControlLightOrder(data,address);
                 }
+            }
+            else if (mIsDeviceDroped){
+                sendControlLightOrder(BleConstant.threenlightSpacedFlickerOrder,address);
             }
             mPreHeartRate = intValue;
         }
+    }
+
+    //发送控制灯的命令
+    private void sendControlLightOrder(String orderHex,String address){
+        Log.i(TAG,"orderHex:"+orderHex);
+        byte[] bytes = DataUtil.hexToByteArray(orderHex);
+        UUID serUuid = UUID.fromString(BleConstant.readSecondGenerationInfoSerUuid);
+        UUID charUuid = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_1);
+        boolean send = mLeProxy.send(address, serUuid, charUuid, bytes, false);
+        Log.i(TAG,"send:"+send);
     }
 
     //主机状态信息
@@ -500,7 +524,7 @@ public class BleDataProxy {
         }
     }
 
-    public static int calCuelectricVPercent(int power) {
+    private static int calCuelectricVPercent(int power) {
 		/*100%——4.20V
 
 		　　90%——4.06V
@@ -621,4 +645,7 @@ public class BleDataProxy {
     }
 
 
+    public void setmIsDeviceDroped(boolean mIsDeviceDroped) {
+        this.mIsDeviceDroped = mIsDeviceDroped;
+    }
 }

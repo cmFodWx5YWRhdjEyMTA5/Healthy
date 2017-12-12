@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -14,6 +14,8 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amsu.bleinteraction.proxy.BleDataProxy;
+import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.Constant;
@@ -43,8 +45,7 @@ public class CalculateHRRProcessActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        IntentFilter filter = new IntentFilter(StartRunActivity.action);
-        registerReceiver(broadcastReceiver, filter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, LeProxy.makeFilter());
     }
 
     private void initView() {
@@ -131,7 +132,6 @@ public class CalculateHRRProcessActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(broadcastReceiver);
     }
 
     public void stopsearch(View view) {
@@ -144,13 +144,22 @@ public class CalculateHRRProcessActivity extends BaseActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            int data = intent.getExtras().getInt("data");
-            Log.i(TAG,"data:"+ data);
-            if (data==0){
-                tv_process_rate.setText("--");
-                return;
+            int heartRate = intent.getIntExtra(BleDataProxy.EXTRA_HEART_DATA,-1);
+            Log.i(TAG,"heartRate:"+heartRate);
+            if (heartRate!=-1){
+                if (heartRate==0){
+                    tv_process_rate.setText("--");
+                    return;
+                }
+                tv_process_rate.setText(heartRate+"");
+                if (isFirstValue){
+                    firstHeartRate = heartRate;
+                    isFirstValue = false;
+                }
+                else {
+                    lastHeartRate = heartRate;
+                }
             }
-            tv_process_rate.setText(data+"");
 
             /*if (isFirstValue){
                 minHeartRate = maxHeartRate = data;
@@ -165,13 +174,7 @@ public class CalculateHRRProcessActivity extends BaseActivity {
             }*/
 
 
-            if (isFirstValue){
-                firstHeartRate = data;
-                isFirstValue = false;
-            }
-            else {
-                lastHeartRate = data;
-            }
+
         }
     };
 

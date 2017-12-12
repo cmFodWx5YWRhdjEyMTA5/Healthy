@@ -172,11 +172,11 @@ public class ClothHistoryRecordFragment extends Fragment {
                 Log.i(TAG,"onSuccess==result:"+result);
                 JsonBase jsonBase =  MyUtil.commonJsonParse(result,JsonBase.class);
                 if (jsonBase!=null && jsonBase.ret==0){
-                    MyUtil.showToask(getActivity(),getResources().getString(R.string.delete_successfully));
+                    MyUtil.showToask(getContext(),getResources().getString(R.string.delete_successfully));
                     historyRecords.remove(position);
                 }
                 else {
-                    MyUtil.showToask(getActivity(),getResources().getString(R.string.delete_failed));
+                    MyUtil.showToask(getContext(),getResources().getString(R.string.delete_failed));
                 }
                 lv_history_all.setAdapter(historyRecordAdapter);
             }
@@ -186,7 +186,7 @@ public class ClothHistoryRecordFragment extends Fragment {
                 Log.i(TAG,"onFailure:"+e);
                 //lv_history_all.loadMoreSuccessd();
                 MyUtil.hideDialog(getActivity());
-                MyUtil.showToask(getActivity(),Constant.noIntentNotifyMsg);
+                MyUtil.showToask(getContext(),Constant.noIntentNotifyMsg);
                 Log.i(TAG,"上传onFailure==s:"+s);
                 lv_history_all.setAdapter(historyRecordAdapter);
             }
@@ -223,7 +223,7 @@ public class ClothHistoryRecordFragment extends Fragment {
                 Log.i(TAG,"jsonBase:"+jsonBase);
                 if (jsonBase!=null&&jsonBase.getRet()==0){
                     if (isRefresh){
-                        MyUtil.showToask(getActivity(),"刷新成功");
+                        MyUtil.showToask(getContext(),"刷新成功");
                     }
                     //List<HistoryRecord> parseJsonArrayWithGson = MyUtil.parseJsonArrayWithGson(jsonBase,HistoryRecord[].class);
                     if (jsonBase.errDesc!=null && jsonBase.errDesc.size()>0){
@@ -232,7 +232,7 @@ public class ClothHistoryRecordFragment extends Fragment {
                         pageCount++;
                     }
                     else if (jsonBase.errDesc!=null && jsonBase.errDesc.size()==0){
-                        MyUtil.showToask(getActivity(),"没有查询到运动记录");
+                        MyUtil.showToask(getContext(),"没有查询到运动记录");
                     }
                 }
             }

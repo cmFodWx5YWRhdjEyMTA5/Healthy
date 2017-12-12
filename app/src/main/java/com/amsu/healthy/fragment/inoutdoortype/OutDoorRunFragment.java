@@ -15,9 +15,9 @@ import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.LocationSource;
-import com.amap.api.maps.MapView;
 import com.amap.api.maps.model.LatLng;
 import com.amsu.healthy.R;
+import com.amsu.healthy.view.MyMapView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,7 +25,7 @@ import com.amsu.healthy.R;
 public class OutDoorRunFragment extends Fragment implements LocationSource,
         AMapLocationListener {
     private static final String TAG = "OutDoorRunFragment";
-    private MapView mv_item_map;
+    private MyMapView mv_item_map;
     private View inflate;
 
     private AMap mAMap;
@@ -46,7 +46,7 @@ public class OutDoorRunFragment extends Fragment implements LocationSource,
     }
 
     private void initView(Bundle savedInstanceState) {
-        mv_item_map = (MapView) inflate.findViewById(R.id.mv_item_map);
+        mv_item_map = (MyMapView) inflate.findViewById(R.id.mv_item_map);
         mv_item_map.onCreate(savedInstanceState);// 此方法必须重写
 
         if (mAMap == null) {
@@ -134,15 +134,22 @@ public class OutDoorRunFragment extends Fragment implements LocationSource,
      * 定位结果回调
      * @param amapLocation 位置信息类
      */
-    boolean isFirtst = true;
+    boolean isGetHightAccuracyPosition = false;
     @Override
     public void onLocationChanged(AMapLocation amapLocation) {
         Log.i(TAG,"amapLocation:"+amapLocation);
         if (mListener != null && amapLocation != null) {
             if (amapLocation.getErrorCode() == 0) {
                 mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
-                LatLng mylocation = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
-                mAMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mylocation,16));
+                Log.i(TAG,"mAMap.getCameraPosition().zoom;"+mAMap.getCameraPosition().zoom);
+                if (!isGetHightAccuracyPosition){
+                    LatLng mylocation = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
+                    mAMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mylocation,16));
+                    if (mAMap.getCameraPosition().zoom==16){
+                        isGetHightAccuracyPosition = true;
+                    }
+                }
+
                 /*if (isFirtst){
                     mAMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mylocation,18));
                     isFirtst = false;

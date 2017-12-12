@@ -124,21 +124,19 @@ public class RunTrailMapActivity extends BaseActivity implements LocationSource,
      * 定位结果回调
      * @param amapLocation 位置信息类
      */
-    boolean isFirtst = true;
+    boolean isGetHightAccuracyPosition = false;
     @Override
     public void onLocationChanged(AMapLocation amapLocation) {
         if (mListener != null && amapLocation != null) {
             if (amapLocation != null && amapLocation.getErrorCode() == 0) {
                 mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
-                LatLng mylocation = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
-                if (isFirtst){
-                    mAMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mylocation,18));
-                    isFirtst = false;
+                if (!isGetHightAccuracyPosition){
+                    LatLng mylocation = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
+                    mAMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mylocation,16));
+                    if (mAMap.getCameraPosition().zoom==16){
+                        isGetHightAccuracyPosition = true;
+                    }
                 }
-                else {
-                    //mAMap.moveCamera(CameraUpdateFactory.changeLatLng(mylocation));
-                }
-
 
             } else {
                 String errText = "定位失败," + amapLocation.getErrorCode() + ": " + amapLocation.getErrorInfo();
@@ -159,7 +157,7 @@ public class RunTrailMapActivity extends BaseActivity implements LocationSource,
             // 设置为高精度定位模式
             mLocationOption.setLocationMode(AMapLocationMode.Hight_Accuracy);
 
-            mLocationOption.setInterval(2000);
+            mLocationOption.setInterval(500);
 
             // 设置定位参数
             mLocationClient.setLocationOption(mLocationOption);

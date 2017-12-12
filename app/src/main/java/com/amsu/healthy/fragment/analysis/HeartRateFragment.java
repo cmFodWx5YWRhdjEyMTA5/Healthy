@@ -75,12 +75,14 @@ public class HeartRateFragment extends BaseFragment {
                         hv_rate_rateline.setData(ints,time,HeightCurveView.LINETYPE_HEART);
                     }
                 }
+
+                int state =mUploadRecord.state;
+                int AHR = mUploadRecord.ahr;
+                String heartRateSuggetstion = HealthyIndexUtil.getHeartRateSuggetstion(state, AHR,getActivity());
+                tv_rate_suggestion.setText(heartRateSuggetstion);
             }
 
-            int state =mUploadRecord.state;
-            int AHR = mUploadRecord.ahr;
-            String heartRateSuggetstion = HealthyIndexUtil.getHeartRateSuggetstion(state, AHR,getActivity());
-            tv_rate_suggestion.setText(heartRateSuggetstion);
+
         }
     }
 

@@ -19,6 +19,8 @@ import android.widget.TextView;
 import com.amsu.bleinteraction.bean.BleDevice;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.LeProxy;
+import com.amsu.bleinteraction.utils.BleConstant;
+import com.amsu.bleinteraction.utils.SharedPreferencesUtil;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.insole.InsoleDeviceInfoActivity;
 import com.amsu.healthy.adapter.DeviceAdapter;
@@ -393,21 +395,20 @@ public class MyDeviceActivity extends BaseActivity {
 
                 if (jsonBase.getRet() == 0){
                     //绑定成功
-                    if (deviceType==Constant.sportType_Cloth){
+                    if (deviceType==BleConstant.sportType_Cloth){
                         bleDevice.setState(getResources().getString(R.string.unconnected));
-                        MyUtil.saveDeviceToSP(bleDevice,Constant.sportType_Cloth);
+                        SharedPreferencesUtil.saveDeviceToSP(bleDevice,BleConstant.sportType_Cloth);
                         TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(position).findViewById(R.id.tv_item_state);
                         tv_item_state.setText(getResources().getString(R.string.bound));
 
 
-
                         if (bleDevice.getLEName().startsWith("BLE")){
-                            MyUtil.putIntValueFromSP(Constant.mClothDeviceType,Constant.clothDeviceType_old_encrypt);
-                            BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType = Constant.clothDeviceType_old_encrypt;
+                            SharedPreferencesUtil.putIntValueFromSP(BleConstant.mClothDeviceType,BleConstant.clothDeviceType_old_encrypt);
+                            BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType = BleConstant.clothDeviceType_old_encrypt;
                         }
                         else if (bleDevice.getLEName().startsWith("AMSU")){
-                            MyUtil.putIntValueFromSP(Constant.mClothDeviceType,Constant.clothDeviceType_AMSU_EStartWith);
-                            BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType = Constant.clothDeviceType_AMSU_EStartWith;
+                            SharedPreferencesUtil.putIntValueFromSP(BleConstant.mClothDeviceType, BleConstant.clothDeviceType_AMSU_EStartWith);
+                            BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType = BleConstant.clothDeviceType_AMSU_EStartWith;
                         }
 
                         if (iSNeedUnbind){
@@ -422,11 +423,11 @@ public class MyDeviceActivity extends BaseActivity {
                             }
                         }
                     }
-                    else if (deviceType==Constant.sportType_Insole){
+                    else if (deviceType==BleConstant.sportType_Insole){
                         bleDevice.setState(getResources().getString(R.string.unconnected));
 
                         //bleDevice.setDeviceType(Constant.sportType_Insole);
-                        MyUtil.saveDeviceToSP(bleDevice,Constant.sportType_Insole);
+                        MyUtil.saveDeviceToSP(bleDevice,BleConstant.sportType_Insole);
                         TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(position).findViewById(R.id.tv_item_state);
                         tv_item_state.setText(getResources().getString(R.string.bound));
 

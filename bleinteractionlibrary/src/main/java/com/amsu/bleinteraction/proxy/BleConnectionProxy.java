@@ -307,6 +307,7 @@ public class BleConnectionProxy {
             mClothDeviceConnecedMac = "";
             clothCurrBatteryPowerPercent = -1;
             mIsDataStart = false;
+            BleDataProxy.getInstance().setmIsDeviceDroped(false);
         }
         else if (mConnectionConfiguration.deviceType==BleConstant.sportType_Insole){
             if (!TextUtils.isEmpty(address)){

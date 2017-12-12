@@ -30,7 +30,8 @@ public class HeartShowWayUtil {
 
     //更新心率：4s更新一次，如果2个心率差值大于20，则递增显示
     public static void updateHeartUI(final int heartRate, final TextView tv_healthydata_rate, final Activity activity) {
-        /*if (mPreHeartRate>0){
+        Log.i(TAG,"heartRate========================================："+heartRate);
+        if (mPreHeartRate>0){
             int count = 0;
             final int d_value = heartRate - mPreHeartRate;
 
@@ -46,13 +47,7 @@ public class HeartShowWayUtil {
                     @Override
                     public void run() {
                         for (int i = 0; i< Math.abs(finalCount); i++){
-                            final int heart ;
-                            if (i==finalCount-1){
-                                heart = heartRate;
-                            }
-                            else {
-                                heart = mPreHeartRate + Math.abs(d_value) / finalCount*(i+1);
-                            }
+                            final int heart = mPreHeartRate + Math.abs(d_value) / finalCount*(i+1);
 
                             if (activity!=null && !activity.isFinishing()){
                                 final int finalI = i;
@@ -65,26 +60,39 @@ public class HeartShowWayUtil {
                                 });
                             }
                             try {
-                                long millis = (long) (1000*4f / Math.abs(finalCount));
+                                long millis = (long) (1000*3f / Math.abs(finalCount));
+                                Log.i(TAG,"睡眠:"+ millis);
                                 Thread.sleep(millis);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
                         }
+                        if (activity!=null && !activity.isFinishing()){
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    setFinalHeartValue(heartRate, tv_healthydata_rate);
+                                }
+                            });
+                        }
+
                     }
                 }.start();
             }
             else {
-                tv_healthydata_rate.setText(heartRate +"");
+                setFinalHeartValue(heartRate, tv_healthydata_rate);
             }
-            //tv_healthydata_rate.setText(heartRate +"");
-        }*/
+        }
+        else {
+            setFinalHeartValue(heartRate, tv_healthydata_rate);
+        }
+    }
 
+    private static void setFinalHeartValue(int heartRate, TextView tv_healthydata_rate) {
         String showHeartString = heartRate==0?"--":heartRate+"";
         tv_healthydata_rate.setText(showHeartString);
 
         Log.i(TAG,"mPreHeartRate:"+ mPreHeartRate);
-        Log.i(TAG,"heartRate:"+ heartRate);
         mPreHeartRate = heartRate;
     }
 
