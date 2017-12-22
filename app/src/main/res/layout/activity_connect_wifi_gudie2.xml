@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.amsu.healthy.activity.ConnectToWifiGudieActivity2"
+    android:background="#FFF">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <EditText
+        android:id="@+id/et_wifi_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:layout_marginTop="@dimen/x128"
+        android:hint="WiFi账号"
+        android:textColorHint="#b2b2b8"
+        android:background="@drawable/et_cursor_color"
+        android:textSize="@dimen/x48"/>
+
+    <EditText
+        android:id="@+id/et_wifi_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:layout_marginTop="@dimen/x72"
+        android:hint="WiFi密码"
+        android:background="@drawable/et_cursor_color"
+        android:textColorHint="#b2b2b8"
+        android:textSize="@dimen/x48"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x140"
+        android:background="@drawable/bg_bt_rec_roundangle"
+        android:text="@string/connect_immediately"
+        android:onClick="connectNow"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:textSize="@dimen/x56"
+        android:textColor="#f5f5f5"
+        android:layout_marginTop="@dimen/x80"
+        android:layout_gravity="center_horizontal"/>
+
+</LinearLayout>

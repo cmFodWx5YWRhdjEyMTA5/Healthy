@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <TextView
+        android:id="@+id/tv_choose_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/y20"
+        android:text="选择跑步模式（在线/离线）"
+        android:textSize="@dimen/x50"
+        android:textColor="#666"
+        android:layout_gravity="center_horizontal"
+        android:layout_centerHorizontal="true"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y450"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/iv_choose_online"
+            android:layout_width="@dimen/x296"
+            android:layout_height="@dimen/x296"
+            android:src="@drawable/kaishipaobu" />
+
+        <Button
+            android:id="@+id/bt_choose_offline"
+            android:layout_width="@dimen/x160"
+            android:layout_height="@dimen/x160"
+            android:text="离线跑"
+            android:textColor="#666666"
+            android:layout_marginLeft="@dimen/x110"
+            android:textSize="@dimen/x32"
+            android:background="@drawable/bg_icon_press_oofline"
+            android:gravity="center"/>
+    </LinearLayout>
+
+</LinearLayout>

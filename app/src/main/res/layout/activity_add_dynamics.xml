@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_add_dynamics"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background_color"
+    tools:context="com.amsu.healthy.activity.AddDynamicsActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x780"
+        android:layout_below="@+id/rl_base_head"
+        android:paddingLeft="@dimen/x36"
+        android:paddingRight="@dimen/x36"
+        android:background="#FFFFFF">
+        <EditText
+            android:id="@+id/et_add_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="编辑动态内容"
+            android:textColor="#999999"
+            android:textSize="@dimen/x48"
+            android:layout_marginTop="@dimen/x47"
+            android:minLines="4"
+            android:gravity="top"
+            android:maxLines="6"
+            android:background="@null"/>
+
+        <RelativeLayout
+            android:id="@+id/rl_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="@dimen/x36">
+            <ImageView
+                android:id="@+id/iv_add_icon"
+                android:layout_width="@dimen/x220"
+                android:layout_height="@dimen/x220"
+                android:src="@drawable/fbdt_tjtp"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="添加图片"
+                android:layout_toRightOf="@+id/iv_add_icon"
+                android:textColor="#cccccc"
+                android:textSize="@dimen/x32"
+                android:layout_marginLeft="@dimen/x32"
+                android:layout_centerVertical="true"
+                />
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

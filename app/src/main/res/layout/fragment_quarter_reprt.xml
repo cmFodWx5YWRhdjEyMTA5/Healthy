@@ -1,0 +1,20 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background_color"
+    tools:context="com.amsu.healthy.fragment.report.QuarterReprtFragment">
+
+    <include layout="@layout/head_report"
+        android:id="@+id/ll_report_head"></include>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_report_content_quarter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF"
+        android:layout_marginTop="@dimen/x64"
+        android:layout_below="@+id/ll_report_head">
+    </android.support.v4.view.ViewPager>
+
+</RelativeLayout>

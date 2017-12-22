@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x160"
+        android:background="#FFFFFF"
+        android:paddingLeft="@dimen/x36"
+        android:paddingRight="@dimen/x36">
+        <TextView
+            android:id="@+id/tv_wring_dec"
+            android:layout_width="@dimen/x108"
+            android:layout_height="@dimen/x108"
+            android:text="心率"
+            android:textSize="@dimen/x28"
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:lines="2"
+            android:background="@drawable/bg_circle_heratrate"
+            android:layout_centerVertical="true"/>
+
+        <TextView
+            android:id="@+id/tv_wring_year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2016"
+            android:textSize="@dimen/x48"
+            android:textColor="#7d7d7d"
+            android:layout_marginLeft="@dimen/x64"
+            android:layout_toRightOf="@+id/tv_wring_dec"
+            android:layout_marginTop="@dimen/x20"/>
+        <TextView
+            android:id="@+id/tv_wring_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="12月24"
+            android:textSize="@dimen/x28"
+            android:textColor="#7d7d7d"
+            android:layout_marginLeft="@dimen/x64"
+            android:layout_toRightOf="@+id/tv_wring_dec"
+            android:layout_marginBottom="@dimen/x20"
+            android:layout_alignParentBottom="true"/>
+
+        <TextView
+            android:id="@+id/tv_wring_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="状态"
+            android:textSize="@dimen/x48"
+            android:textColor="#3b3b3b"
+            android:layout_marginLeft="@dimen/x64"
+            android:layout_toRightOf="@+id/tv_wring_year"
+            android:layout_marginTop="@dimen/x20"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/heart_rate_monitor"
+            android:textSize="@dimen/x28"
+            android:textColor="#a1a1a1"
+            android:layout_marginLeft="@dimen/x64"
+            android:layout_toRightOf="@+id/tv_wring_year"
+            android:layout_marginBottom="@dimen/x20"
+            android:layout_alignParentBottom="true"/>
+
+        <ImageView
+            android:layout_width="@dimen/x56"
+            android:layout_height="@dimen/x56"
+            android:src="@drawable/more_icon"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
+
+</LinearLayout>

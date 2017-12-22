@@ -1,0 +1,94 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/app_background_color"
+    tools:context="com.amsu.healthy.activity.QuestionnaireActivity">
+
+
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rl_base_head"
+        android:divider="@drawable/deiver_horiz_line"
+        android:showDividers="middle"
+        android:orientation="vertical"
+        android:dividerPadding="@dimen/x36"
+        android:background="#FFFFFF">
+        <RelativeLayout
+            android:id="@+id/rl_persiondata_questionnaire2"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/y140"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="产品初印象满意度调查问卷(拿到产品后体验调查)"
+                android:textColor="#030303"
+                android:textSize="@dimen/x40"
+                android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_4"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#9f9f9f"
+                android:textSize="@dimen/x48"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/iv_persion_4"
+                android:layout_marginRight="5dp"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_persiondata_questionnaire1"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/y140"
+            android:background="@drawable/list_item_background"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="测评问卷（运动结束后填写）"
+                android:textColor="#030303"
+                android:textSize="@dimen/x40"
+                android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_3"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#9f9f9f"
+                android:textSize="@dimen/x48"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/iv_persion_3"
+                android:layout_marginRight="5dp"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
+
+

@@ -1,0 +1,135 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.amsu.healthy.fragment.analysis_insole.ResultSpeedFragment">
+
+    <LinearLayout
+        android:id="@+id/ll_speed_ll"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y348"
+        android:background="#f3f3f3"
+        android:orientation="horizontal">
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/tv_speed_average"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:gravity="center_horizontal"
+                android:textColor="#4d4d4d"
+                android:textSize="@dimen/x92"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="平均配速"
+                android:layout_below="@+id/tv_speed_average"
+                android:layout_marginTop="@dimen/x20"
+                android:gravity="center_horizontal"
+                android:textColor="#4d4d4d"
+                android:textSize="@dimen/x36"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/tv_speed_fastest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:gravity="center_horizontal"
+                android:textColor="#4d4d4d"
+                android:textSize="@dimen/x92"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_speed_fastest"
+                android:layout_marginTop="@dimen/x20"
+                android:text="最快配速"
+                android:gravity="center_horizontal"
+                android:textColor="#4d4d4d"
+                android:textSize="@dimen/x36"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_speed_t1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_speed_ll"
+        android:text="公里"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginTop="@dimen/x36"
+        android:textColor="#999999"
+        android:textSize="@dimen/x36"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_speed_ll"
+        android:text="配速"
+        android:layout_marginLeft="@dimen/x94"
+        android:layout_marginTop="@dimen/x36"
+        android:layout_toRightOf="@+id/tv_speed_t1"
+        android:textColor="#999999"
+        android:textSize="@dimen/x36"/>
+
+    <!--<ProgressBar
+        android:id="@+id/pb_hrv_tired"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y72"
+        android:layout_marginTop="@dimen/y36"
+        android:progressDrawable="@drawable/bg_progressbar_speed"
+        android:layout_below="@+id/tv_speed_t1"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:progress="40"
+        android:max="100"/>-->
+
+    <ListView
+        android:id="@+id/lv_speed_pacelist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_speed_t1"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:layout_marginTop="@dimen/x24"
+        android:divider="@null">
+    </ListView>
+
+
+    <!--<TextView
+        android:id="@+id/tv_speed_lastspeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lv_speed_pacelist"
+        android:text="最后一公里"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginTop="@dimen/x20"
+        android:textColor="#999999"
+        android:textSize="@dimen/x36"/>-->
+
+
+
+    <!--<TextView
+        android:id="@+id/tv_speed_lastspeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lv_speed_speedlist"
+        android:text="最后一公里"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginTop="@dimen/x20"
+        android:textColor="#999999"
+        android:textSize="@dimen/x36"/>-->
+
+
+</RelativeLayout>

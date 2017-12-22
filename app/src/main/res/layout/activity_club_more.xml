@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_club_more"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.amsu.healthy.activity.ClubMoreActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rl_base_head"
+        android:divider="@drawable/deiver_horiz_line"
+        android:showDividers="middle|end"
+
+        android:orientation="vertical"
+        android:background="#FFFFFF">
+
+        <RelativeLayout
+            android:id="@+id/rl_clubmore_info"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/y140"
+            android:clickable="true"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="会员信息"
+                android:textColor="#030303"
+                android:textSize="@dimen/x48"
+                android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_1"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_clubmore_reginfo"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/y140"
+            android:clickable="true"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="报名信息"
+                android:textColor="#030303"
+                android:textSize="@dimen/x48"
+                android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_2"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/rl_clubmore_shareclub"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/y140"
+            android:clickable="true"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="分享俱乐部"
+                android:textColor="#030303"
+                android:textSize="@dimen/x48"
+                android:layout_centerVertical="true"/>
+            <ImageView
+                android:id="@+id/iv_persion_3"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x128"
+        android:layout_marginLeft="@dimen/x36"
+        android:layout_marginRight="@dimen/x36"
+        android:onClick="quitClub"
+        android:textColor="#f5f5f5"
+        android:textSize="@dimen/x48"
+        android:background="@drawable/bg_bt_rec_roundangle_red"
+        android:layout_below="@+id/content"
+        android:layout_marginTop="@dimen/x94"
+        android:text="退出俱乐部"/>
+
+</RelativeLayout>

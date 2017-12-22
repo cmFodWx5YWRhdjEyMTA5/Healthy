@@ -1,0 +1,146 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background_color"
+    tools:context="com.amsu.healthy.fragment.analysis.HRVFragment">
+
+    <RelativeLayout
+        android:id="@+id/rl_ecg_top"
+        android:layout_width="match_parent"
+        android:paddingTop="@dimen/x64"
+        android:layout_height="@dimen/y712">
+        <com.amsu.healthy.view.CardiographView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <com.amsu.healthy.view.EcgView
+            android:id="@+id/pv_ecg_path"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <TextView
+            android:id="@+id/tv_ecg_nodata"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/x18"
+            android:textSize="@dimen/x48"
+            android:textColor="#FFAEB9"
+            android:layout_centerInParent="true"
+            android:text="@string/data_is_noecg"
+            android:layout_centerVertical="true"
+            android:visibility="gone"/>
+        <ProgressBar
+            android:id="@+id/pb_progress"
+            android:layout_width="45dip"
+            android:layout_height="45dip"
+            android:layout_gravity="center_horizontal"
+            style="@style/progresStyle"
+            android:layout_centerInParent="true"
+            android:visibility="gone"/>
+    </RelativeLayout>
+
+
+
+    <RelativeLayout
+        android:id="@+id/rl_ecg_view"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x64"
+        android:background="#0c54b5"
+        android:layout_below="@+id/rl_ecg_top"
+        android:layout_alignParentStart="true">
+        <ImageView
+            android:id="@+id/iv_ecg_toggle"
+            android:layout_width="@dimen/x64"
+            android:layout_height="@dimen/x64"
+            android:paddingBottom="@dimen/x14"
+            android:paddingTop="@dimen/x14"
+            android:src="@drawable/play_icon"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/x18"/>
+        <TextView
+            android:id="@+id/tv_ecg_protime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/x18"
+            android:textSize="@dimen/x28"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/bg_bt_bigcircle"
+            android:layout_alignParentRight="true"
+            android:text="0'00/----"
+            android:layout_centerVertical="true" />
+
+        <com.amsu.healthy.view.FlexibleThumbSeekbar
+            android:id="@+id/sb_ecg_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:minHeight="@dimen/x20"
+            android:maxHeight="@dimen/x20"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@drawable/po_seekbar_ecgprogress"
+            android:thumb="@drawable/slider"
+            android:layout_toLeftOf="@+id/tv_ecg_protime"
+            android:layout_toRightOf="@+id/iv_ecg_toggle" />
+
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/rl_ecg_view"
+        android:background="#FFFFFF"
+        android:paddingLeft="@dimen/x36"
+        android:paddingRight="@dimen/x36"
+        android:layout_marginTop="@dimen/y52">
+
+        <TextView
+            android:id="@+id/tv_hrv_ala3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/y24"
+            android:textColor="#9e9e9e"
+            android:textSize="@dimen/x48"
+            android:text="@string/health_advice"/>
+        <TextView
+            android:id="@+id/tv_rate_suggestion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_hrv_ala3"
+            android:layout_marginTop="@dimen/y18"
+            android:textColor="#333333"
+            android:textSize="@dimen/x40"
+            android:text="@string/HeartRate_suggetstion_nodata"/>
+
+        <!--<LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="@dimen/y54">
+            <Button
+                android:id="@+id/bt_hrv_history"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="@dimen/y124"
+                android:textSize="@dimen/x50"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_bt_bigcircle"
+                android:text="历史记录"/>
+            <Button
+                android:id="@+id/bt_hrv_myreport"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="@dimen/y124"
+                android:textSize="@dimen/x50"
+                android:textColor="#FFFFFF"
+                android:layout_marginLeft="@dimen/x180"
+                android:background="@drawable/bg_bt_bigcircle"
+                android:text="我的报告"/>
+        </LinearLayout>-->
+
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,116 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'bugly'
+
+bugly {
+    appId = "d139ea916b"
+    appKey = "b6a5970c-afeb-4105-ae00-60909187e2d4"
+}
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
+
+    defaultConfig {
+        applicationId "com.amsu.healthy"
+        minSdkVersion 18
+        targetSdkVersion 21
+        versionCode 154
+        versionName "1.5.4"
+
+        multiDexEnabled true
+
+        ndk {
+            // 设置支持的SO库架构
+            abiFilters 'armeabi' , 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
+            //abiFilters 'armeabi-v7a' //, 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            android.applicationVariants.all { variant ->
+                variant.outputs.all{ output ->
+                    // apk_渠道名-版本号-版本名称-编译时间.apk
+                    outputFileName = "app_${variant.productFlavors[0].name}_${defaultConfig.versionCode}_${defaultConfig.versionName}_${releaseTime()}_release.apk"
+                }
+            }
+        }
+    }
+    useLibrary 'org.apache.http.legacy'
+
+
+    // 友盟多渠道打包
+    flavorDimensions "default"
+    productFlavors {
+        ali {dimension "default"}  //阿里
+        c360 {dimension "default"}    //360
+        vivo {dimension "default"}     //vivo
+        pphelper {dimension "default"}  //pp助手
+        tencent {dimension "default"}   //腾讯
+        baidu {dimension "default"}   //百度
+        xiaomi {dimension "default"}   //小米
+        androidmarket {dimension "default"}   //安卓市场
+        letv {dimension "default"}   //安卓市场
+        huawei {dimension "default"}   //安卓市场
+        other {dimension "default"}   //其他
+        inner {dimension "default"}   //其他
+        beta_test {dimension "default"}   //测试
+        google_pay {dimension "default"}   //测试
+    }
+
+    productFlavors.all { flavor ->
+        flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
+    }
+
+}
+
+static def releaseTime() {
+    return new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC"))
+}
+
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+    mavenCentral()
+}
+
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile files('libs/xUtils-2.6.14.jar')
+    compile(name: 'SMSSDK-3.0.0', ext: 'aar')
+    compile(name: 'SMSSDKGUI-3.0.0', ext: 'aar')
+    //compile files('libs/gson-2.5.jar')
+    compile files('libs/JavaWebSocket_fat.jar')
+    //其中latest.release指代最新Bugly SDK版本号，也可以指定明确的版本号，例如2.1.9
+    //其中latest.release指代最新Bugly NDK版本号，也可以指定明确的版本号，例如3.0
+    //谷歌地图
+    compile files('libs/MobCommons-2017.0607.1736.jar')
+    compile files('libs/MobTools-2017.0607.1736.jar')
+    compile files('libs/zxing.jar')
+    compile 'com.android.support:appcompat-v7:26.1.0'
+    compile 'com.android.support:design:26.1.0'
+    compile 'com.android.support:support-v4:26.1.0'
+    compile 'com.amap.api:3dmap:latest.integration'
+    compile 'com.amap.api:location:latest.integration'
+    compile 'com.umeng.analytics:analytics:latest.integration'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.tencent.bugly:crashreport:latest.release'
+    compile 'com.tencent.bugly:nativecrashreport:latest.release'
+    compile 'com.google.android.gms:play-services-location:10.2.0'
+    compile 'com.google.android.gms:play-services-maps:10.2.0'
+    testCompile 'junit:junit:4.12'
+    compile project(path: ':bleinteractionlibrary')
+
+    compile 'no.nordicsemi.android:dfu:1.5.0'
+
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+
+}

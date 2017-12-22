@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/x180">
+    <com.amsu.healthy.view.CircleImageView
+        android:id="@+id/iv_number_image"
+        android:layout_width="@dimen/x100"
+        android:layout_height="@dimen/x100"
+        android:layout_marginTop="@dimen/x40"
+        android:layout_marginBottom="@dimen/x40"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x34"
+        android:layout_toRightOf="@id/iv_number_image">
+        <TextView
+            android:id="@+id/tv_number_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/x32"
+            android:text="名称"
+            android:textColor="#212121"
+            android:maxLines="2"
+            android:textSize="@dimen/x40"
+            android:layout_centerVertical="true"/>
+
+        <ImageView
+            android:id="@+id/iv_number_sex"
+            android:layout_width="@dimen/x36"
+            android:layout_height="@dimen/x36"
+            android:layout_toRightOf="@+id/tv_number_name"
+            android:layout_marginLeft="@dimen/x28"
+            android:src="@drawable/jlb_woman"
+            android:layout_centerVertical="true"/>
+
+        <TextView
+            android:id="@+id/tv_number_coachType"
+            android:layout_width="@dimen/x160"
+            android:layout_height="@dimen/x40"
+            android:layout_marginLeft="@dimen/x48"
+            android:layout_toRightOf="@id/iv_number_sex"
+            android:text="游泳教练"
+            android:gravity="center"
+            android:background="@drawable/bg_bt_rec_roundangle"
+            android:textColor="#FFFFFF"
+            android:maxLines="2"
+            android:textSize="@dimen/x28"
+            android:visibility="gone"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_number_city"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/iv_number_image"
+        android:text="广东省  深圳市"
+        android:layout_marginLeft="@dimen/x32"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="@dimen/x40"
+        android:textColor="#999999"
+        android:textSize="@dimen/x36" />
+
+    <RelativeLayout
+        android:id="@+id/rl_number_nojion"
+        android:layout_width="@dimen/x224"
+        android:layout_height="@dimen/x80"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/bg_state_jion"
+        android:layout_marginRight="@dimen/x36">
+        <TextView
+            android:id="@+id/tv_number_jion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="关注"
+            android:textColor="#0c64b5"
+            android:textSize="@dimen/x36"
+            android:layout_centerInParent="true"/>
+        <ImageView
+            android:layout_width="@dimen/x28"
+            android:layout_height="@dimen/x28"
+            android:src="@drawable/julb_add"
+            android:layout_toLeftOf="@+id/tv_number_jion"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/x8"/>
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/tv_number_jioned"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="已关注"
+        android:textColor="#999999"
+        android:textSize="@dimen/x36"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/x36"
+        android:visibility="gone"/>
+
+
+</RelativeLayout>

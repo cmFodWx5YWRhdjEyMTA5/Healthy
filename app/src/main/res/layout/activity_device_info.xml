@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background_color"
+    tools:context="com.amsu.healthy.activity.DeviceInfoActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <RelativeLayout
+        android:id="@+id/rl_ele"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y700"
+        android:layout_below="@+id/rl_base_head"
+        android:background="#0c64b5">
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x394"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/shebeixiangqing_bg"/>
+
+        <TextView
+            android:id="@+id/tv_device_electric"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="--"
+            android:textSize="@dimen/x240"
+            android:textColor="#FFFFFF"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/x160" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="%"
+            android:textSize="@dimen/x72"
+            android:textColor="#FFFFFF"
+            android:layout_toRightOf="@+id/tv_device_electric"
+            android:layout_marginLeft="@dimen/x20"
+            android:layout_alignBaseline="@+id/tv_device_electric"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/x160" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_device_electric"
+            android:text="@string/remaining_battery_power"
+            android:textSize="@dimen/x40"
+            android:textColor="#99FFFFFF"
+            android:layout_centerHorizontal="true"/>
+
+
+
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/ll_text1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:divider="@drawable/deiver_horiz_line"
+        android:background="#FFFFFF"
+        android:showDividers="middle|end"
+        android:paddingLeft="@dimen/x36"
+        android:paddingRight="@dimen/x36"
+        android:layout_below="@+id/rl_ele"
+        android:layout_alignParentStart="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x140"
+            android:onClick="changeDeviceName"
+            android:clickable="true"
+            android:background="@drawable/list_item_background">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/device_name"
+                android:textSize="@dimen/x48"
+                android:textColor="#1a1a1a"
+                android:layout_centerVertical="true"/>
+
+            <ImageView
+                android:id="@+id/iv_persion_1"
+                android:layout_width="@dimen/x56"
+                android:layout_height="@dimen/x56"
+                android:src="@drawable/more_icon"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"/>
+
+            <TextView
+                android:id="@+id/tv_device_devicename"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/iv_persion_1"
+                android:textSize="@dimen/x48"
+                android:textColor="#c8c8cd"
+                android:layout_marginRight="5dp"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x140"
+            android:background="@drawable/list_item_background">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hardware_version"
+                android:textSize="@dimen/x48"
+                android:textColor="#1a1a1a"
+                android:layout_centerVertical="true"/>
+
+            <TextView
+                android:id="@+id/tv_device_hardware"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:textSize="@dimen/x48"
+                android:textColor="#c8c8cd"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x140"
+            android:background="@drawable/list_item_background">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/software_version"
+                android:textSize="@dimen/x48"
+                android:textColor="#1a1a1a"
+                android:layout_centerVertical="true"/>
+            <TextView
+                android:id="@+id/tv_device_software"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:textSize="@dimen/x48"
+                android:textColor="#c8c8cd"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x140"
+            android:onClick="checkDeviceUpdate"
+            android:clickable="true"
+            android:background="@drawable/list_item_background">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="固件更新"
+                android:textSize="@dimen/x48"
+                android:textColor="#1a1a1a"
+                android:layout_centerVertical="true"/>
+            <TextView
+                android:id="@+id/tv_device_updatedevice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:textSize="@dimen/x48"
+                android:textColor="#c8c8cd"
+                android:visibility="gone"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_deviceinfo_switvh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@id/text1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x48"
+                android:textSize="@dimen/x48"
+                android:textColor="#212121"
+                android:text="@string/clothing_host_automatically_offline"/>
+            <ImageView
+                android:id="@+id/iv_deviceinfo_switvh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x48"
+                android:onClick="switchState"
+                android:src="@drawable/switch_of"
+                android:layout_alignParentRight="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/text1"
+                android:layout_marginTop="@dimen/x28"
+                android:textSize="@dimen/x30"
+                android:textColor="#999999"
+                android:text="@string/clothing_host_automatically_offline_explain"/>
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rl_device_unbind"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y140"
+        android:layout_below="@+id/ll_text1"
+        android:background="@drawable/list_item_background"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="@dimen/x80"
+        android:onClick="unBindDevice"
+        android:clickable="true"
+        android:paddingLeft="@dimen/x36"
+        android:paddingRight="@dimen/x40">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/unbound"
+            android:textColor="#030303"
+            android:textSize="@dimen/x48"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
+
+</RelativeLayout>

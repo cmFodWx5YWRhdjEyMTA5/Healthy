@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.amsu.healthy.activity.ChooseWeekActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/selected_time"
+        android:textSize="@dimen/x45"
+        android:textColor="#0c64b5"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/x248"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x1"
+        android:background="@drawable/deiver_horiz_line"
+        android:layout_marginTop="@dimen/x180" />
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x748"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <com.amsu.healthy.view.PickerView
+            android:id="@+id/pv_choose_year"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent">
+        </com.amsu.healthy.view.PickerView>
+
+        <com.amsu.healthy.view.PickerView
+            android:id="@+id/pv_choose_week"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent">
+        </com.amsu.healthy.view.PickerView>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x1"
+        android:background="@drawable/deiver_horiz_line" />
+
+</LinearLayout>

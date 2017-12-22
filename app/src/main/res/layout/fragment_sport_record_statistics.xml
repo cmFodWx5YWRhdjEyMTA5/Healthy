@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background_color"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:id="@+id/mScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.amsu.healthy.view.MapContainer
+                    android:id="@+id/mMapContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/x640"
+                    android:orientation="vertical">
+
+                    <com.amap.api.maps.TextureMapView
+                        android:id="@+id/mMapView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </com.amsu.healthy.view.MapContainer>
+
+                <TextView
+                    android:id="@+id/sport_date"
+                    android:layout_width="@dimen/x348"
+                    android:layout_height="@dimen/x56"
+                    android:layout_marginLeft="@dimen/x36"
+                    android:layout_marginTop="@dimen/x24"
+                    android:background="@drawable/shape_fill_black"
+                    android:gravity="center"
+                    android:text="2017-11-12 15:51"
+                    android:textColor="@color/color_ffffffff"
+                    android:textSize="@dimen/x34" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/color_ffffffff"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/x102"
+                        android:layout_marginTop="@dimen/x96"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/sport_distance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/null_value"
+                            android:textColor="@color/color_ff20262b"
+                            android:textSize="@dimen/x112" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/x24"
+                            android:text="@string/exercise_distance_"
+                            android:textColor="@color/color_ffb3b3b3"
+                            android:textSize="@dimen/x36" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/x102"
+                        android:layout_marginTop="@dimen/x96"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/sport_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/null_value"
+                            android:textColor="@color/color_ff20262b"
+                            android:textSize="@dimen/x112" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/x24"
+                            android:text="@string/endurance_time"
+                            android:textColor="@color/color_ffb3b3b3"
+                            android:textSize="@dimen/x36" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/x102"
+                        android:layout_marginTop="@dimen/x96"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/sport_cadence"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/null_value"
+                            android:textColor="@color/color_ff20262b"
+                            android:textSize="@dimen/x72" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/x24"
+                            android:text="@string/endurance_cadence"
+                            android:textColor="@color/color_ffb2b2b2"
+                            android:textSize="@dimen/x36" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/x102"
+                        android:layout_marginTop="@dimen/x96"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/sport_speed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/null_value"
+                            android:textColor="@color/color_ff20262b"
+                            android:textSize="@dimen/x72" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/x24"
+                            android:text="@string/endurance_speed"
+                            android:textColor="@color/color_ffb2b2b2"
+                            android:textSize="@dimen/x36" />
+                    </LinearLayout>
+
+
+                    <LinearLayout
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/x102"
+                        android:layout_marginTop="@dimen/x96"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/sport_kcal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/null_value"
+                            android:textColor="@color/color_ff20262b"
+                            android:textSize="@dimen/x72" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/x24"
+                            android:text="@string/endurance_kcal"
+                            android:textColor="@color/color_ffb2b2b2"
+                            android:textSize="@dimen/x36" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x36"
+                android:background="@color/color_ffffffff"
+                android:orientation="vertical">
+
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/mViewPagerStatistics"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/y644" />
+
+                <LinearLayout
+                    android:id="@+id/indexLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:minHeight="@dimen/x50"
+                    android:orientation="horizontal" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

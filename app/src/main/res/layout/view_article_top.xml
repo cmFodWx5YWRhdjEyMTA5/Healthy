@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/rl_news_top"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/x664"
+    android:clipChildren="false"
+    android:background="#F3F3F3"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_news_toppicture"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x544"
+        android:layout_centerVertical="true"
+        android:clipChildren="false"
+        android:layout_marginBottom="@dimen/x60"
+        android:layout_marginTop="@dimen/x60"
+        android:layout_marginLeft="@dimen/x60"
+        android:layout_marginRight="@dimen/x60">
+    </android.support.v4.view.ViewPager>
+</RelativeLayout>

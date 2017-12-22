@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background_color"
+    tools:context="com.amsu.healthy.activity.ModifyPersionDataActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <RelativeLayout
+        android:id="@+id/rl_persion_username"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y140"
+        android:layout_marginTop="10dp"
+        android:background="#FFFFFF"
+        android:layout_below="@id/rl_base_head">
+        <EditText
+            android:id="@+id/et_modify_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textSize="@dimen/x64"
+            android:layout_centerVertical="true"
+            android:textColor="#030303"
+            android:background="@null"/>
+        <ImageView
+            android:id="@+id/et_modify_delete"
+            android:layout_width="@dimen/y100"
+            android:layout_height="@dimen/y100"
+            android:padding="@dimen/y25"
+            android:src="@drawable/grzl_xiugai"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_persion_sex"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:divider="@drawable/deiver_horiz_line"
+        android:showDividers="middle|end"
+        android:visibility="gone"
+        android:layout_below="@id/rl_base_head">
+        <RelativeLayout
+            android:id="@+id/rl_persion_man"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y140"
+            android:layout_marginTop="10dp"
+            android:background="#FFFFFF"
+            android:layout_below="@id/rl_base_head">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:textSize="@dimen/x48"
+                android:textColor="#030303"
+                android:layout_centerVertical="true"
+                android:text="@string/male"
+                />
+            <CheckBox
+                android:id="@+id/cb_modify_man"
+                android:layout_width="@dimen/y100"
+                android:layout_height="@dimen/y100"
+                android:padding="@dimen/y25"
+                android:src="@drawable/choice_y"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                style="@style/CustomCheckboxTheme"
+                android:clickable="false"
+                android:layout_marginRight="20dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_persion_woman"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y140"
+            android:background="#FFFFFF"
+            android:layout_marginTop="0.5dp"
+            android:layout_below="@id/rl_persion_man">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:textSize="@dimen/x48"
+                android:textColor="#030303"
+                android:layout_centerVertical="true"
+                android:text="@string/female"
+                />
+            <CheckBox
+                android:id="@+id/cb_modify_woman"
+                android:layout_width="@dimen/y100"
+                android:layout_height="@dimen/y100"
+                android:padding="@dimen/y25"
+                android:src="@drawable/choice_n"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                style="@style/CustomCheckboxTheme"
+                android:clickable="false"
+                android:layout_marginRight="20dp" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@id/rl_persion_woman"
+            android:background="#D1D1D1"></View>
+    </LinearLayout>
+
+
+
+</RelativeLayout>

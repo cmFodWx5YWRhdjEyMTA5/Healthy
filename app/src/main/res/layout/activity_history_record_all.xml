@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/app_background_color"
+    tools:context="com.amsu.healthy.activity.HistoryRecordAllActivity">
+
+    <!--<include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>-->
+
+    <RelativeLayout
+        android:id="@+id/rl_home_top"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/y128"
+        android:background="#212121" >
+        <ImageView
+            android:id="@+id/iv_base_leftimage"
+            android:layout_width="@dimen/y188"
+            android:layout_height="@dimen/y128"
+            android:paddingTop="@dimen/y38"
+            android:paddingBottom="@dimen/y38"
+            android:paddingRight="@dimen/x70"
+            android:src="@drawable/back_icon"
+            android:layout_centerVertical="true" />
+        <LinearLayout
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_centerInParent="true">
+            <TextView
+                android:id="@+id/tv_consult_cloth"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="30dp"
+                android:text="@string/exercise_heart_ecg"
+                android:textColor="#FFF"
+                android:background="@drawable/bg_care_switch_lefton"
+                android:gravity="center"/>
+            <TextView
+                android:id="@+id/tv_consult_insole"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="30dp"
+                android:text="@string/walking"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_care_switch_rightoff"/>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iv_base_rightimage"
+            android:layout_width="@dimen/y128"
+            android:layout_height="@dimen/y128"
+            android:paddingTop="@dimen/y38"
+            android:paddingBottom="@dimen/y38"
+            android:src="@drawable/download_icon"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
+
+    <!--<android.support.v4.view.ViewPager
+        android:id="@+id/vp_historyall_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ll_analysis_title"
+        >
+    </android.support.v4.view.ViewPager>-->
+
+    <fragment
+        android:id="@+id/fg_history_clonth"
+        android:name="com.amsu.healthy.fragment.historyrecord.ClothHistoryRecordFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </fragment>
+
+    <fragment
+        android:id="@+id/fg_history_insole"
+        android:name="com.amsu.healthy.fragment.historyrecord.InsoleHistoryRecordFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </fragment>
+
+</LinearLayout>

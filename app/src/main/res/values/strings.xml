@@ -1,0 +1,457 @@
+<resources>
+    <string name="app_name">倾听体语</string>
+
+    <string name="indicator">健康指标</string>
+    <string name="warning">预警指标</string>
+    <string name="stationary_ecg">静态心电</string>
+    <string name="active_mode">运动模式</string>
+    <string name="community">运动社区</string>
+    <string name="my">我的</string>
+    <string name="age">生理年龄</string>
+    <string name="start">开始</string>
+
+
+    <string name="my_history">历史记录</string>
+    <string name="my_report_plan">我的报告</string>
+    <string name="health_plan">健康计划</string>
+    <string name="following">我的关注</string>
+    <string name="emergency_help">紧急求助</string>
+    <string name="settings">系统设置</string>
+
+    <string name="login">登录</string>
+    <string name="verification_Code">验证码</string>
+    <string name="user_agreement">用户协议</string>
+    <string name="agree">同意</string>
+    <string name="enter_cell_phone_number">请输入正确的手机号</string>
+    <string name="input_validation_code">请输入验证码</string>
+    <string name="code">获取验证码</string>
+    <string name="non_consent_logon_protocol">未同意登录协议</string>
+    <string name="getting_validation_code">正在获取验证码</string>
+    <string name="verify_code_sent_successfully">验证码发送成功</string>
+    <string name="login_successful_synchronizing_data">登陆成功，正在同步数据</string>
+    <string name="login_was_successful">登录成功</string>
+    <string name="now_improve_data">现在去完善资料吗?</string>
+    <string name="network_exception">网络异常，请检查网络是否打开</string>
+
+    <string name="complete">完成</string>
+    <string name="Enter_nickname">选择昵称</string>
+    <string name="Choose_birthday">选择生日</string>
+    <string name="Choose_sex">选择性别</string>
+    <string name="Choose_weight">选择体重</string>
+    <string name="Choose_height">选择身高</string>
+    <string name="Choose_address">选择地区</string>
+
+    <string name="active">动态</string>
+    <string name="querying">正在查询</string>
+    <string name="rest">静态</string>
+    <string name="analysised">已分析</string>
+    <string name="not_synchronized">未同步</string>
+    <string name="synced_data">同步数据</string>
+    <string name="charging">设备充电</string>
+    <string name="connected_guide1">设备连接至充电底座充电</string>
+    <string name="connecteto_wifi">连接 WiFi</string>
+    <string name="connecteto_wifi_name">WiFi 名称:  Amsu</string>
+    <string name="connecteto_wifi_password">WiFi 密码:  0123456789</string>
+    <string name="next_step">下一步</string>
+    <string name="connect_immediately">马上连接</string>
+    <string name="connectting_wifi_dialog">正在连接WiFi，请稍等</string>
+    <string name="connectting_wifi_fail">WiFi连接失败，请重试 </string>
+    <string name="connectted_socket_dialog">WiFi连接成功，正在创建socket连接</string>
+    <string name="connected_check_offline_files">检查离线文件</string>
+    <string name="connected_synced_offline_files">获取文件列表</string>
+    <string name="exit_sure_offline_files">还有未分析的离线数据，确定要退出吗？</string>
+    <string name="exit_confirm">确定</string>
+    <string name="exit_cancel">取消</string>
+    <string name="choose_sport_state">选择运动状态</string>
+    <string name="insufficient_to_analyze">数据不足，无法分析</string>
+
+    <string name="exercise_analyze">运动</string>
+    <string name="hrv_analyze">HRV分析</string>
+    <string name="hr_analyze">心率分析</string>
+    <string name="ecg_analyze">心电分析</string>
+    <string name="hrr_analyze">HRR分析</string>
+
+    <string name="exercise_distance">里程(KM)</string>
+    <string name="exercise_distance_">里程(km)</string>
+    <string name="distance">里程</string>
+    <string name="exercise_time">用时</string>
+    <string name="exercise_heart_rate">心率</string>
+    <string name="exercise_heart_ecg">心电</string>
+    <string name="exercise_pace">配速</string>
+    <string name="exercise_pace_unit">分钟/公里</string>
+    <string name="exercise_speed">配速(分钟/公里)</string>
+    <string name="exercise_speed_">配速(min/km)</string>
+    <string name="exercise_calories">卡路里(Kcal)</string>
+    <string name="exercise_calorie">卡路里</string>
+    <string name="exercise_cadence">步频(步/分钟)</string>
+    <string name="exercise_cadence_curve">步频曲线</string>
+    <string name="exercise_steps_min">步频:(步/分钟)</string>
+    <string name="steps_min">步/分钟</string>
+    <string name="exercise_time_min">时间：分钟</string>
+    <string name="exercise_calories_curve">卡路里曲线</string>
+    <string name="exercise_calories_consumption">消耗:大卡</string>
+    <string name="exercise_heart_rate_curve">心率曲线</string>
+    <string name="exercise_heart_rate_beat">心率:次数</string>
+    <string name="exercise_speed_curve">配速曲线</string>
+    <string name="exercise_speed_minkm">配速:分钟/公里</string>
+    <string name="exercise_steps_cardio">强度</string>
+    <string name="exercise_cardio_curve">有氧无氧曲线</string>
+    <string name="exercise_cardio">有氧无氧</string>
+    <string name="exercise_flat">平缓</string>
+    <string name="exercise_oxygenated">有氧</string>
+    <string name="exercise_without_oxygen">无氧</string>
+    <string name="exercise_in_danger">高危</string>
+
+    <string name="hrv_physical_fatigue">运动疲劳</string>
+    <string name="hrv_mental_fatigue">精神疲劳</string>
+    <string name="hrv_mode">情绪指数</string>
+    <string name="health_advice">健康意见</string>
+    <string name="data_is_insufficient">数据不足，无法得出分析结果</string>
+    <string name="data_is_nohrr">没有采集到恢复心率，请在跑步结束后按采集按钮进行采集</string>
+    <string name="data_is_noecg">不存在心电数据 </string>
+
+    <string name="hr_max">最大</string>
+    <string name="hr_average">平均值</string>
+
+    <string name="hrr_heart_rate_recovery">心率恢复能力</string>
+    <string name="hrr_recovery_capability">以上数值为你当前的心率恢复值</string>
+
+
+    <string name="monthly_report">月度报告</string>
+    <string name="quarterly_report">季度报告</string>
+    <string name="annual_report">年度报告</string>
+
+    <string name="monthly_rate_report">月度心率报告</string>
+    <string name="quarterly_rate_report">季度心率报告</string>
+    <string name="annual_rate_report">年度心率报告</string>
+    <string name="monthly_ecg_report">月度心电报告</string>
+    <string name="quarterly_ecg_report">季度心电报告</string>
+    <string name="annual_ecg_report">年度心电报告</string>
+    <string name="monthly_hrr_report">月度HRR报告</string>
+    <string name="quarterly_hrr_report">季度HRR报告</string>
+    <string name="annual_hrr_report">年度HRR报告</string>
+
+    <string name="loading">正在加载</string>
+
+    <string name="normal">正常</string>
+    <string name="nodata">无数据</string>
+    <string name="abnormal">异常</string>
+    <string name="cardiac_leak">漏博</string>
+    <string name="premature_beat">早搏</string>
+
+    <string name="new_health_plan">新建健康计划</string>
+    <string name="enter_title">输入标题</string>
+    <string name="enter_content">输入内容</string>
+    <string name="choose_time">输入时间</string>
+    <string name="save">保存</string>
+    <string name="choose_data">选择日期</string>
+    <string name="Health_plan_details">健康计划详情</string>
+    <string name="modify">修改</string>
+
+    <string name="add_emergency_contact">添加紧急联系人</string>
+    <string name="help_information">求助信息</string>
+    <string name="enter_help_information">输入求助信息</string>
+    <string name="warn">警告</string>
+    <string name="no_help_information_set">未设置求助信息，确定要退出吗？</string>
+
+    <string name="my_profile">个人资料</string>
+    <string name="my_devices">我的设备</string>
+    <string name="survey">问卷调查</string>
+    <string name="about_us">关于我们</string>
+    <string name="exit">退出登录</string>
+    <string name="update">检查更新</string>
+    <string name="user_feedback">用户反馈</string>
+
+    <string name="portrait">头像</string>
+    <string name="nick_name">昵称</string>
+    <string name="birthday">生日</string>
+    <string name="gende">性别</string>
+    <string name="weight">体重</string>
+    <string name="height">身高</string>
+    <string name="rest_heart_rate">静息心率</string>
+    <string name="address">地址</string>
+    <string name="phone">手机号</string>
+    <string name="email">邮箱</string>
+    <string name="national_region">国家/地区</string>
+    <string name="choose_national_region">选择国家/地区</string>
+
+    <string name="select_from_album">从相册中选择</string>
+    <string name="take_a_picture">拍照</string>
+    <string name="modify_nick_name">修改姓名</string>
+    <string name="modify_gender">修改性别</string>
+    <string name="modify_email">修改邮箱</string>
+    <string name="modify_phone">修改手机</string>
+    <string name="modify_rest_heart">修改静态心率</string>
+    <string name="choose_birthday">选择生日</string>
+    <string name="choose_weight">选择体重</string>
+    <string name="choose_height">选择身高</string>
+    <string name="choose_address">选择地址</string>
+    <string name="male">男</string>
+    <string name="female">女</string>
+
+
+    <string name="add_new_device">添加新设备</string>
+    <string name="searching_for_new_device">正在搜索设备</string>
+    <string name="device_close_to_your_cell">请将设备尽量靠近手机</string>
+    <string name="searching">正在搜索</string>
+    <string name="The_clothe_is_binding">衣服正在绑定</string>
+    <string name="sure_you_want_to_switch">您已经绑定过衣服，确定要切换吗？</string>
+    <string name="click_bind">点击绑定</string>
+    <string name="bound">已绑定</string>
+    <string name="unbound">解除绑定</string>
+    <string name="unconnected">未连接</string>
+    <string name="connected">已连接</string>
+    <string name="device_information">设备信息</string>
+    <string name="remaining_battery_power">剩余电量</string>
+    <string name="device_name">设备名称</string>
+    <string name="hardware_version">硬件版本号</string>
+    <string name="software_version">软件版本号</string>
+    <string name="sportswear">运动衣</string>
+    <string name="insole">鞋垫</string>
+    <string name="clothing_host_automatically_offline">是否允许衣服主机自动离线</string>
+    <string name="clothing_host_automatically_offline_explain">允许时，主机和APP蓝牙断开并在10秒内无连接时，主机进入离线模式</string>
+
+    <string name="sportswear_connection_successful">运动衣连接成功</string>
+    <string name="insole_connection_successful">鞋垫连接成功</string>
+    <string name="sportswear_connection_disconnected">运动衣连接断开</string>
+    <string name="insole_connection_disconnected">鞋垫连接断开</string>
+
+    <string name="checking_version_information">正在查询版本信息</string>
+    <string name="this_latest_version">当前已是最新版本</string>
+    <string name="update_now">更新</string>
+    <string name="update_later">稍后</string>
+    <string name="find_new_version">发现新版本</string>
+
+    <string name="company_info">阿木（深圳）新科技有限公司成立于2015年，专注于动态心电数据的准确捕捉和相关基础体征分析。为您的运动健康提供护航和科学指导！运动.健康，从"心"开始</string>
+    <string name="company_right">阿木科技 版权所有</string>
+
+    <string name="motion_detection">运动监测</string>
+    <string name="ecg_graph">心电图</string>
+    <string name="long_press_end">长按结束</string>
+    <string name="lock">锁屏</string>
+    <string name="glide_to_unlock">下滑解锁</string>
+    <string name="running">正在跑步</string>
+    <string name="motion_position">当前位置</string>
+
+
+    <string name="current_heart_rate">当前心率</string>
+    <string name="adjust">增益</string>
+    <string name="analysis">分析</string>
+
+    <string name="bunny_community">Bunny运动社区</string>
+    <string name="bunny_community_decrible">旨在建设全国领先的运动社区，为运动爱好者提供一个专属的交流平台。发现志趣相投的运动爱好者。</string>
+
+    <string name="running_type">跑步</string>
+    <string name="swimming">游泳</string>
+    <string name="cycling">骑行</string>
+    <string name="marathon">马拉松</string>
+    <string name="marathon_sport">马拉松运动</string>
+    <string name="gym">健身</string>
+    <string name="walking">步态</string>
+
+    <string name="health_reserve">健康储备 </string>
+    <string name="premature_beat_missed_beat">早搏/漏搏</string>
+    <string name="too_fast_too_slow">过速/过缓</string>
+    <string name="indicator_for_resistance_to_fatigue">抗疲劳指数</string>
+    <string name="heart_rate_recovery">恢复心率</string>
+    <string name="heart_rate_reserve">储备心率</string>
+    <string name="selected_time">选择时间</string>
+    <string name="this_week">本周</string>
+    <string name="last_week">上周</string>
+
+    <string name="degree_of_warning">预警指数</string>
+    <string name="heart_rate_too_slow">心率过缓</string>
+    <string name="heart_rate_too_fast">心率过速</string>
+    <string name="data_source">数据来源</string>
+    <string name="look_more">查看更多</string>
+    <string name="red_warning">红色预警</string>
+    <string name="yellow_warning">黄色预警</string>
+    <string name="heart_rate_monitor">心率监控</string>
+    <string name="testing_ecg_quit">正在测试心电，确定要退出吗？</string>
+    <string name="testing_runing_quit">正在跑步，确定要退出吗？</string>
+
+    <string name="process_of_analyzin">正在分析</string>
+    <string name="please_wait_a_moment">请稍后...</string>
+    <string name="being_processed">计算中</string>
+
+    <string name="sending_text_messages">正在发送短信</string>
+    <string name="deleting">正在删除</string>
+    <string name="delete_successfully">删除成功</string>
+    <string name="delete_failed">删除失败</string>
+    <string name="no_data">没有数据</string>
+    <string name="no_data_this_week">本周无数据</string>
+
+    <string name="hrv_suggetstion_lev1">您的体能充沛，但是精神非常疲惫，适合放下工作做一些体育锻炼，注意不要过度用脑，劳逸结合才能保持身心健康。建议您适当减轻脑力劳动，离开办公桌释放一下自己吧!</string>
+    <string name="hrv_suggetstion_lev2">您的身体现在充满活力，但大脑略有疲劳。试着放松一下自己的大脑，运动起来，释放自己活力吧！</string>
+    <string name="hrv_suggetstion_lev3">规律有序的生活让您的身体比较有活力，精神满满，您可以继续保持当前状态，适当运动，建议您进行一些轻负荷的健身锻炼！</string>
+    <string name="hrv_suggetstion_lev4">您的身体较为疲劳，但您目前思维活跃、心情较好，正是发挥您聪明才智的好机会，想一想自己还有那些没有解决的问题吧，可能灵感就在眼前！</string>
+    <string name="hrv_suggetstion_lev5">您的体力似乎已经消耗殆尽，注意不要过度透支自己的体力哟，慢慢停下脚步，做个拉伸，放松下自己的疲惫的身体吧！</string>
+    <string name="hrv_suggetstion_default">无法获取分析结果 </string>
+
+    <string name="HeartRate_suggetstion_fast">心动过速：正常人可由运动或精神紧张引起,也可见于发热、甲状腺功能亢进、贫血、失血等情况。请您注意休息，保持情绪稳定，当感觉身体不适时，请及时就医。 </string>
+    <string name="HeartRate_suggetstion_slow">心动过缓：常见于健康的青年人、运动员，及睡眠状态下的一般健康人群，也可见于窦房结功能障碍、甲状腺功能低下、颅内压增高及服用某些药物后的异常反应，偶尔出现属正常现象，不必过于紧张。当症状频繁出现或感觉身体不适时可到医院做进一步检查 </string>
+    <string name="HeartRate_suggetstion_nodata">采样时间不够四分钟或设备连接脱落，无法得出运动和精神疲劳分析结果。\n"</string>
+    <string name="HeartRate_suggetstion_normal">心率正常</string>
+
+    <string name="premature_beat_times">本次测量早搏</string>
+    <string name="premature_beat_times_decrible">次。早搏是指异位起搏点发出的过早冲动引起的心脏搏动。早搏除常见于各种器质性心脏病人外，健康人也会偶有发生，请您不必紧张，保持心情放松；当有明显症状或感觉身体不适时请及时就医检查。</string>
+    <string name="missed_beat_times">本次测量漏搏</string>
+    <string name="missed_beat_times_decrible">次。与迷走神经张力增高有关，可见于正常人或运动员，也可见于急性心肌梗死、冠状动脉痉挛、心肌炎等情况，当有明显状况时请及时就医。</string>
+    <string name="abnormal_ecg">正常心电图</string>
+
+    <string name="hrr_suggetstion_lev1">您是最棒的，坚持下去，没有什么人能超过您了</string>
+    <string name="hrr_suggetstion_lev2">您很棒了，但是要保持训练强度，才不会下滑哦 </string>
+    <string name="hrr_suggetstion_lev3">棒棒的，请保持训练强度，后面的人会追上来的呦 </string>
+    <string name="hrr_suggetstion_lev4">您比较突出了，但是保持训练强度，还是有可能提高的</string>
+    <string name="hrr_suggetstion_lev5">您已经超过一般人了，但是要保持锻炼习惯才不会下滑哦</string>
+    <string name="hrr_suggetstion_lev6">您处于一般水平，还有很大提升空间呢！赶快提高训练强度吧</string>
+    <string name="hrr_suggetstion_lev7">不要让人把您看扁了，请适度增加有氧训练，路漫漫其修远兮，吾将上下而求索！ </string>
+    <string name="hrr_suggetstion_nodata">恢复心率采集结果不正确或没有进行恢复心率采集</string>
+
+    <string name="heart_rate_reserve_decrible">储备心率就是实测的最大心率（在实验室测定的）和静止心率之差，储备心率和运动时耐负荷能力是密切相关的，一般储备心率越高，耐负荷能力力就越好</string>
+    <string name="heart_rate_recovery_decrible">关于人的心率变异得出的关于身体指数很多，其中经常被大家所应用的是运动疲劳指数（SDNN），情绪状态和精神疲劳指数（LF/HF），我们针对运动人群，重点关注SDNN，就是人在运动前后所表现出的身体耐受疲劳的能力。</string>
+    <string name="heart_rate_variability_decrible">关于人的心率变异得出的关于身体指数很多，其中经常被大家所应用的是运动疲劳指数（SDNN），情绪状态和精神疲劳指数（LF/HF），我们针对运动人群，重点关注SDNN，就是人在运动前后所表现出的身体耐受疲劳的能力。</string>
+    <string name="heart_rate_slow_fast_decrible">正常人静态心率是45～105次/分，小于45就称为心动过缓。除运动员、经常进行重负荷锻炼或劳动的人之外，心率或脉搏小于50次多数为病理性。\n心动过速：成人静态心率每分钟超过105次称心动过速。心动过速分生理性、病理性两种。跑步、饮酒、重体力劳动及情绪激动时心律加快为生理性心动过速；若高热、贫血、甲亢、出血、疼痛、缺氧、心衰和心肌病等疾病引起心动过速，称病理性心动过速</string>
+    <string name="premature_beat_missed_beat_decrible">是指异位起搏点发出的过早冲动引起的心脏搏动，为最常见的心律失常。如果存在少跳一拍的情况，就是漏博，这通常可能就是合并早搏。频发的早搏会损害心肌功能，诱发心肌缺血，某些早搏还可诱发室速、室颤，情况十分危险，一不小心还容易有猝死的隐患。对于非良性的早搏患者一定要引起重视，积极接受治疗，严重的还需要进行手术治疗</string>
+    <string name="health_reserve_decrible">以每周的运动时间（T）来衡量健康储备，通过适量的运动，储备体能，提高心肺能力，合理安排训练计划，储备健康。健康储备的标准，建议每天坚持有氧运动半小时，最好是每天锻炼60分钟，一周累计420分钟，但是每次训练建议不要超过90分钟。</string>
+    <string name="health_BMI_decrible">（即身体质量指数，简称BMI），是用体重公斤数除以身高米数平方得出的数字，是目前国际上常用的衡量人体胖瘦程度以及是否健康的一个重要标准。</string>
+    <string name="heart_rate_indicator_decrible">针对采集到的人体静态和动态的心电数据，经由专业的应用程序进行数据分析，把心电数据体现出来的储备心率、恢复心率、抗疲劳指数、心律异常、健康储备等数据进行中和评价得出的身体健康状态评分，分数越高标识身体综合状态越好。</string>
+    <string name="points">分</string>
+
+    <string name="bmi_suggetstion_lev1">您的身体有些消瘦，您现在的BMI指数偏低如果非病理性消瘦， 请加强营养，适当运动，合理搭配膳食或许就能改善哦。</string>
+    <string name="bmi_suggetstion_lev2">您属于中度消瘦，如过您想改变这种状态请咨询专业的营养师和专业健身机构</string>
+    <string name="bmi_suggetstion_lev3">您属于重度消瘦，为了您能有一个更好的身体，请适当考虑到医疗机构做相应检查，排除病理性原因</string>
+    <string name="bmi_suggetstion_lev4">您现在的BMI指数处于令人羡慕的范围，但是不要骄傲哦！</string>
+    <string name="bmi_suggetstion_lev5">您现在的BMI指数稍有偏高，如果非病理性原因，请适当减少脂肪摄入，均衡搭配营养。合理安排运动，通过徒步减脂，提升肌肉比例</string>
+    <string name="bmi_suggetstion_lev6">您现在的BMI指数明显偏高，如果非病理性原因，请适当减少脂肪摄入，蔬菜水果也是很可口的哦，让我们放松心情，积极参加运动吧！如过您希望快速改变这种状态，请咨询专业的营养师和专业健身机构。</string>
+    <string name="bmi_suggetstion_lev7">您现在的BMI指数超高，很多其实只要您个人心情愉悦，身体健康，有一点点胖又有什么呢？让我们放松心情，积极参加运动吧！如过您对这种状态不满意，请适当考虑到医疗机构做相应检查，如非病理性原因，请向专业的营养师和专业健身机构咨询解决方案 </string>
+    <string name="bmi_suggetstion_lev8">不要让人把您看扁了，请适度增加有氧训练，路漫漫其修远兮，吾将上下而求索！</string>
+    <string name="bmi_suggetstion_lev9">您现在的BMI指数处于令人羡慕的范围，但是不要骄傲哦！坚持适当运动，合理搭配营养，保持一个好身体，您才是人生最大赢家。</string>
+
+    <string name="reservehealth_suggetstion_lev1">您是最棒的，坚持下去，健康人生属于您！</string>
+    <string name="reservehealth_suggetstion_lev2">您很棒了，但是要保持训练强度，享受健康生活吧！</string>
+    <string name="reservehealth_suggetstion_lev3">棒棒的，请保持训练强度，保护健康身体，打造美好生活！ </string>
+    <string name="reservehealth_suggetstion_lev4">您比较突出了，但是保持训练强度，您的身体还是可以更好的！</string>
+    <string name="reservehealth_suggetstion_lev5">您的健康储备已经超过一般人了，但是要保持锻炼习惯才能保持健康的身体哦！</string>
+    <string name="reservehealth_suggetstion_lev6">您的健康储备处于一般水平，还有很大提升空间呢！赶快提高训练强度吧！</string>
+    <string name="reservehealth_suggetstion_lev7">不要让人把您看扁了，请适度增加有氧训练，路漫漫其修远兮，吾将上下而求索！ </string>
+
+    <string name="reserverate_suggetstion_lev1">您是最棒的，坚持下去，没有什么人能超过您了。</string>
+    <string name="reserverate_suggetstion_lev2">您很棒了，但是要保持训练强度，才不会下滑哦！</string>
+    <string name="reserverate_suggetstion_lev3">您比较突出了，但是保持训练强度，还是有可能提高的。</string>
+    <string name="reserverate_suggetstion_lev4">您已经超过一般人了，但是要保持锻炼习惯才不会下滑哦！</string>
+    <string name="reserverate_suggetstion_lev5">您的HRR处于一般水平，还有很大提升空间呢！请提高训练强度！</string>
+    <string name="reserverate_suggetstion_lev6">看起来您经不起一点风吹雨打了，请适度增加有氧训练，提高身体素质才是最重要的</string>
+
+    <string name="rv_suggetstion_lev1">您的身体充满活力，力拔山兮气盖世！再累的锻炼都不怕哦！</string>
+    <string name="rv_suggetstion_lev2">您的身体状态不错哦，可以进行一些较重负荷的锻炼计划了！</string>
+    <string name="rv_suggetstion_lev3">您的身体还是很有潜力的，可以承受一些轻负荷的锻炼计划了！</string>
+    <string name="rv_suggetstion_lev4">懒洋洋的，请适度进行有氧训练，劳逸结合，感觉就会越来越好！</string>
+    <string name="rv_suggetstion_lev5">看起来很累的样子，不适宜做太消耗体力的事情，应该休息一下了</string>
+
+    <string name="over_slow_suggetstion_lev1">您的心率很好，没有过速和过缓现象，请坚持锻炼。</string>
+    <string name="over_slow_suggetstion_lev2">您的心率偏低，如果您经常保持锻炼，这正是心脏功能强大的表现。 </string>
+    <string name="over_slow_suggetstion_lev3">您有心率过缓倾向，如果您经常参加高负荷运动，可能是正常现象。</string>
+    <string name="over_slow_suggetstion_lev4">您的心率较高，如果增加有氧训练时间，提升心肺能力，可以逐渐下降。</string>
+    <string name="over_slow_suggetstion_lev5">您的心率很低，有心动过缓可能，不过不影响您锻炼身体。建议到医院听取医生的专业意见。</string>
+    <string name="over_slow_suggetstion_lev6">您的心率很高，有心动过速趋势，注意适量增加运动量和保持运动强度，增加有氧训练时间，可提升心肺能力。</string>
+
+    <string name="sosreBeat_suggetstion_lev1">并未发现早搏漏搏现象，您的心脏很棒，可以保持当前训练强度 </string>
+    <string name="sosreBeat_suggetstion_lev2">累计有1-5次漏搏，未发现早搏现象，通常可能因为精神紧张、吸烟、饮酒、生活不规律、夜间没有好好休息等原因所导致。如果单纯出现心脏漏跳一拍的感觉，但没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。还是可以保持一些较重负荷的锻炼计划的！ </string>
+    <string name="sosreBeat_suggetstion_lev3">发现1次早搏，漏搏1-10次， 偶尔的早搏可见于正常人，漏博次数较多，如果没有诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。可以适当进行有氧训练，提升心肺能力。</string>
+    <string name="sosreBeat_suggetstion_lev4">发现连续早搏1-3次，同时伴有漏搏1-10次，您的心脏功能不容乐观建议到医院进行详细的心电检查，请经常关注心脏是否有不适感。适度进行锻炼，劳逸结合。</string>
+    <string name="sosreBeat_suggetstion_lev5">在已知测试时间段内发现连续早搏超过3次，同时伴有漏搏1-5次，您的心脏有病理风险，建议您尽快到医院进行详细的心电检查。运动有风险，请减少高强度运动！</string>
+
+    <string name="necessary_to_collect_recovery">是否计算恢复心率，需要采集一分钟的心电数据？</string>
+
+    <string name="low_suggetstion_lev1">没有过缓现象;</string>
+    <string name="low_suggetstion_lev2">您发生过心率较低的现象，有心动过缓可能。建议您到医院听取医生的专业意见。</string>
+    <string name="low_suggetstion_lev3">您发生过心率很低的现象，有可能是因病理性或药物导致心动过缓。希望您尽快到医院进行专业的检查并诊断排除。</string>
+
+    <string name="over_suggetstion_lev1">没有过速现象;</string>
+    <string name="over_suggetstion_lev2">您出现了心率较高的现象，如非因跑步、饮酒、重体力劳动及情绪激动导致心律加快，则建议您到医院听取医生的专业意见。</string>
+    <string name="over_suggetstion_lev3">您出现了心率较高的现象，如非因跑步、饮酒、重体力劳动及情绪激动导致心律加快，则建议您到医院听取医生的专业意见。</string>
+
+    <string name="beforebeat_suggetstion_lev1">未发现早搏现象;</string>
+    <string name="beforebeat_suggetstion_lev2">发现连续早搏1-3次，建议到医院进行详细的心电检查，请经常关注心脏是否有不适感;</string>
+    <string name="beforebeat_suggetstion_lev3">在已知测试时间段内发现连续早搏超过3次，建议您尽快到医院进行详细的心电检查。请经常关注心脏是否有不适感;</string>
+
+    <string name="missbeat_suggetstion_lev1">未发现漏搏现象;</string>
+    <string name="missbeat_suggetstion_lev2">您发生过漏博现象，通常可能因为精神紧张、烟酒过度、生活不规律、夜间休息不足等原因所导致。如只出现心脏漏跳的感觉，没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则只需注意调整生活节奏保持良好生活习惯，不需要过分担心。"</string>
+
+    <string name="outdoor_running">户外跑步</string>
+    <string name="indoor_running">室内跑步</string>
+
+    <string name="scan_code">扫码登录</string>
+
+    <string name="resting_heart_collected">正在采集静态心率</string>
+    <string name="please_wait_moment">需要一分钟，请稍后</string>
+
+    <string name="running_tim_or_distance">跑步时间或距离太短，无法保存记录，是否继续跑步？ </string>
+    <string name="keep_running">继续跑步</string>
+    <string name="end_the_run">结束跑步</string>
+
+    <string name="modify_device_name">修改设备名称</string>
+    <string name="input_device_name">请输入...</string>
+
+    <string name="actual_age">实际年龄</string>
+    <string name="loading_more">正在加载</string>
+
+
+    <string name="collect_data">采集</string>
+    <string name="skip">跳过</string>
+
+    <string name="china">中国</string>
+    <string name="united_states">美国</string>
+    <string name="japan">日本</string>
+    <string name="hong_kong">香港</string>
+
+    <string name="all_countries_regions">所有国家/地区</string>
+
+    <string name="isopen_ecg_webmonitoring">未开启网页心电监测</string>
+    <string name="nearly_7_days">近七天</string>
+    <string name="no_data_nearly_7_days">近七天无数据</string>
+    <string name="no_data_last_week">上周无数据</string>
+
+    <string name="hrv_mental_fatigue_suggestion1">您现在精神满满，正是发挥您聪明才智的好机会，想一想自己还有那些没有解决的问题吧，可能灵感就在眼前。</string>
+    <string name="hrv_mental_fatigue_suggestion2">您现在精神状态良好，您可以继续保持当前状态进行脑力活动。</string>
+    <string name="hrv_mental_fatigue_suggestion3">您现在精神较为疲劳，试着放下手中的工作休息一下，缓解疲劳吧。</string>
+    <string name="hrv_mental_fatigue_suggestion4">您现在精神非常疲惫，这将影响您的工作效率，建议您适当减轻脑力劳动，离开办公桌释放一下自己吧!</string>
+
+    <string name="hrv_body_fatigue_rest_suggestion1">您现在体能充沛，现在进行体育锻炼将能取得良好的效果，快去进行一些运动吧。</string>
+    <string name="hrv_body_fatigue_rest_suggestion2">您现在体力消耗较多，建议您现在不要进行体力运动，适当进行休息吧。</string>
+    <string name="hrv_body_fatigue_rest_suggestion3">您的体力似乎已经消耗殆尽，请不要过度透支自己的体力，放松下自己的疲惫的身体吧！</string>
+    <string name="hrv_body_fatigue_active_suggestion1">您刚才的运动量较少，体能还较为充足，还可以继续进行适度的体育锻炼达到更好的锻炼效果。</string>
+    <string name="hrv_body_fatigue_active_suggestion2">您的体能消耗较大，建议您适当休息，劳逸结合才能达到最佳的锻炼效果。</string>
+    <string name="hrv_body_fatigue_active_suggestion3">您的体力已经耗尽了，注意不要过度透支自己的体能，停下运动休息一下吧。</string>
+    <string name="endurance_test">耐力测试</string>
+    <string name="roadwork">长跑练习</string>
+    <string name="histories">历史纪录</string>
+    <string name="countdown">倒计时</string>
+    <string name="endurance_distance">距离</string>
+    <string name="endurance_des">耐力测试将采用12分钟倒计时跑的形式进行，\n请在开始后的12分钟内尽力冲刺更长的距离，\n计时结束后系统将会有语音提示。</string>
+    <string name="endurance_time">时间</string>
+    <string name="endurance_heart_rate">心率(bmp)</string>
+    <string name="endurance_speed_allocation">配速(分/公里)</string>
+    <string name="endurance_stride_frequency">步频(步/分钟)</string>
+    <string name="endurance_end">长按结束</string>
+    <string name="endurance_kilometer">公里</string>
+    <string name="endurance_kilometer_">公里(km)</string>
+    <string name="endurance_speed">平均配速</string>
+    <string name="endurance_cadence">平均步频</string>
+    <string name="endurance_vo2max">VO2max(ml/kg min)</string>
+    <string name="endurance_level">耐力水平</string>
+    <string name="endurance_sport_record">运动记录</string>
+    <string name="endurance_sport_speed">速度(km/h)</string>
+    <string name="endurance_run_test">长跑练习</string>
+    <string name="endurance_kcal">消耗热量</string>
+    <string name="endurance_12min">12分钟跑步成绩</string>
+    <string name="endurance_hint_txt_1">最后不足1公里用时%1$s，配速%2$s，速度%3$s，心率%4$s</string>
+    <string name="null_value">——</string>
+
+
+    <string name="add_information">补充资料</string>
+    <string name="add_information_dec">您的资料没有完善，无法准确分析运动结果，请先完善资料</string>
+
+
+</resources>

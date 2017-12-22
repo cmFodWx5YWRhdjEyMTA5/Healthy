@@ -1,0 +1,65 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x500"
+        android:paddingLeft="@dimen/x50"
+        android:paddingRight="@dimen/x50"
+        android:background="@drawable/bg_title_custom_dialog">
+        <TextView
+            android:id="@+id/tv_choose_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/y20"
+            android:text="@string/warn"
+            android:textSize="@dimen/x64"
+            android:textColor="#666"
+            android:layout_centerHorizontal="true"/>
+        <TextView
+            android:id="@+id/tv_choose_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_choose_title"
+            android:layout_marginTop="@dimen/y50"
+            android:text="采集未满3分钟，无法分析出HRV的值，是否要继续采集？"
+            android:textSize="@dimen/x40"
+            android:textColor="#666"
+            android:layout_centerHorizontal="true"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="@dimen/x30"
+            android:layout_marginBottom="@dimen/x60" >
+            <TextView
+                android:id="@+id/bt_choose_cancel"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_bt_choose"
+                android:text="@string/exit_cancel"
+                android:padding="10dp"
+                android:textColor="#666"
+                android:gravity="center"
+                android:textSize="@dimen/x40"/>
+            <TextView
+                android:id="@+id/bt_choose_ok"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/x50"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_bt_choose"
+                android:text="@string/exit_confirm"
+                android:padding="10dp"
+                android:textColor="#666"
+                android:gravity="center"
+                android:textSize="@dimen/x40"/>
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

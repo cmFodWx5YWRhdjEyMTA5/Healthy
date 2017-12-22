@@ -1,0 +1,170 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x700"
+        android:paddingLeft="@dimen/x50"
+        android:paddingRight="@dimen/x50"
+        android:background="@drawable/bg_title_custom_dialog">
+        <TextView
+            android:id="@+id/tv_choose_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/y20"
+            android:text="正在更新"
+            android:textSize="@dimen/x54"
+            android:textColor="#0D7DD3"/>
+
+        <ProgressBar
+            android:id="@+id/pb_topview"
+            android:layout_width="@dimen/x36"
+            android:layout_height="@dimen/x36"
+            android:layout_below="@+id/tv_choose_title"
+            style="@style/progresStyle"
+            android:visibility="gone"
+            android:layout_marginTop="@dimen/x32"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/pb_topview"
+            android:orientation="vertical"
+            android:layout_marginTop="@dimen/x32">
+
+            <LinearLayout
+                android:id="@+id/ll_progress_downloadll"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/x60"
+                android:gravity="center_vertical"
+                >
+                <ProgressBar
+                    android:id="@+id/pb_progress_downloadpb"
+                    android:layout_width="@dimen/x36"
+                    android:layout_height="@dimen/x36"
+                    style="@style/progresStyle"
+                    />
+                <ImageView
+                    android:id="@+id/iv_progress_downloadimage"
+                    android:layout_width="@dimen/x36"
+                    android:layout_height="@dimen/x36"
+                    android:src="@drawable/yilianjie"
+                    android:visibility="gone"/>
+                <TextView
+                    android:id="@+id/tv_progress_downloadtext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="正在下载更新包"
+                    android:layout_marginLeft="@dimen/x36"
+                    android:textColor="#666666"/>
+
+                <TextView
+                    android:id="@+id/tv_progress_downloadprogress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textColor="#666666"
+                    android:layout_marginLeft="@dimen/x36"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_progress_connecting"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/x60"
+                android:gravity="center_vertical"
+                android:visibility="gone"
+                >
+                <ProgressBar
+                    android:id="@+id/pb_progress_connecting"
+                    android:layout_width="@dimen/x36"
+                    android:layout_height="@dimen/x36"
+                    style="@style/progresStyle"
+                    />
+                <ImageView
+                    android:id="@+id/iv_progress_connecting"
+                    android:layout_width="@dimen/x36"
+                    android:layout_height="@dimen/x36"
+                    android:src="@drawable/yilianjie"
+                    android:visibility="gone"/>
+                <TextView
+                    android:id="@+id/tv_progress_connecting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="进入升级模式，需要手动打开主机"
+                    android:layout_marginLeft="@dimen/x36"
+                    android:textColor="#FF7F24"/>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/ll_progress_updatell"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/x60"
+                android:gravity="center_vertical"
+                android:visibility="gone"
+                >
+                <ProgressBar
+                    android:id="@+id/pb_progress_updatepb"
+                    android:layout_width="@dimen/x36"
+                    android:layout_height="@dimen/x36"
+                    style="@style/progresStyle"
+                    />
+                <ImageView
+                    android:id="@+id/iv_progress_updateimage"
+                    android:layout_width="@dimen/x36"
+                    android:layout_height="@dimen/x36"
+                    android:src="@drawable/yilianjie"
+                    android:visibility="gone"/>
+                <TextView
+                    android:id="@+id/tv_progress_updatetext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="正在更新固件"
+                    android:textColor="#666666"
+                    android:layout_marginLeft="@dimen/x36"/>
+                <TextView
+                    android:id="@+id/tv_progress_updateprogress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:layout_marginLeft="@dimen/x36"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/ll_progress_connectok"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/x60"
+                android:gravity="center_vertical"
+                android:visibility="gone">
+                <ProgressBar
+                    android:id="@+id/pb_progress_conntsuccess"
+                    android:layout_width="@dimen/x36"
+                    android:layout_height="@dimen/x36"
+                    style="@style/progresStyle"
+                    android:visibility="gone"/>
+                <ImageView
+                    android:id="@+id/iv_progress_conntsuccess"
+                    android:layout_width="@dimen/x36"
+                    android:layout_height="@dimen/x36"
+                    android:src="@drawable/yilianjie"
+                    />
+                <TextView
+                    android:id="@+id/tv_progress_conntsuccess"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="更新完成，需要手动打开主机"
+                    android:layout_marginLeft="@dimen/x36"
+                    android:textColor="#FF7F24"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+</RelativeLayout>
+

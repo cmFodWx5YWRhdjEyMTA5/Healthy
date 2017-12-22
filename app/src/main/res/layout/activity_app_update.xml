@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.amsu.healthy.activity.AppUpdateActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <ImageView
+        android:layout_width="@dimen/x200"
+        android:layout_height="@dimen/x200"
+        android:src="@drawable/logo_icon"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/x200"/>
+
+    <TextView
+        android:id="@+id/tv_update_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1.0"
+        android:textSize="@dimen/x48"
+        android:textColor="#999999"
+        android:layout_below="@+id/rl_base_head"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/x100"
+        android:layout_centerHorizontal="true"/>
+    <TextView
+        android:id="@+id/tv_update_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/x48"
+        android:textColor="#999999"
+        android:layout_below="@+id/tv_update_version"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/x40"
+        android:layout_centerHorizontal="true"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_update_tip"
+        android:layout_marginTop="@dimen/x50"
+        android:text="检测更新"
+        android:layout_gravity="center_horizontal"
+        android:onClick="checkUpdate"
+        android:background="@drawable/bg_bt_update"
+        android:layout_centerHorizontal="true"/>
+
+</LinearLayout>

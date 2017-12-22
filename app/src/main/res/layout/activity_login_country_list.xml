@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background_color"
+    android:orientation="vertical"
+    tools:context="com.amsu.healthy.activity.LoginCountryListActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <RelativeLayout
+        android:id="@+id/rl_country_search"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x128"
+        android:clickable="true">
+        <EditText
+            android:id="@+id/et_country_search"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x80"
+
+            android:layout_marginLeft="@dimen/x36"
+            android:layout_marginRight="@dimen/x36"
+            android:layout_centerInParent="true"
+            android:paddingLeft="@dimen/x20"
+            android:textColor="#8b8b90"
+            android:textSize="@dimen/x39"
+            android:cursorVisible="false"
+            android:background="@drawable/bg_bt_rec_roundangle_white"/>
+
+        <ImageView
+            android:id="@+id/im_country_search"
+            android:layout_width="@dimen/x36"
+            android:layout_height="@dimen/x36"
+            android:src="@drawable/sousuo"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/x476"/>
+
+        <EditText
+            android:id="@+id/tv_country_searchdec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/smssdk_search"
+            android:layout_marginLeft="@dimen/x28"
+            android:layout_centerInParent="true"
+            android:layout_toRightOf="@+id/im_country_search"
+            android:textColor="#8b8b90"
+            android:textSize="@dimen/x39"
+            android:cursorVisible="false"
+            android:background="@null"/>
+
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/lv_country_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:listSelector="@drawable/list_item_background"
+        android:background="#FFFFFF"
+        android:divider="#dddbdb"
+        android:dividerHeight="1dp">
+    </ListView>
+
+
+
+
+</LinearLayout>

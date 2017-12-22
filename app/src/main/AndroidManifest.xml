@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.amsu.healthy">
+
+    <!-- 地图SDK（包含其搜索功能）需要的基础权限 -->
+    <!-- 允许程序打开网络套接字 -->
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 允许程序设置内置sd卡的写权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- 允许程序获取网络状态 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- 允许程序访问WiFi网络信息 -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- 允许程序读写手机状态和身份 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!-- 允许程序访问CellID或WiFi热点来获取粗略的位置 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- 需要运行时注册的权限 -->
+    <!-- 用于访问GPS定位 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- 用于提高GPS定位速度 -->
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+    <!-- 读取缓存数据 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- 更改设置 -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!-- 3.2.0版本增加 -->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <!-- 3.2.0版本增加 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+
+    <!-- sharesdk短信 -->
+    <!--
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    -->
+    <!-- <uses-permission android:name="android.permission.READ_SMS" /> -->
+    <!-- <uses-permission android:name="android.permission.WRITE_CONTACTS" /> -->
+
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- 友盟 -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
+
+    <!-- 写入消息 -->
+    <!-- <uses-permission android:name="android.permission.WRITE_SMS" /> -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" /> -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!--
+        <uses-permission android:name="android.permission.BROADCAST_PACKAGE_ADDED" />
+    <uses-permission android:name="android.permission.BROADCAST_PACKAGE_CHANGED" />
+    <uses-permission android:name="android.permission.BROADCAST_PACKAGE_INSTALL" />
+    <uses-permission android:name="android.permission.BROADCAST_PACKAGE_REPLACED" />
+    <uses-permission android:name="android.permission.RESTART_PACKAGES" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    -->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- 支持Android wear 特性 -->
+    <!--<uses-feature android:name="android.hardware.type.watch" />  -->
+
+    <application
+        android:name=".appication.MyApplication"
+        android:allowBackup="true"
+        android:hardwareAccelerated="false"
+        android:icon="@drawable/logo_icon"
+        android:label="@string/app_name"
+        android:persistent="true"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".activity.SplashActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.MainActivity"
+            android:screenOrientation="portrait" />
+
+        <meta-data
+            android:name="Mob-AppKey"
+            android:value="1976143c3c888" />
+        <meta-data
+            android:name="Mob-AppSecret"
+            android:value="0c1784d4bf495891bf142767b314651c" />
+
+        <!-- 高德地图 -->
+        <!-- <meta-data -->
+        <!-- android:name="com.amap.api.v2.apikey" -->
+        <!-- android:value="00a9a61217c28973e9bceba073d5ac52" /> -->
+        <!-- wanglei 测试key -->
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="00a9a61217c28973e9bceba073d5ac52" />
+
+        <!-- 定位需要的服务 -->
+        <service android:name="com.amap.api.location.APSService" />
+
+        <!-- 友盟 -->
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="58d9cf4a717c19016700017c" />
+        <!--
+        <meta-data
+            android:name="UMENG_MESSAGE_SECRET"
+            android:value="fe0116aa844b143c844718b7eb7d7854" >
+        </meta-data>
+        -->
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="${UMENG_CHANNEL_VALUE}" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <!-- 谷歌地图 -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyB3bpYzgR9ZQmnae55yeK7TQOyhY2Aigio" />
+        <!-- 我的 -->
+        <activity
+            android:name=".activity.MeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HealthyDataActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.MoveStateActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HeartRateAnalysisActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".activity.HeartRateResultShowActivity" />
+        <activity
+            android:name=".activity.SupplyPersionDataActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.LoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.PersionDataActivity"
+            android:screenOrientation="portrait" />
+
+        <service
+            android:name="com.ble.ble.BleService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.ModifyPersionDataActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HealthyPlanActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HealthyPlanCalenActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.LookupHealthPlanActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.MyReportActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SystemSettingActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.MyDeviceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SearchDevicehActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HealthIndicatorAssessActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.PhysicalAgeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.IndexWarringActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SportCommunityActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.StartRunActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.NewsDetialActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ShowCommentActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubHomePageActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubGroupActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubCampaignActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubDetialActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SetupCampaignActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.EditProtocolActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubGroupDetialActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SetupGroupActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubNumberActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubNumberDetialActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubNumberRankActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SetupClubActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubInfomationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubMoreActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubMyEnterInfoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubMyInfoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubMyInfoEditActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubMyEnterInfoEditActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ClubDynamicsDetialActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.LookupPictureActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HistoryRecordActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.CalculateHRRProcessActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.RunTrailMapActivity"
+            android:screenOrientation="portrait" />
+        <!-- 运动模式 -->
+        <activity
+            android:name=".activity.MotionDetectionActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ConnectToWifiGudieActivity1"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ConnectToWifiGudieActivity2"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AboutUsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AppUpdateActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AddDynamicsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AddHeathyPlanActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ApplyJionClubActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.TestActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SosActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.UploadOfflineFileActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ChooseWeekActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.DeviceInfoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.DisclaimerAssertsActivity"
+            android:screenOrientation="portrait" />
+
+        <service
+            android:name=".service.CoreService"
+            android:enabled="true"
+            android:exported="true"/>
+
+        <service
+            android:name=".service.LocalGuardService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name=".service.MyTestService2"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:process=":MyTestService2" />
+        <service
+            android:name=".service.RemoteGuardService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:process="com.remote1" />
+        <service
+            android:name=".service.MyTestService4"
+            android:enabled="true"
+            android:exported="true"
+            android:process="com.remote2" />
+
+        <service
+            android:name=".service.DfuService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
+            android:name=".receiver.ServiceListenerReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="com.amsu.healthy.servicedestroy" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".receiver.WifiStateReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.NET.wifi.RSSI_CHANGED" />
+                <action android:name="android.Net.wifi.STATE_CHANGE" />
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".activity.QuestionnaireActivity" />
+        <activity
+            android:name=".activity.LockScreenActivity"
+            android:launchMode="singleTask">
+
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            -->
+        </activity>
+        <activity android:name=".activity.PrepareRunningActivity">
+
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            -->
+        </activity>
+        <activity android:name=".activity.RunTimeCountdownActivity" />
+        <activity
+            android:name=".activity.insole.InsoleRunningActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"/>
+        <activity android:name=".activity.insole.InsoleAnalyticFinshResultActivity">
+
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            -->
+        </activity>
+        <activity android:name=".activity.insole.CorrectInsoleActivity" />
+        <activity android:name=".activity.RunTrailMapGoogleActivity">
+
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            -->
+        </activity>
+        <activity android:name=".utils.scancode.activity.CaptureActivity" />
+        <activity android:name=".activity.ConfirmScanLoginActivity" />
+        <activity android:name=".activity.insole.InsoleAnalysisActivity" />
+        <!-- 历史记录 -->
+        <activity android:name=".activity.HistoryRecordAllActivity" />
+        <activity android:name=".activity.insole.InsoleDeviceInfoActivity" />
+        <activity
+            android:name=".activity.insole.InsoleLockScreenActivity"
+            android:launchMode="singleTask" />
+        <activity android:name=".activity.LoginInputNumberActivity" />
+        <activity android:name=".activity.LoginCountryListActivity" />
+        <!-- 马拉松 -->
+        <activity
+            android:name=".activity.marathon.MarathonActivity"
+            android:screenOrientation="portrait" />
+        <!-- 耐力测试 -->
+        <activity
+            android:name=".activity.marathon.EnduranceTestActivity"
+            android:screenOrientation="portrait" />
+        <!-- 耐力测试成绩 -->
+        <activity
+            android:name=".activity.marathon.EnduranceTestResultGradeActivity"
+            android:screenOrientation="portrait" />
+        <!-- 耐力测试运动中 -->
+        <activity
+            android:name=".activity.marathon.EnduranceTestRuningActivity"
+            android:screenOrientation="portrait" />
+        <!-- 耐力测试结束 -->
+        <activity
+            android:name=".activity.marathon.EnduranceTestResultActivity"
+            android:screenOrientation="portrait" />
+        <!-- 马拉松运动记录 -->
+        <activity
+            android:name=".activity.marathon.SportRecordActivity"
+            android:screenOrientation="portrait" />
+        <!-- 马拉松运动记录详情 -->
+        <activity
+            android:name=".activity.marathon.SportRecordDetailsActivity"
+            android:screenOrientation="portrait" />
+
+
+    </application>
+
+</manifest>

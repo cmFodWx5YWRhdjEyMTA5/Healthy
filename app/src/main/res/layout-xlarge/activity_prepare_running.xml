@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    tools:context="com.amsu.healthy.activity.PrepareRunningActivity">
+
+    <include layout="@layout/page_head"
+        android:id="@+id/rl_base_head">
+    </include>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_prepare_item"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y950"></android.support.v4.view.ViewPager>
+
+
+    <!--<ImageView
+        android:layout_width="@dimen/x340"
+        android:layout_height="@dimen/x340"
+        android:layout_marginTop="@dimen/x240"
+        android:src="@drawable/kaishianniu"
+        android:onClick="goStartRun"
+        android:layout_gravity="center_horizontal"/>-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/x240"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/iv_choose_online"
+            android:layout_width="@dimen/x296"
+            android:layout_height="@dimen/x296"
+            android:onClick="goStartRun"
+            android:src="@drawable/kaishipaobu" />
+
+        <Button
+            android:id="@+id/bt_choose_offline"
+            android:layout_width="@dimen/x160"
+            android:layout_height="@dimen/x160"
+            android:text="离线跑"
+            android:textColor="#666666"
+            android:onClick="goStartOffLineRun"
+            android:layout_marginLeft="@dimen/x110"
+            android:textSize="@dimen/x32"
+            android:background="@drawable/bg_icon_press_oofline"
+            android:gravity="center"/>
+    </LinearLayout>
+
+
+
+</LinearLayout>

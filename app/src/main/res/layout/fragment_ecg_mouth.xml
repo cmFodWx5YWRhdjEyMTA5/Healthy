@@ -1,0 +1,12 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/app_background_color"
+    tools:context="com.amsu.healthy.fragment.report.mouth.EcgMouthFragment">
+
+
+    <include layout="@layout/fragment_report_ecg_base"></include>
+
+
+</RelativeLayout>
