@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.amsu.bleinteraction.bean.BleCallBackEvent;
 import com.amsu.bleinteraction.utils.BleConstant;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
@@ -22,6 +23,8 @@ import com.ble.ble.oad.OADManager;
 import com.ble.ble.oad.OADProxy;
 import com.ble.ble.oad.OADType;
 import com.ble.ble.util.GattUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +64,7 @@ public class LeProxy {
     private static LeProxy mInstance;
     private BleService mBleService;
     private boolean mBleDataEncrypt;
+    private BleCallBackEvent mBleCallBackEvent;
 
     private LeProxy(){
     }
@@ -74,6 +78,8 @@ public class LeProxy {
 
     //bleDataEncrypt为数据是否加密
     public void setBleService(IBinder binder,boolean bleDataEncrypt){
+        mBleCallBackEvent = new BleCallBackEvent();
+
         mBleDataEncrypt = bleDataEncrypt;
         mBleService = ((BleService.LocalBinder) binder).getService(mBleCallBack);
         // mBleService.setMaxConnectedNumber(max);// 设置最大可连接从机数量，默认为4
@@ -257,6 +263,13 @@ public class LeProxy {
         return filter;
     }
 
+    public static final int BleOnConnected = 1;
+    public static final int BleOnConnectTimeout = 2;
+    public static final int BleOnConnectionError = 3;
+    public static final int BleOnDisconnected = 4;
+    public static final int BleOnCharacteristicChanged = 5;
+    public static final int BleOnCharacteristicRead = 6;
+
     //这里集合了所有的蓝牙交互事件
     //注意事项：回调方法所在线程不能有阻塞操作，否则可能导致数据发送失败或者某些方法无法正常回调！！！
     private final BleCallBack mBleCallBack = new BleCallBack() {
@@ -265,27 +278,34 @@ public class LeProxy {
             //!!!这里只代表手机与模组建立了物理连接，APP还不能与模组进行数据交互
             Log.i(TAG, "onConnected() - " + address);
             //启动获取rssi的定时器，如不需要获取信号，可以不启动该定时任务
-            mBleService.startReadRssi(address, 1000);
-            updateBroadcast(address, ACTION_GATT_CONNECTED);
+            //mBleService.startReadRssi(address, 1000);
+            //updateBroadcast(address, ACTION_GATT_CONNECTED);
+            //postBleDataOnBus(BleOnConnected,address);
+            BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_GATT_CONNECTED);
         }
 
         @Override
         public void onConnectTimeout(String address) {
             Log.e(TAG, "onConnectTimeout() - " + address);
-            updateBroadcast(address, ACTION_CONNECT_TIMEOUT);
-
+            //updateBroadcast(address, ACTION_CONNECT_TIMEOUT);
+            //postBleDataOnBus(BleOnConnectTimeout,address);
+            BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_CONNECT_TIMEOUT);
         }
 
         @Override
         public void onConnectionError(String address, int error, int newState) {
             Log.e(TAG, "onConnectionError() - " + address + " error code: " + error + ", new state: " + newState);
-            updateBroadcast(address, ACTION_CONNECT_ERROR);
+            //updateBroadcast(address, ACTION_CONNECT_ERROR);
+            //postBleDataOnBus(BleOnConnectionError,address);
+            BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_CONNECT_ERROR);
         }
 
         @Override
         public void onDisconnected(String address) {
             Log.e(TAG, "onDisconnected() - " + address);
-            updateBroadcast(address, ACTION_GATT_DISCONNECTED);
+            //updateBroadcast(address, ACTION_GATT_DISCONNECTED);
+            //postBleDataOnBus(BleOnDisconnected,address);
+            BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_GATT_DISCONNECTED);
         }
 
         @Override
@@ -310,6 +330,8 @@ public class LeProxy {
             BleDataProxy.getInstance().bleCharacteristicChanged(address,characteristic);
 
             //updateBroadcast(address, characteristic);
+
+            //postBleDataOnBus(BleOnCharacteristicChanged,characteristic,address);
         }
 
         @Override
@@ -321,6 +343,7 @@ public class LeProxy {
 
                 //updateBroadcast(address, characteristic);
                 BleDataProxy.getInstance().bleCharacteristicChanged(address,characteristic);
+                //postBleDataOnBus(BleOnCharacteristicRead,characteristic,address);
             }
         }
 
@@ -517,8 +540,6 @@ public class LeProxy {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-
-
                     }
 
                     break;
@@ -567,6 +588,19 @@ public class LeProxy {
             }
         }
     };
+
+    private void postBleDataOnBus(int messageType, BluetoothGattCharacteristic characteristic,String address) {
+        mBleCallBackEvent.messageType = messageType;
+        mBleCallBackEvent.characteristic = characteristic;
+        mBleCallBackEvent.address = address;
+        EventBus.getDefault().post(mBleCallBackEvent);
+    }
+
+    private void postBleDataOnBus(int messageType, String address) {
+        mBleCallBackEvent.messageType = messageType;
+        mBleCallBackEvent.address = address;
+        EventBus.getDefault().post(mBleCallBackEvent);
+    }
 
 
 }

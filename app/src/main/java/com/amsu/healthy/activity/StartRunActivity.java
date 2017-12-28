@@ -2,15 +2,12 @@ package com.amsu.healthy.activity;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -27,9 +24,9 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.model.LatLng;
+import com.amsu.bleinteraction.bean.MessageEvent;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.BleDataProxy;
-import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.AppAbortDataSave;
@@ -58,6 +55,10 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
 import com.test.utils.DiagnosisNDK;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -256,7 +257,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         mIsOutDoor = getIntent().getBooleanExtra(Constant.mIsOutDoor, false);
         Log.i(TAG,"mIsOutDoor:"+mIsOutDoor);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
+        EventBus.getDefault().register(this);
 
         Intent intent = getIntent();
         isNeedRecoverAbortData = intent.getBooleanExtra(Constant.isNeedRecoverAbortData, false);
@@ -611,38 +612,21 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
     }
 
-    boolean mIsDataStart;
 
-    private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()){
-                case LeProxy.ACTION_DEVICE_CONNECTED:
-                    Log.i(TAG,"已连接 " );
-                    setDeviceConnectedState(true);
-                    break;
-                case LeProxy.ACTION_DEVICE_DISCONNECTED:
-                    Log.w(TAG,"已断开 ");
-                    setDeviceConnectedState(false);
-                    break;
-                case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
-                    dealwithLebDataChange(intent);
-                    break;
-            }
-        }
-    };
-
-    private void dealwithLebDataChange(Intent intent) {
-        int stride = intent.getIntExtra(BleDataProxy.EXTRA_STRIDE_DATA,-1);
-        int heartRate = intent.getIntExtra(BleDataProxy.EXTRA_HEART_DATA,-1);
-
-        if (stride!=-1){
-            Log.i(TAG,"stride:"+stride);
-            updateUIStrideData(stride);
-        }
-        else if (heartRate!=-1){
-            Log.i(TAG,"heartRate:"+heartRate);
-            updateUIECGHeartData(heartRate);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        switch (event.messageType){
+            case BleConnectionProxy.msgType_Connect:
+                Log.i(TAG,"连接变化" );
+                boolean isConnected = event.singleValue == BleConnectionProxy.connectTypeConnected;
+                setDeviceConnectedState(isConnected);
+                break;
+            case BleConnectionProxy.msgType_HeartRate:
+                updateUIECGHeartData(event.singleValue);
+                break;
+            case BleConnectionProxy.msgType_Stride:
+                updateUIStrideData(event.singleValue);
+                break;
         }
     }
 
@@ -1471,8 +1455,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         mIsRunning = false;
 
         MyApplication.runningActivity = MyApplication.MainActivity;
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
         ShowNotificationBarUtil.detoryServiceForegrounByNotify();
+
+        EventBus.getDefault().unregister(this);
     }
 
     //初始化谷歌地图连接

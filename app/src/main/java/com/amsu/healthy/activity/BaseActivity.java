@@ -46,6 +46,8 @@ public class BaseActivity extends FragmentActivity {
 
     }
 
+
+
     public void changeAppLanguage() {
         String sta = MyUtil.getStringValueFromSP("language");//这是SharedPreferences工具类，用于保存设置，代码很简单，自己实现吧
         if (!MyUtil.isEmpty(sta)) {

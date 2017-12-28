@@ -198,7 +198,6 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         surfaceHolder.unlockCanvasAndPost(mCanvas);
-
         startX = (int) (startX + lockWidth);
         if(startX > mWidth){
             startX = 0;
@@ -209,16 +208,21 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     private void drawWaveOneGroup(){
         //Log.i(TAG,"ecgOneGroupData.size():"+ecgOneGroupData.size());
         try{
-            float mStartX = startX;
             int count = ecgOneGroupData.size();
-            for(int i=0;i<count;i++){
-                float newX = (float) (mStartX + ecgXOffset);
-                int newY = ecgConver(ecgOneGroupData.poll());
-                mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
-                //Log.i(TAG,"x1:"+mStartX+",y1:"+startY0+"。x1:"+newX+",y1:"+newY);
-                mStartX = newX;
-                startY0 = newY;
+            //count = count>10?10:count;
+
+            if (count>0){
+                float mStartX = startX;
+                for(int i=0;i<count;i++){
+                    float newX = (float) (mStartX + ecgXOffset);
+                    int newY = ecgConver(ecgOneGroupData.poll());
+                    mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
+                    //Log.i(TAG,"x1:"+mStartX+",y1:"+startY0+"。x1:"+newX+",y1:"+newY);
+                    mStartX = newX;
+                    startY0 = newY;
+                }
             }
+
 
             /*if(ecgOneGroupData.size() == ecgPerCount){
                 for(int i=0;i<ecgPerCount;i++){
@@ -313,6 +317,10 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
             ecgOneGroupData.add(data[i]);
         }
         startDrawWave();
+
+        /*if (!isRunning){
+            startThread();
+        }*/
     }
 
     //通过文件添加数据

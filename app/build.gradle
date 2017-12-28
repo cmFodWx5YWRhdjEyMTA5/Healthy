@@ -15,8 +15,8 @@ android {
         applicationId "com.amsu.healthy"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 154
-        versionName "1.5.4"
+        versionCode 155
+        versionName "1.5.5"
 
         multiDexEnabled true
 
@@ -110,7 +110,9 @@ dependencies {
 
     compile 'no.nordicsemi.android:dfu:1.5.0'
 
+    //内存监测
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+
 
 }

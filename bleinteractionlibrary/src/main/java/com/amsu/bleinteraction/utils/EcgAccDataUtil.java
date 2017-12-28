@@ -27,12 +27,13 @@ public class EcgAccDataUtil {
     public static double ECGSCALE_MODE_CURRENT = ECGSCALE_MODE_ORIGINAL;
 
 
-    public static void geIntEcgaArr(String hexString,String splitSring,int startIndex,int parseLength,int[] ecgInts) {
+    public static int[] geIntEcgaArr(String hexString,String splitSring,int startIndex,int parseLength,int[] ecgInts) {
         //int [] intEcgaArr = new int[parseLength];
         String[] split = hexString.split(splitSring);
         for (int i = startIndex; i < startIndex+parseLength; i++) {
             ecgInts[i-startIndex] = Integer.parseInt(split[i],16);
         }
+        return ecgInts;
     }
 
     public static List<Integer> geIntEcgaArrList(String hexString,String splitSring,int startIndex,int parseLength) {
@@ -52,54 +53,44 @@ public class EcgAccDataUtil {
         Log.i(TAG,"hexData:"+hexData);
         int clothDeviceType = BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType;
 
-        int [] ecgInts ;
-        int [] accInts ;
-
         if (clothDeviceType==BleConstant.clothDeviceType_old_encrypt || clothDeviceType==BleConstant.clothDeviceType_old_noEncrypt){
             if(hexData.startsWith("FF 83") && hexData.length()==44){   //旧版心电数据
-                //Log.i(TAG,"心电hexData:"+hexData);
-                ecgInts = new int[ecgOneGroupLength];
-                EcgAccDataUtil.geIntEcgaArr(hexData, " ", 3, ecgOneGroupLength,ecgInts); //一次的数据，10位
-                return ecgInts;
+                return geIntEcgaArr(hexData, " ", 3, ecgOneGroupLength,new int[ecgOneGroupLength]); //一次的数据，10位
             }
             else if (hexData.startsWith("FF 86") && hexData.length() == 50) {  //旧版加速度数据FF 86 11 00 A4 06 AC 1E 9D 00 A4 06 AC 1E 9D 11 16   长度50
-                //Log.i(TAG,"加速度hexData:"+hexData);
-                accInts = new int[accOneGroupLength];
-                EcgAccDataUtil.geIntEcgaArr(hexData, " ", 3, accOneGroupLength, accInts); //一次的数据，12位
-                //dealWithAccelerationgData();
-                return accInts;
+                return geIntEcgaArr(hexData, " ", 3, accOneGroupLength, new int[accOneGroupLength]); //一次的数据，12位
             }
         }
-
         else if (clothDeviceType==BleConstant.clothDeviceType_secondGeneration_IOE || clothDeviceType==BleConstant.clothDeviceType_secondGeneration_AMSU ||
                 clothDeviceType==BleConstant.clothDeviceType_AMSU_EStartWith) {
             if (hexData.length() == 59) {  // 新版心电数据  00 C3 00 A5 00 B8 00 D7 00 79 00 58 00 37 00 25 00 27 FF E2
                 //心电数据
-                ecgInts = new int[ecgOneGroupLength];
+                int [] ecgInts = new int[ecgOneGroupLength];
                 String[] split = hexData.split(" ");
                 for (int i=0;i<split.length/2;i++){
                     short i1 = (short) Integer.parseInt(split[2 * i] + split[2 * i + 1], 16);
-                    //Log.i(TAG,""+i1);
                     if (clothDeviceType==BleConstant.clothDeviceType_secondGeneration_IOE){
                         ecgInts[i] = i1 /256+128;
                     }
                     else {
                         ecgInts[i] = i1 /16;
                     }
-                    //Log.i(TAG,"ecgInts[i]:"+ecgInts[i]);
                 }
                 return ecgInts;
             }
             else if (hexData.length() == 35) {  //新版加速度数据  FF C4 00 11 0F 94 FF BE 00 25 0F 9C
                 //加速度数据
-                accInts = new int[accOneGroupLength];
-                EcgAccDataUtil.geIntEcgaArr(hexData, " ", 0, accOneGroupLength, accInts); //一次的数据，12位
-                return accInts;
+                return EcgAccDataUtil.geIntEcgaArr(hexData, " ", 0, accOneGroupLength, new int[accOneGroupLength]); //一次的数据，12位
             }
         }
         return null;
     }
 
+    /**旧版主机，获取写配置指令
+     * @param userAge  用户年龄
+     * @param isAutoOffline 是否自动进入离线，为true的话设备会在离线一段时间后自定进入离线跑步模式，断开蓝牙
+     * @return
+     */
     public static String getWriteConfigureOrderHexString(int userAge,boolean isAutoOffline){
         SimpleDateFormat formatter = new SimpleDateFormat("yy MM dd HH mm ss");
         Date curDate = new Date();
@@ -144,7 +135,8 @@ public class EcgAccDataUtil {
     }
 
 
-    public static String getDataHexStringHaveScend(){
+    //
+    public static String getCurDateHexString(){
         SimpleDateFormat formatter = new SimpleDateFormat("yy MM dd HH mm ss");
         Date curDate = new Date();
         String dateString = formatter.format(curDate);

@@ -11,6 +11,7 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
 import com.amsu.healthy.appication.MyApplication;
@@ -25,9 +26,6 @@ import com.amsu.healthy.appication.MyApplication;
 public class PopupWindowUtil {
     private static final String TAG = "MyUtil";
     private static ProgressDialog dialog;
-    public static final int connectTypeDisConnected = 0;
-    public static final int connectTypeConnected = 1;
-    public static final int connectTypeUnstabitily = 2;
 
 
     //显示PopWindow，提示连接状态，connectType是连接状态（1:连接,0:断开,2:连接不稳定）   msg提示信息
@@ -49,17 +47,17 @@ public class PopupWindowUtil {
                 TextView tv_pop_text = (TextView) popupView.findViewById(R.id.tv_pop_text);
 
                 tv_pop_text.setText(msg);
-                if (connectType == connectTypeDisConnected) {
+                if (connectType == BleConnectionProxy.connectTypeDisConnected) {
                     //断开
                     iv_pop_icon.setImageResource(R.drawable.duankai);
                     isConnectedSuccess = false;
 
-                } else  if (connectType == connectTypeConnected){
+                } else  if (connectType == BleConnectionProxy.connectTypeConnected){
                     //连接
                     iv_pop_icon.setImageResource(R.drawable.yilianjie);
                     isConnectedSuccess = true;
                 }
-                else  if (connectType == connectTypeUnstabitily){
+                else  if (connectType == BleConnectionProxy.connectTypeUnstabitily){
                     //连接不稳定
                     iv_pop_icon.setImageResource(R.drawable.duankai);
                 }

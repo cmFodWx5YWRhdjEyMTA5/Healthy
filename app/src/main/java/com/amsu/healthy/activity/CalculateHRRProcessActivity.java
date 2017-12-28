@@ -1,11 +1,8 @@
 package com.amsu.healthy.activity;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -14,13 +11,17 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.amsu.bleinteraction.proxy.BleDataProxy;
-import com.amsu.bleinteraction.proxy.LeProxy;
+import com.amsu.bleinteraction.bean.MessageEvent;
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,6 @@ public class CalculateHRRProcessActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, LeProxy.makeFilter());
     }
 
     private void initView() {
@@ -70,6 +70,8 @@ public class CalculateHRRProcessActivity extends BaseActivity {
 
             }
         });
+
+        EventBus.getDefault().register(this);
     }
 
     private void stopProcess() {
@@ -143,47 +145,34 @@ public class CalculateHRRProcessActivity extends BaseActivity {
 
     private boolean isFirstValue = true;
 
-    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int heartRate = intent.getIntExtra(BleDataProxy.EXTRA_HEART_DATA,-1);
-            Log.i(TAG,"heartRate:"+heartRate);
-            if (heartRate!=-1){
-                if (heartRate==0){
-                    tv_process_rate.setText("--");
-                    return;
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        switch (event.messageType){
+            case BleConnectionProxy.msgType_HeartRate:
+                int heartRate = event.singleValue;
+                Log.i(TAG,"heartRate:"+heartRate);
+                if (heartRate!=-1){
+                    if (heartRate==0){
+                        tv_process_rate.setText("--");
+                        return;
+                    }
+                    tv_process_rate.setText(heartRate+"");
+                    if (isFirstValue){
+                        firstHeartRate = heartRate;
+                        isFirstValue = false;
+                    }
+                    else {
+                        lastHeartRate = heartRate;
+                    }
                 }
-                tv_process_rate.setText(heartRate+"");
-                if (isFirstValue){
-                    firstHeartRate = heartRate;
-                    isFirstValue = false;
-                }
-                else {
-                    lastHeartRate = heartRate;
-                }
-            }
-
-            /*if (isFirstValue){
-                minHeartRate = maxHeartRate = data;
-                isFirstValue = false;
-            }
-
-            if (data<minHeartRate){
-                minHeartRate = data;
-            }
-            else if (data>maxHeartRate){
-                maxHeartRate = data;
-            }*/
-
-
+                break;
 
         }
-    };
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+        EventBus.getDefault().unregister(this);
     }
 }

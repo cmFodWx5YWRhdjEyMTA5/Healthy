@@ -1,5 +1,7 @@
 package com.amsu.bleinteraction.utils;
 
+import java.util.UUID;
+
 /**
  * @anthor haijun
  * @project name: Healthy
@@ -32,6 +34,9 @@ public class BleConstant {
     public static final String readInsoleBatterySerUuid = "0000180f-0000-1000-8000-00805f9b34fb";   //0x180F
     public static final String readInsoleBatteryCharUuid = "00002a19-0000-1000-8000-00805f9b34fb";  //0x2A19
 
+    public static final UUID readInsoleBatterySerUuidUUID = UUID.fromString(BleConstant.readInsoleBatterySerUuid);   //0x180F
+    public static final UUID readInsoleBatteryCharUuidUUID = UUID.fromString(BleConstant.readInsoleBatteryCharUuid);  //0x2A19
+
     public static final String readInsoleDeviceInfoSerUuid = "0000180a-0000-1000-8000-00805f9b34fb";  //0x180A
     public static final String readInsoleDeviceInfoHardwareRevisionCharUuid = "00002a27-0000-1000-8000-00805f9b34fb";  //Hardware Revision 0x2A27
     public static final String readInsoleDeviceInfoSoftwareRevisionCharUuid = "00002a28-0000-1000-8000-00805f9b34fb";  //Software Revision 0x2A28
@@ -61,7 +66,9 @@ public class BleConstant {
     public static final String blueLightAlwaysOnOrder = "42382B03FF";//蓝灯
     public static final String greenLightAlwaysOnOrder = "42382B02FF";//绿灯
     public static final String redLightAlwaysOnOrder = "42382B01FF";//红灯
-    public static final String threenlightSpacedFlickerOrder = "42382BFF03";//循环闪,间隔0.3s
+    public static final String threenlightSpacedFlickerOrder = "42382BFF03";//3灯循环闪,间隔为0.3s（末尾03为间隔时间，可以自定义）
+
+
 
 
 }

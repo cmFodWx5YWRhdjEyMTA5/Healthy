@@ -1,20 +1,19 @@
 package com.amsu.healthy.activity;
 
 import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 
+import com.amsu.bleinteraction.bean.MessageEvent;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.healthy.R;
@@ -28,6 +27,10 @@ import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.WebSocketProxy;
 import com.ble.api.DataUtil;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +117,7 @@ public class PrepareRunningActivity extends BaseActivity {
             bt_choose_offline.setVisibility(View.GONE);
         }
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
+        EventBus.getDefault().register(this);
 
         //boolean mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
 
@@ -157,31 +160,32 @@ public class PrepareRunningActivity extends BaseActivity {
         }
     }
 
-    private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()){
-                case LeProxy.ACTION_GATT_DISCONNECTED:
-                    Log.w(TAG,"已断开 ");
-                    isDeviceDisconnected =  true;
-                    if (isSendOffLineOrder){
-                        MyUtil.hideDialog(PrepareRunningActivity.this);
-                        android.support.v7.app.AlertDialog alertDialog_1 = new android.support.v7.app.AlertDialog.Builder(PrepareRunningActivity.this)
-                                .setTitle("主机已进入离线，快去跑步吧，记得回来同步跑步数据哦！")
-                                .setPositiveButton("知道了", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        finish();
-                                    }
-                                })
-                                .create();
-                        alertDialog_1.setCanceledOnTouchOutside(false);
-                        alertDialog_1.show();
-                    }
-                    break;
-            }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        switch (event.messageType){
+            case BleConnectionProxy.msgType_Connect:
+                boolean isConnected = event.singleValue == BleConnectionProxy.connectTypeConnected;
+                Log.i(TAG,"连接变化" );
+               if (!isConnected){
+                   isDeviceDisconnected =  true;
+                   if (isSendOffLineOrder){
+                       MyUtil.hideDialog(PrepareRunningActivity.this);
+                       android.support.v7.app.AlertDialog alertDialog_1 = new android.support.v7.app.AlertDialog.Builder(PrepareRunningActivity.this)
+                               .setTitle("主机已进入离线，快去跑步吧，记得回来同步跑步数据哦！")
+                               .setPositiveButton("知道了", new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialog, int which) {
+                                       finish();
+                                   }
+                               })
+                               .create();
+                       alertDialog_1.setCanceledOnTouchOutside(false);
+                       alertDialog_1.show();
+                   }
+               }
+                break;
         }
-    };
+    }
 
     public void goStartRun(View view) {
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -264,7 +268,7 @@ public class PrepareRunningActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
+        EventBus.getDefault().unregister(this);
 
     }
 

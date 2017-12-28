@@ -3,7 +3,6 @@ package com.amsu.healthy.activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,7 +10,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
@@ -23,8 +21,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.bleinteraction.bean.BleDevice;
+import com.amsu.bleinteraction.bean.MessageEvent;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
-import com.amsu.bleinteraction.proxy.BleDataProxy;
 import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.bleinteraction.utils.BleConstant;
 import com.amsu.bleinteraction.utils.SharedPreferencesUtil;
@@ -42,6 +40,9 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -155,7 +156,7 @@ public class DeviceInfoActivity extends BaseActivity {
             tv_device_electric.setText(instance.getClothCurrBatteryPowerPercent() +"");
         }
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
+        EventBus.getDefault().register(this);
         DfuServiceListenerHelper.registerProgressListener(this, mDfuProgressListener);
 
 
@@ -292,7 +293,7 @@ public class DeviceInfoActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
+        EventBus.getDefault().unregister(this);
         DfuServiceListenerHelper.unregisterProgressListener(this, mDfuProgressListener);
     }
 
@@ -698,24 +699,29 @@ public class DeviceInfoActivity extends BaseActivity {
         }
     };
 
-     private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()){
-                case LeProxy.ACTION_BATTERY_DATA_AVAILABLE:// 接收到电量数据
-                    int intExtra = intent.getIntExtra(BleDataProxy.EXTRA_BATTERY_DATA, -1);
-                    Log.i(TAG,"电量变化:"+intExtra);
-                    if (intExtra==-1){
-                        //设备已断开
-                        tv_device_electric.setText("--");
-                    }
-                    else {
-                        tv_device_electric.setText(intExtra+"");
-                    }
-                    break;
-            }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        switch (event.messageType){
+            case BleConnectionProxy.msgType_BatteryPercent:
+                int intExtra =  event.singleValue;
+                Log.i(TAG,"电量变化:"+intExtra);
+                if (intExtra==-1){
+                    //设备已断开
+                    tv_device_electric.setText("--");
+                }
+                else {
+                    tv_device_electric.setText(intExtra+"");
+                }
+                break;
+            case BleConnectionProxy.msgType_Connect:
+                boolean isConnected = event.singleValue == BleConnectionProxy.connectTypeConnected;
+                if (!isConnected){
+                    tv_device_electric.setText("--");
+                }
+                break;
         }
-    };
+    }
+
 
     private void onBleDisConnected(String address) {
         isConnectting = false;

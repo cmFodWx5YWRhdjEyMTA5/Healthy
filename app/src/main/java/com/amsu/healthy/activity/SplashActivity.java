@@ -117,8 +117,6 @@ public class SplashActivity extends Activity {
         }
     }
 
-
-
     @Override
     protected void onResume() {
         super.onResume();

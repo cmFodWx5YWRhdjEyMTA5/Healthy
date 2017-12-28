@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -47,6 +48,17 @@ public class BleConnectionProxy {
     private static BleConnectionProxy mBleConnectionProxy;
     private int mCurrentHeartRate;
 
+    public static final int connectTypeDisConnected = 0;
+    public static final int connectTypeConnected = 1;
+    public static final int connectTypeUnstabitily = 2;
+
+    public static final int msgType_Connect = 1;
+    public static final int msgType_HeartRate = 2;
+    public static final int msgType_Stride = 3;
+    public static final int msgType_BatteryPercent = 4;
+    public static final int msgType_OfflineFile = 5;
+    public static final int msgType_ecgDataArray = 6;
+
     public static BleConnectionProxy getInstance(){
         if (mBleConnectionProxy ==null){
             mBleConnectionProxy = new BleConnectionProxy();
@@ -58,8 +70,7 @@ public class BleConnectionProxy {
         SharedPreferencesUtil.initSharedPreferences(context);
 
         //绑定蓝牙，获取蓝牙服务
-        context.bindService(new Intent(context, BleService.class), mConnection, Context.BIND_AUTO_CREATE);
-        LocalBroadcastManager.getInstance(context).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
+        context.bindService(new Intent(context, BleService.class), mServiceConnection, Context.BIND_AUTO_CREATE);
         mBleSacnEngine = BleSacnEngine.getInStance(context);
         mBleSacnEngine.startScan();
 
@@ -68,12 +79,14 @@ public class BleConnectionProxy {
 
         checkDeviceBatteryTimerTask();
 
+        LocalBroadcastManager.getInstance(context).registerReceiver(mStatusReceive, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+
         IntentFilter statusFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         context.registerReceiver(mStatusReceive, statusFilter);
 
     }
 
-    private final ServiceConnection mConnection = new ServiceConnection() {
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
@@ -101,17 +114,8 @@ public class BleConnectionProxy {
         init(context);
     }
 
-    private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String address = intent.getStringExtra(LeProxy.EXTRA_ADDRESS);
-            String action = intent.getAction();
-            onReceiveBleConnectionChange(address, action);
-        }
-    };
-
     //处理蓝牙连接、数据变化
-    private void onReceiveBleConnectionChange(String address, String action) {
+    void onReceiveBleConnectionChange(String address, String action) {
         switch (action){
             case LeProxy.ACTION_GATT_CONNECTED:
                 Log.i(TAG,"已连接 " + " "+address + " ");
@@ -131,18 +135,13 @@ public class BleConnectionProxy {
                 break;
             case LeProxy.ACTION_GATT_SERVICES_DISCOVERED:
                 Log.i(TAG,"Services discovered: " + address);
-
                 break;
-
             case LeProxy.ACTION_RSSI_AVAILABLE:// 更新rssi
                 break;
-
             case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
                 break;
         }
     }
-
-
 
     //新的设备连接成功
     private void onDeviceConnectSuccessful(String address) {
@@ -153,16 +152,17 @@ public class BleConnectionProxy {
             mBleSacnEngine.scanLeDevice(false);//停止扫描
             if (!mIsConnectted){
                 mIsConnectted = true;
-                mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_CONNECTED);
-                BleDataProxy.getInstance().updateLightStateByHeart(0);
+                //mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_CONNECTED);
+                BleDataProxy.getInstance().postBleDataOnBus(msgType_Connect,connectTypeConnected);
+                BleDataProxy.getInstance().updateLightStateByCurHeart(0);
             }
             mClothDeviceConnecedMac = address ;
 
             int clothDeviceType = mConnectionConfiguration.clothDeviceType;
             Log.i(TAG,"clothDeviceType:"+clothDeviceType);
 
-            if (clothDeviceType==BleConstant.clothDeviceType_old_encrypt || clothDeviceType==BleConstant.clothDeviceType_old_noEncrypt || clothDeviceType==BleConstant.clothDeviceType_AMSU_EStartWith){
-
+            if (clothDeviceType==BleConstant.clothDeviceType_old_encrypt || clothDeviceType==BleConstant.clothDeviceType_old_noEncrypt ||
+                    clothDeviceType==BleConstant.clothDeviceType_AMSU_EStartWith){
                 sendStartDataTransmitOrderToBlueTooth();
                 startSynDeviceOrderTimerTask();
 
@@ -189,7 +189,8 @@ public class BleConnectionProxy {
                 mBleSacnEngine.scanLeDevice(false); //停止扫描
                 if (!mIsConnectted){
                     mIsConnectted = true;
-                    mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_CONNECTED);
+                    //mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_CONNECTED);
+                    BleDataProxy.getInstance().postBleDataOnBus(msgType_Connect,connectTypeConnected);
                 }
 
                 mInsoleDeviceBatteryInfos.put(address,new BleDevice());
@@ -200,8 +201,10 @@ public class BleConnectionProxy {
     }
 
     private void openClothAccData(String address){
-        boolean send = mLeProxy.send(address, "41332B01");
-        Log.i(TAG,"开机加速度指令："+send);
+        UUID serUuid = UUID.fromString(BleConstant.readSecondGenerationInfoSerUuid);
+        UUID charUuid = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_1);
+        boolean send = mLeProxy.send(address, serUuid, charUuid, "41332BFF", false);
+        Log.i(TAG,"开启加速度指令："+send);
     }
 
     //设备连接异常（连接异常、连接超时）
@@ -211,7 +214,8 @@ public class BleConnectionProxy {
 
         if (mIsConnectted){
             mIsConnectted = false;
-            mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_DISCONNECTED);
+            //mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_DISCONNECTED);
+            BleDataProxy.getInstance().postBleDataOnBus(msgType_Connect,connectTypeDisConnected);
         }
 
         if (mConnectionConfiguration.deviceType== BleConstant.sportType_Cloth){
@@ -301,7 +305,8 @@ public class BleConnectionProxy {
 
         if (mIsConnectted){
             mIsConnectted = false;
-            mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_DISCONNECTED);
+            //mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_DISCONNECTED);
+            BleDataProxy.getInstance().postBleDataOnBus(msgType_Connect,connectTypeDisConnected);
         }
     }
 
@@ -376,23 +381,13 @@ public class BleConnectionProxy {
                             sleepTime = 5000;   //鞋垫主机在连接成功后需要睡眠5秒，设备电量才能正确的读取到
                         }
 
-                        try {
-                            Thread.sleep(sleepTime);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        SystemClock.sleep(sleepTime);
                     }
 
                     if (!isReadBatterySendOK){
-                        UUID serUuid = UUID.fromString(BleConstant.readInsoleBatterySerUuid);
-                        UUID charUuid = UUID.fromString(BleConstant.readInsoleBatteryCharUuid);
-                        isReadBatterySendOK = mLeProxy.readCharacteristic(address, serUuid, charUuid);
+                        isReadBatterySendOK = mLeProxy.readCharacteristic(address, BleConstant.readInsoleBatterySerUuidUUID, BleConstant.readInsoleBatteryCharUuidUUID);
                         Log.i(TAG,"isReadBatterySendOK:"+ isReadBatterySendOK);
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        SystemClock.sleep(100);
                     }
 
                     UUID readInsoleDeviceInfoSerUuid = UUID.fromString(BleConstant.readInsoleDeviceInfoSerUuid);
@@ -400,33 +395,21 @@ public class BleConnectionProxy {
                         UUID readInsoleDeviceInfoHardwareRevisionCharUuid = UUID.fromString(BleConstant.readInsoleDeviceInfoHardwareRevisionCharUuid);
                         isReadHardwareRevisionSendOK = mLeProxy.readCharacteristic(address, readInsoleDeviceInfoSerUuid, readInsoleDeviceInfoHardwareRevisionCharUuid);
                         Log.i(TAG,"isReadHardwareRevisionSendOK:"+ isReadHardwareRevisionSendOK);
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        SystemClock.sleep(100);
                     }
 
                     if (!isReadSoftwareRevisionSendOK || allLoopCount<=1){
                         UUID readInsoleDeviceInfoSoftwareRevisionCharUuid = UUID.fromString(BleConstant.readInsoleDeviceInfoSoftwareRevisionCharUuid);
                         isReadSoftwareRevisionSendOK = mLeProxy.readCharacteristic(address, readInsoleDeviceInfoSerUuid, readInsoleDeviceInfoSoftwareRevisionCharUuid);
                         Log.i(TAG,"isReadSoftwareRevisionSendOK:"+ isReadSoftwareRevisionSendOK);
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        SystemClock.sleep(100);
                     }
 
                     if (!isReadModelNumberSendOK || allLoopCount<=1){
                         UUID readInsoleDeviceInfoModelNumberCharUuid = UUID.fromString(BleConstant.readInsoleDeviceInfoModelNumberCharUuid);
                         isReadModelNumberSendOK = mLeProxy.readCharacteristic(address, readInsoleDeviceInfoSerUuid, readInsoleDeviceInfoModelNumberCharUuid);
                         Log.i(TAG,"isReadModelNumberSendOK:"+ isReadModelNumberSendOK);
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        SystemClock.sleep(100);
                     }
 
                     openClothAccData(address);
@@ -441,14 +424,22 @@ public class BleConnectionProxy {
                     allLoopCount++;
                     Log.i(TAG,"allLoopCount:"+allLoopCount);
 
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    SystemClock.sleep(1000);
                 }
             }
         }.start();
+    }
+
+    //检查设备电量   5分钟读一次电量
+    private void checkDeviceBatteryTimerTask() {
+        long timeSpan = 1000*60*5;
+        TimerTaskUtil mReadDeviceBatteryTaskUtil = new TimerTaskUtil();
+        mReadDeviceBatteryTaskUtil.startTimeRiseTimerTask(timeSpan, new TimerTask() {
+            @Override
+            public void run() {
+                sendLookBleBatteryInfoOrder();
+            }
+        });
     }
 
     //发送查询设备电量信息指令
@@ -462,25 +453,12 @@ public class BleConnectionProxy {
             }
         }
         else {
-            UUID serUuid = UUID.fromString(BleConstant.readInsoleBatterySerUuid);
-            UUID charUuid = UUID.fromString(BleConstant.readInsoleBatteryCharUuid);
+            //有几个鞋垫连接上就获取几个的电量
             for (String address : mInsoleDeviceBatteryInfos.keySet()) {
-                boolean isSendOK = mLeProxy.readCharacteristic(address, serUuid, charUuid);
+                boolean isSendOK = mLeProxy.readCharacteristic(address, BleConstant.readInsoleBatterySerUuidUUID, BleConstant.readInsoleBatteryCharUuidUUID);
                 Log.i(TAG,"查看电量 isSendOK:"+isSendOK);
             }
         }
-    }
-
-    //检查设备电量   5分钟读一次电量
-    private void checkDeviceBatteryTimerTask() {
-        long timeSpan = 1000*60*5;
-        TimerTaskUtil mReadDeviceBatteryTaskUtil = new TimerTaskUtil();
-        mReadDeviceBatteryTaskUtil.startTimeRiseTimerTask(timeSpan, new TimerTask() {
-            @Override
-            public void run() {
-                sendLookBleBatteryInfoOrder();
-            }
-        });
     }
 
     //给蓝牙设备同步指令
@@ -508,7 +486,7 @@ public class BleConnectionProxy {
             else if (maxRate*0.95<mCurrentHeartRate){
                 hrateIndexHex = "00";
             }
-            String hexSynOrder = "FF070B"+ EcgAccDataUtil.getDataHexStringHaveScend()+hrateIndexHex+"16";
+            String hexSynOrder = "FF070B"+ EcgAccDataUtil.getCurDateHexString()+hrateIndexHex+"16";
             boolean send = mLeProxy.send(mClothDeviceConnecedMac, DataUtil.hexToByteArray(hexSynOrder));  //有可能会抛出android.os.DeadObjectException
             Log.i(TAG,"同步指令connecMac:"+ mClothDeviceConnecedMac +",hrateIndexHex:"+hrateIndexHex+"  send:"+send);
         }
@@ -532,6 +510,10 @@ public class BleConnectionProxy {
 
     public void setmIsDataStart(boolean mIsDataStart) {
         this.mIsDataStart = mIsDataStart;
+    }
+
+    public boolean ismIsDataStart() {
+        return mIsDataStart;
     }
 
     public int getClothCurrBatteryPowerPercent() {

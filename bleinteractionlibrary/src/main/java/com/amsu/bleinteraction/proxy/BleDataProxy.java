@@ -1,11 +1,12 @@
 package com.amsu.bleinteraction.proxy;
 
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.amsu.bleinteraction.bean.BleCallBackEvent;
 import com.amsu.bleinteraction.bean.BleDevice;
+import com.amsu.bleinteraction.bean.MessageEvent;
 import com.amsu.bleinteraction.utils.BleConstant;
 import com.amsu.bleinteraction.utils.DataTypeConversionUtil;
 import com.amsu.bleinteraction.utils.EcgAccDataUtil;
@@ -15,6 +16,10 @@ import com.amsu.bleinteraction.utils.ResultCalcuUtil;
 import com.amsu.bleinteraction.utils.SharedPreferencesUtil;
 import com.ble.api.DataUtil;
 import com.test.objects.HeartRate;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.UUID;
 
@@ -45,7 +50,7 @@ public class BleDataProxy {
 
     private ResultCalcuUtil mResultCalcuUtil;
     private BleConnectionProxy mConnectionProxy;
-
+    private MessageEvent mMessageEvent;
 
 
     public static BleDataProxy getInstance(){
@@ -59,6 +64,8 @@ public class BleDataProxy {
         mLeProxy = LeProxy.getInstance();
         mConnectionProxy = BleConnectionProxy.getInstance();
         mEcgFilterUtil_1 = EcgFilterUtil_1.getInstance();
+
+        mMessageEvent = new MessageEvent();
 
         mResultCalcuUtil = new ResultCalcuUtil();
         mResultCalcuUtil.setOnHeartCalcuListener(new ResultCalcuUtil.OnHeartCalcuListener() {
@@ -74,6 +81,19 @@ public class BleDataProxy {
             }
         });
 
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(BleCallBackEvent event) {
+        Log.i(TAG, "event:"+event);
+        switch (event.messageType){
+            case BleConnectionProxy.msgType_Connect:
+
+                break;
+            case BleConnectionProxy.msgType_BatteryPercent:
+
+                break;
+        }
     }
 
     void bleCharacteristicChanged(String address, BluetoothGattCharacteristic characteristic){
@@ -139,48 +159,65 @@ public class BleDataProxy {
 
 
     private void dealWithOnePackageEcgData(int[] valuableEcgData,String address,String hexData) {
+        boolean ismIsDataStart = mConnectionProxy.ismIsDataStart();  //当连接上时ismIsDataStart为false，收到数据时把这个值设置为true
         mConnectionProxy.setmIsDataStart(true);
 
         if (hexData.equals(CLOTH_CONNECTED_DROP_RECEIVER_DATA)){
             //导联脱落,让硬件灯闪烁(注：在导联脱落时立马发送命令让灯闪烁，以后便收到这个数据不再发命令，而是根据收到心率后判断是否脱落，脱落就发送)
-            if (!mIsDeviceDroped){
+            if (!ismIsDataStart || !mIsDeviceDroped){
                 Log.i(TAG,"脱落，开始循序闪");
                 sendControlLightOrder(BleConstant.threenlightSpacedFlickerOrder,address);
                 mIsDeviceDroped = true;
             }
         }
         else {
-            if (mIsDeviceDroped){
+            if (!ismIsDataStart || mIsDeviceDroped){
                 //之前是脱落，需要重置灯的状态，默认设置为蓝灯常亮
                 sendControlLightOrder(BleConstant.blueLightAlwaysOnOrder,address);
                 Log.i(TAG,"设备连接恢复正常");
+                mIsDeviceDroped = false;
             }
-            mIsDeviceDroped = false;
         }
 
         int[] clone = valuableEcgData.clone();
 
-        String intString = "";
+        /*String intString = "";
         for (int i:valuableEcgData){
             intString+=i+",";
         }
-        Log.i(TAG,"滤波前心电:"+intString +"  ");
+        Log.i(TAG,"滤波前心电:"+intString +"  ");*/
 
 
         ecgDataFilter(valuableEcgData);
 
-        String intStringA = "";
+        /*String intStringA = "";
         for (int i:valuableEcgData){
             intStringA+=i+",";
         }
-        Log.w(TAG,"滤波后心电:"+intStringA);
-
+        Log.w(TAG,"滤波后心电:"+intStringA);*/
 
         mResultCalcuUtil.notifyReciveAcgPackageData(clone,valuableEcgData);
 
-        Intent intent = new Intent(LeProxy.ACTION_DATA_AVAILABLE);
+        /*Intent intent = new Intent(LeProxy.ACTION_DATA_AVAILABLE);
         intent.putExtra(EXTRA_ECG_DATA, valuableEcgData);
-        mLeProxy.updateBroadcast(intent);
+        mLeProxy.updateBroadcast(intent);*/
+
+        postBleDataOnBus(BleConnectionProxy.msgType_ecgDataArray,valuableEcgData);
+
+
+
+    }
+
+    private void postBleDataOnBus(int messageType, int[] dataArray) {
+        mMessageEvent.messageType = messageType;
+        mMessageEvent.dataArray = dataArray;
+        EventBus.getDefault().post(mMessageEvent);
+    }
+
+    void postBleDataOnBus(int messageType, int data) {
+        mMessageEvent.messageType = messageType;
+        mMessageEvent.singleValue = data;
+        EventBus.getDefault().post(mMessageEvent);
     }
 
     //滤波处理
@@ -192,11 +229,13 @@ public class BleDataProxy {
 
     //收到心率，4s一次
     private void updateUIECGHeartData(int heartRate) {
-        Intent intent = new Intent(LeProxy.ACTION_DATA_AVAILABLE);
+        /*Intent intent = new Intent(LeProxy.ACTION_DATA_AVAILABLE);
         intent.putExtra(EXTRA_HEART_DATA, heartRate);
         mLeProxy.updateBroadcast(intent);
         mConnectionProxy.setCurrentHeartRate(heartRate);
-        updateLightStateByHeart(heartRate);
+        updateLightStateByCurHeart(heartRate);*/
+
+        postBleDataOnBus(BleConnectionProxy.msgType_HeartRate,heartRate);
     }
 
     private boolean isSetBleUnstabitily;
@@ -216,16 +255,19 @@ public class BleDataProxy {
 
     //收到步频
     private void updateUIStrideData(int stride) {
-        Intent intent = new Intent(LeProxy.ACTION_DATA_AVAILABLE);
+        /*Intent intent = new Intent(LeProxy.ACTION_DATA_AVAILABLE);
         intent.putExtra(EXTRA_STRIDE_DATA, stride);
-        mLeProxy.updateBroadcast(intent);
+        mLeProxy.updateBroadcast(intent);*/
+
+        postBleDataOnBus(BleConnectionProxy.msgType_Stride,stride);
     }
 
     //收到电量
-    private void updateBatteryData(int percent) {
-        Intent intent = new Intent(LeProxy.ACTION_BATTERY_DATA_AVAILABLE);
+    private void updateBatteryData(int batteryPercent) {
+        /*Intent intent = new Intent(LeProxy.ACTION_BATTERY_DATA_AVAILABLE);
         intent.putExtra(EXTRA_BATTERY_DATA, percent);
-        mLeProxy.updateBroadcast(intent);
+        mLeProxy.updateBroadcast(intent);*/
+        postBleDataOnBus(BleConnectionProxy.msgType_BatteryPercent,batteryPercent);
     }
 
     /**文件名不传入（或传入null）时，会有默认的文件名.. 在传入文件时，表示之前有记录数据，异常停止时，需要再次追加写到之前的文件里
@@ -275,36 +317,34 @@ public class BleDataProxy {
         }
         else {
             //心率，暂时保留
-            //updateLightStateByHeart(address, intValue);
+            //updateLightStateByCurHeart(address, intValue);
         }
     }
 
     //根据心率改变灯的状态
-    public void updateLightStateByHeart(int intValue) {
+    public void updateLightStateByCurHeart(int curHeartRate) {
         String address = mConnectionProxy.getmClothDeviceConnecedMac();
-        if (intValue!=mPreHeartRate && intValue!=0 && !mIsDeviceDroped){
-            //心率不一样则改变灯的闪烁状态,  42382B01FF(1号灯常亮)，42382B0100(1号灯关闭),   42382BFF03(导联脱落,03为间隔0.3s)
-            int maxRate = 220- mConnectionProxy.getmConnectionConfiguration().userAge;
-            String data  = "";
-            if (intValue <=maxRate*0.75){
-                data  = BleConstant.blueLightAlwaysOnOrder;  //蓝灯
-            }
-            else if (maxRate*0.75<intValue && intValue<=maxRate*0.95){
-                data  = BleConstant.greenLightAlwaysOnOrder;  //绿灯
-            }
-            else if (maxRate*0.95<intValue){
-                data  = BleConstant.redLightAlwaysOnOrder;  //红灯
-            }
-
-            //if (!MyUtil.isEmpty(data) && !data.equals(mPreControlLightOrder)){
-            if (!TextUtils.isEmpty(data)){
+        if (!mIsDeviceDroped){
+            if (curHeartRate!=mPreHeartRate){
+                //心率不一样则改变灯的闪烁状态,  42382B01FF(1号灯常亮)，42382B0100(1号灯关闭),   42382BFF03(导联脱落,03为间隔0.3s)
+                int maxRate = 220- mConnectionProxy.getmConnectionConfiguration().userAge;
+                String data  = "";
+                if (curHeartRate <=maxRate*0.75){
+                    data  = BleConstant.blueLightAlwaysOnOrder;  //蓝灯
+                }
+                else if (maxRate*0.75<curHeartRate && curHeartRate<=maxRate*0.95){
+                    data  = BleConstant.greenLightAlwaysOnOrder;  //绿灯
+                }
+                else if (maxRate*0.95<curHeartRate){
+                    data  = BleConstant.redLightAlwaysOnOrder;  //红灯
+                }
                 sendControlLightOrder(data,address);
             }
         }
-        else if (mIsDeviceDroped){
+        else {  //导联脱落
             sendControlLightOrder(BleConstant.threenlightSpacedFlickerOrder,address);
         }
-        mPreHeartRate = intValue;
+        mPreHeartRate = curHeartRate;
     }
 
     //发送控制灯的命令
@@ -469,7 +509,8 @@ public class BleDataProxy {
         String[] split = hexData.split(" ");
         if (split[3].equals("01")){
             //有离线数据，需要回调给显示端
-            mLeProxy.updateBroadcast(LeProxy.ACTION_RECEIVE_EXIT_OFFLINEFILE);
+            postBleDataOnBus(BleConnectionProxy.msgType_OfflineFile,1);
+            //mLeProxy.updateBroadcast(LeProxy.ACTION_RECEIVE_EXIT_OFFLINEFILE);
         }
     }
 

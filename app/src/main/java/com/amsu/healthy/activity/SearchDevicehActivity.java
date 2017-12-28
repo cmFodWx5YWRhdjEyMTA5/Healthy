@@ -38,7 +38,6 @@ public class SearchDevicehActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_searc_deviceh);
 
-
         initView();
         initDate();
     }

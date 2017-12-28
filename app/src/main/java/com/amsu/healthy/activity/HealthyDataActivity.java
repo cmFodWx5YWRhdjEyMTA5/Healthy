@@ -1,13 +1,11 @@
 package com.amsu.healthy.activity;
 
 import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetDialog;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -18,9 +16,9 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.amsu.bleinteraction.bean.MessageEvent;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.BleDataProxy;
-import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.bleinteraction.utils.EcgAccDataUtil;
 import com.amsu.healthy.R;
 import com.amsu.healthy.receiver.SmsReceiver;
@@ -31,6 +29,10 @@ import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.ShowNotificationBarUtil;
 import com.amsu.healthy.utils.SosSendUtil;
 import com.amsu.healthy.view.EcgView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 
@@ -106,7 +108,7 @@ public class HealthyDataActivity extends BaseActivity {
             mBleDataProxy.setRecordingStarted();
         }
 
-        LocalBroadcastManager.getInstance(HealthyDataActivity.this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
+        EventBus.getDefault().register(this);
 
         heartRateDates = new ArrayList<>();
 
@@ -114,34 +116,27 @@ public class HealthyDataActivity extends BaseActivity {
 
         if (clothCurrBatteryPowerPercent !=-1){
             tv_base_charge.setVisibility(View.VISIBLE);
-            tv_base_charge.setText(clothCurrBatteryPowerPercent +"%");
+            tv_base_charge.setText(String.valueOf(clothCurrBatteryPowerPercent));
         }
 
     }
 
-    private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()){
-                case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
-                    dealwithLebDataChange(intent);
-                    break;
-            }
-        }
-    };
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i(TAG,"onStart:");
+    }
 
-    private void dealwithLebDataChange(Intent intent) {
-        //Log.i(TAG,"接收到从机数据");
-        int[] intArrayExtra = intent.getIntArrayExtra(BleDataProxy.EXTRA_ECG_DATA);
-        int heartRate = intent.getIntExtra(BleDataProxy.EXTRA_HEART_DATA,-1);
 
-        if (intArrayExtra!=null && intArrayExtra.length== EcgAccDataUtil.ecgOneGroupLength){
-            //Log.i(TAG,"intArrayExtra:"+ Arrays.toString(intArrayExtra));
-            dealWithEcgData(intArrayExtra);
-        }
-        else if (heartRate!=-1){
-            Log.i(TAG,"heartRate:"+heartRate);
-            updateUIECGHeartData(heartRate);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        switch (event.messageType){
+            case BleConnectionProxy.msgType_HeartRate:
+                updateUIECGHeartData(event.singleValue);
+                break;
+            case BleConnectionProxy.msgType_ecgDataArray:
+                dealWithEcgData(event.dataArray);
+                break;
         }
     }
 
@@ -255,7 +250,7 @@ public class HealthyDataActivity extends BaseActivity {
             iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
             if (mBleConnectionProxy.getClothCurrBatteryPowerPercent() !=-1){
                 tv_base_charge.setVisibility(View.VISIBLE);
-                tv_base_charge.setText(mBleConnectionProxy.getClothCurrBatteryPowerPercent() +"%");
+                tv_base_charge.setText(String.valueOf(mBleConnectionProxy.getClothCurrBatteryPowerPercent()+"%"));
             }
         }
         else {
@@ -301,10 +296,12 @@ public class HealthyDataActivity extends BaseActivity {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
 
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
+        EventBus.getDefault().unregister(this);
+
         if (heartRateDates.size()>0){
             ShowNotificationBarUtil.detoryServiceForegrounByNotify();
         }
+
     }
 
     //按返回键时的处理

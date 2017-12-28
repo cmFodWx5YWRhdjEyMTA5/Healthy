@@ -1,13 +1,10 @@
 package com.amsu.healthy.activity;
 
 import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +14,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amsu.bleinteraction.bean.BleDevice;
+import com.amsu.bleinteraction.bean.MessageEvent;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.bleinteraction.utils.BleConstant;
@@ -35,6 +33,10 @@ import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -281,7 +283,7 @@ public class MyDeviceActivity extends BaseActivity {
             }
         });
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
+        EventBus.getDefault().register(this);
     }
 
     private boolean JudgeIsContainNoPower(Map<String, BleDevice> insoleDeviceBatteryInfos) {
@@ -293,50 +295,30 @@ public class MyDeviceActivity extends BaseActivity {
         return false;
     }
 
-
-    private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (lv_device_devicelist==null || lv_device_devicelist.getChildAt(mBndDevicePostion)==null)return;
-
-            TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);
-            switch (intent.getAction()){
-                case LeProxy.ACTION_GATT_CONNECTED:// 接收到从机数据
-
-                    if (MyApplication.deivceType==Constant.sportType_Cloth || BleConnectionProxy.getInstance().getmInsoleDeviceBatteryInfos().size()==2){
-                        Log.i(TAG,"设备连接");
-                        if (MyApplication.deivceType==Constant.sportType_Cloth){
-                            BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
-                            if (bleDeviceFromSP !=null && bleDeviceFromSP.getMac().equals(bleDeviceList.get(mBndDevicePostion).getMac())){
-                                tv_item_state.setText(getResources().getString(R.string.connected));
-                                tv_item_state.setTextColor(Color.parseColor("#43CD80"));
-                            }
-                        }
-                        else {
-                            tv_item_state.setText(getResources().getString(R.string.connected));
-                            tv_item_state.setTextColor(Color.parseColor("#43CD80"));
-                        }
-
-
-                    }
-                    break;
-                case LeProxy.ACTION_GATT_DISCONNECTED:
-                    Log.w(TAG,"已断开 ");
-                    tv_item_state.setText(getResources().getString(R.string.unconnected));
-                    tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
-                    break;
-                case LeProxy.ACTION_CONNECT_ERROR:
-                    Log.w(TAG,"连接异常 ");
-                    tv_item_state.setText(getResources().getString(R.string.unconnected));
-                    tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
-                    break;
-                case LeProxy.ACTION_CONNECT_TIMEOUT:
-                    tv_item_state.setText(getResources().getString(R.string.unconnected));
-                    tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
-                    break;
-            }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        switch (event.messageType){
+            case BleConnectionProxy.msgType_Connect:
+                Log.i(TAG,"连接变化" );
+                setDeviceConnectedState(event.singleValue);
+                break;
         }
-    };
+    }
+
+    private void setDeviceConnectedState(int singleValue) {
+        if (lv_device_devicelist==null || lv_device_devicelist.getChildAt(mBndDevicePostion)==null)return;
+        TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);
+
+        if(singleValue==BleConnectionProxy.connectTypeConnected) {
+            Log.i(TAG,"设备连接");
+            tv_item_state.setText(getResources().getString(R.string.connected));
+            tv_item_state.setTextColor(Color.parseColor("#43CD80"));
+        } else if (singleValue == BleConnectionProxy.connectTypeDisConnected){
+            tv_item_state.setText(getResources().getString(R.string.unconnected));
+            tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
+        }
+    }
+
 
     private void bingDeviceToServer(final BleDevice bleDevice, final int position, final boolean iSNeedUnbind, final int deviceType) {
         Log.i(TAG,"绑定：bleDevice "+ bleDevice.toString());
@@ -592,7 +574,7 @@ public class MyDeviceActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG,"MyDeviceActivity onDestroy");
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
+        EventBus.getDefault().unregister(this);
     }
 
 }

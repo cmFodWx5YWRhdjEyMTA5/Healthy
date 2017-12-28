@@ -1,11 +1,9 @@
 package com.amsu.healthy.activity.marathon;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -17,8 +15,9 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.model.LatLng;
+import com.amsu.bleinteraction.bean.MessageEvent;
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.BleDataProxy;
-import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
 import com.amsu.healthy.activity.HealthyDataActivity;
@@ -38,6 +37,10 @@ import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -105,7 +108,9 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
         testButtons_rl = findViewById(R.id.testButtons_rl);
         rl_run_lock = findViewById(R.id.rl_run_lock);
         rl_run_glide = (GlideRelativeView) findViewById(R.id.rl_run_glide);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
+
+        EventBus.getDefault().register(this);
+
         application = (MyApplication) getApplication();
         application.setRunningRecoverType(Constant.sportType_Cloth);
         application.setRunningCurrTimeDate(mCurrTimeDate = new Date(0, 0, 0));
@@ -329,7 +334,8 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
         super.onDestroy();
         enduranceTest = false;
         countDownTimer.cancel();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalReceiver);
+        EventBus.getDefault().unregister(this);
+
         destorySportInfoTOAPP();
     }
 
@@ -416,17 +422,17 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
         return distance;
     }
 
-    private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
-                    //dealwithLebDataChange(DataUtil.byteArrayToHex(intent.getByteArrayExtra(LeProxy.EXTRA_DATA)));
-                    dealwithLebDataChange(intent);
-                    break;
-            }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        switch (event.messageType){
+            case BleConnectionProxy.msgType_HeartRate:
+                updateUIECGHeartData(event.singleValue);
+                break;
+            case BleConnectionProxy.msgType_Stride:
+                updateUIStrideData(event.singleValue);
+                break;
         }
-    };
+    }
 
     private void dealwithLebDataChange(Intent intent) {
         int stride = intent.getIntExtra(BleDataProxy.EXTRA_STRIDE_DATA, -1);

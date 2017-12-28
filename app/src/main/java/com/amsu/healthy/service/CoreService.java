@@ -1,11 +1,9 @@
 package com.amsu.healthy.service;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -13,9 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.amsu.bleinteraction.bean.BleDevice;
+import com.amsu.bleinteraction.bean.MessageEvent;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
-import com.amsu.bleinteraction.proxy.BleDataProxy;
-import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.bleinteraction.utils.BleConstant;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
@@ -28,6 +25,10 @@ import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.PopupWindowUtil;
 import com.amsu.healthy.utils.ScreenManageUtil;
 import com.amsu.healthy.utils.SportRecoveryUtil;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class CoreService extends Service {
     private static final String TAG = CoreService.class.getSimpleName();
@@ -56,8 +57,6 @@ public class CoreService extends Service {
     private void init() {
         initBleDataTrasmit();
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalReceiver, LeProxy.makeFilter());
-
         if (MyApplication.getInstance().mCoreService==null){
             MyApplication.getInstance().mCoreService = this;
         }
@@ -65,6 +64,8 @@ public class CoreService extends Service {
         ScreenManageUtil.stratListenScrrenBroadCast(this);
 
         SportRecoveryUtil.judgeRecoverRunState(this);
+
+        EventBus.getDefault().register(this);
     }
 
     private void initBleDataTrasmit(){
@@ -80,32 +81,24 @@ public class CoreService extends Service {
         mBleConnectionProxy.initConnectedConfiguration(new BleConnectionProxy.ConnectionConfiguration(userAge,isAutoOffline,deivceType,clothDeviceType,isNeedWriteFileHead),this);
     }
 
-    private final BroadcastReceiver mLocalReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()){
-                case LeProxy.ACTION_DEVICE_CONNECTED:
-                    Log.i(TAG,"已连接 " );
-                    setDeviceConnectedState(PopupWindowUtil.connectTypeConnected);
-                    break;
-                case LeProxy.ACTION_DEVICE_DISCONNECTED:
-                    Log.w(TAG,"已断开 ");
-                    setDeviceConnectedState(PopupWindowUtil.connectTypeDisConnected);
-                    break;
-                case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
-                    //dealwithLebDataChange(intent);
-                    break;
-                case LeProxy.ACTION_BATTERY_DATA_AVAILABLE:// 接收到电量数据
-                    Log.w(TAG,"电量变化");
-                    dealwithLebBatteryChange(intent);
-                    break;
-                case LeProxy.ACTION_RECEIVE_EXIT_OFFLINEFILE:
-                    Log.w(TAG,"主机发现离线文件");
-                    break;
-            }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        switch (event.messageType){
+            case BleConnectionProxy.msgType_Connect:
+                Log.i(TAG,"连接变化" );//event.singleValue为连接状态，等于BleConnectionProxy.connectTypeConnected为连接成功，BleConnectionProxy.connectTypeDisConnected为断开连接
+                setDeviceConnectedState(event.singleValue);
+                break;
+            case BleConnectionProxy.msgType_BatteryPercent:
+                Log.w(TAG,"电量变化");//event.singleValue为电量int值
+                dealwithLebBatteryChange(event.singleValue);
+                break;
+            case BleConnectionProxy.msgType_OfflineFile:
+                Log.w(TAG,"主机发现离线文件");//暂时不用做处理
+                break;
         }
+    }
 
-    };
+
 
     private void setDeviceConnectedState(int deviceConnectedState){
         BaseActivity baseActivity = MyApplication.getInstance().getmCurrApplicationActivity();
@@ -116,7 +109,7 @@ public class CoreService extends Service {
             int deviceType = mBleConnectionProxy.getmConnectionConfiguration().deviceType;
             String msg = "";
 
-            if (deviceConnectedState == PopupWindowUtil.connectTypeConnected){
+            if (deviceConnectedState == BleConnectionProxy.connectTypeConnected){
                 iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
                 if (deviceType==Constant.sportType_Cloth){
                     msg = getResources().getString(R.string.sportswear_connection_successful);
@@ -125,7 +118,7 @@ public class CoreService extends Service {
                     msg = getResources().getString(R.string.insole_connection_successful);
                 }
             }
-            else if (deviceConnectedState == PopupWindowUtil.connectTypeDisConnected){
+            else if (deviceConnectedState == BleConnectionProxy.connectTypeDisConnected){
                 iv_base_connectedstate.setImageResource(R.drawable.duankai);
                 tv_base_charge.setVisibility(View.GONE);
                 if (deviceType==Constant.sportType_Cloth){
@@ -144,8 +137,8 @@ public class CoreService extends Service {
 
     }
 
-    private void dealwithLebBatteryChange(Intent intent) {
-        int intExtra = intent.getIntExtra(BleDataProxy.EXTRA_BATTERY_DATA, -1);
+    private void dealwithLebBatteryChange(int intExtra) {
+
         BaseActivity baseActivity = MyApplication.getInstance().getmCurrApplicationActivity();
         if (baseActivity instanceof MainActivity || baseActivity instanceof HealthyDataActivity){
             TextView tv_base_charge = (TextView) baseActivity.findViewById(R.id.tv_base_charge);
@@ -177,6 +170,9 @@ public class CoreService extends Service {
 
     }
 
-
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 }
