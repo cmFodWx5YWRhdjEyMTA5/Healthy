@@ -2,19 +2,9 @@ package com.amsu.healthy.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.design.widget.BottomSheetDialog;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.Window;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
-import com.amsu.bleinteraction.utils.EcgAccDataUtil;
-import com.amsu.healthy.R;
-import com.amsu.healthy.view.EcgView;
 
 /**
  * @anthor haijun
@@ -30,7 +20,7 @@ public class HeartShowWayUtil {
 
     //更新心率：4s更新一次，如果2个心率差值大于20，则递增显示
     public static void updateHeartUI(final int heartRate, final TextView tv_healthydata_rate, final Activity activity) {
-        Log.i(TAG,"heartRate========================================："+heartRate);
+        //Log.i(TAG,"heartRate========================================："+heartRate);
         if (mPreHeartRate>0 && heartRate>0){
             int count = 0;
             final int d_value = heartRate - mPreHeartRate;
@@ -40,7 +30,7 @@ public class HeartShowWayUtil {
             } else if (d_value < -D_valueMaxValue) {
                 count = (d_value) / D_valueMaxValue - 1;
             }
-            Log.i(TAG,"count："+count);
+            //Log.i(TAG,"count："+count);
             if (count != 0) {
                 final int finalCount = count;
                 new Thread(){
@@ -55,13 +45,13 @@ public class HeartShowWayUtil {
                                     @Override
                                     public void run() {
                                         tv_healthydata_rate.setText(heart +"");
-                                        Log.i(TAG,"分段设置值 i:"+ finalI +",heart:"+heart);
+                                        //Log.i(TAG,"分段设置值 i:"+ finalI +",heart:"+heart);
                                     }
                                 });
                             }
                             try {
                                 long millis = (long) (1000*3f / Math.abs(finalCount));
-                                Log.i(TAG,"睡眠:"+ millis);
+                                //Log.i(TAG,"睡眠:"+ millis);
                                 Thread.sleep(millis);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
@@ -93,7 +83,7 @@ public class HeartShowWayUtil {
             String showHeartString = heartRate==0?"--":heartRate+"";
             tv_healthydata_rate.setText(showHeartString);
 
-            Log.i(TAG,"mPreHeartRate:"+ mPreHeartRate);
+            //Log.i(TAG,"mPreHeartRate:"+ mPreHeartRate);
             mPreHeartRate = heartRate;
         }catch (Exception e){
         }

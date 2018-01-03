@@ -298,7 +298,7 @@ public class MyDeviceActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         switch (event.messageType){
-            case BleConnectionProxy.msgType_Connect:
+            case msgType_Connect:
                 Log.i(TAG,"连接变化" );
                 setDeviceConnectedState(event.singleValue);
                 break;

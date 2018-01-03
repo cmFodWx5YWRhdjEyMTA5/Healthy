@@ -16,7 +16,6 @@ import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.model.LatLng;
 import com.amsu.bleinteraction.bean.MessageEvent;
-import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.BleDataProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
@@ -425,10 +424,10 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         switch (event.messageType){
-            case BleConnectionProxy.msgType_HeartRate:
+            case msgType_HeartRate:
                 updateUIECGHeartData(event.singleValue);
                 break;
-            case BleConnectionProxy.msgType_Stride:
+            case msgType_Stride:
                 updateUIStrideData(event.singleValue);
                 break;
         }

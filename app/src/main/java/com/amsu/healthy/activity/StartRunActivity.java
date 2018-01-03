@@ -616,15 +616,15 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         switch (event.messageType){
-            case BleConnectionProxy.msgType_Connect:
+            case msgType_Connect:
                 Log.i(TAG,"连接变化" );
                 boolean isConnected = event.singleValue == BleConnectionProxy.connectTypeConnected;
                 setDeviceConnectedState(isConnected);
                 break;
-            case BleConnectionProxy.msgType_HeartRate:
+            case msgType_HeartRate:
                 updateUIECGHeartData(event.singleValue);
                 break;
-            case BleConnectionProxy.msgType_Stride:
+            case msgType_Stride:
                 updateUIStrideData(event.singleValue);
                 break;
         }

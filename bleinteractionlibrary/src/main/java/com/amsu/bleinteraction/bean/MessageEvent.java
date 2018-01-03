@@ -1,5 +1,7 @@
 package com.amsu.bleinteraction.bean;
 
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+
 /**
  * @anthor haijun
  * @project name: MyApplication
@@ -8,7 +10,7 @@ package com.amsu.bleinteraction.bean;
  * @describe
  */
 public class MessageEvent {
-    public int messageType;
+    public BleConnectionProxy.MessageEventType messageType;
     public int singleValue;
     public int[] dataArray;
     public String address;

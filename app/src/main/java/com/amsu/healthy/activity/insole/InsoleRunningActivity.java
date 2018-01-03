@@ -1281,7 +1281,8 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
         }
         Log.i(TAG,"abortDataListFromSP.size():"+abortDataListFromSP.size());*/
 
-        MyUtil.putStringValueFromSP("abortDatas","");
+        //MyUtil.putStringValueFromSP("abortDatas","");
+        AppAbortDbAdapterUtil.deleteAbortDataRecordFomeSP();
     }
 
     //高德地图

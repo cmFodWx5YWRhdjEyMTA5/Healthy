@@ -14,10 +14,10 @@ import com.amsu.bleinteraction.utils.EcgAccDataUtil;
 import com.amsu.healthy.R;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 /**
@@ -36,7 +36,9 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     private int ecgPerCount = 10;//每次画心电数据的个数，心电每秒有15个数据包
 
     public List<Integer> ecgDatas = new ArrayList<>();
-    private Queue<Integer> ecgOneGroupData = new LinkedList<>();
+
+    //private Queue<Integer> ecgOneGroupData = new LinkedList<>();
+    private Queue<Integer> ecgOneGroupData = new ConcurrentLinkedQueue<>(); //ConcurrentLinkedQueue为队列线程安全操作
 
     private Paint mLinePaint;//背景
     private Paint mWavePaint;//画波形图的画笔
@@ -46,8 +48,8 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     private int startY0;
     private Rect rect;
 
-    private int startX;//每次画线的X坐标起点
-    private double ecgXOffset;//每次X坐标偏移的像素
+    private float mStartX;//每次画线的X坐标起点
+    private float ecgXOffset;//每次X坐标偏移的像素
     private float blankLineWidth = getResources().getDimension(R.dimen.x40);;//右侧空白点的宽度
 
  /*   private static SoundPool soundPool;
@@ -147,7 +149,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceDestroyed(SurfaceHolder holder) {
         //按home键时会调用次方法，界面销毁。则将画图的起点设为0，从头开始画
         Log.i(TAG,"surfaceDestroyed");
-        startX = 0;
+        mStartX = 0;
         stopThread();
     }
 
@@ -186,21 +188,23 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     };
 
     private void startDrawWave(){
-        rect.set(startX, 0, (int) (startX + lockWidth + blankLineWidth), mHeight);
+        rect.set((int) mStartX, 0, (int) (mStartX + lockWidth + blankLineWidth), mHeight);
+
         mCanvas = surfaceHolder.lockCanvas(rect);
         if(mCanvas == null) return;
         initBackground(mCanvas);
         if (isStartCacheDrawLine){
             drawCacheWave();
+            mStartX = (int) (mStartX + lockWidth);
         }
         else {
             drawWaveOneGroup();
         }
 
         surfaceHolder.unlockCanvasAndPost(mCanvas);
-        startX = (int) (startX + lockWidth);
-        if(startX > mWidth){
-            startX = 0;
+        //mStartX = (int) (mStartX + lockWidth);
+        if(mStartX >= mWidth){
+            mStartX = 0;
         }
     }
 
@@ -209,20 +213,20 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         //Log.i(TAG,"ecgOneGroupData.size():"+ecgOneGroupData.size());
         try{
             int count = ecgOneGroupData.size();
-            //count = count>10?10:count;
+            count = count>11?11:count;
 
             if (count>0){
-                float mStartX = startX;
+                float tempStartX = (int)mStartX;
                 for(int i=0;i<count;i++){
-                    float newX = (float) (mStartX + ecgXOffset);
+                    float newX = tempStartX + ecgXOffset;
                     int newY = ecgConver(ecgOneGroupData.poll());
-                    mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
-                    //Log.i(TAG,"x1:"+mStartX+",y1:"+startY0+"。x1:"+newX+",y1:"+newY);
-                    mStartX = newX;
+                    mCanvas.drawLine(tempStartX, startY0, newX, newY, mWavePaint);
+                    //Log.i(TAG,"tempStartX:"+tempStartX+",newX:"+newX);
+                    tempStartX = newX;
                     startY0 = newY;
                 }
+                mStartX = tempStartX ;
             }
-
 
             /*if(ecgOneGroupData.size() == ecgPerCount){
                 for(int i=0;i<ecgPerCount;i++){
@@ -246,6 +250,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
             }*/
         }catch (NoSuchElementException e){
             e.printStackTrace();
+            Log.e(TAG,"e:"+e);
         }
     }
 
@@ -253,7 +258,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     private void drawCacheWave(){
         if (ecgDatas.size()>0){
             try{
-                float mStartX = startX;
+                float mStartX = this.mStartX;
 
                 for(int i=0;i<ecgPerCount;i++){
                     float newX = (float) (mStartX + ecgXOffset);
@@ -316,11 +321,11 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         for (int i=0;i<data.length;i++){
             ecgOneGroupData.add(data[i]);
         }
-        startDrawWave();
+        //startDrawWave();
 
-        /*if (!isRunning){
+        if (!isRunning){
             startThread();
-        }*/
+        }
     }
 
     //通过文件添加数据
@@ -353,7 +358,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
 
         mLinePaint.setStrokeWidth(smallGridWidth/2);
 
-        Log.i(TAG,"getStrokeWidth():"+mLinePaint.getStrokeWidth());
+        //Log.i(TAG,"getStrokeWidth():"+mLinePaint.getStrokeWidth());
 
         //画竖线
         for(int i = 0;i<vSNum+1;i++){
@@ -381,11 +386,11 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
                 mLinePaint.setStrokeWidth(smallGridWidth/2);
             }*/
 
-            Log.i(TAG,"mLinePaint.getStrokeWidth():"+mLinePaint.getStrokeWidth());
+            //Log.i(TAG,"mLinePaint.getStrokeWidth():"+mLinePaint.getStrokeWidth());
             canvas.drawLine(i*mGridWidth,0,i*mGridWidth,hNum*mGridWidth,mLinePaint);
         }
-        Log.i(TAG,"hNum:"+hNum);
-        Log.i(TAG,"smallGridWidth:"+smallGridWidth);
+        //Log.i(TAG,"hNum:"+hNum);
+        //Log.i(TAG,"smallGridWidth:"+smallGridWidth);
 
 
 
@@ -396,7 +401,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
             }else {
                 mLinePaint.setStrokeWidth(smallGridWidth/2);
             }*/
-            Log.i(TAG,"mLinePaint.getStrokeWidth():"+mLinePaint.getStrokeWidth());
+            //Log.i(TAG,"mLinePaint.getStrokeWidth():"+mLinePaint.getStrokeWidth());
             canvas.drawLine(0,i*mGridWidth,mWidth,i*mGridWidth,mLinePaint);
         }
     }

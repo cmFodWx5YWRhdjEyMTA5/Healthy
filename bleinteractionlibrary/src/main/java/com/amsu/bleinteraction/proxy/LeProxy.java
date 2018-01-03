@@ -24,8 +24,6 @@ import com.ble.ble.oad.OADProxy;
 import com.ble.ble.oad.OADType;
 import com.ble.ble.util.GattUtil;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -323,9 +321,9 @@ public class LeProxy {
 
         @Override
         public void onCharacteristicChanged(String address, BluetoothGattCharacteristic characteristic) {
-            Log.i(TAG, "onCharacteristicChanged() - " + address + " uuid=" + characteristic.getUuid().toString()
+            /*Log.i(TAG, "onCharacteristicChanged() - " + address + " uuid=" + characteristic.getUuid().toString()
                     + "   len=" + characteristic.getValue().length
-                    + " [" + DataUtil.byteArrayToHex(characteristic.getValue()) + ']');
+                    + " [" + DataUtil.byteArrayToHex(characteristic.getValue()) + ']');*/
 
             BleDataProxy.getInstance().bleCharacteristicChanged(address,characteristic);
 
@@ -588,19 +586,6 @@ public class LeProxy {
             }
         }
     };
-
-    private void postBleDataOnBus(int messageType, BluetoothGattCharacteristic characteristic,String address) {
-        mBleCallBackEvent.messageType = messageType;
-        mBleCallBackEvent.characteristic = characteristic;
-        mBleCallBackEvent.address = address;
-        EventBus.getDefault().post(mBleCallBackEvent);
-    }
-
-    private void postBleDataOnBus(int messageType, String address) {
-        mBleCallBackEvent.messageType = messageType;
-        mBleCallBackEvent.address = address;
-        EventBus.getDefault().post(mBleCallBackEvent);
-    }
 
 
 }

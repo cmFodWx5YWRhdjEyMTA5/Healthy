@@ -131,10 +131,10 @@ public class HealthyDataActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         switch (event.messageType){
-            case BleConnectionProxy.msgType_HeartRate:
+            case msgType_HeartRate:
                 updateUIECGHeartData(event.singleValue);
                 break;
-            case BleConnectionProxy.msgType_ecgDataArray:
+            case msgType_ecgDataArray:
                 dealWithEcgData(event.dataArray);
                 break;
         }
@@ -153,6 +153,7 @@ public class HealthyDataActivity extends BaseActivity {
     }
 
     private void updateUIECGHeartData(int heartRate) {
+        //Log.i("HeartShowWayUtil","HealthyDataActivity收到心率:"+heartRate);
         updateNotify(heartRate);
         HeartShowWayUtil.updateHeartUI(heartRate,tv_healthydata_rate,this);
         //tv_healthydata_rate.setText(heartRate+"");

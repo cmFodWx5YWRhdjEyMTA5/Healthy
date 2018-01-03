@@ -84,15 +84,15 @@ public class CoreService extends Service {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         switch (event.messageType){
-            case BleConnectionProxy.msgType_Connect:
+            case msgType_Connect:
                 Log.i(TAG,"连接变化" );//event.singleValue为连接状态，等于BleConnectionProxy.connectTypeConnected为连接成功，BleConnectionProxy.connectTypeDisConnected为断开连接
                 setDeviceConnectedState(event.singleValue);
                 break;
-            case BleConnectionProxy.msgType_BatteryPercent:
+            case msgType_BatteryPercent:
                 Log.w(TAG,"电量变化");//event.singleValue为电量int值
                 dealwithLebBatteryChange(event.singleValue);
                 break;
-            case BleConnectionProxy.msgType_OfflineFile:
+            case msgType_OfflineFile:
                 Log.w(TAG,"主机发现离线文件");//暂时不用做处理
                 break;
         }

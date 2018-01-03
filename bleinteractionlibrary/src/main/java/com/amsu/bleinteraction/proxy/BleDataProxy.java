@@ -50,6 +50,7 @@ public class BleDataProxy {
 
     private ResultCalcuUtil mResultCalcuUtil;
     private BleConnectionProxy mConnectionProxy;
+    private MessageEvent mEcgMessageEvent;
     private MessageEvent mMessageEvent;
 
 
@@ -66,6 +67,7 @@ public class BleDataProxy {
         mEcgFilterUtil_1 = EcgFilterUtil_1.getInstance();
 
         mMessageEvent = new MessageEvent();
+        mEcgMessageEvent = new MessageEvent();
 
         mResultCalcuUtil = new ResultCalcuUtil();
         mResultCalcuUtil.setOnHeartCalcuListener(new ResultCalcuUtil.OnHeartCalcuListener() {
@@ -87,10 +89,10 @@ public class BleDataProxy {
     public void onMessageEvent(BleCallBackEvent event) {
         Log.i(TAG, "event:"+event);
         switch (event.messageType){
-            case BleConnectionProxy.msgType_Connect:
+            case msgType_Connect:
 
                 break;
-            case BleConnectionProxy.msgType_BatteryPercent:
+            case msgType_BatteryPercent:
 
                 break;
         }
@@ -202,19 +204,19 @@ public class BleDataProxy {
         intent.putExtra(EXTRA_ECG_DATA, valuableEcgData);
         mLeProxy.updateBroadcast(intent);*/
 
-        postBleDataOnBus(BleConnectionProxy.msgType_ecgDataArray,valuableEcgData);
+        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_ecgDataArray,valuableEcgData);
 
 
 
     }
 
-    private void postBleDataOnBus(int messageType, int[] dataArray) {
-        mMessageEvent.messageType = messageType;
-        mMessageEvent.dataArray = dataArray;
-        EventBus.getDefault().post(mMessageEvent);
+    private void postBleDataOnBus(BleConnectionProxy.MessageEventType messageType, int[] dataArray) {
+        mEcgMessageEvent.messageType = messageType;
+        mEcgMessageEvent.dataArray = dataArray;
+        EventBus.getDefault().post(mEcgMessageEvent);
     }
 
-    void postBleDataOnBus(int messageType, int data) {
+    void postBleDataOnBus(BleConnectionProxy.MessageEventType messageType, int data) {
         mMessageEvent.messageType = messageType;
         mMessageEvent.singleValue = data;
         EventBus.getDefault().post(mMessageEvent);
@@ -235,7 +237,8 @@ public class BleDataProxy {
         mConnectionProxy.setCurrentHeartRate(heartRate);
         updateLightStateByCurHeart(heartRate);*/
 
-        postBleDataOnBus(BleConnectionProxy.msgType_HeartRate,heartRate);
+        //Log.i("HeartShowWayUtil","收到heartRate:"+heartRate);
+        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_HeartRate,heartRate);
     }
 
     private boolean isSetBleUnstabitily;
@@ -259,7 +262,7 @@ public class BleDataProxy {
         intent.putExtra(EXTRA_STRIDE_DATA, stride);
         mLeProxy.updateBroadcast(intent);*/
 
-        postBleDataOnBus(BleConnectionProxy.msgType_Stride,stride);
+        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_Stride,stride);
     }
 
     //收到电量
@@ -267,7 +270,7 @@ public class BleDataProxy {
         /*Intent intent = new Intent(LeProxy.ACTION_BATTERY_DATA_AVAILABLE);
         intent.putExtra(EXTRA_BATTERY_DATA, percent);
         mLeProxy.updateBroadcast(intent);*/
-        postBleDataOnBus(BleConnectionProxy.msgType_BatteryPercent,batteryPercent);
+        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_BatteryPercent,batteryPercent);
     }
 
     /**文件名不传入（或传入null）时，会有默认的文件名.. 在传入文件时，表示之前有记录数据，异常停止时，需要再次追加写到之前的文件里
@@ -509,7 +512,7 @@ public class BleDataProxy {
         String[] split = hexData.split(" ");
         if (split[3].equals("01")){
             //有离线数据，需要回调给显示端
-            postBleDataOnBus(BleConnectionProxy.msgType_OfflineFile,1);
+            postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_OfflineFile,1);
             //mLeProxy.updateBroadcast(LeProxy.ACTION_RECEIVE_EXIT_OFFLINEFILE);
         }
     }

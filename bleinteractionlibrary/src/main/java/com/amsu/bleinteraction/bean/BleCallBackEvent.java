@@ -2,6 +2,8 @@ package com.amsu.bleinteraction.bean;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+
 /**
  * @anthor haijun
  * @project name: Healthy-master
@@ -11,7 +13,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
  */
 public class BleCallBackEvent {
     public String address;
-    public int messageType;
+    public BleConnectionProxy.MessageEventType messageType;
     public BluetoothGattCharacteristic characteristic;
 
     @Override

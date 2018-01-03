@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.amsu.bleinteraction.bean.MessageEvent;
-import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.Constant;
@@ -148,7 +147,7 @@ public class CalculateHRRProcessActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         switch (event.messageType){
-            case BleConnectionProxy.msgType_HeartRate:
+            case msgType_HeartRate:
                 int heartRate = event.singleValue;
                 Log.i(TAG,"heartRate:"+heartRate);
                 if (heartRate!=-1){

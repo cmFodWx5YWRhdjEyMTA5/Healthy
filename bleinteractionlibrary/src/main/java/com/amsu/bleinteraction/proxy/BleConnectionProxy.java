@@ -52,12 +52,21 @@ public class BleConnectionProxy {
     public static final int connectTypeConnected = 1;
     public static final int connectTypeUnstabitily = 2;
 
-    public static final int msgType_Connect = 1;
+    /*public static final int msgType_Connect = 1;
     public static final int msgType_HeartRate = 2;
     public static final int msgType_Stride = 3;
     public static final int msgType_BatteryPercent = 4;
     public static final int msgType_OfflineFile = 5;
-    public static final int msgType_ecgDataArray = 6;
+    public static final int msgType_ecgDataArray = 6;*/
+
+
+    public enum BleConnectionStateType {
+        connectTypeDisConnected, connectTypeConnected, connectTypeUnstabitily
+    }
+
+    public enum MessageEventType {
+        msgType_Connect, msgType_HeartRate, msgType_Stride, msgType_BatteryPercent,msgType_OfflineFile,msgType_ecgDataArray
+    }
 
     public static BleConnectionProxy getInstance(){
         if (mBleConnectionProxy ==null){
@@ -153,7 +162,7 @@ public class BleConnectionProxy {
             if (!mIsConnectted){
                 mIsConnectted = true;
                 //mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_CONNECTED);
-                BleDataProxy.getInstance().postBleDataOnBus(msgType_Connect,connectTypeConnected);
+                BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeConnected);
                 BleDataProxy.getInstance().updateLightStateByCurHeart(0);
             }
             mClothDeviceConnecedMac = address ;
@@ -190,7 +199,7 @@ public class BleConnectionProxy {
                 if (!mIsConnectted){
                     mIsConnectted = true;
                     //mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_CONNECTED);
-                    BleDataProxy.getInstance().postBleDataOnBus(msgType_Connect,connectTypeConnected);
+                    BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeConnected);
                 }
 
                 mInsoleDeviceBatteryInfos.put(address,new BleDevice());
@@ -215,7 +224,7 @@ public class BleConnectionProxy {
         if (mIsConnectted){
             mIsConnectted = false;
             //mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_DISCONNECTED);
-            BleDataProxy.getInstance().postBleDataOnBus(msgType_Connect,connectTypeDisConnected);
+            BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeDisConnected);
         }
 
         if (mConnectionConfiguration.deviceType== BleConstant.sportType_Cloth){
@@ -306,7 +315,7 @@ public class BleConnectionProxy {
         if (mIsConnectted){
             mIsConnectted = false;
             //mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_DISCONNECTED);
-            BleDataProxy.getInstance().postBleDataOnBus(msgType_Connect,connectTypeDisConnected);
+            BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeDisConnected);
         }
     }
 

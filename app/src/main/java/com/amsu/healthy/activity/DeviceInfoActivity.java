@@ -702,7 +702,7 @@ public class DeviceInfoActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         switch (event.messageType){
-            case BleConnectionProxy.msgType_BatteryPercent:
+            case msgType_BatteryPercent:
                 int intExtra =  event.singleValue;
                 Log.i(TAG,"电量变化:"+intExtra);
                 if (intExtra==-1){
@@ -713,7 +713,7 @@ public class DeviceInfoActivity extends BaseActivity {
                     tv_device_electric.setText(intExtra+"");
                 }
                 break;
-            case BleConnectionProxy.msgType_Connect:
+            case msgType_Connect:
                 boolean isConnected = event.singleValue == BleConnectionProxy.connectTypeConnected;
                 if (!isConnected){
                     tv_device_electric.setText("--");
