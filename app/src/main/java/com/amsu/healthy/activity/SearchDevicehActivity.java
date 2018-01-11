@@ -207,9 +207,10 @@ public class SearchDevicehActivity extends BaseActivity {
             String leName = device.getName();
             if (leName!=null && (leName.startsWith("BLE") || leName.startsWith("AMSU") || leName.startsWith("AMSU_P")) && device.getName().length()<25){
 
-
+                Log.i(TAG,"scanRecord:"+bytesToHex(scanRecord));
 
                 String hexData = DataUtil.byteArrayToHex(scanRecord);
+
                 //02 01 06 03 FF 00 00 0B 09 41 4D 53 55 5F 45 43 36 42 41 03 03 0D 18 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
                 if (hexData.startsWith("02 01 06")){

@@ -557,4 +557,17 @@ public class BleConnectionProxy {
     public void setmClothDeviceConnecedMac(String mClothDeviceConnecedMac) {
         this.mClothDeviceConnecedMac = mClothDeviceConnecedMac;
     }
+
+    public void setDeviceTypeChanged(int deviceType){
+        SharedPreferencesUtil.putIntValueFromSP(BleConstant.mClothDeviceType,deviceType);
+        mConnectionConfiguration.clothDeviceType = deviceType;
+        if (deviceType==BleConstant.clothDeviceType_old_encrypt){
+            mLeProxy.setmBleDataEncrypt(true);
+        }
+        else {
+            mLeProxy.setmBleDataEncrypt(false);
+        }
+    }
+
+
 }

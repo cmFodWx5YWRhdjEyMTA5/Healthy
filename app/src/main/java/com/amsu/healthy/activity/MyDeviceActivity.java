@@ -389,12 +389,15 @@ public class MyDeviceActivity extends BaseActivity {
 
 
                         if (bleDevice.getLEName().startsWith("BLE")){
-                            SharedPreferencesUtil.putIntValueFromSP(BleConstant.mClothDeviceType,BleConstant.clothDeviceType_old_encrypt);
-                            BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType = BleConstant.clothDeviceType_old_encrypt;
+                            BleConnectionProxy.getInstance().setDeviceTypeChanged(BleConstant.clothDeviceType_old_encrypt);
+
+                            //SharedPreferencesUtil.putIntValueFromSP(BleConstant.mClothDeviceType,BleConstant.clothDeviceType_old_encrypt);
+                            //BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType = BleConstant.clothDeviceType_old_encrypt;
                         }
                         else if (bleDevice.getLEName().startsWith("AMSU")){
-                            SharedPreferencesUtil.putIntValueFromSP(BleConstant.mClothDeviceType, BleConstant.clothDeviceType_AMSU_EStartWith);
-                            BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType = BleConstant.clothDeviceType_AMSU_EStartWith;
+                            BleConnectionProxy.getInstance().setDeviceTypeChanged(BleConstant.clothDeviceType_AMSU_EStartWith);
+                            //SharedPreferencesUtil.putIntValueFromSP(BleConstant.mClothDeviceType, BleConstant.clothDeviceType_AMSU_EStartWith);
+                            //BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType = BleConstant.clothDeviceType_AMSU_EStartWith;
                         }
 
                         if (iSNeedUnbind){

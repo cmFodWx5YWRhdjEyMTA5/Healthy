@@ -10,7 +10,6 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.amsu.bleinteraction.bean.BleCallBackEvent;
 import com.amsu.bleinteraction.utils.BleConstant;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
@@ -62,7 +61,6 @@ public class LeProxy {
     private static LeProxy mInstance;
     private BleService mBleService;
     private boolean mBleDataEncrypt;
-    private BleCallBackEvent mBleCallBackEvent;
 
     private LeProxy(){
     }
@@ -76,7 +74,6 @@ public class LeProxy {
 
     //bleDataEncrypt为数据是否加密
     public void setBleService(IBinder binder,boolean bleDataEncrypt){
-        mBleCallBackEvent = new BleCallBackEvent();
 
         mBleDataEncrypt = bleDataEncrypt;
         mBleService = ((BleService.LocalBinder) binder).getService(mBleCallBack);
@@ -587,5 +584,10 @@ public class LeProxy {
         }
     };
 
+
+    public void setmBleDataEncrypt(boolean mBleDataEncrypt) {
+        this.mBleDataEncrypt = mBleDataEncrypt;
+        mBleService.setDecode(mBleDataEncrypt);
+    }
 
 }
