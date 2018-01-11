@@ -223,10 +223,6 @@ public class SearchDevicehActivity extends BaseActivity {
                     Log.i(TAG,"vendorDataStringLength:"+vendorDataStringLength);
 
                     if (vendorDataStringLength>3){
-                        //没有绑定
-
-                    }
-                    else {
                         //已经被绑定过
                         String vendorDataHexString = "";
                         for (int i = 0; i < vendorDataStringLength; i++) {
@@ -235,6 +231,11 @@ public class SearchDevicehActivity extends BaseActivity {
                         Log.i(TAG,"vendorDataHexString:"+vendorDataHexString);
                         String vendorDataString = DataTypeConversionUtil.convertHexToString(vendorDataHexString);
                         Log.i(TAG,"vendorDataString:"+vendorDataString);
+
+
+                    }
+                    else {
+                        //没有绑定
                     }
 
                 }

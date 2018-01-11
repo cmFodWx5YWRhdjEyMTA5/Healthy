@@ -558,10 +558,11 @@ public class BleConnectionProxy {
         this.mClothDeviceConnecedMac = mClothDeviceConnecedMac;
     }
 
-    public void setDeviceTypeChanged(int deviceType){
-        SharedPreferencesUtil.putIntValueFromSP(BleConstant.mClothDeviceType,deviceType);
-        mConnectionConfiguration.clothDeviceType = deviceType;
-        if (deviceType==BleConstant.clothDeviceType_old_encrypt){
+    public void setDeviceBindSuccess(BleDevice bleDevice,int clothDeviceType){
+        SharedPreferencesUtil.saveDeviceToSP(bleDevice,BleConstant.sportType_Cloth);  //设置运动模式切换到衣服（衣服、鞋垫）
+        SharedPreferencesUtil.putIntValueFromSP(BleConstant.mClothDeviceType,clothDeviceType);  //设置衣服的设备主机类型（旧主机、二代、amsu新主机、旧主机）
+        mConnectionConfiguration.clothDeviceType = clothDeviceType;
+        if (clothDeviceType==BleConstant.clothDeviceType_old_encrypt){
             mLeProxy.setmBleDataEncrypt(true);
         }
         else {

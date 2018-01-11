@@ -201,7 +201,7 @@ public class DeviceInfoActivity extends BaseActivity {
     }
 
     public void unBindDevice(View view) {
-        BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(mDevicetype);
+        final BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(mDevicetype);
         if (bleDeviceFromSP !=null){
             HttpUtils httpUtils = new HttpUtils();
             RequestParams params = new RequestParams();
@@ -238,11 +238,9 @@ public class DeviceInfoActivity extends BaseActivity {
                     if (jsonBase.getRet() == 0){
                         restult = getResources().getString(R.string.unBinding_success);
                         //绑定成功
-                        MyUtil.saveDeviceToSP(null,mDevicetype);
+
                         Intent intent = getIntent();
                         setResult(RESULT_OK, intent);
-
-
 
                         if (mDevicetype==Constant.sportType_Cloth){
                             //将连接的衣服断开
@@ -250,11 +248,11 @@ public class DeviceInfoActivity extends BaseActivity {
                                 //断开蓝牙连接
                                 mLeProxy.disconnect(BleConnectionProxy.getInstance().getmClothDeviceConnecedMac());
                             }
-                            BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType = Constant.clothDeviceType_Default_NO;
-                            MyUtil.putIntValueFromSP(Constant.mClothDeviceType,Constant.clothDeviceType_Default_NO);
+                            BleConnectionProxy.getInstance().setDeviceBindSuccess(null,Constant.clothDeviceType_Default_NO);
                         }
                         else {
                             //将连接的鞋垫断开
+                            MyUtil.saveDeviceToSP(null,mDevicetype);
                             Map<String, BleDevice> stringBleDeviceMap = BleConnectionProxy.getInstance().getmInsoleDeviceBatteryInfos();
                             Collection<BleDevice> values = stringBleDeviceMap.values();
                             for (BleDevice bleDevice : values) {
