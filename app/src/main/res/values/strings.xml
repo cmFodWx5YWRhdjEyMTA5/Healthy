@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">倾听体语</string>
 
+
     <string name="indicator">健康指标</string>
     <string name="warning">预警指标</string>
     <string name="stationary_ecg">静态心电</string>
@@ -139,6 +140,8 @@
     <string name="cardiac_leak">漏博</string>
     <string name="premature_beat">早搏</string>
 
+    <string name="times">次</string>
+
     <string name="new_health_plan">新建健康计划</string>
     <string name="enter_title">输入标题</string>
     <string name="enter_content">输入内容</string>
@@ -195,7 +198,9 @@
     <string name="device_close_to_your_cell">请将设备尽量靠近手机</string>
     <string name="searching">正在搜索</string>
     <string name="The_clothe_is_binding">衣服正在绑定</string>
+    <string name="The_insole_is_binding">鞋垫正在绑定</string>
     <string name="sure_you_want_to_switch">您已经绑定过衣服，确定要切换吗？</string>
+    <string name="sure_you_want_to_switch_insole">您已经绑定过鞋垫，确定要切换吗？</string>
     <string name="click_bind">点击绑定</string>
     <string name="bound">已绑定</string>
     <string name="unbound">解除绑定</string>
@@ -211,6 +216,7 @@
     <string name="clothing_host_automatically_offline">是否允许衣服主机自动离线</string>
     <string name="clothing_host_automatically_offline_explain">允许时，主机和APP蓝牙断开并在10秒内无连接时，主机进入离线模式</string>
 
+    <string name="connection_successful">设备连接成功</string>
     <string name="sportswear_connection_successful">运动衣连接成功</string>
     <string name="insole_connection_successful">鞋垫连接成功</string>
     <string name="sportswear_connection_disconnected">运动衣连接断开</string>
@@ -224,6 +230,7 @@
 
     <string name="company_info">阿木（深圳）新科技有限公司成立于2015年，专注于动态心电数据的准确捕捉和相关基础体征分析。为您的运动健康提供护航和科学指导！运动.健康，从"心"开始</string>
     <string name="company_right">阿木科技 版权所有</string>
+
 
     <string name="motion_detection">运动监测</string>
     <string name="ecg_graph">心电图</string>
@@ -357,10 +364,12 @@
     <string name="over_slow_suggetstion_lev6">您的心率很高，有心动过速趋势，注意适量增加运动量和保持运动强度，增加有氧训练时间，可提升心肺能力。</string>
 
     <string name="sosreBeat_suggetstion_lev1">并未发现早搏漏搏现象，您的心脏很棒，可以保持当前训练强度 </string>
-    <string name="sosreBeat_suggetstion_lev2">累计有1-5次漏搏，未发现早搏现象，通常可能因为精神紧张、吸烟、饮酒、生活不规律、夜间没有好好休息等原因所导致。如果单纯出现心脏漏跳一拍的感觉，但没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。还是可以保持一些较重负荷的锻炼计划的！ </string>
-    <string name="sosreBeat_suggetstion_lev3">发现1次早搏，漏搏1-10次， 偶尔的早搏可见于正常人，漏博次数较多，如果没有诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。可以适当进行有氧训练，提升心肺能力。</string>
-    <string name="sosreBeat_suggetstion_lev4">发现连续早搏1-3次，同时伴有漏搏1-10次，您的心脏功能不容乐观建议到医院进行详细的心电检查，请经常关注心脏是否有不适感。适度进行锻炼，劳逸结合。</string>
-    <string name="sosreBeat_suggetstion_lev5">在已知测试时间段内发现连续早搏超过3次，同时伴有漏搏1-5次，您的心脏有病理风险，建议您尽快到医院进行详细的心电检查。运动有风险，请减少高强度运动！</string>
+    <string name="sosreBeat_suggetstion_lev2">通常可能因为精神紧张、吸烟、饮酒、生活不规律、夜间没有好好休息等原因所导致。如果单纯出现心脏漏跳一拍的感觉，但没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。还是可以保持一些较重负荷的锻炼计划的！ </string>
+    <string name="sosreBeat_suggetstion_lev3">漏博次数较多，如果没有诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。可以适当进行有氧训练，提升心肺能力。</string>
+    <string name="sosreBeat_suggetstion_lev4">，您的心脏功能不容乐观建议到医院进行详细的心电检查，请经常关注心脏是否有不适感。适度进行锻炼，劳逸结合。</string>
+    <string name="sosreBeat_suggetstion_lev5">您的心脏有病理风险，建议您尽快到医院进行详细的心电检查。运动有风险，请减少高强度运动！</string>
+
+    <string name="sosreBeat_suggetstion_lev6">偶尔的早搏可见于正常人，不需要担心。</string>
 
     <string name="necessary_to_collect_recovery">是否计算恢复心率，需要采集一分钟的心电数据？</string>
 
@@ -377,7 +386,7 @@
     <string name="beforebeat_suggetstion_lev3">在已知测试时间段内发现连续早搏超过3次，建议您尽快到医院进行详细的心电检查。请经常关注心脏是否有不适感;</string>
 
     <string name="missbeat_suggetstion_lev1">未发现漏搏现象;</string>
-    <string name="missbeat_suggetstion_lev2">您发生过漏博现象，通常可能因为精神紧张、烟酒过度、生活不规律、夜间休息不足等原因所导致。如只出现心脏漏跳的感觉，没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则只需注意调整生活节奏保持良好生活习惯，不需要过分担心。"</string>
+    <string name="missbeat_suggetstion_lev2">通常可能因为精神紧张、烟酒过度、生活不规律、夜间休息不足等原因所导致。如只出现心脏漏跳的感觉，没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则只需注意调整生活节奏保持良好生活习惯，不需要过分担心。"</string>
 
     <string name="outdoor_running">户外跑步</string>
     <string name="indoor_running">室内跑步</string>
@@ -424,6 +433,7 @@
     <string name="hrv_body_fatigue_active_suggestion1">您刚才的运动量较少，体能还较为充足，还可以继续进行适度的体育锻炼达到更好的锻炼效果。</string>
     <string name="hrv_body_fatigue_active_suggestion2">您的体能消耗较大，建议您适当休息，劳逸结合才能达到最佳的锻炼效果。</string>
     <string name="hrv_body_fatigue_active_suggestion3">您的体力已经耗尽了，注意不要过度透支自己的体能，停下运动休息一下吧。</string>
+    <string name="hrv_body_fatigue_active_suggestion4">您现在身体状态刚刚好，继续运动or放松休息随心所欲吧！</string>
     <string name="endurance_test">耐力测试</string>
     <string name="roadwork">长跑练习</string>
     <string name="histories">历史纪录</string>
@@ -453,5 +463,81 @@
     <string name="add_information">补充资料</string>
     <string name="add_information_dec">您的资料没有完善，无法准确分析运动结果，请先完善资料</string>
 
+    <string name="record_upload_fail">数据上传失败，会在下次恢复时自动上传</string>
+    <string name="record_upload_success">数据上传成功</string>
+
+    <string name="login_failed">登录失败，请退出重新登陆</string>
+    <string name="Firmware_Update">固件更新</string>
+    <string name="Unbundling">解绑</string>
+    <string name="unBinding_success">解绑成功</string>
+    <string name="unBinding_failure">解绑失败</string>
+    <string name="Request_failure">请求失败，网络异常或服务器错误</string>
+    <string name="nonconnection">衣服未连接或连接异常</string>
+    <string name="no_firmware_version">不存在当前型号的固件版本</string>
+    <string name="Checking_version_information">正在检查版本信息</string>
+    <string name="not_need_updated">当前主机是最新版本，不需要更新</string>
+    <string name="new_firmware_version_updated">存在主机新固件版本,是否要现在更新</string>
+    <string name="package_download_completion">更新包下载完成</string>
+    <string name="Firmware_update_completion">固件更新完成</string>
+    <string name="Download_the_firmware_failed">下载固件失败，请检查网络是否正常，请重试</string>
+    <string name="Update_firmware_failed">更新固件失败，此过程需要和蓝牙保持连接，请重试</string>
+    <string name="package_does_not_exist">设备不存在存在或者安装包不存在</string>
+    <string name="package_download_failure">更新包下载失败</string>
+
+
+    <!--情绪指数（精神紧张或放松状态）-->
+    <string name="Emotional_index_health_opinion_1">您当前处于情绪高度紧张状态，也可能是一直专注于做一件事情，请适当放松一下。</string>
+    <string name="Emotional_index_health_opinion_2">您当前处于情绪比较紧张状态，换件事情做，也可以换换心情。</string>
+    <string name="Emotional_index_health_opinion_3">您当前处于情绪紧张状态，您的注意力还是满集中的。</string>
+    <string name="Emotional_index_health_opinion_4">您当前情绪比较放松，懒洋洋的心情不错吧</string>
+    <string name="Emotional_index_health_opinion_5">您当前情绪放松，内心在休息的时候，谁也打扰不了你。</string>
+    <string name="Emotional_index_health_opinion_6">您当前情绪很放松，看起来无所事事的样子了。</string>
+
+
+
+    <!--运动疲劳（SDNN）-->
+    <string name="Exercise_fatigue_opinion_1">您的身体充满活力。</string>
+    <string name="Exercise_fatigue_opinion_2">您的身体充满活力，但是精神非常疲惫，适当做一些较高强度体育锻炼，劳逸结合才能保持身心健康!</string>
+    <string name="Exercise_fatigue_opinion_3">您的身体充满活力，但是精神非常疲惫，适当做一些较高强度体育锻炼，劳逸结合才能保持身心健康!</string>
+    <string name="Exercise_fatigue_opinion_4">您的身体状态不错哦，但是精神有些疲累，不要想太多事情，通过进行一些体能训练来调整一下！</string>
+    <string name="Exercise_fatigue_opinion_5">您的体能很有潜力的，精神满满，注意保持不要用脑过度，还可以进行一些轻负荷的健身锻炼！</string>
+    <string name="Exercise_fatigue_opinion_6">你的身体似乎比较疲惫，但刚好是您思维活跃的时段，正是发挥您聪明才智的好机会，做一些的轻体力偏重脑力的活动吧！</string>
+    <string name="Exercise_fatigue_opinion_7">您看起来身体很疲惫，你需要休息了，但是你有一个充满活力的大脑，想一想自己还有那些没有解决的问题吧，可能灵感就在眼前！</string>
+
+    <string name="Offline_is_being_sent">正在发送离线指令</string>
+    <string name="clothes_are_not_connected_tooffline">衣服未连接，无法进入离线跑步</string>
+    <string name="Enter_the_offline_failure">进入离线失败，请点击重试</string>
+    <string name="The_host_is_off_the_line">主机已进入离线，快去跑步吧，记得回来同步跑步数据哦</string>
+
+    <string name="Quarterly_ECG_Report">季度心电报告</string>
+    <string name="year_ECG_Report">年度心电报告</string>
+
+    <string name="Quarterly_HRR_Report">季度HRR报告</string>
+    <string name="year_HRR_Report">年度HRR报告</string>
+
+    <string name="Quarterly_Heart_Rate_Report">季度心率报告</string>
+    <string name="year_Heart_Rate_Report">年度心率报告</string>
+
+    <string name="year">年</string>
+
+    <string name="first">第一</string>
+    <string name="Second">第二</string>
+    <string name="Third">第三</string>
+    <string name="Fourth">第四</string>
+
+    <string name="quarter">季度</string>
+    <string name="month">月</string>
+    <string name="day">日</string>
+
+    <string name="unknown">未知</string>
+
+    <string name="No_help_information_is_set">未设置求助信息，是否现在去设置？</string>
+    <string name="Picture_adjustment">画面调整</string>
+
+    <string name="Active_mode_switch_success">运动模式切换成功</string>
+    <string name="Off_line_running">离线跑</string>
+    <string name="Verification_code_error">验证码错误</string>
+    <string name="phone_number_format_error">手机号码格式错误</string>
+    <string name="One_more_exit_program">再按一次退出程序</string>
 
 </resources>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">BodyListener</string>
+    <string name="app_name">Body Listener</string>
     <string name="indicator">Indicator</string>
     <string name="warning">Warning</string>
     <string name="stationary_ecg">Stationary ECG</string>
@@ -51,7 +51,7 @@
     <string name="not_synchronized">Not synchronized</string>
     <string name="synced_data">Synced data</string>
     <string name="charging">Charging</string>
-    <string name="connected_guide1">Connect bleDevice to the bottom of the charging station</string>
+    <string name="connected_guide1">Connect device to the bottom of the charging station</string>
     <string name="connecteto_wifi">Connect to WiFi</string>
     <string name="connecteto_wifi_name">WiFi Name:Amsu</string>
     <string name="connecteto_wifi_password">WiFi Password:0123456789</string>
@@ -71,7 +71,7 @@
 
     <string name="exercise_analyze">Exercise</string>
     <string name="hrv_analyze">HRV</string>
-    <string name="hr_analyze">hr</string>
+    <string name="hr_analyze">HR</string>
     <string name="ecg_analyze">ECG</string>
     <string name="hrr_analyze">HRR</string>
 
@@ -125,13 +125,13 @@
     <string name="quarterly_report">quarterly</string>
     <string name="annual_report">annual</string>
 
-    <string name="monthly_rate_report">monthly heart rate report</string>
+    <string name="monthly_rate_report">monthly heart rate</string>
     <string name="quarterly_rate_report">quarterly heart rate report</string>
-    <string name="annual_rate_report">annual heart rate report</string>
-    <string name="monthly_ecg_report">monthly ECG report</string>
+    <string name="annual_rate_report">annual heart rate</string>
+    <string name="monthly_ecg_report">monthly ECG</string>
     <string name="quarterly_ecg_report">quarterly ECG report</string>
     <string name="annual_ecg_report">annual ECG report</string>
-    <string name="monthly_hrr_report">monthly HRR report</string>
+    <string name="monthly_hrr_report">monthly HRR</string>
     <string name="quarterly_hrr_report">quarterly HRR report</string>
     <string name="annual_hrr_report">annual HRR report</string>
 
@@ -193,12 +193,14 @@
     <string name="male">male</string>
     <string name="female">female</string>
 
-    <string name="add_new_device">Add new bleDevice</string>
-    <string name="searching_for_new_device">Searching for new bleDevice</string>
-    <string name="device_close_to_your_cell">Please put the bleDevice close to your cell phone</string>
+    <string name="add_new_device">Add new device</string>
+    <string name="searching_for_new_device">Searching for new device</string>
+    <string name="device_close_to_your_cell">Please put the device close to your cell phone</string>
     <string name="searching">Searching</string>
     <string name="The_clothe_is_binding">The clothe is binding</string>
-    <string name="sure_you_want_to_switch">You have bound your clothes. Are you sure you want to switch them?</string>
+    <string name="The_insole_is_binding">The insoles is binding</string>
+    <string name="sure_you_want_to_switch">Are you sure you want to switch cloth device?</string>
+    <string name="sure_you_want_to_switch_insole"> Are you sure you want to switch insole device?</string>
     <string name="click_bind">Click bind</string>
     <string name="bound">Bound</string>
     <string name="unbound">Unbound</string>
@@ -213,10 +215,11 @@
     <string name="insole">Insole</string>
     <string name="clothing_host_automatically_offline">Is the clothing host automatically offline</string>
     <string name="clothing_host_automatically_offline_explain">When enabled, the host and APP Bluetooth are disconnected and are disconnected in 10 seconds, and the host enters offline mode. (you need to restart the host after modification.)</string>
-    <string name="sportswear_connection_successful">Sportswear connection successful</string>
-    <string name="insole_connection_successful">Insole connection successful</string>
-    <string name="sportswear_connection_disconnected">Sportswear connection disconnected</string>
-    <string name="insole_connection_disconnected">Insole connection disconnected</string>
+    <string name="connection_successful">device connection successful</string>
+    <string name="sportswear_connection_successful">Sportswear connected</string>
+    <string name="insole_connection_successful">Insole connected</string>
+    <string name="sportswear_connection_disconnected">Sportswear is not connected</string>
+    <string name="insole_connection_disconnected">Insole is not connected</string>
 
 
     <string name="checking_version_information">Checking version information</string>
@@ -290,7 +293,7 @@
 
     <string name="HeartRate_suggetstion_fast">Heart rate too fast: for a healthy individual,stress and other factor could lead to fast heart rate. Please have enough rest, keep a happy mood, and consult to your doctor when it gets worse. </string>
     <string name="HeartRate_suggetstion_slow">Heart rate too slow: it is normal for a healthy individual, but consult to your doctor if it gets worse. </string>
-    <string name="HeartRate_suggetstion_nodata">Time is less than four minutes or bad connection with the bleDevice</string>
+    <string name="HeartRate_suggetstion_nodata">Time is less than four minutes or bad connection with the device</string>
     <string name="HeartRate_suggetstion_normal">normal heart rate</string>
 
     <string name="premature_beat_times">Premature beat </string>
@@ -357,10 +360,12 @@
     <string name="over_slow_suggetstion_lev6">You have very high heart rate, please increase your exercise to improveyour heart and lungs.  </string>
 
     <string name="sosreBeat_suggetstion_lev1">There is no evidence of premature heart beat. Your heart is great and please keep the current intensity. </string>
-    <string name="sosreBeat_suggetstion_lev2">There are 1–5 times of missed beat, no premature beat. It is likely that stress, cigarettes, alcohol, bad lifestyle, lack of sleep can lead to this condition. If it is very rare, please don’t worry and slightly slow down your exercise. </string>
-    <string name="sosreBeat_suggetstion_lev3">Found 1 times premature beat, 1-10 times the loss of stroke, the occasional premature beat can be seen in normal people, more frequent loss of Bo, if there is no such as dizziness, fatigue, fainting, and even angina feel, you do not need to worry too much. Aerobic exercises can be performed to improve cardiopulmonary function.</string>
-    <string name="sosreBeat_suggetstion_lev4">It is found that the continuous premature beat is 1-3 times, accompanied by 1-10 times of leakage stroke. Your heart function is not optimistic. It is recommended to have a detailed ECG examination in the hospital. Please pay attention to whether the heart feels uncomfortable or not. Moderate exercise, work and rest.</string>
-    <string name="sosreBeat_suggetstion_lev5">In the known test period, found more than 3 times of continuous premature beat, accompanied by leakage of 1-5 times, your heart has a pathological risk, I suggest you go to the hospital for detailed ECG examination as soon as possible. Exercise is risky. Please reduce the intensity of exercise!</string>
+    <string name="sosreBeat_suggetstion_lev2">It is likely that stress, cigarettes, alcohol, bad lifestyle, lack of sleep can lead to this condition. If it is very rare, please don’t worry and slightly slow down your exercise. </string>
+    <string name="sosreBeat_suggetstion_lev3">the occasional premature beat can be seen in normal people, more frequent loss of Bo, if there is no such as dizziness, fatigue, fainting, and even angina feel, you do not need to worry too much. Aerobic exercises can be performed to improve cardiopulmonary function.</string>
+    <string name="sosreBeat_suggetstion_lev4">Your heart function is not optimistic. It is recommended to have a detailed ECG examination in the hospital. Please pay attention to whether the heart feels uncomfortable or not. Moderate exercise, work and rest.</string>
+    <string name="sosreBeat_suggetstion_lev5">your heart has a pathological risk, I suggest you go to the hospital for detailed ECG examination as soon as possible. Exercise is risky. Please reduce the intensity of exercise!</string>
+
+    <string name="sosreBeat_suggetstion_lev6">The occasional premature beat can be seen in normal people, and there is no need to worry.</string>
 
     <string name="necessary_to_collect_recovery">Is it necessary to collect one minute of ECG data to calculate the recovery of heart rate?</string>
 
@@ -377,7 +382,7 @@
     <string name="beforebeat_suggetstion_lev3">In the known test period, found that continuous premature beat more than 3 times, your heart has a pathological risk, suggest you go to the hospital as soon as possible for detailed ECG examination. Please pay attention to whether the heart feels uncomfortable or not.</string>
 
     <string name="missbeat_suggetstion_lev1">There is no leakage. Your heart is excellent and can keep the current training intensity.</string>
-    <string name="missbeat_suggetstion_lev2">You have had a phenomenon of leakage, usually due to mental stress, excessive alcohol and tobacco, irregular life, lack of night rest and so on. If there is only a feeling of cardiac leakage, no other symptoms such as dizziness, fatigue, fainting or even angina pectoris, it is important to adjust the pace of life, maintain good habits, and do not have to worry too much.</string>
+    <string name="missbeat_suggetstion_lev2">usually due to mental stress, excessive alcohol and tobacco, irregular life, lack of night rest and so on. If there is only a feeling of cardiac leakage, no other symptoms such as dizziness, fatigue, fainting or even angina pectoris, it is important to adjust the pace of life, maintain good habits, and do not have to worry too much.</string>
 
     <string name="outdoor_running">Outdoor running</string>
     <string name="indoor_running">Indoor running</string>
@@ -390,8 +395,8 @@
     <string name="keep_running">Keep running </string>
     <string name="end_the_run">end the run</string>
 
-    <string name="modify_device_name">Modify bleDevice name</string>
-    <string name="input_device_name">Input bleDevice name</string>
+    <string name="modify_device_name">Modify device name</string>
+    <string name="input_device_name">Input device name</string>
     <string name="actual_age">Actual age</string>
     <string name="loading_more">Loading more</string>
 
@@ -424,9 +429,91 @@
     <string name="hrv_body_fatigue_active_suggestion1">You just a small amount of exercise, physical fitness is relatively adequate, you can also continue to moderate physical exercise, to achieve better exercise effect.</string>
     <string name="hrv_body_fatigue_active_suggestion2">Your physical energy consumption is large, it is recommended that you rest properly, work and rest in order to achieve the best exercise effect.</string>
     <string name="hrv_body_fatigue_active_suggestion3">Your physical strength has been exhausted, pay attention to not excessive overdraft of their physical fitness, stop the exercise, rest.</string>
+    <string name="hrv_body_fatigue_active_suggestion4">You are in a good state of mind now, and continue to exercise or to relax and relax.</string>
 
     <string name="add_information">add information</string>
     <string name="add_information_dec">our data is not perfect, can not accurately analyze the results of the movement, please first perfect information</string>
+    <string name="login_failed">Login failed, please drop out again</string>
+    <string name="Firmware_Update">Firmware Update</string>
+    <string name="Unbundling">Unbundling</string>
+    <string name="unBinding_success">unBinding success</string>
+    <string name="unBinding_failure">unBinding failure</string>
+    <string name="Request_failure">Request failure, network exception or server error</string>
+    <string name="nonconnection">There is no connection on the device</string>
+    <string name="no_firmware_version">There is no firmware version of the current model</string>
+    <string name="Checking_version_information">Checking version information</string>
+    <string name="not_need_updated">The current host is the latest version and does not need to be updated</string>
+    <string name="new_firmware_version_updated">There is a new firmware version of the host, and is it now to be updated</string>
+    <string name="package_download_completion">Update package download completion</string>
+    <string name="Firmware_update_completion">Firmware update completion</string>
+    <string name="Download_the_firmware_failed">Download the firmware failed, please check whether the network is normal, please try again</string>
+    <string name="Update_firmware_failed">Update firmware failed, this process needs to be connected to Bluetooth, please try again</string>
+    <string name="package_does_not_exist">The device does not exist or the installation package does not exist</string>
+    <string name="package_download_failure">Update package download failure</string>
+
+
+    <!--情绪指数（精神紧张或放松状态）-->
+    <string name="Emotional_index_health_opinion_1">You are at a high level of tension and may be focused on doing one thing. Please relax.</string>
+    <string name="Emotional_index_health_opinion_2">You are in a state of emotional tension, changing things to do, and changing your mood.</string>
+    <string name="Emotional_index_health_opinion_3">You are in a state of emotional tension at the moment, and your attention is still concentrated.</string>
+    <string name="Emotional_index_health_opinion_4">You are more relaxed and lazy at the moment.</string>
+    <string name="Emotional_index_health_opinion_5">When you are in a relaxed mood, you can\'t disturb you when you have a rest.</string>
+    <string name="Emotional_index_health_opinion_6">You are in a very relaxed mood and look like you are doing nothing.</string>
+
+
+    <!--运动疲劳（SDNN）-->
+    <string name="Exercise_fatigue_opinion_1">Your body is full of vitality.</string>
+    <string name="Exercise_fatigue_opinion_2">Your body is full of vitality, but the spirit is very tired, appropriate to do some high strength physical exercise, work and rest to maintain physical and mental health!</string>
+    <string name="Exercise_fatigue_opinion_3">Your body is full of vitality, but the spirit is very tired, appropriate to do some high strength physical exercise, work and rest to maintain physical and mental health!</string>
+    <string name="Exercise_fatigue_opinion_4">Your body is in good condition, but the spirit is a little tired. Don\'t think too much of it, and adjust it through some physical training.</string>
+    <string name="Exercise_fatigue_opinion_5">Your physical ability is very potential, full of spirit, pay attention to keep not excessive brain, and can also carry on some light load exercise!</string>
+    <string name="Exercise_fatigue_opinion_6">Your body seems to be tired, but it is just the time when you are active in your mind. It\'s a good opportunity to give full play to your intelligence and talents, and do something light weight and mental exercise.</string>
+    <string name="Exercise_fatigue_opinion_7">You look tired, you need to rest, but you have a vibrant brain, think about yourself and those unsolved problems. Maybe inspiration is in front of you.</string>
+
+
+    <string name="Offline_is_being_sent">Offline instruction is being sent</string>
+    <string name="clothes_are_not_connected_tooffline">The clothes are not connected and can\'t get into off line running</string>
+    <string name="Enter_the_offline_failure">Enter the offline failure, please click Retry</string>
+    <string name="The_host_is_off_the_line">The host is off the line, go running quickly, remember to come back to synchronize the running data</string>
+
+
+
+
+    <string name="Quarterly_ECG_Report">Quarterly ECG</string>
+    <string name="year_ECG_Report">annual ECG</string>
+
+    <string name="Quarterly_HRR_Report">Quarterly HRR</string>
+    <string name="year_HRR_Report">annual HRR</string>
+
+    <string name="Quarterly_Heart_Rate_Report">Quarterly Heart Rate</string>
+    <string name="year_Heart_Rate_Report">annual Heart Rate</string>
+
+
+    <string name="year"> </string>
+
+    <string name="first">first</string>
+    <string name="Second">Second</string>
+    <string name="Third">Third</string>
+    <string name="Fourth">Fourth</string>
+
+    <string name="quarter">quarter</string>
+    <string name="month">-</string>
+    <string name="day"> </string>
+
+    <string name="unknown">unknown</string>
+
+    <string name="No_help_information_is_set">No help information is set, do you want to set it now?</string>
+    <string name="Picture_adjustment">Picture adjustment</string>
+    <string name="Active_mode_switch_success">Active mode switch success</string>
+    <string name="Off_line_running">Off-line running</string>
+    <string name="Verification_code_error">Verification code error</string>
+    <string name="phone_number_format_error">Mobile phone number format error</string>
+    <string name="One_more_exit_program">One more exit program</string>
+
+    <string name="times">times</string>
+
+    <string name="record_upload_fail">Data upload failed, will be automatically uploaded the next time you resume</string>
+    <string name="record_upload_success">Data uploaded successfully</string>
 
 
     <string name="endurance_test">endurance test</string>

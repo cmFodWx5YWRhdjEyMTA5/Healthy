@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
@@ -75,7 +76,7 @@ import java.util.Map;
 public class InsoleRunningActivity extends Activity implements View.OnClickListener,AMapLocationListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,LocationListener {
 
-    private static final String TAG = "InsoleRunningActivity";
+    private static final String TAG = "InsoleRunningActivityTAG";
     private RelativeLayout rl_run_continue;
     private RelativeLayout rl_run_stop;
     private RelativeLayout rl_insolerun_continue;
@@ -248,8 +249,6 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
         mIsOutDoor = getIntent().getBooleanExtra(Constant.mIsOutDoor, false);
         Log.i(TAG,"mIsOutDoor:"+mIsOutDoor);
 
-        sendReadStepOrder();
-
         Intent intent = getIntent();
         isNeedRecoverAbortData = intent.getBooleanExtra(Constant.isNeedRecoverAbortData, false);
         if (isNeedRecoverAbortData){
@@ -318,12 +317,20 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 }*/
                 if (startInt<120){
                     //左侧数据
+                    if (TextUtils.isEmpty(mLeftMacAddress)){
+                        sendStepOrder(address,insole_left);
+                    }
                     mLeftMacAddress = address;
                 }
                 else{
                     //右侧数据
+                    if (TextUtils.isEmpty(mRightMacAddress)){
+                        sendStepOrder(address,insole_right);
+                    }
                     mRightMacAddress = address;
                 }
+
+
             }
 
             if (mCurrentTimeMillis_insoleTestPackage==-1){
@@ -485,7 +492,6 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                             mCurLeftStepCount = mCurLeftStepCount /mLeftNoReceiveCount;
                         }
 
-
                         if (mCurStride!=-1){
                             mCurStride = (int) ((mCurLeftStepCount + mCurRightStepCount)/2/8.0*60);
                         }
@@ -495,7 +501,6 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                     }
 
                     mLeftNoReceiveCount = 0;
-
                 }
                 else if (!MyUtil.isEmpty(mRightMacAddress) && address.equals(mRightMacAddress)){
                     if (mPreRightStepCount==-1){
@@ -532,14 +537,16 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
                 mCurStride = -1;
 
-                if (mLeftAllStepCount !=-1 && mRightAllStepCount ==-1){
+                Log.w(TAG,"左脚:"+mLeftAllStepCount+"右脚："+mRightAllStepCount);
+
+                /*if (mLeftAllStepCount !=-1 && mRightAllStepCount ==-1){
                     mAllStep = mLeftAllStepCount;
                 }
                 else if (mLeftAllStepCount ==-1 && mRightAllStepCount !=-1){
                     mAllStep = mRightAllStepCount;
                 }
                 else if (mLeftAllStepCount !=-1 && mRightAllStepCount !=-1){
-                    if (Math.abs(mRightAllStepCount - mLeftAllStepCount)>120){  //24*5= 120
+                    if (Math.abs(mRightAllStepCount - mLeftAllStepCount)>10){  //24*5= 120
                         //2个脚相差大于120的话，则用较大一个脚
                         if (mRightAllStepCount > mLeftAllStepCount){
                             mAllStep = mRightAllStepCount;
@@ -551,6 +558,13 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                     else {
                         mAllStep = (mLeftAllStepCount + mRightAllStepCount)/2;
                     }
+                }*/
+
+                if (mRightAllStepCount > mLeftAllStepCount){
+                    mAllStep = mRightAllStepCount;
+                }
+                else {
+                    mAllStep = mLeftAllStepCount;
                 }
 
                 if (mAllStep>0){
@@ -560,6 +574,8 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                         application.setRunningmCurrentStepCount(mAllStep);
                     }
                 }
+
+                Log.w(TAG,"总步数mAllStep:"+mAllStep);
             }
 
         }
@@ -952,14 +968,51 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     String testText="";
 
     private void sendReadStepOrder(){
-        String data  = "B7";
-        boolean send1 = LeProxy.getInstance().send(mLeftMacAddress, Constant.insoleSerUuid, Constant.insoleCharUuid, data.getBytes(), false);
-        boolean send = LeProxy.getInstance().send(mRightMacAddress, Constant.insoleSerUuid, Constant.insoleCharUuid, data.getBytes(), false);
-        Log.i(TAG,"send1:"+send1+",send:"+send);
-        mLeftNoReceiveCount++;
-        mRightNoReceiveCount++;
+        if (!TextUtils.isEmpty(mLeftMacAddress)){
+            sendStepOrder(mLeftMacAddress,insole_left);
+        }
+        if (!TextUtils.isEmpty(mRightMacAddress)){
+            sendStepOrder(mRightMacAddress,insole_right);
+        }
     }
 
+    private void sendStepOrder(final String address, final int type){
+        final String data  = "B7";
+
+        if (type==insole_left){
+            mLeftNoReceiveCount++;
+            boolean send = LeProxy.getInstance().send(address, Constant.insoleSerUuid, Constant.insoleCharUuid, data.getBytes(), false);
+            Log.i(TAG,"typetype:"+type+",  send:"+send);
+            if (TextUtils.isEmpty(mLeftMacAddress)){
+                new Thread(){
+                    @Override
+                    public void run() {
+                        super.run();
+                        SystemClock.sleep(500);
+                        boolean sendAgin = LeProxy.getInstance().send(address, Constant.insoleSerUuid, Constant.insoleCharUuid, data.getBytes(), false);
+                        Log.i(TAG,"左脚:"+type+",  第一次，发送2次，sendAgin:"+sendAgin);
+                    }
+                }.start();
+            }
+        }
+        else {
+            mRightNoReceiveCount++;
+            boolean send = LeProxy.getInstance().send(address, Constant.insoleSerUuid, Constant.insoleCharUuid, data.getBytes(), false);
+            Log.i(TAG,"typetype:"+type+",  send:"+send);
+
+            if (TextUtils.isEmpty(mRightMacAddress)){
+                new Thread(){
+                    @Override
+                    public void run() {
+                        super.run();
+                        SystemClock.sleep(500);
+                        boolean sendAgin = LeProxy.getInstance().send(address, Constant.insoleSerUuid, Constant.insoleCharUuid, data.getBytes(), false);
+                        Log.i(TAG,"右脚:"+type+",  第一次，发送2次，sendAgin:"+sendAgin);
+                    }
+                }.start();
+            }
+        }
+    }
 
     @Override
     public void onClick(View v) {
@@ -968,6 +1021,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
                 rl_run_continue.setVisibility(View.VISIBLE);
                 rl_run_stop.setVisibility(View.GONE);
                 tv_run_lock.setVisibility(View.GONE);
+                sendReadStepOrder();
                 break;
             case R.id.rl_insolerun_continue:
                 rl_run_continue.setVisibility(View.GONE);
@@ -1146,11 +1200,11 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             @Override
             public void onTomeOut() {
                 if (mIsRunning){
-                    Log.i(TAG,"1min 保存数据到本地");
+                    //Log.i(TAG,"1min 保存数据到本地");
 
                     if (pathRecord!=null) {
                         sportCreateRecordID = Util.saveOrUdateRecord(pathRecord.getPathline(), addDuration, pathRecord.getDate(), InsoleRunningActivity.this, mStartTime, mAllDistance, sportCreateRecordID);
-                        Log.i(TAG, "sportCreateRecordID:" + sportCreateRecordID);
+                        //Log.i(TAG, "sportCreateRecordID:" + sportCreateRecordID);
 
 
                     }
@@ -1288,7 +1342,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     //高德地图
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-        Log.i(TAG,"onLocationChanged:"+aMapLocation.toString());
+        //Log.i(TAG,"onLocationChanged:"+aMapLocation.toString());
         calculateSpeed(aMapLocation);
         calculateDistance(aMapLocation);
     }
@@ -1389,7 +1443,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             application.setRunningFormatDistance(mFormatDistance);
         }
         tv_run_distance.setText(mFormatDistance);
-        Log.i(TAG,"mAllDistance:"+mAllDistance);
+        //Log.i(TAG,"mAllDistance:"+mAllDistance);
 
     }
 
@@ -1430,8 +1484,8 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
     private void startCal8ScendSpeed() {
         String formatSpeed = "--";
         float forOneKMSecond = 0;
-        Log.i(TAG,"mOutdoorCal8ScendSpeedList.size():"+ mOutdoorCal8ScendSpeedList.size());
-        Log.i(TAG,"mIndoorCal8ScendSpeedList.size():"+ mIndoorCal8ScendSpeedList.size());
+        //Log.i(TAG,"mOutdoorCal8ScendSpeedList.size():"+ mOutdoorCal8ScendSpeedList.size());
+        //Log.i(TAG,"mIndoorCal8ScendSpeedList.size():"+ mIndoorCal8ScendSpeedList.size());
 
         float for8SecondAverageSpeed = 0;
         /*if (mOutdoorCal8ScendSpeedList.size() <= mIndoorCal8ScendSpeedList.size()){
@@ -1464,12 +1518,12 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
         mCurrSpeedKM_Hour = for8SecondAverageSpeed*3.6f;
 
-        if (mCurrSpeedKM_Hour>maxSpeedKM_Hour && mCurrSpeedKM_Hour<10*3.6){
+        if (mCurrSpeedKM_Hour>maxSpeedKM_Hour && mCurrSpeedKM_Hour<12*3.6){
             maxSpeedKM_Hour = mCurrSpeedKM_Hour;
         }
 
-        Log.i(TAG,"for8SecondAverageSpeed:"+for8SecondAverageSpeed);
-        Log.i(TAG,"mCurrSpeedKM_Hour:"+mCurrSpeedKM_Hour);
+        //Log.i(TAG,"for8SecondAverageSpeed:"+for8SecondAverageSpeed);
+        //Log.i(TAG,"mCurrSpeedKM_Hour:"+mCurrSpeedKM_Hour);
 
         /*if (for8SecondAverageSpeed>0){
             if (preForOneKMSecond==-1){
@@ -1510,9 +1564,18 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
 
         mSpeedStringList.add((int) forOneKMSecond);  //speed为秒数，1公里所用的时间*/
 
+        AMapLocation outDoorLastPositionAMapLocation = null;
+        if (mOutdoorCal8ScendSpeedList.size()>0){
+            outDoorLastPositionAMapLocation = mOutdoorCal8ScendSpeedList.get(mOutdoorCal8ScendSpeedList.size() - 1);
+        }
 
         mIndoorCal8ScendSpeedList.clear();
         mOutdoorCal8ScendSpeedList.clear();
+
+        if (outDoorLastPositionAMapLocation!=null){
+            mOutdoorCal8ScendSpeedList.add(outDoorLastPositionAMapLocation);
+        }
+
         mFinalFormatSpeed = formatSpeed;
         if (application!=null){
             application.setRunningFinalFormatSpeed(mFinalFormatSpeed);
@@ -1542,7 +1605,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
         //tv_run_speed.setText(mFinalFormatSpeed);
         String specialFormatTime = MyUtil.getSpecialFormatTime("HH:mm:ss", mCurrTimeDate);
         ShowNotificationBarUtil.setServiceForegrounByNotify(getResources().getString(R.string.running),getResources().getString(R.string.distance)+": "+mFormatDistance+"KM       "+getResources().getString(R.string.exercise_time)+": "+specialFormatTime,ShowNotificationBarUtil.notifyActivityIndex_InsoleRunningActivity);
-        Log.i(TAG,"设置通知:"+specialFormatTime);
+        //Log.i(TAG,"设置通知:"+specialFormatTime);
 
 
         /*float mapRetrurnSpeed =0;

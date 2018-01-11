@@ -74,7 +74,9 @@ public class HeartRatemouthFragment extends BaseFragment {
                     heart = hRrepBean.ahr;
                     if (heart>0) {
                         dataIntegerList.add(heart);
-                        datetimesList.add( MyUtil.getSpecialFormatTime("MM月dd日",new Date(hRrepBean.datatime)));
+                        String monthString  =getResources().getString(R.string.month);
+                        String dayString  =getResources().getString(R.string.day);
+                        datetimesList.add( MyUtil.getSpecialFormatTime("MM"+monthString+"dd"+dayString,new Date(hRrepBean.datatime)));
                     }
                 }
 

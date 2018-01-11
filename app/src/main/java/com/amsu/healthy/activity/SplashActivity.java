@@ -11,7 +11,6 @@ import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.UploadRecord;
 import com.amsu.healthy.utils.ApkUtil;
-import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.OffLineDbAdapter;
 import com.amsu.healthy.utils.SportRecoveryUtil;
@@ -78,7 +77,7 @@ public class SplashActivity extends Activity {
         int mCurrWeekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
         UploadHealthyDataUtil.downlaodWeekReport(mCurrYear,mCurrWeekOfYear,false,null);
 
-        if (Constant.isInnerUpdateAllowed){
+        if (ApkUtil.isInnerUpdateAllowed){
             ApkUtil.checkUpdate(this);
         }
 

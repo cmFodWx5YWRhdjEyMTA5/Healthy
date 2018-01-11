@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -174,33 +175,36 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
     private void ToStep3Register() {
         username = tv_step2_username.getText().toString();
         if (username.isEmpty()){
-            Toast.makeText(this,"昵称", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,getResources().getString(R.string.Enter_nickname), Toast.LENGTH_SHORT).show();
             return;
         }
         if (birthday.isEmpty()){
-            Toast.makeText(this,"请输入生日", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,getResources().getString(R.string.choose_birthday), Toast.LENGTH_SHORT).show();
             return;
         }
         else if (sex==-1){
-            Toast.makeText(this,"请输入性别", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,getResources().getString(R.string.Choose_sex), Toast.LENGTH_SHORT).show();
             return;
         }
         else if (weightValue.isEmpty()){
-            Toast.makeText(this,"请输入体重", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,getResources().getString(R.string.choose_weight), Toast.LENGTH_SHORT).show();
             return;
         }
         else if (heightValue.isEmpty()){
-            Toast.makeText(this,"请输入身高", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,getResources().getString(R.string.choose_height), Toast.LENGTH_SHORT).show();
             return;
         }
         else if (area.isEmpty()){
-            Toast.makeText(this,"请输入地区", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,getResources().getString(R.string.choose_address), Toast.LENGTH_SHORT).show();
             return;
         }
         registerToDB();
     }
 
     private void chooseAreaDialog() {
+        province = "";
+        city = "";
+
         initProvinceData();
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         //初始化自定义布局参数
@@ -232,33 +236,44 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
 
                 //省份切换时的城市改变
                 final List<String> cityList = provinceModels.get(provincePosition).getCityList();
-                picker_city.setData(cityList);
 
-                area = province+city;
-                picker_city.setOnSelectListener(new PickerView.onSelectListener() {
-                    @Override
-                    public void onSelect(int position) {
-                        Log.i(TAG,"选择了"+cityList.get(position));
-                        city = cityList.get(position);
-                        area = province+city;
+                if(cityList.size()>0){
+                    picker_city.setData(cityList);
 
-
-                    }
-                });
+                    area = province+city;
+                    picker_city.setOnSelectListener(new PickerView.onSelectListener() {
+                        @Override
+                        public void onSelect(int position) {
+                            if (position<cityList.size()){
+                                Log.i(TAG,"选择了"+cityList.get(position));
+                                city = cityList.get(position);
+                                area = province+city;
+                            }
+                        }
+                    });
+                }
             }
         });
 
         //城市的默认数据
         List<String> cityList = provinceModels.get(provinceModels.size() / 2).getCityList();
-        picker_city.setData(cityList);
-        picker_city.setOnSelectListener(new PickerView.onSelectListener() {
-            @Override
-            public void onSelect(int position) {
-                Log.i(TAG,"选择了"+grade.get(position));
-            }
-        });
-        city = cityList.get(cityList.size()/2);
-        area = province+city;
+        if(cityList.size()>0){
+            picker_city.setData(cityList);
+            picker_city.setOnSelectListener(new PickerView.onSelectListener() {
+                @Override
+                public void onSelect(int position) {
+                    Log.i(TAG,"选择了"+grade.get(position));
+                }
+            });
+        }
+
+
+
+        if (cityList.size()>0){
+            city = cityList.get(cityList.size()/2);
+        }
+
+
 
         //显示对话框
         final AlertDialog showAlertDialog = builder.show();
@@ -274,6 +289,10 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
             @Override
             public void onClick(View v) {
                 showAlertDialog.dismiss();
+                area = province;
+                if (!TextUtils.isEmpty(city)){
+                    area += city;
+                }
                 tv_step2_area.setText(area);
             }
         });
@@ -305,7 +324,7 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
         TextView tv_pick_unit = (TextView) customLayout.findViewById(R.id.tv_pick_unit);
         Button bt_pick_cancel = (Button) customLayout.findViewById(R.id.bt_pick_cancel);
         Button bt_pick_ok = (Button) customLayout.findViewById(R.id.bt_pick_ok);
-        tv_pick_name.setText("选择身高");
+        tv_pick_name.setText(getResources().getString(R.string.choose_height));
         tv_pick_unit.setText("cm");
 
         //为对话框设置视图
@@ -356,7 +375,7 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
         TextView tv_pick_unit = (TextView) customLayout.findViewById(R.id.tv_pick_unit);
         Button bt_pick_cancel = (Button) customLayout.findViewById(R.id.bt_pick_cancel);
         Button bt_pick_ok = (Button) customLayout.findViewById(R.id.bt_pick_ok);
-        tv_pick_name.setText("选择体重");
+        tv_pick_name.setText(getResources().getString(R.string.choose_weight));
         tv_pick_unit.setText("kg");
 
         //为对话框设置视图

@@ -1,11 +1,6 @@
 package com.amsu.healthy.view;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -20,7 +15,11 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.amsu.healthy.R;
-import com.amsu.healthy.utils.MyUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * 滚动选择器
@@ -129,18 +128,19 @@ public class PickerView extends View
     }
 
     private void moveHeadToTail() {
-        String head = mDataList.get(0);
-        mDataList.remove(0);
-        mDataList.add(head);
-
-
-
+        if (mDataList.size()>0){
+            String head = mDataList.get(0);
+            mDataList.remove(0);
+            mDataList.add(head);
+        }
     }
 
     private void moveTailToHead() {
-        String tail = mDataList.get(mDataList.size() - 1);
-        mDataList.remove(mDataList.size() - 1);
-        mDataList.add(0, tail);
+        if (mDataList.size()>0){
+            String tail = mDataList.get(mDataList.size() - 1);
+            mDataList.remove(mDataList.size() - 1);
+            mDataList.add(0, tail);
+        }
     }
 
     @Override

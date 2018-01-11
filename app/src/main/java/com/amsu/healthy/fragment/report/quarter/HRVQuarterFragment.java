@@ -1,7 +1,6 @@
 package com.amsu.healthy.fragment.report.quarter;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import com.amsu.healthy.bean.FullReport;
 import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineViewWithPoint;
-import com.amsu.healthy.view.FoldLineViewWithTextOne;
 
 import java.util.Date;
 import java.util.List;
@@ -42,7 +40,7 @@ public class HRVQuarterFragment extends BaseFragment {
         //initChart();
 
         TextView tv_hrvmouth_date = (TextView) inflate.findViewById(R.id.tv_hrvmouth_date);
-        tv_hrvmouth_date.setText(MyUtil.getCurrentYearAndQuarter());
+        tv_hrvmouth_date.setText(MyUtil.getCurrentYearAndQuarter(getContext()));
 
         tv_mouth_value = (TextView) inflate.findViewById(R.id.tv_mouth_value);
         tv_mouth_datetime = (TextView) inflate.findViewById(R.id.tv_mouth_datetime);

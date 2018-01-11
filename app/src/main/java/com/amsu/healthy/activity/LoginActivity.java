@@ -525,6 +525,12 @@ public class LoginActivity extends BaseActivity {
                     }
                     else {
                         MyUtil.hideDialog(LoginActivity.this);
+                        if (ret==-468){
+                            errDesc = getResources().getString(R.string.Verification_code_error);
+                        }
+                        else if (ret == -457){
+                            errDesc = getResources().getString(R.string.phone_number_format_error);
+                        }
                         MyUtil.showToask(LoginActivity.this,errDesc);
 
                     }

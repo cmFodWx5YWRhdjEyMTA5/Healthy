@@ -46,11 +46,11 @@ public class HeartRateYearFragment extends BaseFragment {
 
     private void initView() {
         TextView tv_ecgmouth_type = (TextView) inflate.findViewById(R.id.tv_ecgmouth_type);
-        tv_ecgmouth_type.setText("年度心率报告");
+        tv_ecgmouth_type.setText(getResources().getString(R.string.year_Heart_Rate_Report));
         tv_heartRatemouth_date = (TextView) inflate.findViewById(R.id.tv_heartRatemouth_date);
         mLineChart = (FoldLineViewWithPoint) inflate.findViewById(R.id.spread_line_chart);
 
-        tv_heartRatemouth_date.setText(MyUtil.getCurrentYear()+"年");
+        tv_heartRatemouth_date.setText(MyUtil.getCurrentYear()+"");
 
         tv_mouth_value = (TextView) inflate.findViewById(R.id.tv_mouth_value);
         tv_mouth_datetime = (TextView) inflate.findViewById(R.id.tv_mouth_datetime);
@@ -80,7 +80,9 @@ public class HeartRateYearFragment extends BaseFragment {
                     heart = hRrepBean.ahr;
                     if (heart>0) {
                         dataIntegerList.add(heart);
-                        datetimesList.add( MyUtil.getSpecialFormatTime("MM月dd日",new Date(hRrepBean.datatime)));
+                        String monthString  =getResources().getString(R.string.month);
+                        String dayString  =getResources().getString(R.string.day);
+                        datetimesList.add( MyUtil.getSpecialFormatTime("MM"+monthString+"dd"+dayString,new Date(hRrepBean.datatime)));
                     }
                 }
 

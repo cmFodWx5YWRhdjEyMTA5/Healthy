@@ -14,7 +14,6 @@ import com.amsu.healthy.bean.FullReport;
 import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineViewWithPoint;
-import com.amsu.healthy.view.FoldLineViewWithTextOne;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,11 +50,11 @@ public class HRRQuarterFragment extends BaseFragment {
 
     private void initView() {
         TextView tv_ecgmouth_type = (TextView) inflate.findViewById(R.id.tv_ecgmouth_type);
-        tv_ecgmouth_type.setText("季度HRR报告");
+        tv_ecgmouth_type.setText(getResources().getString(R.string.Quarterly_HRR_Report));
         mLineChart = (FoldLineViewWithPoint) inflate.findViewById(R.id.spread_line_chart);
         //initChart();
         TextView tv_hrrmouth_date = (TextView) inflate.findViewById(R.id.tv_hrrmouth_date);
-        tv_hrrmouth_date.setText(MyUtil.getCurrentYearAndQuarter());
+        tv_hrrmouth_date.setText(MyUtil.getCurrentYearAndQuarter(getContext()));
 
         tv_mouth_value = (TextView) inflate.findViewById(R.id.tv_mouth_value);
         tv_mouth_datetime = (TextView) inflate.findViewById(R.id.tv_mouth_datetime);
@@ -78,7 +77,10 @@ public class HRRQuarterFragment extends BaseFragment {
                 for (FullReport.HRRrepBean hrRrepBean:hRrep){
                     if (hrRrepBean.ra>0){
                         dataList.add(hrRrepBean.ra);
-                        labeList.add(MyUtil.getSpecialFormatTime("MM月dd日",new Date(hrRrepBean.datatime)));
+
+                        String monthString  =getResources().getString(R.string.month);
+                        String dayString  =getResources().getString(R.string.day);
+                        labeList.add( MyUtil.getSpecialFormatTime("MM"+monthString+"dd"+dayString,new Date(hrRrepBean.datatime)));
                     }
                 }
 

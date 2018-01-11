@@ -17,7 +17,6 @@ import android.widget.TextView;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.ApkUtil;
-import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.InputTextAlertDialogUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.umeng.analytics.MobclickAgent;
@@ -90,10 +89,15 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
             tv_persiondata_switvhname.setText(getResources().getString(R.string.isopen_ecg_webmonitoring));
         }
 
-        if (!Constant.isInnerUpdateAllowed){
+        if (!ApkUtil.isInnerUpdateAllowed){
             rl_persiondata_update.setVisibility(View.GONE);
             rl_persiondata_switvh.setVisibility(View.GONE);
         }
+
+        if (!ApkUtil.isInnerUpdateAllowed){
+            rl_persiondata_update.setVisibility(View.GONE);
+        }
+
     }
 
     @Override

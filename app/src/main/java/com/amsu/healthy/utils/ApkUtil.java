@@ -39,7 +39,7 @@ import java.text.DecimalFormat;
 public class ApkUtil {
 
     private static final String TAG = "ApkUtil";
-
+    public static boolean isInnerUpdateAllowed = true;  //是否开启应用内部更新，谷歌应用市场不允许更新
 
     //获取app的版本名称
     public static String getVersionName(Context context) {
@@ -272,7 +272,6 @@ public class ApkUtil {
         intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
         context.startActivity(intent);
     }
-
 
     //在浏览器打开下载文件
     private static void openBrowserDownLoadApp(Activity activity, String path) {

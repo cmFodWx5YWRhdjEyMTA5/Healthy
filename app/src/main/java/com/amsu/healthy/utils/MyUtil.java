@@ -786,7 +786,6 @@ public class MyUtil {
         return null;
     }
 
-
     //获取当前季度
     public static int getCurrentQuertar(){
         /*第一季度：1月－3月
@@ -810,6 +809,29 @@ public class MyUtil {
         }
     }
 
+    //获取当前季度
+    public static String getCurrentQuertar(Context context){
+        /*第一季度：1月－3月
+        第二季度：4月－6月
+        第三季度：7月－9月
+        第四季度：10月－12月
+        * */
+        Date date = new Date();
+        int mouth = date.getMonth() + 1;
+        if (1<=mouth && mouth<=3){
+            return context.getResources().getString(R.string.first);
+        }
+        else if (4<=mouth && mouth<=6){
+            return context.getResources().getString(R.string.Second);
+        }
+        else if (7<=mouth && mouth<=9){
+            return context.getResources().getString(R.string.Third);
+        }
+        else {
+            return context.getResources().getString(R.string.Fourth);
+        }
+    }
+
     //获取年份
     public static int getCurrentYear(){
         Calendar calendar = Calendar.getInstance();
@@ -825,8 +847,8 @@ public class MyUtil {
     }
 
     //获取 年 季度
-    public static String getCurrentYearAndQuarter(){
-        String restult = getCurrentYear()+"第"+getCurrentQuertar()+"季度";
+    public static String getCurrentYearAndQuarter(Context context){
+        String restult = getCurrentYear()+" "+getCurrentQuertar(context)+" "+context.getResources().getString(R.string.quarter);
         return restult;
     }
 

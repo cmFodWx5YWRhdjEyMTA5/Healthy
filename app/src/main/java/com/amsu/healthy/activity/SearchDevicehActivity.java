@@ -15,11 +15,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.amsu.bleinteraction.bean.BleDevice;
+import com.amsu.bleinteraction.utils.DataTypeConversionUtil;
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.DeviceList;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyTimeTask;
 import com.amsu.healthy.utils.MyUtil;
+import com.ble.api.DataUtil;
 
 import java.util.ArrayList;
 
@@ -205,6 +207,37 @@ public class SearchDevicehActivity extends BaseActivity {
             String leName = device.getName();
             if (leName!=null && (leName.startsWith("BLE") || leName.startsWith("AMSU") || leName.startsWith("AMSU_P")) && device.getName().length()<25){
 
+
+
+                String hexData = DataUtil.byteArrayToHex(scanRecord);
+                //02 01 06 03 FF 00 00 0B 09 41 4D 53 55 5F 45 43 36 42 41 03 03 0D 18 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+                if (hexData.startsWith("02 01 06")){
+                    Log.i(TAG,"scanRecord:"+ hexData);
+                    String[] split = hexData.split(" ");
+                    Log.i(TAG,"split[3]:"+ split[3]);
+
+                    System.out.println(DataTypeConversionUtil.convertHexToString(split[3]));
+                    int vendorDataStringLength = Integer.parseInt(split[3], 16);
+                    Log.i(TAG,"vendorDataStringLength:"+vendorDataStringLength);
+
+                    if (vendorDataStringLength>3){
+                        //没有绑定
+
+                    }
+                    else {
+                        //已经被绑定过
+                        String vendorDataHexString = "";
+                        for (int i = 0; i < vendorDataStringLength; i++) {
+                            vendorDataHexString+=split[4+i];
+                        }
+                        Log.i(TAG,"vendorDataHexString:"+vendorDataHexString);
+                        String vendorDataString = DataTypeConversionUtil.convertHexToString(vendorDataHexString);
+                        Log.i(TAG,"vendorDataString:"+vendorDataString);
+                    }
+
+                }
+
                 boolean isAddToList = true;
                 for (BleDevice device1:searchDeviceList){
                     if (device1.getLEName().equals(leName)){
@@ -226,6 +259,18 @@ public class SearchDevicehActivity extends BaseActivity {
             }
         }
     };
+
+    //scanRecords的格式转换
+    static final char[] hexArray = "0123456789ABCDEF".toCharArray();
+    private static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
 
     public void stopsearch(View view) {
         scanTimeOver();

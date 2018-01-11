@@ -535,7 +535,7 @@ public class MainActivity extends BaseActivity {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
             if ((System.currentTimeMillis() - exitTime) > 2000) {
                 //弹出提示，可以有多种方式
-                Toast.makeText(getApplicationContext(), "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.One_more_exit_program), Toast.LENGTH_SHORT).show();
                 exitTime = System.currentTimeMillis();
             } else {
                /* NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.amsu.healthy.R;
 import com.amsu.healthy.activity.MainActivity;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.IndicatorAssess;
@@ -338,8 +339,11 @@ public class UploadHealthyDataUtil {
                         if (ret==0){
                             uploadRecord.uploadState = 1;  //上传成功后，将状态改为已上传
                             if (!isSynLocalData){
-                                MyUtil.showToask(context,"数据上传成功");
+                                MyUtil.showToask(context,context.getResources().getString(R.string.record_upload_success));
                             }
+                        }
+                        else {
+                            MyUtil.showToask(context,context.getResources().getString(R.string.record_upload_fail));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -358,7 +362,7 @@ public class UploadHealthyDataUtil {
                 public void onFailure(HttpException e, String s) {
                     Log.i(TAG,"onFailure==s:"+s+"    e:"+e);
                     if (!isSynLocalData){
-                        MyUtil.showToask(context,"数据上传失败，稍后有网络会自动上传");
+                        MyUtil.showToask(context,context.getResources().getString(R.string.record_upload_fail));
                     }
 
                     OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(context);
@@ -386,4 +390,6 @@ public class UploadHealthyDataUtil {
         }
 
     }
+
+
 }

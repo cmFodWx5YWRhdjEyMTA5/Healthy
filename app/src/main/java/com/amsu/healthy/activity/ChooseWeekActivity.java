@@ -143,16 +143,11 @@ public class ChooseWeekActivity extends BaseActivity {
         if (oneYearweeks==null || oneYearweeks.size()==0)return;
         weekStringList.addAll(oneYearweeks);
         Collections.reverse(weekStringList);
-        weekStringList.add("");
-        weekStringList.add("");
-        weekStringList.add("");
-        weekStringList.add("");
-        weekStringList.add("");
-        weekStringList.add("");
-        weekStringList.add("");
-        weekStringList.add("");
-        weekStringList.add("");
-        weekStringList.add("");
+
+        for (int i=0;i<oneYearweeks.size()/5;i++){
+            weekStringList.add("");
+        }
+
         weekStringList.add("");
 
         pv_choose_week.setData(weekStringList);

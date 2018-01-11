@@ -16,7 +16,6 @@ import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.HeightCurveView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class HeartRateFragment extends BaseFragment {
@@ -63,12 +62,15 @@ public class HeartRateFragment extends BaseFragment {
 //                List<Integer> heartDatas = gson.fromJson(hr, new TypeToken<List<Integer>>() {
 //                }.getType());
 
-                List<Integer> tempHeartDatas = new ArrayList<>();
+                /*List<Integer> tempHeartDatas = new ArrayList<>();
                 for (int i:heartDatas){
                     tempHeartDatas.add(i);
-                }
-                int[] ints = MyUtil.listToIntArray(tempHeartDatas);
+                }*/
+                int[] ints = MyUtil.listToIntArray(heartDatas);
                 if (ints!=null && ints.length>0){
+                    if (mUploadRecord.time==0){
+                        mUploadRecord.time = 8+ints.length*4;
+                    }
                     int time = (int) (Math.ceil(mUploadRecord.time/60));
                     if (mUploadRecord.time>0){
                         Log.i(TAG,"time:"+time);

@@ -390,8 +390,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 }
             }
 
-
-
             Log.i(TAG,"ecgDataList.size(): ====================="+ecgDataList.size());
 
             if (ecgDataList.size()/(150*60)>3){  // 心电数据是否有用（以三分钟来计）
@@ -573,7 +571,9 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 latitude_longitude = Util.getLatitude_longitudeString(pathRecord);
 
                 uploadRecord.distance = distance;
-                uploadRecord.time =time;
+                if (time>0){
+                    uploadRecord.time =time;
+                }
                 uploadRecord.latitudeLongitude = latitude_longitude;
             }
         }
@@ -597,7 +597,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         if (stridefreData!=null && stridefreData.size()>0){  //在离线分析时会有步频
             uploadRecord.cadence = stridefreData;
         }
-
 
         Log.i(TAG,"uploadRecord:"+uploadRecord);
         uploadDataAndJumpToShowPage(uploadRecord,sportCreateRecordID);

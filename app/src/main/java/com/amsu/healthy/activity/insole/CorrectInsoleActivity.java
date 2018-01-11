@@ -300,7 +300,8 @@ public class CorrectInsoleActivity extends BaseActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (isSuccessed){
-                          startActivity(new Intent(CorrectInsoleActivity.this,RunTimeCountdownActivity.class));
+                            Intent intent = new Intent(CorrectInsoleActivity.this, RunTimeCountdownActivity.class);
+                            startActivity(intent);
                             finish();
                         }
                         else {

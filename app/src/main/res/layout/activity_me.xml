@@ -70,7 +70,7 @@
                 android:id="@+id/tv_me_city"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="未知"
+                android:text="@string/unknown"
                 android:layout_gravity="center"
                 android:layout_marginLeft="@dimen/x5"
                 android:textSize="@dimen/x32"

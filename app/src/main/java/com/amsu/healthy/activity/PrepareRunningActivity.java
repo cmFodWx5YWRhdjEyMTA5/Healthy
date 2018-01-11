@@ -171,7 +171,7 @@ public class PrepareRunningActivity extends BaseActivity {
                    if (isSendOffLineOrder){
                        MyUtil.hideDialog(PrepareRunningActivity.this);
                        android.support.v7.app.AlertDialog alertDialog_1 = new android.support.v7.app.AlertDialog.Builder(PrepareRunningActivity.this)
-                               .setTitle("主机已进入离线，快去跑步吧，记得回来同步跑步数据哦！")
+                               .setTitle(getResources().getString(R.string.The_host_is_off_the_line))
                                .setPositiveButton("知道了", new DialogInterface.OnClickListener() {
                                    @Override
                                    public void onClick(DialogInterface dialog, int which) {
@@ -223,7 +223,7 @@ public class PrepareRunningActivity extends BaseActivity {
         if (!MyUtil.isEmpty(clothDeviceConnecedMac)){
 
 
-            MyUtil.showDialog("正在发送离线指令",this);
+            MyUtil.showDialog(getResources().getString(R.string.Offline_is_being_sent),this);
             mSendOrderCount = 0;
             isSendOffLineOrder = true;
 
@@ -249,7 +249,7 @@ public class PrepareRunningActivity extends BaseActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    MyUtil.showToask(PrepareRunningActivity.this,"进入离线失败，请点击重试");
+                                    MyUtil.showToask(PrepareRunningActivity.this,getResources().getString(R.string.Enter_the_offline_failure));
                                     MyUtil.hideDialog(PrepareRunningActivity.this);
                                 }
                             });
@@ -259,8 +259,9 @@ public class PrepareRunningActivity extends BaseActivity {
             }.start();
         }
         else {
-            MyUtil.showToask(this,"衣服未连接，无法进入离线跑步");
+            MyUtil.showToask(this,getResources().getString(R.string.clothes_are_not_connected_tooffline));
         }
+
     }
 
 

@@ -14,7 +14,7 @@
             android:textColor="#333333"
             android:textSize="@dimen/x46"
             android:layout_marginTop="@dimen/x40"
-            android:text="画面调整"
+            android:text="@string/Picture_adjustment"
             android:layout_gravity="center"/>
 
         <ImageView

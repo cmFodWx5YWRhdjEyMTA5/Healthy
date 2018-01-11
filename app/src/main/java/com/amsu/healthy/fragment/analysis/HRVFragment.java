@@ -105,7 +105,7 @@ public class HRVFragment extends BaseFragment {
 
                 Log.i(TAG,"fi:"+mUploadRecord.fi+",pi:"+mUploadRecord.pi+",es:"+mUploadRecord.es);
                 if (mUploadRecord.fi>0){
-                    IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(mUploadRecord.fi);
+                    IndicatorAssess ESIndicatorAssess = HealthyIndexUtil.calculateSDNNSportIndex(getContext(),mUploadRecord.fi);
                     int FINeed = ESIndicatorAssess.getPercent();
                     tiredLayoutParams.setMargins((int) ((FINeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
                     iv_hrv_tired.setLayoutParams(tiredLayoutParams);
@@ -250,7 +250,7 @@ public class HRVFragment extends BaseFragment {
 
             if (mUploadRecord.es>0){
                 //情绪指数
-                IndicatorAssess FIIndicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex(mUploadRecord.es);
+                IndicatorAssess FIIndicatorAssess = HealthyIndexUtil.calculateLFHFMoodIndex(getContext(),mUploadRecord.es);
                 int ESNeed = FIIndicatorAssess.getPercent();
                 moodLayoutParams.setMargins((int) ((ESNeed/100.0)*progressWidth), (int) -getResources().getDimension(R.dimen.x23),0,0);
                 iv_hrv_mood.setLayoutParams(moodLayoutParams);

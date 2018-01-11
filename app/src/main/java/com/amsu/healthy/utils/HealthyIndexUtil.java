@@ -110,6 +110,10 @@ public class HealthyIndexUtil {
                 if (restingHR !=0){
                     hrReserve = 220-age-restingHR;
                     Log.i(TAG,"hrReserveeserve:"+hrReserve);
+
+                    if(hrReserve<0){
+                        hrReserve = 0;
+                    }
                     int scorehrReserve = 0;
                     String suggestion = "";
                     if (hrReserve>=200){
@@ -774,25 +778,32 @@ public class HealthyIndexUtil {
 
         scoreBeat = 100-missedBeatSub-prematureBeatSub;
 
-        suggestion = "早搏"+prematureBeat+"次，漏搏"+missedBeat+"次。";
+        //suggestion = "早搏"+prematureBeat+"次，漏搏"+missedBeat+"次。";
+        suggestion = context.getResources().getString(R.string.premature_beat)+":"+prematureBeat+" "+context.getResources().getString(R.string.times)+","+context.getResources().getString(R.string.cardiac_leak)+":"+missedBeat+" "+context.getResources().getString(R.string.times)+". ";
 
         if (prematureBeat==0 && missedBeat<=3){
-            suggestion += "通常可能因为精神紧张、吸烟、饮酒、生活不规律、夜间没有好好休息等原因所导致。如果单纯出现心脏漏跳一拍的感觉，但没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。还是可以保持一些较重负荷的锻炼计划的！";
+            //suggestion += "通常可能因为精神紧张、吸烟、饮酒、生活不规律、夜间没有好好休息等原因所导致。如果单纯出现心脏漏跳一拍的感觉，但没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。还是可以保持一些较重负荷的锻炼计划的！";
+            suggestion += context.getResources().getString(R.string.missbeat_suggetstion_lev2);
         }
         else if (prematureBeat==0 && missedBeat>3){
-            suggestion += "漏博次数较多，如果没有诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。可以适当进行有氧训练，提升心肺能力。";
+            //suggestion += "漏博次数较多，如果没有诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。可以适当进行有氧训练，提升心肺能力。";
+            suggestion += context.getResources().getString(R.string.sosreBeat_suggetstion_lev3);
         }
         else if (prematureBeat>0 && missedBeat<=3){
-            suggestion += "通常可能因为精神紧张、吸烟、饮酒、生活不规律、夜间没有好好休息等原因所导致。如果单纯出现心脏漏跳一拍的感觉，但没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。可以进行一些轻负荷的锻炼计划了。";
+            //suggestion += "通常可能因为精神紧张、吸烟、饮酒、生活不规律、夜间没有好好休息等原因所导致。如果单纯出现心脏漏跳一拍的感觉，但没有其它诸如头晕、乏力、昏厥甚至心绞痛的感觉，则不需要过分担心。可以进行一些轻负荷的锻炼计划了。";
+            suggestion += context.getResources().getString(R.string.sosreBeat_suggetstion_lev2);
         }
         else if (prematureBeat>0 && missedBeat>3 && missedBeat<=5){
-            suggestion += "您的心脏功能不容乐观建议到医院进行详细的心电检查，请经常关注心脏是否有不适感。适度进行锻炼，劳逸结合。";
+            //suggestion += "您的心脏功能不容乐观建议到医院进行详细的心电检查，请经常关注心脏是否有不适感。适度进行锻炼，劳逸结合。";
+            suggestion += context.getResources().getString(R.string.sosreBeat_suggetstion_lev4);
         }
         else if (prematureBeat>0 && missedBeat>5){
-            suggestion += "您的心脏有病理风险，建议您尽快到医院进行详细的心电检查。运动有风险，请减少高强度运动！";
+            //suggestion += "您的心脏有病理风险，建议您尽快到医院进行详细的心电检查。运动有风险，请减少高强度运动！";
+            suggestion += context.getResources().getString(R.string.sosreBeat_suggetstion_lev5);
         }
         else if (prematureBeat>0 && missedBeat==0){
-            suggestion += " 偶尔的早搏可见于正常人，不需要担心。";
+            //suggestion += "偶尔的早搏可见于正常人，不需要担心。";
+            suggestion += context.getResources().getString(R.string.sosreBeat_suggetstion_lev6);
         }
 
         IndicatorAssess indicatorAssess = new IndicatorAssess(0,scoreBeat,context.getString(R.string.premature_beat_missed_beat),suggestion);
@@ -1018,32 +1029,32 @@ public class HealthyIndexUtil {
     }
 
     //情绪指数（精神紧张或放松状态）LF/HF   SDNN:80-200
-    public static IndicatorAssess calculateLFHFMoodIndex(double LF_HF){
+    public static IndicatorAssess calculateLFHFMoodIndex(Context context,double LF_HF){
         int state = 0;
         String suggestion = "";
         if (LF_HF>150){
             state = 90;
-            suggestion="您当前处于情绪高度紧张状态，也可能是一直专注于做一件事情，请适当放松一下。";
+            suggestion=context.getResources().getString(R.string.Emotional_index_health_opinion_1);
         }
         else if (120<LF_HF && LF_HF<=150){
             state = 80;
-            suggestion="您当前处于情绪比较紧张状态，换件事情做，也可以换换心情。";
+            suggestion=context.getResources().getString(R.string.Emotional_index_health_opinion_2);
         }
         else if (80<LF_HF && LF_HF<120){
             state = 60;
-            suggestion="您当前处于情绪紧张状态，您的注意力还是满集中的。";
+            suggestion=context.getResources().getString(R.string.Emotional_index_health_opinion_3);
         }
         else if (20<LF_HF && LF_HF<=80){
             state = 40;
-            suggestion="您当前情绪比较放松，懒洋洋的心情不错吧";
+            suggestion=context.getResources().getString(R.string.Emotional_index_health_opinion_4);
         }
         else if (2<LF_HF && LF_HF<20){
             state = 30;
-            suggestion="您当前情绪放松，内心在休息的时候，谁也打扰不了你。";
+            suggestion=context.getResources().getString(R.string.Emotional_index_health_opinion_5);
         }
         else if (0<=LF_HF && LF_HF<=2){
             state = 10;
-            suggestion="您当前情绪很放松，看起来无所事事的样子了。";
+            suggestion=context.getResources().getString(R.string.Emotional_index_health_opinion_6);
         }
 
         /*if (LF_HF>=60){
@@ -1139,38 +1150,38 @@ public class HealthyIndexUtil {
     }
 
     //运动疲劳（SDNN）
-    public static IndicatorAssess calculateSDNNSportIndex(int sdnn){
+    public static IndicatorAssess calculateSDNNSportIndex(Context context,int sdnn){
         int state = 0;
         String suggestion = "";
 
 
         if (sdnn>200){
             state = 5;
-            suggestion="您的身体充满活力。";
+            suggestion=context.getResources().getString(R.string.Exercise_fatigue_opinion_1);
         }
         else if (181<sdnn && sdnn<=200){
             state = 10;
-            suggestion="您的身体充满活力，但是精神非常疲惫，适当做一些较高强度体育锻炼，劳逸结合才能保持身心健康!";
+            suggestion=context.getResources().getString(R.string.Exercise_fatigue_opinion_2);
         }
         if (181<sdnn && sdnn<=200){
             state = 10;
-            suggestion="您的身体充满活力，但是精神非常疲惫，适当做一些较高强度体育锻炼，劳逸结合才能保持身心健康!";
+            suggestion=context.getResources().getString(R.string.Exercise_fatigue_opinion_3);
         }
         else if (161<sdnn && sdnn<=180){
             state = 30;
-            suggestion="您的身体状态不错哦，但是精神有些疲累，不要想太多事情，通过进行一些体能训练来调整一下！";
+            suggestion=context.getResources().getString(R.string.Exercise_fatigue_opinion_4);
         }
         else if (141<sdnn && sdnn<=160){
             state = 50;
-            suggestion="您的体能很有潜力的，精神满满，注意保持不要用脑过度，还可以进行一些轻负荷的健身锻炼！";
+            suggestion=context.getResources().getString(R.string.Exercise_fatigue_opinion_5);
         }
         else if (111<sdnn && sdnn<=140){
             state = 70;
-            suggestion="你的身体似乎比较疲惫，但刚好是您思维活跃的时段，正是发挥您聪明才智的好机会，做一些的轻体力偏重脑力的活动吧！";
+            suggestion=context.getResources().getString(R.string.Exercise_fatigue_opinion_6);
         }
         else if (0<sdnn && sdnn<=111){
             state = 90;
-            suggestion=" 您看起来身体很疲惫，你需要休息了，但是你有一个充满活力的大脑，想一想自己还有那些没有解决的问题吧，可能灵感就在眼前！";
+            suggestion=context.getResources().getString(R.string.Exercise_fatigue_opinion_7);
         }
         if (sdnn>=290){
             sdnn = 290;
@@ -1344,7 +1355,7 @@ public class HealthyIndexUtil {
             }
             else {
                 state = 2;
-                suggestion = "您现在精神状态比较放松，随意做自己喜欢的事情吧！";
+                suggestion = context.getResources().getString(R.string.hrv_body_fatigue_active_suggestion4);;
             }
         }catch (ArithmeticException e){
             e.printStackTrace();
@@ -1400,7 +1411,7 @@ public class HealthyIndexUtil {
             }
             else {
                 state = 2;
-                suggestion = "您现在身体状态刚刚好，继续运动or放松休息随心所欲吧！";
+                suggestion = context.getResources().getString(R.string.hrv_body_fatigue_active_suggestion4);
             }
         }catch (ArithmeticException e){
             e.printStackTrace();
@@ -1457,7 +1468,7 @@ public class HealthyIndexUtil {
                 suggestion =  context.getResources().getString(R.string.hrv_body_fatigue_active_suggestion3);
             } else {
                 state = 2;
-                suggestion = "您现在身体状态刚刚好，继续运动or放松休息随心所欲吧！";
+                suggestion = context.getResources().getString(R.string.hrv_body_fatigue_active_suggestion4);
             }
         } catch (ArithmeticException e){
                 e.printStackTrace();

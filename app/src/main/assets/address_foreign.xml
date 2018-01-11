@@ -27,45 +27,86 @@
   </province>
 
   <province name="United States">
-    <city name="United States">
+    <!--<city name="United States">
 
-    </city>
+    </city>-->
   </province>
 
   <province name="Japan">
     <!--<city name="安庆市">
       <district name="枞阳县" zipcode="246000" />
     </city>-->
-    <city name="Japan">
+    <!--<city name="Japan">
 
-    </city>
+    </city>-->
   </province>
 
   <province name="Hong Kong">
     <!--<city name="安庆市">
       <district name="枞阳县" zipcode="246000" />
     </city>-->
-    <city name="Hong Kong">
+    <!--<city name="Hong Kong">
 
-    </city>
+    </city>-->
   </province>
+
+  <!--安徽 Anhui AH
+
+北京 Beijing BJ
+
+福建 Fujian FJ
+
+甘肃 Gansu GS
+
+广东 Guangdong GD广西 Guangxi GX
+贵州 Guizhou G海南 Hainan HI河北 Hebei HE河南 Henan HA黑龙江 Heilongjiang HL湖北 Hubei HB湖南 Hunan HN吉林 Jilin J江苏 Jiangsu JS
+江西 Jiangxi JX辽宁 Liaoning LN内蒙古自治区 Inner Mongoria IM（NM）宁夏 Ningxia NX青海 Qinghai QH山东 Shandong SD山西 Shanxi S陕西 Shaanxi SN
+上海 Shanghai SH四川 Sichuan SC天津 Tianjing TJ西藏 Tibet XZ新疆 Xinjiang XJ云南 Yunnan YN浙江 Zhejiang ZJ重庆 Chongqing CQ澳门 Macao MO香港 Hong Kong HK台湾 Taiwan TW-->
 
   <province name="China">
     <!--<city name="安庆市">
       <district name="枞阳县" zipcode="246000" />
     </city>-->
-    <city name="China">
+    <!--<city name="China">
+      <city name="Anhui"></city>
+      <city name="Beijing"></city>
+      <city name="Fujian"></city>
+      <city name="Gansu"></city>
+      <city name="Guangdong"></city>
+      <city name="Guangxi"></city>
+      <city name="Guizhou"></city>
+      <city name="Hainan"></city>
+      <city name="Henan"></city>
+      <city name="Heilongjiang"></city>
+      <city name="Hubei"></city>
+      <city name="Jilin"></city>
+      <city name="Jiangsu"></city>
+      <city name="Jiangxi"></city>
+      <city name="Liaoning"></city>
+      <city name="Inner Mongoria"></city>
+      <city name="Ningxia"></city>
+      <city name="Qinghai"></city>
+      <city name="Shandong"></city>
+      <city name="Shanxi"></city>
+      <city name="Shaanxi"></city>
+      <city name="Shanghai"></city>
+      <city name="Sichuan"></city>
+      <city name="Tianjing"></city>
+      <city name="Xinjiang"></city>
+      <city name="Yunnan"></city>
+      <city name="Zhejiang"></city>
+      <city name="Chongqing"></city>
 
-    </city>
+    </city>-->
   </province>
 
   <province name="Canada ">
     <!--<city name="安庆市">
       <district name="枞阳县" zipcode="246000" />
     </city>-->
-    <city name="Canada">
+    <!--<city name="Canada">
 
-    </city>
+    </city>-->
   </province>
 
 

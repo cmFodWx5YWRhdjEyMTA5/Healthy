@@ -1,7 +1,6 @@
 package com.amsu.healthy.fragment.report.mouth;
 
 
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -16,8 +15,6 @@ import com.amsu.healthy.bean.FullReport;
 import com.amsu.healthy.fragment.BaseFragment;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.view.FoldLineViewWithPoint;
-import com.amsu.healthy.view.FoldLineViewWithText;
-import com.amsu.healthy.view.FoldLineViewWithTextOne;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -76,7 +73,9 @@ public class HRRMouthFragment extends BaseFragment {
                     Log.i(TAG,"hrRrepBean.ra:"+hrRrepBean.ra);
                     if (hrRrepBean.ra>0){
                         dataList.add(hrRrepBean.ra);
-                        labeList.add(MyUtil.getSpecialFormatTime("MM月dd日",new Date(hrRrepBean.datatime)));
+                        String monthString  =getResources().getString(R.string.month);
+                        String dayString  =getResources().getString(R.string.day);
+                        labeList.add( MyUtil.getSpecialFormatTime("MM"+monthString+"dd"+dayString,new Date(hrRrepBean.datatime)));
                     }
                 }
 

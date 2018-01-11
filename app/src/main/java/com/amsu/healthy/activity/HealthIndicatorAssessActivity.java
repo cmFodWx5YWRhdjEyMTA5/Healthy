@@ -235,10 +235,6 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
                         //本周数据
                         thisWeekReport = gson.fromJson(result, WeekReport.class);
                         Log.i(TAG,"thisWeekReport:"+ thisWeekReport.toString());
-                        Log.i(TAG,"zaoboloubo:"+ thisWeekReport.errDesc.zaoboloubo);
-
-
-
                     }
                     else {
                         lastWeekReport = gson.fromJson(result, WeekReport.class);
@@ -365,7 +361,7 @@ public class HealthIndicatorAssessActivity extends BaseActivity {
 
     private  float[] dealWithWeekData(WeekReport weekReport, boolean isCurrWeek) {
         //BMI
-        IndicatorAssess scoreBMI = HealthyIndexUtil.calculateScoreBMI(this);
+        IndicatorAssess scoreBMI = HealthyIndexUtil.calculateScoreBMI(getApplication());
         //储备心率
         IndicatorAssess scorehrReserve = HealthyIndexUtil.calculateScorehrReserve(this);
 

@@ -44,7 +44,7 @@ public class SosSendUtil {
 
             if (sosNumberList==null  || sosNumberList.size()==0 || TextUtils.isEmpty(sosinfo)){
                 ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(context);
-                chooseAlertDialogUtil.setAlertDialogText("未设置求助信息，是否现在去设置？",context.getResources().getString(R.string.exit_confirm),context.getResources().getString(R.string.exit_cancel));
+                chooseAlertDialogUtil.setAlertDialogText(context.getResources().getString(R.string.No_help_information_is_set),context.getResources().getString(R.string.exit_confirm),context.getResources().getString(R.string.exit_cancel));
                 chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
                     @Override
                     public void onConfirmClick() {

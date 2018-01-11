@@ -218,14 +218,14 @@ public class MyDeviceActivity extends BaseActivity {
                     else if (!bleDevice.getMac().equals(bleDeviceClothFromSP.getMac())){
                         if(bleDevice.getState().equals(getResources().getString(R.string.click_bind))){
                             AlertDialog alertDialog = new AlertDialog.Builder(MyDeviceActivity.this)
-                                    .setTitle("您已经绑定过鞋垫，确定要切换吗？")
-                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                    .setTitle(getResources().getString(R.string.sure_you_want_to_switch_insole))
+                                    .setPositiveButton(getResources().getString(R.string.exit_confirm), new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             bingDeviceToServer(bleDevice,position,true,Constant.sportType_Insole);
                                         }
                                     })
-                                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                    .setNegativeButton(getResources().getString(R.string.exit_cancel), new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
 
@@ -339,7 +339,7 @@ public class MyDeviceActivity extends BaseActivity {
             if (split!=null && split.length==2){
                 params.addBodyParameter("leftDeviceMAC",split[0]);
                 params.addBodyParameter("rightDeviceMAC",split[1]);
-                MyUtil.showDialog("鞋垫正在绑定",this);
+                MyUtil.showDialog(getResources().getString(R.string.The_insole_is_binding),this);
             }
             else {
                 MyUtil.showToask(this,"设备mac地址错误");
@@ -360,6 +360,10 @@ public class MyDeviceActivity extends BaseActivity {
                 String restult = (String) jsonBase.errDesc;
                 if (MyUtil.isEmpty(restult)){
                     return;
+                }
+
+                if ("登录失败".equals(restult)){
+                    restult = getResources().getString(R.string.login_failed);
                 }
 
                 AlertDialog alertDialog = new AlertDialog.Builder(MyDeviceActivity.this)

@@ -191,7 +191,7 @@ public class Constant {
 
     public static final String insoleDeviceBatteryInfos = "insoleDeviceBatteryInfos";
 
-    public static boolean isInnerUpdateAllowed = true;  //是否开启应用内部更新，谷歌应用市场不允许更新
+
 
     public static final String mClothDeviceType = "mClothDeviceType";
     public static final String moduleIP = "moduleIP";

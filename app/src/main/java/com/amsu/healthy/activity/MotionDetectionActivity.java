@@ -138,7 +138,7 @@ public class MotionDetectionActivity extends BaseActivity implements View.OnClic
         MyApplication.deivceType = mSportType;
 
         if (preChoosedType!=-1 && preChoosedType != choosedType){
-            MyUtil.showToask(getApplication(),"运动模式切换成功");
+            MyUtil.showToask(getApplication(),getResources().getString(R.string.Active_mode_switch_success));
             BleConnectionProxy.getInstance().getmConnectionConfiguration().deviceType = mSportType;
         }
         preChoosedType = choosedType;

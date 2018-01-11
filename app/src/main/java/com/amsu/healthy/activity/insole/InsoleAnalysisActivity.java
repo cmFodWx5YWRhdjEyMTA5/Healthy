@@ -329,6 +329,7 @@ public class InsoleAnalysisActivity extends BaseActivity {
 
                 Intent toNextIntent = new Intent(InsoleAnalysisActivity.this,InsoleAnalyticFinshResultActivity.class);
                 startActivity(toNextIntent);
+                MyUtil.showToask(getApplication(),getResources().getString(R.string.record_upload_fail));
                 finish();
             }
         });
@@ -347,6 +348,10 @@ public class InsoleAnalysisActivity extends BaseActivity {
             String insoleAnalyResultString = gson.toJson(insoleUploadRecord);
             MyUtil.putStringValueFromSP("mInsoleUploadRecord",insoleAnalyResultString);
             MyUtil.putBooleanValueFromSP("isDataFromCurrConnect",true);
+            MyUtil.showToask(getApplication(),getResources().getString(R.string.record_upload_success));
+        }
+        else {
+            MyUtil.showToask(getApplication(),getResources().getString(R.string.record_upload_fail));
         }
 
         /*Intent intent = getIntent();

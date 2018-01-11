@@ -36,11 +36,11 @@ public class EcgYearFragment extends BaseFragment {
     private void initView() {
 
         TextView tv_ecgmouth_type = (TextView) inflate.findViewById(R.id.tv_ecgmouth_type);
-        tv_ecgmouth_type.setText("年度心电报告");
+        tv_ecgmouth_type.setText(getResources().getString(R.string.year_ECG_Report));
         pc_ecg_chart = (PieChart) inflate.findViewById(R.id.pc_ecg_chart);
 
         TextView tv_ecgmouth_date = (TextView) inflate.findViewById(R.id.tv_ecgmouth_date);
-        tv_ecgmouth_date.setText(MyUtil.getCurrentYear()+"年");
+        tv_ecgmouth_date.setText(MyUtil.getCurrentYear()+"");
 
         /*int[] datas = {16,5,7,2};
         pc_ecg_chart.setDatas(datas);*/

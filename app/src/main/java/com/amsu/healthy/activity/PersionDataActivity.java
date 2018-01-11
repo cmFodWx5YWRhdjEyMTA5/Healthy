@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -93,6 +94,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
 
     }
+
     private void initView() {
         initHeadView();
         setCenterText(getResources().getString(R.string.my_profile));
@@ -483,34 +485,39 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
                 //省份切换时的城市改变
                 final List<String> cityList = provinceModels.get(provincePosition).getCityList();
-                picker_city.setData(cityList);
-                city = cityList.get(cityList.size()/2);
+                if(cityList.size()>0){
+                    picker_city.setData(cityList);
+                    city = cityList.get(cityList.size()/2);
 
-                area = province+city;
-                picker_city.setOnSelectListener(new PickerView.onSelectListener() {
-                    @Override
-                    public void onSelect(int position) {
-                        Log.i(TAG,"选择了"+cityList.get(position));
-                        city = cityList.get(position);
-                        area = province+city;
+                    area = province+city;
+                    picker_city.setOnSelectListener(new PickerView.onSelectListener() {
+                        @Override
+                        public void onSelect(int position) {
+                            Log.i(TAG,"选择了"+cityList.get(position));
+                            city = cityList.get(position);
+                            area = province+city;
 
 
-                    }
-                });
+                        }
+                    });
+                }
+
             }
         });
 
         //城市的默认数据
         List<String> cityList = provinceModels.get(provinceModels.size() / 2).getCityList();
-        picker_city.setData(cityList);
-        picker_city.setOnSelectListener(new PickerView.onSelectListener() {
-            @Override
-            public void onSelect(int position) {
-                Log.i(TAG,"选择了"+grade.get(position));
-            }
-        });
-        city = cityList.get(cityList.size()/2);
-        area = province+city;
+
+        if(cityList.size()>0){
+            picker_city.setData(cityList);
+            picker_city.setOnSelectListener(new PickerView.onSelectListener() {
+                @Override
+                public void onSelect(int position) {
+                    Log.i(TAG,"选择了"+grade.get(position));
+                }
+            });
+            city = cityList.get(cityList.size()/2);
+        }
 
         //显示对话框
         final AlertDialog showAlertDialog = builder.show();
@@ -526,6 +533,10 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
             @Override
             public void onClick(View v) {
                 showAlertDialog.dismiss();
+                area = province;
+                if (!TextUtils.isEmpty(city)){
+                    area += city;
+                }
                 tv_persiondata_area.setText(area);
             }
         });

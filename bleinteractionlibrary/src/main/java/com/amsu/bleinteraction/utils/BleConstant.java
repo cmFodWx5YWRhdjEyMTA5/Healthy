@@ -27,6 +27,7 @@ public class BleConstant {
     public static final int clothDeviceType_old_noEncrypt = 2;  //不加密
     public static final int clothDeviceType_secondGeneration_IOE = 3;  //二代衣服,神念
     public static final int clothDeviceType_secondGeneration_AMSU = 4;  //二代衣服，自己
+    public static final int clothDeviceType_secondGeneration_AMSU_BindByHardware = 5;  //二代衣服，自己
 
     public static final int clothDeviceType_AMSU_EStartWith = -1;  //以AMSU开头的，不确定是旧主机还是二代主机
     public static final int clothDeviceType_Default_NO = -2;  //

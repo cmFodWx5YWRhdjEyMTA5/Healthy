@@ -114,14 +114,14 @@ public class BleSacnEngine {
             //BLE#0x44A6E51FC5BF,44:A6:E5:1F:C5:BF,null,10,2
             //null,72:A8:23:AF:25:42,null,10,0
             //null,63:5C:3E:B6:A0:ae,null,10,0
-            Log.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
+            //Log.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
             if (!TextUtils.isEmpty(device.getName()) && device.getName().length()<25){
                 String leName = device.getName();
 
                 //设备标识
                 if (leName.startsWith("BLE") || leName.startsWith("AMSU")) {
                     BleDevice deviceFromSP = SharedPreferencesUtil.getDeviceFromSP(BleConnectionProxy.getInstance().getmConnectionConfiguration().deviceType);
-                    Log.i(TAG,"deviceFromSP："+deviceFromSP);
+                    //Log.i(TAG,"deviceFromSP："+deviceFromSP);
 
                     if (deviceFromSP!=null){
                         int deviceType = BleConnectionProxy.getInstance().getmConnectionConfiguration().deviceType;

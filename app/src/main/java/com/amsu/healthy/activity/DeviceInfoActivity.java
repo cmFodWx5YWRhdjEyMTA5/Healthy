@@ -136,7 +136,13 @@ public class DeviceInfoActivity extends BaseActivity {
             else {
                 //String username = MyUtil.getStringValueFromSP("username");
                 if (!MyUtil.isEmpty(bleDeviceFromSP.getName())){
-                    tv_device_devicename.setText(bleDeviceFromSP.getName());
+                    String[] split = bleDeviceFromSP.getName().split(":");
+                    if (split.length==2){
+                        tv_device_devicename.setText(split[1]);
+                    }
+                    else {
+                        tv_device_devicename.setText(bleDeviceFromSP.getName());
+                    }
                 }
             }
 
@@ -212,7 +218,7 @@ public class DeviceInfoActivity extends BaseActivity {
 
             //params.addBodyParameter("deviceMAC","");
             MyUtil.addCookieForHttp(params);
-            MyUtil.showDialog("正在解绑",this);
+            MyUtil.showDialog(getResources().getString(R.string.Unbundling),this);
 
             httpUtils.send(HttpRequest.HttpMethod.POST, url, params, new RequestCallBack<String>() {
                 @Override
@@ -230,7 +236,7 @@ public class DeviceInfoActivity extends BaseActivity {
                     }
 
                     if (jsonBase.getRet() == 0){
-                        restult = "解绑成功";
+                        restult = getResources().getString(R.string.unBinding_success);
                         //绑定成功
                         MyUtil.saveDeviceToSP(null,mDevicetype);
                         Intent intent = getIntent();
@@ -259,12 +265,12 @@ public class DeviceInfoActivity extends BaseActivity {
                     }
                     else {
                         //设备已被其他人绑定！
-                        restult = "解绑失败";
+                        restult =  getResources().getString(R.string.unBinding_failure);;
                     }
                     AlertDialog alertDialog = new AlertDialog.Builder(DeviceInfoActivity.this)
 
                             .setTitle(restult)
-                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            .setPositiveButton(getResources().getString(R.string.exit_confirm), new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
@@ -279,7 +285,7 @@ public class DeviceInfoActivity extends BaseActivity {
                 public void onFailure(HttpException e, String s) {
                     MyUtil.hideDialog(DeviceInfoActivity.this);
                     Log.i(TAG,"上传onFailure==s:"+s);
-                    MyUtil.showToask(DeviceInfoActivity.this,Constant.noIntentNotifyMsg);
+                    MyUtil.showToask(DeviceInfoActivity.this,getResources().getString(R.string.Request_failure));
                 }
             });
         }
@@ -327,7 +333,7 @@ public class DeviceInfoActivity extends BaseActivity {
             //params.addBodyParameter("parent3",deviceFromSP.getHardWareVersion());
             params.addBodyParameter("parent3","V0.2.1");
 
-            MyUtil.showDialog("正在检查版本信息",this);
+            MyUtil.showDialog(getResources().getString(R.string.Checking_version_information),this);
 
             httpUtils.send(HttpRequest.HttpMethod.POST, Constant.checkDeviceUpdateUrl, params, new RequestCallBack<String>() {
                 @Override
@@ -349,10 +355,10 @@ public class DeviceInfoActivity extends BaseActivity {
                             }
                         }
                         else if (ret==-20001){
-                            MyUtil.showToask(getApplicationContext(),"不存在当前型号的固件版本");
+                            MyUtil.showToask(getApplicationContext(),getResources().getString(R.string.no_firmware_version));
                         }
                         else {
-                            MyUtil.showToask(getApplicationContext(),"服务器内部异常");
+                            MyUtil.showToask(getApplicationContext(),getResources().getString(R.string.Request_failure));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -362,14 +368,14 @@ public class DeviceInfoActivity extends BaseActivity {
                 @Override
                 public void onFailure(HttpException e, String s) {
                     MyUtil.hideDialog(getApplicationContext());
-                    MyUtil.showToask(getApplicationContext(),"网络异常");
+                    MyUtil.showToask(getApplicationContext(),getResources().getString(R.string.Request_failure));
                     Log.i(TAG,"上传onFailure==s:"+s);
                     //MyUtil.showToask(DeviceInfoActivity.this,Constant.noIntentNotifyMsg);
                 }
             });
         }
         else {
-            MyUtil.showToask(getApplicationContext(),"衣服未连接或连接异常");
+            MyUtil.showToask(getApplicationContext(),getResources().getString(R.string.nonconnection));
         }
 
 
@@ -382,7 +388,7 @@ public class DeviceInfoActivity extends BaseActivity {
         if (!softWareVersion.equals(firmware)){  //需要更新
             AlertDialog alertDialog = new AlertDialog.Builder(this)
                     .setTitle(getApplicationContext().getResources().getString(R.string.find_new_version))
-                    .setMessage("存在主机固件版本"+firmware+",是否要现在更新？")
+                    .setMessage(getApplicationContext().getResources().getString(R.string.new_firmware_version_updated))
                     .setPositiveButton(getApplicationContext().getResources().getString(R.string.update_now), new DialogInterface.OnClickListener() {
 
                         @Override
@@ -403,7 +409,7 @@ public class DeviceInfoActivity extends BaseActivity {
             alertDialog.show();
         }
         else {
-            MyUtil.showToask(getApplicationContext(),"当前主机是最新版本，不需要更新");
+            MyUtil.showToask(getApplicationContext(),getApplicationContext().getResources().getString(R.string.not_need_updated));
         }
     }
 
@@ -431,7 +437,7 @@ public class DeviceInfoActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                MyUtil.showToask(getApplicationContext(),"更新包下载失败");
+                MyUtil.showToask(getApplicationContext(),getResources().getString(R.string.package_download_failure));
                 setProgressUpadteState(progressState_downloaderror);
             }
 
@@ -477,7 +483,7 @@ public class DeviceInfoActivity extends BaseActivity {
                     .start(getApplicationContext(), DfuService.class);
         }
         else {
-            MyUtil.showToask(getApplicationContext(),"设备不存在存在或者安装包不存在");
+            MyUtil.showToask(getApplicationContext(),getResources().getString(R.string.package_does_not_exist));
         }
     }
 
@@ -619,7 +625,7 @@ public class DeviceInfoActivity extends BaseActivity {
             case progressState_downloadSuccess:
                 pb_progress_downloadpb.setVisibility(View.GONE);
                 iv_progress_downloadimage.setVisibility(View.VISIBLE);
-                tv_progress_downloadtext.setText("更新包下载完成");
+                tv_progress_downloadtext.setText(getResources().getString(R.string.package_download_completion));
                 break;
 
             case progressState_startconnecting:
@@ -630,7 +636,7 @@ public class DeviceInfoActivity extends BaseActivity {
             case progressState_startconnected:
                 pb_progress_connecting.setVisibility(View.GONE);
                 iv_progress_connecting.setVisibility(View.VISIBLE);
-                tv_progress_connecting.setText("设备连接成功");
+                tv_progress_connecting.setText(getResources().getString(R.string.connection_successful));
                 tv_progress_connecting.setTextColor(Color.parseColor("#666666"));
 
                 break;
@@ -643,7 +649,7 @@ public class DeviceInfoActivity extends BaseActivity {
             case progressState_updateSuccess:
                 pb_progress_updatepb.setVisibility(View.GONE);
                 iv_progress_updateimage.setVisibility(View.VISIBLE);
-                tv_progress_updatetext.setText("固件更新完成");
+                tv_progress_updatetext.setText(getResources().getString(R.string.Firmware_update_completion));
                 break;
 
             case progressState_allSuccess:
@@ -654,12 +660,12 @@ public class DeviceInfoActivity extends BaseActivity {
             case progressState_downloaderror:
                 ll_progress_connectok.setVisibility(View.VISIBLE);
                 mProgressAlertDialog.dismiss();
-                MyUtil.showHandleOKAlertDialogTip("下载固件失败，请检查网络是否正常，请重试",this);
+                MyUtil.showHandleOKAlertDialogTip(getResources().getString(R.string.Download_the_firmware_failed),this);
                 break;
             case progressState_updateerror:
                 ll_progress_connectok.setVisibility(View.VISIBLE);
                 mProgressAlertDialog.dismiss();
-                MyUtil.showHandleOKAlertDialogTip("更新固件失败，此过程需要和蓝牙保持连接，请重试",this);
+                MyUtil.showHandleOKAlertDialogTip(getResources().getString(R.string.Update_firmware_failed),this);
                 break;
         }
     }

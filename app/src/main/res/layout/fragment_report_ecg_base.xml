@@ -51,8 +51,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:paddingLeft="@dimen/x50"
-            android:paddingRight="@dimen/x50"
+            android:paddingLeft="@dimen/x20"
+            android:paddingRight="@dimen/x20"
             android:paddingBottom="@dimen/x40"
             android:layout_centerHorizontal="true">
 
@@ -72,7 +72,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/normal"
                     android:layout_toRightOf="@+id/iv_image1"
-                    android:textSize="@dimen/x40"
+                    android:textSize="@dimen/x35"
                     android:textColor="#6b6b6b"
                     android:layout_marginLeft="3dp"
                     android:layout_centerVertical="true"/>
@@ -93,7 +93,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/abnormal"
                     android:layout_toRightOf="@+id/iv_image2"
-                    android:textSize="@dimen/x40"
+                    android:textSize="@dimen/x35"
                     android:textColor="#6b6b6b"
                     android:layout_marginLeft="3dp"
                     android:layout_centerVertical="true"/>
@@ -114,7 +114,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/cardiac_leak"
                     android:layout_toRightOf="@+id/iv_image3"
-                    android:textSize="@dimen/x40"
+                    android:textSize="@dimen/x35"
                     android:textColor="#6b6b6b"
                     android:layout_marginLeft="3dp"
                     android:layout_centerVertical="true"/>
@@ -134,7 +134,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/premature_beat"
-                    android:textSize="@dimen/x40"
+                    android:textSize="@dimen/x35"
                     android:textColor="#6b6b6b"
                     android:layout_toRightOf="@+id/iv_image4"
                     android:layout_marginLeft="3dp"
