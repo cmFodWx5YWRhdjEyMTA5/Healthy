@@ -32,6 +32,7 @@ import com.amsu.healthy.service.DfuService;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.InputTextAlertDialogUtil;
 import com.amsu.healthy.utils.MyUtil;
+import com.amsu.healthy.utils.ShowToaskDialogUtil;
 import com.google.gson.reflect.TypeToken;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -202,7 +203,12 @@ public class DeviceInfoActivity extends BaseActivity {
 
     public void unBindDevice(View view) {
         final BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(mDevicetype);
-        if (bleDeviceFromSP !=null){
+
+        if (bleDeviceFromSP.getClothDeviceType()==BleConstant.clothDeviceType_secondGeneration_AMSU_BindByHardware){
+            //需要通过主机长按解绑
+            ShowToaskDialogUtil.showTipDialog(this,"需要在开机时长按5秒，红灯亮2秒表示解绑成功");
+        }
+        else {
             HttpUtils httpUtils = new HttpUtils();
             RequestParams params = new RequestParams();
 
@@ -286,9 +292,6 @@ public class DeviceInfoActivity extends BaseActivity {
                     MyUtil.showToask(DeviceInfoActivity.this,getResources().getString(R.string.Request_failure));
                 }
             });
-        }
-        else {
-            MyUtil.showToask(this,"你还没有绑定过设备！");
         }
 
 

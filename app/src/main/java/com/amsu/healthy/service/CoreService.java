@@ -19,6 +19,7 @@ import com.amsu.healthy.activity.BaseActivity;
 import com.amsu.healthy.activity.HealthyDataActivity;
 import com.amsu.healthy.activity.MainActivity;
 import com.amsu.healthy.appication.MyApplication;
+import com.amsu.healthy.bean.User;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.HealthyIndexUtil;
 import com.amsu.healthy.utils.MyUtil;
@@ -76,9 +77,20 @@ public class CoreService extends Service {
         int deivceType = MyUtil.getIntValueFromSP(Constant.sportType,Constant.sportType_Cloth);
         int clothDeviceType = MyUtil.getIntValueFromSP(Constant.mClothDeviceType);
         Log.i(TAG,"保存的衣服设备类型 clothDeviceType："+clothDeviceType);
+        User userFromSP = MyUtil.getUserFromSP();
 
         boolean isNeedWriteFileHead = false;   //心电文件是否需要些写入文件头，暂时不需要
-        mBleConnectionProxy.initConnectedConfiguration(new BleConnectionProxy.ConnectionConfiguration(userAge,isAutoOffline,deivceType,clothDeviceType,isNeedWriteFileHead),this);
+        //mBleConnectionProxy.initConnectedConfiguration(new BleConnectionProxy.ConnectionConfiguration(userAge,isAutoOffline,deivceType,clothDeviceType,isNeedWriteFileHead),this);
+        mBleConnectionProxy.initConnectedConfiguration(
+                new BleConnectionProxy.ConnectionConfiguration(
+                        userAge,
+                        isAutoOffline,
+                        deivceType,
+                        clothDeviceType,
+                        isNeedWriteFileHead,
+                        userFromSP.getPhone(),
+                        BleConnectionProxy.userLoginWay.phoneNumber),
+                this);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -97,8 +109,6 @@ public class CoreService extends Service {
                 break;
         }
     }
-
-
 
     private void setDeviceConnectedState(int deviceConnectedState){
         BaseActivity baseActivity = MyApplication.getInstance().getmCurrApplicationActivity();

@@ -3,6 +3,8 @@ package com.amsu.bleinteraction.bean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+
 /**
  * Created by HP on 2016/12/23.
  */
@@ -17,8 +19,18 @@ public class BleDevice implements Parcelable {
     String softWareVersion;
     String modelNumber;
     int battery;
+    int clothDeviceType;
+    BleConnectionProxy.DeviceBindByHardWareType bindType;
 
     public BleDevice() {
+        this.name = "";
+        this.state = "";
+        this.mac = "";
+        this.LEName = "";
+        this.rssi = -1;
+        this.hardWareVersion = "";
+        this.softWareVersion = "";
+        this.modelNumber = "";
     }
 
     public BleDevice(String hardWareVersion, String softWareVersion) {
@@ -52,6 +64,21 @@ public class BleDevice implements Parcelable {
         this.hardWareVersion = hardWareVersion;
         this.softWareVersion = softWareVersion;
         this.battery = battery;
+    }
+
+    public BleDevice(String name, String state, String mac, String LEName, int deviceType, Integer rssi, String hardWareVersion, String softWareVersion, String modelNumber, int battery, int clothDeviceType, BleConnectionProxy.DeviceBindByHardWareType bindType) {
+        this.name = name;
+        this.state = state;
+        this.mac = mac;
+        this.LEName = LEName;
+        this.deviceType = deviceType;
+        this.rssi = rssi;
+        this.hardWareVersion = hardWareVersion;
+        this.softWareVersion = softWareVersion;
+        this.modelNumber = modelNumber;
+        this.battery = battery;
+        this.clothDeviceType = clothDeviceType;
+        this.bindType = bindType;
     }
 
     public String getName() {
@@ -99,12 +126,19 @@ public class BleDevice implements Parcelable {
         dest.writeString(LEName);
         dest.writeInt(deviceType);
         dest.writeInt(rssi);
+        dest.writeString(hardWareVersion);
+        dest.writeString(softWareVersion);
+        dest.writeString(modelNumber);
+        dest.writeInt(battery);
+        dest.writeInt(clothDeviceType);
+        dest.writeInt(bindType.ordinal());
     }
 
     public static final Creator<BleDevice> CREATOR = new Creator<BleDevice>() {
         @Override
         public BleDevice createFromParcel(Parcel source) {
-            return new BleDevice(source.readString(),source.readString(),source.readString(),source.readString(),source.readInt(),source.readInt());
+            return new BleDevice(source.readString(),source.readString(),source.readString(),source.readString(),source.readInt(),source.readInt(),source.readString(),source.readString(),source.readString(),
+                    source.readInt(),source.readInt(), BleConnectionProxy.DeviceBindByHardWareType.values()[source.readInt()]);
         }
 
         @Override
@@ -169,6 +203,21 @@ public class BleDevice implements Parcelable {
         this.modelNumber = modelNumber;
     }
 
+    public BleConnectionProxy.DeviceBindByHardWareType getBindType() {
+        return bindType;
+    }
+
+    public void setBindType(BleConnectionProxy.DeviceBindByHardWareType bindType) {
+        this.bindType = bindType;
+    }
+
+    public int getClothDeviceType() {
+        return clothDeviceType;
+    }
+
+    public void setClothDeviceType(int clothDeviceType) {
+        this.clothDeviceType = clothDeviceType;
+    }
 
     @Override
     public String toString() {
@@ -178,11 +227,13 @@ public class BleDevice implements Parcelable {
                 ", mac='" + mac + '\'' +
                 ", LEName='" + LEName + '\'' +
                 ", deviceType=" + deviceType +
+                ", clothDeviceType=" + clothDeviceType +
                 ", rssi=" + rssi +
                 ", hardWareVersion='" + hardWareVersion + '\'' +
                 ", softWareVersion='" + softWareVersion + '\'' +
                 ", modelNumber='" + modelNumber + '\'' +
                 ", battery=" + battery +
+                ", bindType=" + bindType +
                 '}';
     }
 }

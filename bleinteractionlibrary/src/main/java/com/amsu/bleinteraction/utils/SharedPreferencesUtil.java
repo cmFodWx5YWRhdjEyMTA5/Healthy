@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.text.TextUtils;
 
 import com.amsu.bleinteraction.bean.BleDevice;
+import com.google.gson.Gson;
 
 /**
  * @anthor haijun
@@ -46,7 +47,7 @@ public class SharedPreferencesUtil {
         return mPreferences.getString(key,"");
     }
 
-    public static BleDevice getDeviceFromSP(int deviceType){
+    /*public static BleDevice getDeviceFromSP(int deviceType){
         String name ;
         String LEName ;
         String state ;
@@ -165,5 +166,31 @@ public class SharedPreferencesUtil {
         }
         edit.apply();
     }
+*/
+    public static BleDevice getDeviceFromSP(int deviceType){
+        Gson gson = new Gson();
+        String bleDeviceJson;
+        if (deviceType==BleConstant.sportType_Cloth){
+            bleDeviceJson =  getStringValueFromSP("sportType_Cloth");
+        }
+        else {
+            bleDeviceJson =  getStringValueFromSP("sportType_Insole");
+        }
+        BleDevice bleDevice = gson.fromJson(bleDeviceJson, BleDevice.class);
+        if (bleDevice!=null && !TextUtils.isEmpty(bleDevice.getName())){
+            return bleDevice;
+        }
+        return null;
+    }
 
+    public static void saveDeviceToSP(BleDevice bleDevice, int type) {
+        if (bleDevice==null){bleDevice = new BleDevice();}
+        Gson gson = new Gson();
+        String bleDeviceJson = gson.toJson(bleDevice);
+        if (type == BleConstant.sportType_Cloth) {
+            putStringValueFromSP("sportType_Cloth", bleDeviceJson);
+        } else {
+            putStringValueFromSP("sportType_Insole", bleDeviceJson);
+        }
+    }
 }

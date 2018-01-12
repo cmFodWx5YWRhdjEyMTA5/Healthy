@@ -9,6 +9,8 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
@@ -52,6 +54,9 @@ public class BleConnectionProxy {
     public static final int connectTypeConnected = 1;
     public static final int connectTypeUnstabitily = 2;
 
+    public static final int success = 1;
+    public static final int fail = 2;
+
     /*public static final int msgType_Connect = 1;
     public static final int msgType_HeartRate = 2;
     public static final int msgType_Stride = 3;
@@ -64,8 +69,42 @@ public class BleConnectionProxy {
         connectTypeDisConnected, connectTypeConnected, connectTypeUnstabitily
     }
 
+    //消息类型
     public enum MessageEventType {
-        msgType_Connect, msgType_HeartRate, msgType_Stride, msgType_BatteryPercent,msgType_OfflineFile,msgType_ecgDataArray
+        msgType_Connect, msgType_HeartRate, msgType_Stride, msgType_BatteryPercent,msgType_OfflineFile,msgType_ecgDataArray,msgType_Bind,msgType_serviceDiscover
+    }
+
+    //设备绑定类型（通过硬件绑定）
+    public enum DeviceBindByHardWareType implements Parcelable {
+        bindByPhone, bindByWeiXinID, bindByOther,bindByNO,devideNOSupport;
+        @Override
+        public int describeContents() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(ordinal());
+        }
+
+        public static final Creator<DeviceBindByHardWareType> CREATOR = new Creator<DeviceBindByHardWareType>() {
+            @Override
+            public DeviceBindByHardWareType createFromParcel(Parcel in) {
+                return  DeviceBindByHardWareType.values()[in.readInt()];
+            }
+
+            @Override
+            public DeviceBindByHardWareType[] newArray(int size) {
+                return new DeviceBindByHardWareType[size];
+            }
+        };
+
+    }
+
+    //设备绑定类型（通过硬件绑定）
+    public enum userLoginWay {
+        phoneNumber, WeiXinID
     }
 
     public static BleConnectionProxy getInstance(){
@@ -114,7 +153,7 @@ public class BleConnectionProxy {
     private boolean isBleDataEncrypt(){
         BleDevice deviceFromSP = SharedPreferencesUtil.getDeviceFromSP(BleConstant.sportType_Cloth);
         //只有以BLE开头的数据需要加密
-        return deviceFromSP != null && deviceFromSP.getLEName().startsWith("BLE");
+        return deviceFromSP != null && (deviceFromSP.getLEName()!=null && deviceFromSP.getLEName().startsWith("BLE"));
     }
 
     //连接所需要的初始化操作，必须有
@@ -144,12 +183,18 @@ public class BleConnectionProxy {
                 break;
             case LeProxy.ACTION_GATT_SERVICES_DISCOVERED:
                 Log.i(TAG,"Services discovered: " + address);
+                onDeviceServicesDiscovered(address);
+                //onDeviceConnectSuccessful(address);
                 break;
             case LeProxy.ACTION_RSSI_AVAILABLE:// 更新rssi
                 break;
             case LeProxy.ACTION_DATA_AVAILABLE:// 接收到从机数据
                 break;
         }
+    }
+
+    private void onDeviceServicesDiscovered(String address) {
+        BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_serviceDiscover,connectTypeConnected);
     }
 
     //新的设备连接成功
@@ -507,6 +552,8 @@ public class BleConnectionProxy {
         public int deviceType;   // 设备类型，暂时有衣服、鞋垫
         public int clothDeviceType;   //衣服蓝牙硬件版本类型,暂时有 Ble，AMSU_E开头旧主机，AMSU_E开头神念主机，AMSU_E阿木主机
         public boolean isNeedWriteFileHead;  //写入文件时是否需要些写文件头
+        public String bindid;  //绑定id
+        public BleConnectionProxy.userLoginWay userLoginWay;  //登录方式，手机号，微信
 
         public ConnectionConfiguration(int userAge, boolean isAutoOffline, int deviceType, int clothDeviceType,boolean isNeedWriteFileHead) {
             this.userAge = userAge;
@@ -514,6 +561,16 @@ public class BleConnectionProxy {
             this.deviceType = deviceType;
             this.clothDeviceType = clothDeviceType;
             this.isNeedWriteFileHead = isNeedWriteFileHead;
+        }
+
+        public ConnectionConfiguration(int userAge, boolean isAutoOffline, int deviceType, int clothDeviceType, boolean isNeedWriteFileHead, String bindid, BleConnectionProxy.userLoginWay userLoginWay) {
+            this.userAge = userAge;
+            this.isAutoOffline = isAutoOffline;
+            this.deviceType = deviceType;
+            this.clothDeviceType = clothDeviceType;
+            this.isNeedWriteFileHead = isNeedWriteFileHead;
+            this.bindid = bindid;
+            this.userLoginWay = userLoginWay;
         }
     }
 

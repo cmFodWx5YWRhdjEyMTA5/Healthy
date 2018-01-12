@@ -576,6 +576,7 @@ public class LoginActivity extends BaseActivity {
                                 ")+鞋垫2("+rightDeviceMAC.substring(rightDeviceMAC.length()-2)+")");
                         bleDevice.setName("鞋垫");
                         bleDevice.setDeviceType(Constant.sportType_Insole);
+                        bleDevice.setDeviceType(Constant.sportType_Insole);
                         MyUtil.saveDeviceToSP(bleDevice,Constant.sportType_Insole);
                         Log.i(TAG,"bleDevice:"+ bleDevice);
                     }

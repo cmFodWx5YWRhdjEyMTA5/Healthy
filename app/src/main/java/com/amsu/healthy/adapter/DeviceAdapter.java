@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.amsu.bleinteraction.bean.BleDevice;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+import com.amsu.bleinteraction.utils.BleConstant;
 import com.amsu.healthy.R;
 import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MyUtil;
@@ -68,7 +69,30 @@ public class DeviceAdapter extends BaseAdapter{
         boolean isConnectted = instance.ismIsConnectted();
         String clothDeviceConnecedMac = instance.getmClothDeviceConnecedMac();
 
-        if (isConnectted && bleDevice.getMac().equals(clothDeviceConnecedMac)){
+        if (bleDevice.getClothDeviceType() == BleConstant.clothDeviceType_secondGeneration_AMSU_BindByHardware){
+            if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXinID || bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByPhone){
+                //自己绑定
+                if (isConnectted && bleDevice.getMac().equals(clothDeviceConnecedMac)){
+                    tv_item_state.setText(R.string.connected);
+                    tv_item_state.setTextColor(Color.parseColor("#43CD80"));
+                }
+                else {
+                    tv_item_state.setText(R.string.unconnected);
+                    tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
+                }
+            }
+            else if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByOther){
+                //被别人绑定
+                tv_item_state.setText(R.string.bindby_other);
+                tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
+            }
+            else if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByNO){
+                //没绑定
+                tv_item_state.setText(R.string.click_bind);
+                tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
+            }
+        }
+        else if (isConnectted && bleDevice.getMac().equals(clothDeviceConnecedMac)){
             //已经连接上，则显示设备已连接（连上的默认已绑定过）
             tv_item_state.setText(R.string.connected);
             tv_item_state.setTextColor(Color.parseColor("#43CD80"));
@@ -86,7 +110,6 @@ public class DeviceAdapter extends BaseAdapter{
         else {
             tv_item_state.setText(bleDevice.getState());
         }
-
         return inflate;
     }
 

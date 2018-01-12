@@ -202,6 +202,7 @@
     <string name="sure_you_want_to_switch">您已经绑定过衣服，确定要切换吗？</string>
     <string name="sure_you_want_to_switch_insole">您已经绑定过鞋垫，确定要切换吗？</string>
     <string name="click_bind">点击绑定</string>
+    <string name="bindby_other">被别人绑定</string>
     <string name="bound">已绑定</string>
     <string name="unbound">解除绑定</string>
     <string name="unconnected">未连接</string>

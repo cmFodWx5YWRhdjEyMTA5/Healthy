@@ -101,7 +101,7 @@ public class BleDataProxy {
     void bleCharacteristicChanged(String address, BluetoothGattCharacteristic characteristic){
         String hexData = DataUtil.byteArrayToHex(characteristic.getValue());
         String uuid = characteristic.getUuid().toString();
-        //Log.i(TAG, "onCharacteristicChanged() - "+characteristic.getValue().length +"  " + hexData);
+        Log.i(TAG, "onCharacteristicChanged() - "+characteristic.getValue().length +"  " + hexData);
 
         if (uuid.equals(BleConstant.readInsoleDeviceInfoModelNumberCharUuid)){  //硬件模块名称
             String deviceVersionString = DataTypeConversionUtil.convertHexToString(hexData);
@@ -138,8 +138,14 @@ public class BleDataProxy {
                 else if (hexData.length()==14 && hexData.startsWith("42 39")){  //42 39 2B 4F 4B
                     mLeProxy.updateBroadcast(address, characteristic);
                 }
+                else if (hexData.length()==14 && hexData.startsWith("41 77 2B 4F 4B")){  //41 77 2B 4F 4B硬件绑定设备，绑定成功后返回
+                    bindDeviceSuccessByHardWare();
+                }
                 else if (hexData.length()==14 && !hexData.startsWith("42 37 2B")){  //42 37 2B开头的是鞋垫步频
                     deviceVersionInfo(address, hexData, uuid);
+                }
+                else if (hexData.length()==17 && hexData.startsWith("41 37 2B 45 52 52")){  //41 37 2B 45 52 52  硬件绑定设备，绑定失败后返回
+                    bindDeviceFailByHardWare();
                 }
                 else if (hexData.length()==17){
                     newClothDeviceVersionInfo(hexData, uuid);
@@ -488,6 +494,14 @@ public class BleDataProxy {
                 //sendReadDeviceState();
             }
         }
+    }
+
+    private void bindDeviceSuccessByHardWare(){
+        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_Bind,BleConnectionProxy.success);
+    }
+
+    private void bindDeviceFailByHardWare(){
+        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_Bind,BleConnectionProxy.fail);
     }
 
     // 3E  鞋垫电量

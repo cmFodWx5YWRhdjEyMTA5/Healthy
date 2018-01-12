@@ -308,6 +308,7 @@ public class LeProxy {
             //!!!检索服务成功，到这一步才可以与从机进行数据交互，有些手机可能需要延时几百毫秒才能数据交互
             Log.i(TAG, "onServicesDiscovered() - " + address);
             new Timer().schedule(new ServicesDiscoveredTask(address), 300, 100);
+            BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_GATT_SERVICES_DISCOVERED);
         }
 
         @Override

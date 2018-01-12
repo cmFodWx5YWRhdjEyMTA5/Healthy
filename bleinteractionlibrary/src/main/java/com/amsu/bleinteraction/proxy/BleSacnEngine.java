@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.amsu.bleinteraction.bean.BleDevice;
 import com.amsu.bleinteraction.utils.BleConstant;
+import com.amsu.bleinteraction.utils.DeviceBindUtil;
 import com.amsu.bleinteraction.utils.SharedPreferencesUtil;
 
 /**
@@ -28,6 +29,7 @@ public class BleSacnEngine {
     private BluetoothAdapter mBluetoothAdapter;
     private boolean mScanning;   //是否正在扫描，暂时取消，只要调用扫描就重新扫描，因为会遇到蓝牙休眠的状况
     private static BleSacnEngine mBleSacnEngine;
+    private BleConnectionProxy mBleConnectionProxy;
 
     private BleSacnEngine(Context context) {
         mContext = context;
@@ -36,10 +38,12 @@ public class BleSacnEngine {
 
     private void init(){
         mLeProxy = LeProxy.getInstance();
+        mBleConnectionProxy = BleConnectionProxy.getInstance();
         BluetoothManager bluetoothManager = (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         if(bluetoothManager!=null){
             mBluetoothAdapter = bluetoothManager.getAdapter();
         }
+
     }
 
     public static BleSacnEngine getInStance(Context context){
@@ -114,18 +118,29 @@ public class BleSacnEngine {
             //BLE#0x44A6E51FC5BF,44:A6:E5:1F:C5:BF,null,10,2
             //null,72:A8:23:AF:25:42,null,10,0
             //null,63:5C:3E:B6:A0:ae,null,10,0
-            //Log.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
+            Log.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
             if (!TextUtils.isEmpty(device.getName()) && device.getName().length()<25){
                 String leName = device.getName();
 
                 //设备标识
                 if (leName.startsWith("BLE") || leName.startsWith("AMSU")) {
-                    BleDevice deviceFromSP = SharedPreferencesUtil.getDeviceFromSP(BleConnectionProxy.getInstance().getmConnectionConfiguration().deviceType);
-                    //Log.i(TAG,"deviceFromSP："+deviceFromSP);
-
+                    BleDevice deviceFromSP = SharedPreferencesUtil.getDeviceFromSP(mBleConnectionProxy.getmConnectionConfiguration().deviceType);
+                    Log.i(TAG,"deviceFromSP："+deviceFromSP);
                     if (deviceFromSP!=null){
-                        int deviceType = BleConnectionProxy.getInstance().getmConnectionConfiguration().deviceType;
+                        int deviceType = mBleConnectionProxy.getmConnectionConfiguration().deviceType;
                         if (deviceType== BleConstant.sportType_Cloth ){
+                            if (leName.startsWith("AMSU_E") && leName.length()==10){
+                                BleConnectionProxy.DeviceBindByHardWareType deviceBindTypeByBleBroadcastInfo = DeviceBindUtil.getDeviceBindTypeByBleBroadcastInfo(scanRecord, mBleConnectionProxy.getmConnectionConfiguration().userLoginWay, mBleConnectionProxy.getmConnectionConfiguration().bindid);
+                                Log.i(TAG,"deviceBindTypeByBleBroadcastInfo:"+deviceBindTypeByBleBroadcastInfo);
+
+                                if (deviceBindTypeByBleBroadcastInfo==BleConnectionProxy.DeviceBindByHardWareType.bindByNO && device.getAddress().equals(deviceFromSP.getMac())
+                                        && deviceFromSP.getBindType()!=BleConnectionProxy.DeviceBindByHardWareType.bindByNO){
+                                    //没有人绑定，但是本地还是缓存的这个设备，需要将本地的这个设备清空
+                                    SharedPreferencesUtil.saveDeviceToSP(null,deviceType);
+                                    deviceFromSP = new BleDevice();
+                                }
+                            }
+
                             if (device.getAddress().equals(deviceFromSP.getMac())){  //只有扫描到的蓝牙是sp里的当前设备时（激活状态），才能进行连接
                                 connectDevice(device.getAddress());
                             }

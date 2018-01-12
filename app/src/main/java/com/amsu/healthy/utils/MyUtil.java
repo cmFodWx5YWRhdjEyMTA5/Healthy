@@ -19,6 +19,7 @@ import android.os.Environment;
 import android.provider.Settings;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -33,6 +34,7 @@ import android.widget.Toast;
 
 import com.amsu.bleinteraction.bean.BleDevice;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+import com.amsu.bleinteraction.utils.BleConstant;
 import com.amsu.bleinteraction.utils.FileWriteHelper;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.SosActivity;
@@ -212,165 +214,31 @@ public class MyUtil {
         return user;
     }
 
-    public static void saveDeviceToSP(BleDevice bleDevice) {
-        SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
-        if (bleDevice !=null){
-            if (!MyUtil.isEmpty(bleDevice.getName())){
-                edit.putString("name", bleDevice.getName());
-            }
-            if (!MyUtil.isEmpty(bleDevice.getLEName())){
-                edit.putString("LEName", bleDevice.getLEName());
-            }
-            if (!MyUtil.isEmpty(bleDevice.getState())){
-                edit.putString("state", bleDevice.getState());
-            }
-            if (!MyUtil.isEmpty(bleDevice.getMac())){
-                edit.putString("mac", bleDevice.getMac());
-            }
-            edit.putInt("deviceType_insole", bleDevice.getDeviceType());
-        }
-        else {
-            edit.putString("name","");
-            edit.putString("LEName","");
-            edit.putString("state","");
-            edit.putString("mac","");
-        }
-
-        edit.apply();
-    }
-
     public static void saveDeviceToSP(BleDevice bleDevice, int type) {
-        SharedPreferences.Editor edit = MyApplication.sharedPreferences.edit();
-        if (type==2){
-            if (bleDevice !=null){
-                if (!MyUtil.isEmpty(bleDevice.getName())){
-                    edit.putString("name_insole", bleDevice.getName());
-                }
-                if (!MyUtil.isEmpty(bleDevice.getLEName())){
-                    edit.putString("LEName_insole", bleDevice.getLEName());
-                }
-                if (!MyUtil.isEmpty(bleDevice.getState())){
-                    edit.putString("state_insole", bleDevice.getState());
-                }
-                if (!MyUtil.isEmpty(bleDevice.getMac())){
-                    edit.putString("mac_insole", bleDevice.getMac());
-                }
-                if (!MyUtil.isEmpty(bleDevice.getHardWareVersion())){
-                    edit.putString("hardWareVersion_insole", bleDevice.getHardWareVersion());
-                }
-                if (!MyUtil.isEmpty(bleDevice.getSoftWareVersion())){
-                    edit.putString("softWareVersion_insole", bleDevice.getSoftWareVersion());
-                }
-                edit.putInt("deviceType_insole", bleDevice.getDeviceType());
-                edit.putInt("battery_insole", bleDevice.getBattery());
-            }
-            else {
-                edit.putString("name_insole","");
-                edit.putString("LEName_insole","");
-                edit.putString("state_insole","");
-                edit.putString("mac_insole","");
-                edit.putString("hardWareVersion_insole","");
-                edit.putString("softWareVersion_insole","");
-                edit.putInt("deviceType_insole",-1);
-                edit.putInt("battery_insole",-1);
-            }
+        Gson gson = new Gson();
+        String bleDeviceJson = gson.toJson(bleDevice);
+        if (type== BleConstant.sportType_Cloth){
+            putStringValueFromSP("sportType_Cloth",bleDeviceJson);
         }
         else {
-            if (bleDevice !=null){
-                if (!MyUtil.isEmpty(bleDevice.getName())){
-                    edit.putString("name", bleDevice.getName());
-                }
-                if (!MyUtil.isEmpty(bleDevice.getLEName())){
-                    edit.putString("LEName", bleDevice.getLEName());
-                }
-                if (!MyUtil.isEmpty(bleDevice.getState())){
-                    edit.putString("state", bleDevice.getState());
-                }
-                if (!MyUtil.isEmpty(bleDevice.getMac())){
-                    edit.putString("mac", bleDevice.getMac());
-                }
-                if (!MyUtil.isEmpty(bleDevice.getHardWareVersion())){
-                    edit.putString("hardWareVersion", bleDevice.getHardWareVersion());
-                }
-                if (!MyUtil.isEmpty(bleDevice.getSoftWareVersion())){
-                    edit.putString("softWareVersion", bleDevice.getSoftWareVersion());
-                }
-                edit.putInt("deviceType_cloth", bleDevice.getDeviceType());
-                edit.putInt("battery", bleDevice.getBattery());
-            }
-            else {
-                edit.putString("name","");
-                edit.putString("LEName","");
-                edit.putString("state","");
-                edit.putString("mac","");
-                edit.putString("hardWareVersion","");
-                edit.putString("softWareVersion","");
-                edit.putInt("deviceType_cloth",-1);
-                edit.putInt("battery",-1);
-            }
+            putStringValueFromSP("sportType_Insole",bleDeviceJson);
         }
-        edit.apply();
-    }
-
-    public static BleDevice getDeviceFromSP(){
-        String name = getStringValueFromSP("name");
-        String LEName = getStringValueFromSP("LEName");
-        String state = getStringValueFromSP("state");
-        String mac = getStringValueFromSP("mac");
-        BleDevice bleDevice = null;
-        if (!LEName.equals("") && !mac.equals("")){
-            bleDevice = new BleDevice(name,state,mac,LEName,0);
-        }
-        return bleDevice;
     }
 
     public static BleDevice getDeviceFromSP(int deviceType){
-        String name ;
-        String LEName ;
-        String state ;
-        String mac ;
-        String hardWareVersion ;
-        String softWareVersion ;
-        int type;
-        int battery;
-
-        if (deviceType==Constant.sportType_Insole){ // 1:衣服   2:鞋垫
-            name = getStringValueFromSP("name_insole");
-            LEName = getStringValueFromSP("LEName_insole");
-            state = getStringValueFromSP("state_insole");
-            mac = getStringValueFromSP("mac_insole");
-            type = getIntValueFromSP("deviceType_insole");
-            hardWareVersion = getStringValueFromSP("hardWareVersion_insole");
-            softWareVersion = getStringValueFromSP("softWareVersion_insole");
-            battery = getIntValueFromSP("battery_insole");
+        Gson gson = new Gson();
+        String bleDeviceJson;
+        if (deviceType==BleConstant.sportType_Cloth){
+            bleDeviceJson =  getStringValueFromSP("sportType_Cloth");
         }
         else {
-            name = getStringValueFromSP("name");
-            LEName = getStringValueFromSP("LEName");
-            state = getStringValueFromSP("state");
-            mac = getStringValueFromSP("mac");
-            type = getIntValueFromSP("deviceType_cloth");
-            hardWareVersion = getStringValueFromSP("hardWareVersion");
-            softWareVersion = getStringValueFromSP("softWareVersion");
-            battery = getIntValueFromSP("battery");
+            bleDeviceJson =  getStringValueFromSP("sportType_Insole");
         }
-        BleDevice bleDevice = null;
-        if (!LEName.equals("") && !mac.equals("")){
-            bleDevice = new BleDevice(name,state,mac,LEName,type,hardWareVersion,softWareVersion,battery);
+        BleDevice bleDevice = gson.fromJson(bleDeviceJson, BleDevice.class);
+        if (bleDevice!=null && !TextUtils.isEmpty(bleDevice.getName())){
+            return bleDevice;
         }
-        return bleDevice;
-    }
-
-    public static BleDevice getClothDeviceFromSP(){
-        String name = getStringValueFromSP("name");
-        String LEName = getStringValueFromSP("LEName");
-        String state = getStringValueFromSP("state");
-        String mac = getStringValueFromSP("mac");
-        BleDevice bleDevice = null;
-        if (!LEName.equals("") && !mac.equals("")){
-            bleDevice = new BleDevice(name,state,mac,LEName,0);
-        }
-        return bleDevice;
+        return null;
     }
 
     public static String getStringValueFromSP(String key){

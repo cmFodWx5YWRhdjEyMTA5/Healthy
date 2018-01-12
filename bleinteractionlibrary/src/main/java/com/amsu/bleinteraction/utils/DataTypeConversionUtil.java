@@ -123,4 +123,18 @@ public class DataTypeConversionUtil {
 
         return sb.toString();
     }
+
+    public static String byteArrayToHex(byte[] var0) {
+        if(var0 != null && var0.length != 0) {
+            StringBuilder var1 = new StringBuilder(var0.length);
+
+            for(int var2 = 0; var2 < var0.length; ++var2) {
+                var1.append(String.format("%02X", new Object[]{Byte.valueOf(var0[var2])}));
+            }
+
+            return var1.toString();
+        } else {
+            return "";
+        }
+    }
 }

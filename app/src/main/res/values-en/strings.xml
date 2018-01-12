@@ -514,6 +514,10 @@
 
     <string name="record_upload_fail">Data upload failed, will be automatically uploaded the next time you resume</string>
     <string name="record_upload_success">Data uploaded successfully</string>
+    <string name="bindby_other">bound by others</string>
+
+
+
 
 
     <string name="endurance_test">endurance test</string>
