@@ -392,6 +392,7 @@ public class MyDeviceActivity extends BaseActivity {
         if(singleValue==BleConnectionProxy.success) {
             //绑定成功，提示
             ShowToaskDialogUtil.showTipDialog(this,"设备绑定成功，主机已关机，需要重新启动设备");
+            BleConnectionProxy.getInstance().dealwithBelDisconnected(null);
         }
         else if(singleValue==BleConnectionProxy.fail) {
             //绑定失败，提示

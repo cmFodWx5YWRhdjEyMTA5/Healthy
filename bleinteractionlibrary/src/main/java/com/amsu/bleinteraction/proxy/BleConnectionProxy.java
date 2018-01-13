@@ -338,7 +338,7 @@ public class BleConnectionProxy {
     }
 
     //处理蓝牙断开（address不为空表示当前连接设备断开，address为空表示手机蓝牙关闭，需要将连接的设备信息清空）
-    private void dealwithBelDisconnected(String address){
+    public void dealwithBelDisconnected(String address){
         reStartScanBleDevice();
 
         if (mConnectionConfiguration.deviceType== BleConstant.sportType_Cloth){

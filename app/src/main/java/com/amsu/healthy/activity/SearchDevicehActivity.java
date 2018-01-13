@@ -212,7 +212,7 @@ public class SearchDevicehActivity extends BaseActivity {
             if (leName!=null && (leName.startsWith("BLE") || leName.startsWith("AMSU")) && leName.length()<25){
                 Log.i(TAG,"发现目标主机");
 
-
+                Log.i(TAG,"scanRecord:"+bytesToHex(scanRecord));
 
                 boolean isAddToList = true;
                 for (BleDevice device1:searchDeviceList){
@@ -260,6 +260,23 @@ public class SearchDevicehActivity extends BaseActivity {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    public static String byteArrayToHex(byte[] var0) {
+        if(var0 != null && var0.length != 0) {
+            StringBuilder var1 = new StringBuilder(var0.length);
+
+            for(int var2 = 0; var2 < var0.length; ++var2) {
+                var1.append(String.format("%02X", new Object[]{Byte.valueOf(var0[var2])}));
+                if(var2 < var0.length - 1) {
+                    var1.append(' ');
+                }
+            }
+
+            return var1.toString();
+        } else {
+            return "";
+        }
     }
 
     public void stopsearch(View view) {

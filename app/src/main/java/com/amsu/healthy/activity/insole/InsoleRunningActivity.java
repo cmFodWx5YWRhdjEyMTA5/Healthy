@@ -727,7 +727,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             }
 
             writeEcgDataToBinaryFile(mCurLeftTime,gyrX,gyrY,gyrZ,accX,accY,accZ,insole_left);
-            //Log.i(TAG,"time:"+time+", 左脚 角速度："+gyrX+","+gyrY+","+gyrZ+",  加速度:"+accX+","+accY+","+accZ);
+            Log.i(TAG,"time:"+time+", 左脚 角速度："+gyrX+","+gyrY+","+gyrZ+",  加速度:"+accX+","+accY+","+accZ);
         }
         else if (left_right==insole_right) {
             //R 右脚
@@ -750,7 +750,7 @@ public class InsoleRunningActivity extends Activity implements View.OnClickListe
             }
 
             writeEcgDataToBinaryFile(mCurRightTime,gyrX,gyrY,gyrZ,accX,accY,accZ,insole_right);
-            //Log.e(TAG,"time:"+time+", 右脚 角速度："+gyrX+","+gyrY+","+gyrZ+",  加速度:"+accX+","+accY+","+accZ);
+            Log.e(TAG,"time:"+time+", 右脚 角速度："+gyrX+","+gyrY+","+gyrZ+",  加速度:"+accX+","+accY+","+accZ);
         }
     }
 

@@ -101,7 +101,7 @@ public class BleDataProxy {
     void bleCharacteristicChanged(String address, BluetoothGattCharacteristic characteristic){
         String hexData = DataUtil.byteArrayToHex(characteristic.getValue());
         String uuid = characteristic.getUuid().toString();
-        Log.i(TAG, "onCharacteristicChanged() - "+characteristic.getValue().length +"  " + hexData);
+        //Log.i(TAG, "onCharacteristicChanged() - "+characteristic.getValue().length +"  " + hexData);
 
         if (uuid.equals(BleConstant.readInsoleDeviceInfoModelNumberCharUuid)){  //硬件模块名称
             String deviceVersionString = DataTypeConversionUtil.convertHexToString(hexData);
@@ -166,7 +166,7 @@ public class BleDataProxy {
     }
 
 
-    private void dealWithOnePackageEcgData(int[] valuableEcgData,String address,String hexData) {
+    private synchronized void dealWithOnePackageEcgData(int[] valuableEcgData,String address,String hexData) {
         boolean ismIsDataStart = mConnectionProxy.ismIsDataStart();  //当连接上时ismIsDataStart为false，收到数据时把这个值设置为true
         mConnectionProxy.setmIsDataStart(true);
 
@@ -181,8 +181,8 @@ public class BleDataProxy {
         else {
             if (!ismIsDataStart || mIsDeviceDroped){
                 //之前是脱落，需要重置灯的状态，默认设置为蓝灯常亮
-                sendControlLightOrder(BleConstant.blueLightAlwaysOnOrder,address);
                 Log.i(TAG,"设备连接恢复正常");
+                sendControlLightOrder(BleConstant.blueLightAlwaysOnOrder,address);
                 mIsDeviceDroped = false;
             }
         }
@@ -194,7 +194,7 @@ public class BleDataProxy {
             intString+=i+",";
         }
         Log.i(TAG,"滤波前心电:"+intString +"  ");*/
-
+        //Log.i(TAG,"滤波前心电:");
 
         ecgDataFilter(valuableEcgData);
 
@@ -203,6 +203,9 @@ public class BleDataProxy {
             intStringA+=i+",";
         }
         Log.w(TAG,"滤波后心电:"+intStringA);*/
+        //Log.w(TAG,"滤波后心电:");
+
+        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_ecgDataArray,valuableEcgData);
 
         mResultCalcuUtil.notifyReciveAcgPackageData(clone,valuableEcgData);
 
@@ -210,7 +213,7 @@ public class BleDataProxy {
         intent.putExtra(EXTRA_ECG_DATA, valuableEcgData);
         mLeProxy.updateBroadcast(intent);*/
 
-        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_ecgDataArray,valuableEcgData);
+
 
 
 
@@ -244,6 +247,9 @@ public class BleDataProxy {
         updateLightStateByCurHeart(heartRate);*/
 
         //Log.i("HeartShowWayUtil","收到heartRate:"+heartRate);
+
+        updateLightStateByCurHeart(heartRate);
+        mConnectionProxy.setCurrentHeartRate(heartRate);
         postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_HeartRate,heartRate);
     }
 
@@ -326,7 +332,7 @@ public class BleDataProxy {
         }
         else {
             //心率，暂时保留
-            //updateLightStateByCurHeart(address, intValue);
+            //updateLightStateByCurHeart(intValue);
         }
     }
 
@@ -435,7 +441,7 @@ public class BleDataProxy {
                 mConnectionProxy.getmConnectionConfiguration().clothDeviceType = BleConstant.clothDeviceType_secondGeneration_AMSU;
                 SharedPreferencesUtil.putIntValueFromSP(BleConstant.mClothDeviceType,BleConstant.clothDeviceType_secondGeneration_AMSU);
             }
-            else if (deviceVersionString.equals("V0.0.1") || deviceVersionString.equals("V2.0.1")){ //神念
+            else if (deviceVersionString.equals("V0.0.1") || deviceVersionString.equals("V2.0.1") || deviceVersionString.equals("V1.0.0")){ //神念
                 mConnectionProxy.getmConnectionConfiguration().clothDeviceType = BleConstant.clothDeviceType_secondGeneration_IOE;
                 SharedPreferencesUtil.putIntValueFromSP(BleConstant.mClothDeviceType,BleConstant.clothDeviceType_secondGeneration_IOE);
             }

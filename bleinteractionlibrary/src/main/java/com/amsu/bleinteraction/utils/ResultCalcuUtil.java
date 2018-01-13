@@ -39,6 +39,7 @@ public class ResultCalcuUtil {
         mFileWriteHelper = FileWriteHelper.getFileWriteHelper();
     }
 
+    //计算心率，滤波前和滤波后的数据
     public void notifyReciveAcgPackageData(int[] beforeFilterTempEcgInts, int[] afterFilterTempEcgInts){
         mFileWriteHelper.writeEcgDataToFile(beforeFilterTempEcgInts);  //写入滤波前数据
 
