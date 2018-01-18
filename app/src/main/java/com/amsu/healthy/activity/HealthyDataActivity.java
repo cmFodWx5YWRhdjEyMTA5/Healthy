@@ -127,7 +127,6 @@ public class HealthyDataActivity extends BaseActivity {
         Log.i(TAG,"onStart:");
     }
 
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         switch (event.messageType){

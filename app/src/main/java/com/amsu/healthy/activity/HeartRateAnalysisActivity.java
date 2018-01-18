@@ -61,7 +61,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
     private void initView() {
         ImageView iv_heartrate_rotateimage = (ImageView) findViewById(R.id.iv_heartrate_rotateimage);
         animation = new RotateAnimation(0f,360f, Animation.RELATIVE_TO_SELF, 0.5f,Animation.RELATIVE_TO_SELF,0.5f);
-        animation.setDuration(1000);
+        animation.setDuration(1500);
         animation.setRepeatCount(-1);
         animation.setInterpolator(new LinearInterpolator());
 
@@ -614,7 +614,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
     }
 
 
-
     //从文件中读取心电数据
     private List<Integer> readIntArrayDataFromFile(File file) {
         List<Integer> calcuData = new ArrayList<>();  //心电数据
@@ -653,9 +652,6 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         }
         finish();
     }
-
-
-
 
     private void uploadAnlysisREsultToSocket(UploadRecord uploadRecord) {
         //A6,1

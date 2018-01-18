@@ -25,6 +25,7 @@ import com.amsu.bleinteraction.bean.MessageEvent;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.bleinteraction.utils.BleConstant;
+import com.amsu.bleinteraction.utils.LogUtil;
 import com.amsu.bleinteraction.utils.SharedPreferencesUtil;
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.JsonBase;
@@ -689,7 +690,7 @@ public class DeviceInfoActivity extends BaseActivity {
             //null,72:A8:23:AF:25:42,null,10,0
             //null,63:5C:3E:B6:A0:ae,null,10,0
 
-            Log.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
+            LogUtil.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
 
             String leName = device.getName();
             if (leName!=null && leName.startsWith("OTA_")){
@@ -697,7 +698,7 @@ public class DeviceInfoActivity extends BaseActivity {
                     /*mLeProxy.connect(device.getAddress(),false);
                     Log.i(TAG,"尝试连接OTA_");*/
                     startUpload(device.getAddress(),mLocalSavePath);
-                    Log.i(TAG,"开始升级");
+                    LogUtil.i(TAG,"开始升级");
                     isConnectting = true;
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
                     setProgressUpadteState(progressState_startconnecting);
@@ -711,7 +712,7 @@ public class DeviceInfoActivity extends BaseActivity {
         switch (event.messageType){
             case msgType_BatteryPercent:
                 int intExtra =  event.singleValue;
-                Log.i(TAG,"电量变化:"+intExtra);
+                LogUtil.i(TAG,"电量变化:"+intExtra);
                 if (intExtra==-1){
                     //设备已断开
                     tv_device_electric.setText("--");

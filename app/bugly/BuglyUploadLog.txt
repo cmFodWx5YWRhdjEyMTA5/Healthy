@@ -810,3 +810,10 @@ appChannel=google_pay
 appPackage=com.amsu.healthy
 appVersion=1.5.6
 
+file=C:\Users\HP\AndroidStudioProjects\Healthy-master\app\build\outputs\mapping\inner\release\mapping.txt
+sha1=40afec18d9ebf185b3b09305e33d9b53ea12ad4e
+appId=d139ea916b
+appChannel=inner
+appPackage=com.amsu.healthy
+appVersion=1.5.6
+

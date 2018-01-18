@@ -510,7 +510,6 @@ public class LoginActivity extends BaseActivity {
                                         startActivity(new Intent(LoginActivity.this,MainActivity.class));
                                         MyUtil.destoryAllAvtivity(LoginActivity.this);
                                     }
-
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                     MyUtil.hideDialog(LoginActivity.this);

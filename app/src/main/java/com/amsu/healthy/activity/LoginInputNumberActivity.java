@@ -206,7 +206,7 @@ public class LoginInputNumberActivity extends BaseActivity {
             return;
         }
 
-        if (phone.equals("13392887820") || phone.equals("13923475272") || phone.equals("18026967001")){  //测试手机号13392887820，13923475272，18026967001
+        if (phone.equals("13392887820") || phone.equals("13923475272") || phone.equals("18026967001") || phone.equals("17704026793")){  //测试手机号13392887820，13923475272，18026967001
             Intent intent = new Intent(this, LoginActivity.class);
             intent.putExtra("zonecode",zonecode);
             intent.putExtra("phone",phone);

@@ -343,7 +343,9 @@ public class UploadHealthyDataUtil {
                             }
                         }
                         else {
-                            MyUtil.showToask(context,context.getResources().getString(R.string.record_upload_fail));
+                            if (!isSynLocalData){
+                                MyUtil.showToask(context,context.getResources().getString(R.string.record_upload_fail));
+                            }
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

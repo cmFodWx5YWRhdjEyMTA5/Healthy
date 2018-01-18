@@ -11,6 +11,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.amsu.bleinteraction.utils.BleConstant;
+import com.amsu.bleinteraction.utils.LogUtil;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
 import com.ble.ble.BleService;
@@ -79,7 +80,7 @@ public class LeProxy {
         mBleService = ((BleService.LocalBinder) binder).getService(mBleCallBack);
         // mBleService.setMaxConnectedNumber(max);// 设置最大可连接从机数量，默认为4
         mBleService.setDecode(bleDataEncrypt); //设置是否解密接收的数据（仅限于默认的接收通道【0x1002】，依据模透传块数据是否加密而定）
-        mBleService.setConnectTimeout(5000);//设置APP端的连接超时时间（单位ms）
+        mBleService.setConnectTimeout(4000);//设置APP端的连接超时时间（单位ms）
         mBleService.initialize();// 必须调用初始化函数
     }
 
@@ -271,7 +272,7 @@ public class LeProxy {
         @Override
         public void onConnected(String address) {
             //!!!这里只代表手机与模组建立了物理连接，APP还不能与模组进行数据交互
-            Log.i(TAG, "onConnected() - " + address);
+            LogUtil.i(TAG, "onConnected() - " + address);
             //启动获取rssi的定时器，如不需要获取信号，可以不启动该定时任务
             //mBleService.startReadRssi(address, 1000);
             //updateBroadcast(address, ACTION_GATT_CONNECTED);
@@ -281,7 +282,7 @@ public class LeProxy {
 
         @Override
         public void onConnectTimeout(String address) {
-            Log.e(TAG, "onConnectTimeout() - " + address);
+            LogUtil.e(TAG, "onConnectTimeout() - " + address);
             //updateBroadcast(address, ACTION_CONNECT_TIMEOUT);
             //postBleDataOnBus(BleOnConnectTimeout,address);
             BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_CONNECT_TIMEOUT);
@@ -289,7 +290,7 @@ public class LeProxy {
 
         @Override
         public void onConnectionError(String address, int error, int newState) {
-            Log.e(TAG, "onConnectionError() - " + address + " error code: " + error + ", new state: " + newState);
+            LogUtil.e(TAG, "onConnectionError() - " + address + " error code: " + error + ", new state: " + newState);
             //updateBroadcast(address, ACTION_CONNECT_ERROR);
             //postBleDataOnBus(BleOnConnectionError,address);
             BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_CONNECT_ERROR);
@@ -297,7 +298,7 @@ public class LeProxy {
 
         @Override
         public void onDisconnected(String address) {
-            Log.e(TAG, "onDisconnected() - " + address);
+            LogUtil.e(TAG, "onDisconnected() - " + address);
             //updateBroadcast(address, ACTION_GATT_DISCONNECTED);
             //postBleDataOnBus(BleOnDisconnected,address);
             BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_GATT_DISCONNECTED);
@@ -306,7 +307,7 @@ public class LeProxy {
         @Override
         public void onServicesDiscovered(String address) {
             //!!!检索服务成功，到这一步才可以与从机进行数据交互，有些手机可能需要延时几百毫秒才能数据交互
-            Log.i(TAG, "onServicesDiscovered() - " + address);
+            LogUtil.i(TAG, "onServicesDiscovered() - " + address);
             new Timer().schedule(new ServicesDiscoveredTask(address), 300, 100);
             BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_GATT_SERVICES_DISCOVERED);
         }
@@ -314,7 +315,7 @@ public class LeProxy {
         @Override
         public void onServicesUndiscovered(String address, int status) {
             //检索服务异常
-            Log.e(TAG, "onServicesUndiscovered() - " + address + ", status = " + status);
+            LogUtil.e(TAG, "onServicesUndiscovered() - " + address + ", status = " + status);
         }
 
         @Override
@@ -333,7 +334,7 @@ public class LeProxy {
         @Override
         public void onCharacteristicRead(String address, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.i(TAG, "onCharacteristicRead() - " + address + " uuid=" + characteristic.getUuid().toString()
+                LogUtil.i(TAG, "onCharacteristicRead() - " + address + " uuid=" + characteristic.getUuid().toString()
                         + " len=" + characteristic.getValue().length
                         + " [" + DataUtil.byteArrayToHex(characteristic.getValue()) + ']');
 
@@ -363,7 +364,7 @@ public class LeProxy {
                 String uuid = characteristic.getUuid().toString();
                 //如果发送数据加密，可以先把characteristic.getValue()获取的数据解密一下再打印
                 //byte[] decodedData = new EncodeUtil().decodeMessage(characteristic.getValue());
-                Log.i(TAG, "onCharacteristicWrite() - " + address + ", " + uuid
+                LogUtil.i(TAG, "onCharacteristicWrite() - " + address + ", " + uuid
                         + "\n len=" + characteristic.getValue().length
                         + " [" + DataUtil.byteArrayToHex(characteristic.getValue()) + ']');
             }
@@ -428,7 +429,7 @@ public class LeProxy {
         void cancelTask(){
             //准备工作完成，向外发送广播
             updateBroadcast(address, ACTION_GATT_SERVICES_DISCOVERED);
-            Log.w(TAG, "Cancel ServicesDiscoveredTask: " + cancel() + ", i=" + i);
+            LogUtil.w(TAG, "Cancel ServicesDiscoveredTask: " + cancel() + ", i=" + i);
 
         }
 
@@ -440,14 +441,14 @@ public class LeProxy {
 
                     if (connectionConfiguration.deviceType == BleConstant.sportType_Cloth) {
                         //衣服
-                        Log.i(TAG, "connectionConfiguration.clothDeviceType: " + connectionConfiguration.clothDeviceType);
+                        LogUtil.i(TAG, "connectionConfiguration.clothDeviceType: " + connectionConfiguration.clothDeviceType);
 
                         //打开模组默认的数据接收通道【0x1002】，这一步成功才能保证APP收到数据
                         if (connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_old_encrypt ||
                                 connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_old_noEncrypt
                                 || connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_AMSU_EStartWith){
                             boolean success = enableNotification(address, BleUUIDS.PRIMARY_SERVICE, BleUUIDS.CHARACTERS[1]);
-                            Log.i(TAG, "Enable 0x1002 notification: " + success);
+                            LogUtil.i(TAG, "Enable 0x1002 notification: " + success);
                         }
 
                         if (connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_AMSU_EStartWith ||
@@ -464,27 +465,27 @@ public class LeProxy {
                                 try {
                                 /*Thread.sleep(100);
                                 boolean success_2 = enableNotification(address, serUuid, charUuid_2);
-                                Log.i(TAG, "success_2: " + success_2);*/
+                                LogUtil.i(TAG, "success_2: " + success_2);*/
 
                                     Thread.sleep(1000);
                                     boolean success_charUuid_ecg = enableNotification(address, serUuid, charUuid_ecg);
-                                    Log.i(TAG, "success_charUuid_ecg: " + success_charUuid_ecg);
+                                    LogUtil.i(TAG, "success_charUuid_ecg: " + success_charUuid_ecg);
 
                                     Thread.sleep(2000);
                                     boolean success_charUuid_acc = enableNotification(address, serUuid, charUuid_acc);
-                                    Log.i(TAG, "success_charUuid_acc: " + success_charUuid_acc);
+                                    LogUtil.i(TAG, "success_charUuid_acc: " + success_charUuid_acc);
 
                                     Thread.sleep(2000);
                                     boolean success_charUuid_heart = enableNotification(address, serUuid, charUuid_heart);
-                                    Log.i(TAG, "success_charUuid_heart: " + success_charUuid_heart);
+                                    LogUtil.i(TAG, "success_charUuid_heart: " + success_charUuid_heart);
 
                                     Thread.sleep(2000);
                                     boolean success_charUuid_notify = enableNotification(address, serUuid, charUuid_notify);
-                                    Log.i(TAG, "success_charUuid_notify: " + success_charUuid_notify);
+                                    LogUtil.i(TAG, "success_charUuid_notify: " + success_charUuid_notify);
 
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
-                                    Log.i(TAG, "打开通道e: " + e);
+                                    LogUtil.i(TAG, "打开通道e: " + e);
                                 }
                             }
 
@@ -519,7 +520,7 @@ public class LeProxy {
                             while (true){
                                 Thread.sleep(1000);
                                 boolean success_order = enableNotification(address, serUuid, charUuid_order);
-                                Log.i(TAG, "success_order: " + success_order);
+                                LogUtil.i(TAG, "success_order: " + success_order);
                                 if (success_order){
                                     break;
                                 }
@@ -528,7 +529,7 @@ public class LeProxy {
                             while (true){
                                 Thread.sleep(1000);
                                 boolean success_data = enableNotification(address, serUuid, charUuid_data);
-                                Log.i(TAG, "success_data: " + success_data);
+                                LogUtil.i(TAG, "success_data: " + success_data);
                                 if (success_data){
                                     break;
                                 }
@@ -570,16 +571,16 @@ public class LeProxy {
             //Log.e(TAG, "error code[" + error.getErrorCode() + "] " + error.getMessage());
             switch (error.getErrorCode()){
                 case Error.DISCONNECTED:
-                    Log.e(TAG, "没链接设备");
+                    LogUtil.e(TAG, "没链接设备");
                     break;
                 case Error.WRITE_TIMEOUT:
-                    Log.e(TAG, "写入超时");
+                    LogUtil.e(TAG, "写入超时");
                     break;
                 case Error.WRITE_FAILED:
-                    Log.e(TAG, "写入失败");
+                    LogUtil.e(TAG, "写入失败");
                     break;
                 case Error.NOT_NEED_TO_ADAPT:
-                    Log.e(TAG, "无需适配");
+                    LogUtil.e(TAG, "无需适配");
                     break;
             }
         }

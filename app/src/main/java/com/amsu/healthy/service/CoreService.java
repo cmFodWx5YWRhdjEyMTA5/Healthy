@@ -79,6 +79,12 @@ public class CoreService extends Service {
         Log.i(TAG,"保存的衣服设备类型 clothDeviceType："+clothDeviceType);
         User userFromSP = MyUtil.getUserFromSP();
 
+        String phone = "";
+
+        if (userFromSP!=null){
+            phone = userFromSP.getPhone();
+        }
+
         boolean isNeedWriteFileHead = false;   //心电文件是否需要些写入文件头，暂时不需要
         //mBleConnectionProxy.initConnectedConfiguration(new BleConnectionProxy.ConnectionConfiguration(userAge,isAutoOffline,deivceType,clothDeviceType,isNeedWriteFileHead),this);
         mBleConnectionProxy.initConnectedConfiguration(
@@ -88,7 +94,7 @@ public class CoreService extends Service {
                         deivceType,
                         clothDeviceType,
                         isNeedWriteFileHead,
-                        userFromSP.getPhone(),
+                        phone,
                         BleConnectionProxy.userLoginWay.phoneNumber),
                 this);
     }

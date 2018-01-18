@@ -50,7 +50,7 @@ public class EcgAccDataUtil {
 
 
     public static int[] getValuableEcgACCData(String hexData){
-        Log.i(TAG,"hexData:"+hexData);
+        LogUtil.i(TAG,"hexData:"+hexData);
         int clothDeviceType = BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType;
 
         if (clothDeviceType==BleConstant.clothDeviceType_old_encrypt || clothDeviceType==BleConstant.clothDeviceType_old_noEncrypt){
@@ -126,10 +126,10 @@ public class EcgAccDataUtil {
         else {
             dateHexString += "00";
         }
-        //Log.i(TAG,"dateHexString:"+dateHexString);
+        //LogUtil.i(TAG,"dateHexString:"+dateHexString);
 
         String writeConfigureOrder = "FF010E"+ dateHexString +"0016";
-        Log.i(TAG,"writeConfigureOrder:"+writeConfigureOrder);
+        LogUtil.i(TAG,"writeConfigureOrder:"+writeConfigureOrder);
 
         return writeConfigureOrder;
     }
@@ -150,7 +150,7 @@ public class EcgAccDataUtil {
             }
             dateHexString += hex;
         }
-        //Log.i(TAG,"dateHexString:"+dateHexString);
+        //LogUtil.i(TAG,"dateHexString:"+dateHexString);
         return dateHexString;
     }
 

@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -18,6 +19,7 @@ import com.amsu.bleinteraction.bean.BleDevice;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.utils.BleConstant;
 import com.amsu.bleinteraction.utils.DeviceBindUtil;
+import com.amsu.bleinteraction.utils.LogUtil;
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.DeviceList;
 import com.amsu.healthy.bean.User;
@@ -206,7 +208,7 @@ public class SearchDevicehActivity extends BaseActivity {
             //null,72:A8:23:AF:25:42,null,10,0
             //null,63:5C:3E:B6:A0:ae,null,10,0
 
-            Log.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
+            LogUtil.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
 
             String leName = device.getName();
             if (leName!=null && (leName.startsWith("BLE") || leName.startsWith("AMSU")) && leName.length()<25){
@@ -228,17 +230,19 @@ public class SearchDevicehActivity extends BaseActivity {
                     }
                     else {
                         bleDevice = new BleDevice(getResources().getString(R.string.sportswear) + ":" + leName, "", device.getAddress(), leName, Constant.sportType_Cloth, rssi);
+
                     }
 
                     BleConnectionProxy.DeviceBindByHardWareType deviceBindTypeByBleBroadcastInfo = BleConnectionProxy.DeviceBindByHardWareType.devideNOSupport;
-                    if (leName.startsWith("AMSU_E") && leName.length()==10){
+                    if (BleConnectionProxy.getInstance().isSupportBindByHardware(device)){
                         //需要通过硬件来进行绑定 AMSU_EADE4
-                        deviceBindTypeByBleBroadcastInfo = DeviceBindUtil.getDeviceBindTypeByBleBroadcastInfo(scanRecord, BleConnectionProxy.userLoginWay.phoneNumber, mUserFromSP.getPhone());
+                        deviceBindTypeByBleBroadcastInfo = DeviceBindUtil.getDeviceBindTypeByBleBroadcastInfo(scanRecord);
                         Log.i(TAG,"deviceBindTypeByBleBroadcastInfo:"+deviceBindTypeByBleBroadcastInfo);
                         bleDevice.setClothDeviceType(BleConstant.clothDeviceType_secondGeneration_AMSU_BindByHardware);
                     }
 
                     bleDevice.setBindType(deviceBindTypeByBleBroadcastInfo);
+
 
                     Log.i(TAG,"bleDevice:"+bleDevice);
                     searchDeviceList.add(bleDevice);
@@ -293,4 +297,6 @@ public class SearchDevicehActivity extends BaseActivity {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);//停止扫描
         }
     }
+
+
 }

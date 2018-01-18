@@ -20,19 +20,24 @@ public class DeviceBindUtil {
 
     private static final String TAG = DeviceBindUtil.class.getSimpleName();
 
-    public static BleConnectionProxy.DeviceBindByHardWareType getDeviceBindTypeByBleBroadcastInfo(byte[] scanRecord, BleConnectionProxy.userLoginWay userLoginWay, String id){
+    public static BleConnectionProxy.DeviceBindByHardWareType getDeviceBindTypeByBleBroadcastInfo(byte[] scanRecord){
         String hexData = DataUtil.byteArrayToHex(scanRecord);
-        Log.i(TAG,"scanRecord:"+hexData);
+        LogUtil.i(TAG,"scanRecord:"+hexData);
         //02 01 06 03 FF 00 00 0B 09 41 4D 53 55 5F 45 43 36 42 41 03 03 0D 18 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
         String userType;
         if (hexData.startsWith("02 01 06")){ //02 01 06  阿木主机广播固有信息
             String[] split = hexData.split(" ");
-            Log.i(TAG,"split[3]:"+ split[3]);
+            LogUtil.i(TAG,"split[3]:"+ split[3]);
 
             System.out.println(DataTypeConversionUtil.convertHexToString(split[3]));
             int vendorDataStringLength = Integer.parseInt(split[3], 16);
-            Log.i(TAG,"vendorDataStringLength:"+vendorDataStringLength);
+            LogUtil.i(TAG,"vendorDataStringLength:"+vendorDataStringLength);
+
+            BleConnectionProxy.ConnectionConfiguration connectionConfiguration = BleConnectionProxy.getInstance().getmConnectionConfiguration();
+            String id = connectionConfiguration.bindid;
+            BleConnectionProxy.userLoginWay userLoginWay= connectionConfiguration.userLoginWay;
+
 
             if (vendorDataStringLength>3 && !TextUtils.isEmpty(id)){
                 //已经被绑定过
@@ -40,15 +45,15 @@ public class DeviceBindUtil {
                 for (int i = 0; i < vendorDataStringLength; i++) {
                     vendorDataHexString+=split[4+i];
                 }
-                Log.i(TAG,"vendorDataHexString:"+vendorDataHexString);
+                LogUtil.i(TAG,"vendorDataHexString:"+vendorDataHexString);
                 userType = vendorDataHexString.substring(2, 4);
                 String HardWareUserID = vendorDataHexString.substring(6);
-                Log.i(TAG,"userType:"+userType+"HardWareUserID:"+HardWareUserID);
+                LogUtil.i(TAG,"userType:"+userType+"HardWareUserID:"+HardWareUserID);
 
                 byte[] userInfo = AesEncodeUtil.encryptReturnBytes(id);
                 String localID = DataTypeConversionUtil.byteArrayToHex(userInfo).substring(0, 24);
-                Log.i(TAG,"id:"+id);
-                Log.i(TAG,"localID:"+localID);
+                LogUtil.i(TAG,"id:"+id);
+                LogUtil.i(TAG,"localID:"+localID);
 
                 if (localID.equals(HardWareUserID)){
                     //手机号绑定
@@ -66,6 +71,9 @@ public class DeviceBindUtil {
             else {
                 //没有绑定
             }
+        }
+        else {
+            return BleConnectionProxy.DeviceBindByHardWareType.devideNOSupport;
         }
         return BleConnectionProxy.DeviceBindByHardWareType.bindByNO;
     }

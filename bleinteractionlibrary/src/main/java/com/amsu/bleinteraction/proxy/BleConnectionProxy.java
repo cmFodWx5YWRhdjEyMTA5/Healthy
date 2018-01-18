@@ -1,6 +1,7 @@
 package com.amsu.bleinteraction.proxy;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -76,7 +77,7 @@ public class BleConnectionProxy {
 
     //设备绑定类型（通过硬件绑定）
     public enum DeviceBindByHardWareType implements Parcelable {
-        bindByPhone, bindByWeiXinID, bindByOther,bindByNO,devideNOSupport;
+        bindByPhone, bindByWeiXinID, bindByOther,bindByNO,devideNOSupport,bindByLocalSave;
         @Override
         public int describeContents() {
             // TODO Auto-generated method stub
@@ -194,7 +195,7 @@ public class BleConnectionProxy {
     }
 
     private void onDeviceServicesDiscovered(String address) {
-        BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_serviceDiscover,connectTypeConnected);
+        BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_serviceDiscover,connectTypeConnected,address);
     }
 
     //新的设备连接成功
@@ -339,6 +340,7 @@ public class BleConnectionProxy {
 
     //处理蓝牙断开（address不为空表示当前连接设备断开，address为空表示手机蓝牙关闭，需要将连接的设备信息清空）
     public void dealwithBelDisconnected(String address){
+        Log.i(TAG,"dealwithBelDisconnected:");
         reStartScanBleDevice();
 
         if (mConnectionConfiguration.deviceType== BleConstant.sportType_Cloth){
@@ -627,5 +629,19 @@ public class BleConnectionProxy {
         }
     }
 
+    //连接设备，传入Mac地址
+    public boolean connect(String address){
+        return LeProxy.getInstance().connect(address, false);
+    }
+
+    //断开连接，传入Mac地址
+    public void disconnect(String address){
+        LeProxy.getInstance().disconnect(address);
+    }
+
+
+    public boolean isSupportBindByHardware(BluetoothDevice device){
+        return mBleSacnEngine.isSupportBindByHardware(device);
+    }
 
 }

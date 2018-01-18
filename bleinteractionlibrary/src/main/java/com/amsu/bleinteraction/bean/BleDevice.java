@@ -21,6 +21,7 @@ public class BleDevice implements Parcelable {
     int battery;
     int clothDeviceType;
     BleConnectionProxy.DeviceBindByHardWareType bindType;
+    boolean isJustDoSP;
 
     public BleDevice() {
         this.name = "";
@@ -235,5 +236,13 @@ public class BleDevice implements Parcelable {
                 ", battery=" + battery +
                 ", bindType=" + bindType +
                 '}';
+    }
+
+    public boolean isJustDoSP() {
+        return isJustDoSP;
+    }
+
+    public void setJustDoSP(boolean justDoSP) {
+        isJustDoSP = justDoSP;
     }
 }
