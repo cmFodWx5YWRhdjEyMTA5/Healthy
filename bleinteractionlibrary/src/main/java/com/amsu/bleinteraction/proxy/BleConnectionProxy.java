@@ -100,7 +100,6 @@ public class BleConnectionProxy {
                 return new DeviceBindByHardWareType[size];
             }
         };
-
     }
 
     //设备绑定类型（通过硬件绑定）

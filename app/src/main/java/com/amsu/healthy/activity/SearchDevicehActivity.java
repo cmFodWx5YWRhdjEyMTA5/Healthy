@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -20,6 +19,7 @@ import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.utils.BleConstant;
 import com.amsu.bleinteraction.utils.DeviceBindUtil;
 import com.amsu.bleinteraction.utils.LogUtil;
+import com.amsu.bleinteraction.utils.ThreadManager;
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.DeviceList;
 import com.amsu.healthy.bean.User;
@@ -61,7 +61,7 @@ public class SearchDevicehActivity extends BaseActivity {
         tv_search_state = (TextView) findViewById(R.id.tv_search_state);
 
         animation = new RotateAnimation(0f,360f, Animation.RELATIVE_TO_SELF, 0.5f,Animation.RELATIVE_TO_SELF,0.5f);
-        animation.setDuration(1500);
+        animation.setDuration(2000);
         animation.setRepeatCount(-1);
         animation.setInterpolator(new LinearInterpolator());
 
@@ -207,52 +207,61 @@ public class SearchDevicehActivity extends BaseActivity {
             //BLE#0x44A6E51FC5BF,44:A6:E5:1F:C5:BF,null,10,2
             //null,72:A8:23:AF:25:42,null,10,0
             //null,63:5C:3E:B6:A0:ae,null,10,0
-
             LogUtil.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
-
-            String leName = device.getName();
-            if (leName!=null && (leName.startsWith("BLE") || leName.startsWith("AMSU")) && leName.length()<25){
-                Log.i(TAG,"发现目标主机");
-
-                Log.i(TAG,"scanRecord:"+bytesToHex(scanRecord));
-
-                boolean isAddToList = true;
-                for (BleDevice device1:searchDeviceList){
-                    if (device1.getLEName().equals(leName)){
-                        isAddToList = false;
-                    }
+            Runnable updateUITask = new Runnable() {
+                @Override
+                public void run() {
+                    dealwithScanReceive(device,rssi,scanRecord);
                 }
-                BleDevice bleDevice;
-                if (isAddToList){
-                    if (leName.startsWith("AMSU_P")){
-                        //鞋垫
-                        bleDevice = new BleDevice(getResources().getString(R.string.insole), "", device.getAddress(), leName, Constant.sportType_Insole, rssi);
-                    }
-                    else {
-                        bleDevice = new BleDevice(getResources().getString(R.string.sportswear) + ":" + leName, "", device.getAddress(), leName, Constant.sportType_Cloth, rssi);
-
-                    }
-
-                    BleConnectionProxy.DeviceBindByHardWareType deviceBindTypeByBleBroadcastInfo = BleConnectionProxy.DeviceBindByHardWareType.devideNOSupport;
-                    if (BleConnectionProxy.getInstance().isSupportBindByHardware(device)){
-                        //需要通过硬件来进行绑定 AMSU_EADE4
-                        deviceBindTypeByBleBroadcastInfo = DeviceBindUtil.getDeviceBindTypeByBleBroadcastInfo(scanRecord);
-                        Log.i(TAG,"deviceBindTypeByBleBroadcastInfo:"+deviceBindTypeByBleBroadcastInfo);
-                        bleDevice.setClothDeviceType(BleConstant.clothDeviceType_secondGeneration_AMSU_BindByHardware);
-                    }
-
-                    bleDevice.setBindType(deviceBindTypeByBleBroadcastInfo);
-
-
-                    Log.i(TAG,"bleDevice:"+bleDevice);
-                    searchDeviceList.add(bleDevice);
-                }
-                if (timeTask10ScendOver){
-                    stopScan();
-                }
-            }
+            };
+            ThreadManager.THREAD_POOL_EXECUTOR.execute(updateUITask);
         }
     };
+
+    private void dealwithScanReceive(BluetoothDevice device, int rssi, byte[] scanRecord) {
+
+        String leName = device.getName();
+        if (leName!=null && (leName.startsWith("BLE") || leName.startsWith("AMSU")) && leName.length()<25){
+            Log.i(TAG,"发现目标主机");
+
+            Log.i(TAG,"scanRecord:"+bytesToHex(scanRecord));
+
+            boolean isAddToList = true;
+            for (BleDevice device1:searchDeviceList){
+                if (device1.getLEName().equals(leName)){
+                    isAddToList = false;
+                }
+            }
+            BleDevice bleDevice;
+            if (isAddToList){
+                if (leName.startsWith("AMSU_P")){
+                    //鞋垫
+                    bleDevice = new BleDevice(getResources().getString(R.string.insole), "", device.getAddress(), leName, Constant.sportType_Insole, rssi);
+                }
+                else {
+                    bleDevice = new BleDevice(getResources().getString(R.string.sportswear) + ":" + leName, "", device.getAddress(), leName, Constant.sportType_Cloth, rssi);
+
+                }
+
+                BleConnectionProxy.DeviceBindByHardWareType deviceBindTypeByBleBroadcastInfo = BleConnectionProxy.DeviceBindByHardWareType.devideNOSupport;
+                if (BleConnectionProxy.getInstance().isSupportBindByHardware(device)){
+                    //需要通过硬件来进行绑定 AMSU_EADE4
+                    deviceBindTypeByBleBroadcastInfo = DeviceBindUtil.getDeviceBindTypeByBleBroadcastInfo(scanRecord);
+                    Log.i(TAG,"deviceBindTypeByBleBroadcastInfo:"+deviceBindTypeByBleBroadcastInfo);
+                    bleDevice.setClothDeviceType(BleConstant.clothDeviceType_secondGeneration_AMSU_BindByHardware);
+                }
+
+                bleDevice.setBindType(deviceBindTypeByBleBroadcastInfo);
+
+                Log.i(TAG,"bleDevice:"+bleDevice);
+                searchDeviceList.add(bleDevice);
+            }
+            if (timeTask10ScendOver){
+                stopScan();
+            }
+        }
+    }
+
 
     //scanRecords的格式转换
     static final char[] hexArray = "0123456789ABCDEF".toCharArray();

@@ -284,6 +284,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                 e.printStackTrace();
             }
         }
+
         final boolean isMarathonSportType = MyUtil.getBooleanValueFromSP(Constant.isMarathonSportType);
         if (isMarathonSportType) {
             startActivity(SportRecordDetailsActivity.createIntent(this));

@@ -166,7 +166,7 @@ public class BleDataProxy {
     }
 
 
-    private synchronized void dealWithOnePackageEcgData(int[] valuableEcgData,String address,String hexData) {
+    private void dealWithOnePackageEcgData(int[] valuableEcgData,String address,String hexData) {
         boolean ismIsDataStart = mConnectionProxy.ismIsDataStart();  //当连接上时ismIsDataStart为false，收到数据时把这个值设置为true
         mConnectionProxy.setmIsDataStart(true);
 
@@ -189,12 +189,11 @@ public class BleDataProxy {
 
         int[] clone = valuableEcgData.clone();
 
-        /*String intString = "";
+       /* String intString = "";
         for (int i:valuableEcgData){
             intString+=i+",";
         }
-        Log.i(TAG,"滤波前心电:"+intString +"  ");*/
-        //Log.i(TAG,"滤波前心电:");
+        LogUtil.i(TAG,"滤波前心电:"+intString +"  ");*/
 
         ecgDataFilter(valuableEcgData);
 
@@ -202,8 +201,7 @@ public class BleDataProxy {
         for (int i:valuableEcgData){
             intStringA+=i+",";
         }
-        Log.w(TAG,"滤波后心电:"+intStringA);*/
-        //Log.w(TAG,"滤波后心电:");
+        LogUtil.w(TAG,"滤波后心电:"+intStringA);*/
 
         postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_ecgDataArray,valuableEcgData);
 

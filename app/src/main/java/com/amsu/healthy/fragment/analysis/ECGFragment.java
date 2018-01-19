@@ -212,7 +212,7 @@ public class ECGFragment extends BaseFragment {
                                                            });
                                                        }
                                                    }
-                                                   pv_ecg_path.addEcgCacheData(temp);pv_ecg_path.stopThread();
+                                                   pv_ecg_path.addEcgCacheData(temp);
                                                }
                                             }
                                         }

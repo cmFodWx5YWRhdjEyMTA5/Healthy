@@ -4,8 +4,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 
 import com.amsu.bleinteraction.bean.BleDevice;
@@ -13,6 +11,7 @@ import com.amsu.bleinteraction.utils.BleConstant;
 import com.amsu.bleinteraction.utils.DeviceBindUtil;
 import com.amsu.bleinteraction.utils.LogUtil;
 import com.amsu.bleinteraction.utils.SharedPreferencesUtil;
+import com.amsu.bleinteraction.utils.ThreadManager;
 
 /**
  * @anthor haijun
@@ -77,9 +76,11 @@ public class BleSacnEngine {
                     mScanning = true;
                     mScanning = true;
                     boolean startLeScan = mBluetoothAdapter.startLeScan(mLeScanCallback);
-                LogUtil.i(TAG,"startLeScan:"+startLeScan);
+                    LogUtil.i(TAG,"startLeScan:"+startLeScan);
 
                     if (!startLeScan){
+                        boolean startLeScanAgain = mBluetoothAdapter.startLeScan(mLeScanCallback);
+                        LogUtil.i(TAG,"startLeScanAgain:"+startLeScanAgain);
                         restartPhoneBluetooth();
                     }
                // }
@@ -120,39 +121,16 @@ public class BleSacnEngine {
             //null,72:A8:23:AF:25:42,null,10,0
             //null,63:5C:3E:B6:A0:ae,null,10,0
 
-            postOnLeScanData(device,rssi,scanRecord);
+            Runnable updateUITask = new Runnable() {
+                @Override
+                public void run() {
+                    dealwithScanReceive(device,rssi,scanRecord);
+                }
+            };
+            ThreadManager.THREAD_POOL_EXECUTOR.execute(updateUITask);
         }
     };
 
-    private ScanCallbackMessage mScanCallbackMessage;
-
-    private void postOnLeScanData(BluetoothDevice device, int rssi, byte[] scanRecord) {
-        if (mScanCallbackMessage==null){
-            mScanCallbackMessage = new ScanCallbackMessage(device,rssi,scanRecord);
-        }
-        else {
-            mScanCallbackMessage.device =device;
-            mScanCallbackMessage.rssi =rssi;
-            mScanCallbackMessage.scanRecord =scanRecord;
-        }
-
-        Message mMessage = mHandler.obtainMessage();
-        mMessage.obj = mScanCallbackMessage;
-        mHandler.sendMessage(mMessage);
-
-    }
-
-    class ScanCallbackMessage{
-        BluetoothDevice device;
-        int rssi;
-        byte[] scanRecord;
-
-        ScanCallbackMessage(BluetoothDevice device, int rssi, byte[] scanRecord) {
-            this.device = device;
-            this.rssi = rssi;
-            this.scanRecord = scanRecord;
-        }
-    }
 
     private void dealwithScanReceive(BluetoothDevice device, int rssi, byte[] scanRecord) {
         LogUtil.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
@@ -248,15 +226,5 @@ public class BleSacnEngine {
     void setmIsConnectted(boolean mIsConnectted) {
         this.mIsConnectted = mIsConnectted;
     }
-
-
-    private android.os.Handler mHandler = new android.os.Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            ScanCallbackMessage scanCallbackMessage = (ScanCallbackMessage) msg.obj;
-            dealwithScanReceive(scanCallbackMessage.device,scanCallbackMessage.rssi,scanCallbackMessage.scanRecord);
-            return false;
-        }
-    });
 
 }

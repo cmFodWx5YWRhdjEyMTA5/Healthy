@@ -162,6 +162,7 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         mThread = new Thread(drawRunnable);
         mThread.start();
         isRunning = true;
+        isDestroyed = false;
     }
 
     public void stopThread(){
@@ -183,7 +184,11 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
                         e.printStackTrace();
                     }
                 }
+                if (isDestroyed){
+                    break;
+                }
             }
+
         }
     };
 
@@ -433,6 +438,9 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
         }*/
     }
 
-
+    private boolean isDestroyed;
+    public void destroyDrawEcgLine(){
+        isDestroyed = true;
+    }
 
 }

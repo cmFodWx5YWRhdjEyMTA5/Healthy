@@ -309,13 +309,15 @@ public class MyDeviceActivity extends BaseActivity {
                         //连接新得设备
                         boolean connect = BleConnectionProxy.getInstance().connect(bleDevice.getMac());
                         Log.i(TAG,"connect:"+connect);
+
+                        if (!connect){
+                            MyUtil.showToask(getApplication(),"新设备连接失败，无法绑定，请检查主机是否开启");
+                        }
                     }
                 });
             }
         }.start();
-
     }
-
 
     private void dumpToDeviceDetail() {
         final BleConnectionProxy instance = BleConnectionProxy.getInstance();
@@ -555,7 +557,6 @@ public class MyDeviceActivity extends BaseActivity {
                 tv_item_state1.setText(getResources().getString(R.string.click_bind));
                 tv_item_state1.setTextColor(Color.parseColor("#c7c7cc"));
             }
-
         }
     }
 
@@ -570,7 +571,6 @@ public class MyDeviceActivity extends BaseActivity {
             }
 
             bleDevice.setJustDoSP(true);
-
             BleConnectionProxy.getInstance().setDeviceBindSuccess(bleDevice,clothDeviceType);
         }
 
@@ -621,7 +621,7 @@ public class MyDeviceActivity extends BaseActivity {
                         bleDevice.setState(getResources().getString(R.string.click_bind));
                         //bleDevice.setDeviceType(Constant.sportType_Cloth);
 
-                        if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByPhone || bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByPhone){
+                        if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByPhone || bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXinID){
                             if (!BleConnectionProxy.getInstance().ismIsConnectted()){
                                 setDeviceBindSuccess(bleDevice,-1);
                             }
