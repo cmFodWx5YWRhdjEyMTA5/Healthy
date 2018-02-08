@@ -90,6 +90,7 @@ public class DeviceInfoActivity extends BaseActivity {
     private TextView tv_progress_connecting;
     private String mFirmware;
     private TextView tv_device_software;
+    private RelativeLayout rl_deviceinfo_switvh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +117,7 @@ public class DeviceInfoActivity extends BaseActivity {
         tv_device_software = (TextView) findViewById(R.id.tv_device_software);
         tv_device_devicename = (TextView) findViewById(R.id.tv_device_devicename);
         iv_deviceinfo_switvh = (ImageView) findViewById(R.id.iv_deviceinfo_switvh);
+        rl_deviceinfo_switvh = findViewById(R.id.rl_deviceinfo_switvh);
 
         RelativeLayout rl_deviceinfo_switvh = (RelativeLayout) findViewById(R.id.rl_deviceinfo_switvh);
 
@@ -154,6 +156,14 @@ public class DeviceInfoActivity extends BaseActivity {
             if (!MyUtil.isEmpty(bleDeviceFromSP.getSoftWareVersion())){
                 tv_device_software.setText(bleDeviceFromSP.getSoftWareVersion());
             }
+
+            int clothDeviceType = bleDeviceFromSP.getClothDeviceType();
+            if(clothDeviceType==BleConstant.clothDeviceType_secondGeneration_AMSU_BindByHardware ||
+                    clothDeviceType==BleConstant.clothDeviceType_secondGeneration_IOE ||
+                    clothDeviceType==BleConstant.clothDeviceType_secondGeneration_AMSU){
+                rl_deviceinfo_switvh.setVisibility(View.GONE);
+            }
+
         }
 
         //final String hardWareVersion = MyUtil.getStringValueFromSP(Constant.hardWareVersion);
@@ -183,9 +193,6 @@ public class DeviceInfoActivity extends BaseActivity {
         }
     }
 
-
-
-
     public void changeDeviceName(View view) {
         InputTextAlertDialogUtil textAlertDialogUtil = new InputTextAlertDialogUtil(this);
         textAlertDialogUtil.setAlertDialogText(getResources().getString(R.string.modify_device_name),getResources().getString(R.string.exit_confirm),getResources().getString(R.string.exit_cancel));
@@ -207,7 +214,20 @@ public class DeviceInfoActivity extends BaseActivity {
 
         if (bleDeviceFromSP.getClothDeviceType()==BleConstant.clothDeviceType_secondGeneration_AMSU_BindByHardware){
             //需要通过主机长按解绑
-            ShowToaskDialogUtil.showTipDialog(this,"需要在开机时长按5秒，红灯亮2秒表示解绑成功");
+            //ShowToaskDialogUtil.showTipDialog(this,"开机时长按主机15秒进行解绑");
+            ShowToaskDialogUtil.showTipDialog(this, "确定要解绑吗？", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (BleConnectionProxy.getInstance().ismIsConnectted()){
+                        BleConnectionProxy.getInstance().disconnect(BleConnectionProxy.getInstance().getmClothDeviceConnecedMac());
+                    }
+                    SharedPreferencesUtil.saveDeviceToSP(null,BleConstant.sportType_Cloth);
+                    MyUtil.showToask(DeviceInfoActivity.this,"设备已移除，主机需要在开机时长按解绑");
+                    Intent intent = getIntent();
+                    setResult(RESULT_OK,intent);
+                    finish();
+                }
+            });
         }
         else {
             HttpUtils httpUtils = new HttpUtils();
@@ -255,7 +275,7 @@ public class DeviceInfoActivity extends BaseActivity {
                                 //断开蓝牙连接
                                 mLeProxy.disconnect(BleConnectionProxy.getInstance().getmClothDeviceConnecedMac());
                             }
-                            BleConnectionProxy.getInstance().setDeviceBindSuccess(null,Constant.clothDeviceType_Default_NO);
+                            BleConnectionProxy.getInstance().deviceBindSuccessAndSaveToLocalSP(null);
                         }
                         else {
                             //将连接的鞋垫断开
@@ -325,65 +345,73 @@ public class DeviceInfoActivity extends BaseActivity {
         int curChooseDeviceType = BleConnectionProxy.getInstance().getmConnectionConfiguration().deviceType;
 
         if (curChooseDeviceType==Constant.sportType_Cloth && deviceFromSP!=null && isConnectted){
-            HttpUtils httpUtils = new HttpUtils();
-            RequestParams params = new RequestParams();
-            //MyUtil.addCookieForHttp(params);
-
-            params.addBodyParameter("parent1","心电衣");
-            params.addBodyParameter("parent2",deviceFromSP.getModelNumber());
-            //params.addBodyParameter("parent2","AMSU_E_V6_L");
-            //params.addBodyParameter("parent3",deviceFromSP.getHardWareVersion());
-            params.addBodyParameter("parent3","V0.2.1");
-
-            MyUtil.showDialog(getResources().getString(R.string.Checking_version_information),this);
-
-            httpUtils.send(HttpRequest.HttpMethod.POST, Constant.checkDeviceUpdateUrl, params, new RequestCallBack<String>() {
-                @Override
-                public void onSuccess(ResponseInfo<String> responseInfo) {
-                    MyUtil.hideDialog(getApplicationContext());
-                    String result = responseInfo.result;
-                    Log.i(TAG,"上传onSuccess==result:"+result);
-
-                    try {
-                        JSONObject jsonObject = new JSONObject(result);
-                        int ret = jsonObject.getInt("ret");
-                        if (ret==0){
-                            JSONObject errDesc = jsonObject.getJSONObject("errDesc");
-                            if (errDesc!=null){
-                                String firmware = errDesc.getString("firmware");
-                                String parth = errDesc.getString("parth");
-                                mFirmware = firmware;
-                                judgeIsUpdate(deviceFromSP.getSoftWareVersion(),firmware,parth);
-                            }
-                        }
-                        else if (ret==-20001){
-                            MyUtil.showToask(getApplicationContext(),getResources().getString(R.string.no_firmware_version));
-                        }
-                        else {
-                            MyUtil.showToask(getApplicationContext(),getResources().getString(R.string.Request_failure));
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onFailure(HttpException e, String s) {
-                    MyUtil.hideDialog(getApplicationContext());
-                    MyUtil.showToask(getApplicationContext(),getResources().getString(R.string.Request_failure));
-                    Log.i(TAG,"上传onFailure==s:"+s);
-                    //MyUtil.showToask(DeviceInfoActivity.this,Constant.noIntentNotifyMsg);
-                }
-            });
+            if (TextUtils.isEmpty(deviceFromSP.getModelNumber()) || TextUtils.isEmpty(deviceFromSP.getHardWareVersion())){
+                //主机硬件信息没有读取上来，再次去读取
+                MyUtil.showToask(DeviceInfoActivity.this,"主机硬件信息读取失败，请点击重试");
+                BleConnectionProxy.getInstance().readSecondGenerationDeviceInfo(deviceFromSP.getMac(),BleConstant.sportType_Cloth);  //发送读取硬件信息指令
+            }
+            else {
+                checkServerDeviceUpdateInfo(deviceFromSP);
+            }
         }
         else {
             MyUtil.showToask(getApplicationContext(),getResources().getString(R.string.nonconnection));
         }
+    }
 
+    private void checkServerDeviceUpdateInfo(final BleDevice deviceFromSP) {
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+        //MyUtil.addCookieForHttp(params);
 
+        params.addBodyParameter("parent1","心电衣");
+        params.addBodyParameter("parent2",deviceFromSP.getModelNumber());
+        //params.addBodyParameter("parent2","AMSU_E_V6_L");
+        //params.addBodyParameter("parent3",deviceFromSP.getHardWareVersion());
+        //params.addBodyParameter("parent3","V0.2.1");
+        //params.addBodyParameter("parent3","V0.0.1");  //神念的主机是1.0.0
+        params.addBodyParameter("parent3",deviceFromSP.getHardWareVersion());
 
+        MyUtil.showDialog(getResources().getString(R.string.Checking_version_information),this);
 
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.checkDeviceUpdateUrl, params, new RequestCallBack<String>() {
+            @Override
+            public void onSuccess(ResponseInfo<String> responseInfo) {
+                MyUtil.hideDialog(getApplicationContext());
+                String result = responseInfo.result;
+                Log.i(TAG,"上传onSuccess==result:"+result);
 
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    int ret = jsonObject.getInt("ret");
+                    if (ret==0){
+                        JSONObject errDesc = jsonObject.getJSONObject("errDesc");
+                        if (errDesc!=null){
+                            String firmware = errDesc.getString("firmware");
+                            String parth = errDesc.getString("parth");
+                            mFirmware = firmware;
+                            judgeIsUpdate(deviceFromSP.getSoftWareVersion(),firmware,parth);
+                        }
+                    }
+                    else if (ret==-20001){
+                        MyUtil.showToask(getApplicationContext(),getResources().getString(R.string.no_firmware_version));
+                    }
+                    else {
+                        MyUtil.showToask(getApplicationContext(),getResources().getString(R.string.Request_failure));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                MyUtil.hideDialog(getApplicationContext());
+                MyUtil.showToask(getApplicationContext(),getResources().getString(R.string.Request_failure));
+                Log.i(TAG,"上传onFailure==s:"+s);
+                //MyUtil.showToask(DeviceInfoActivity.this,Constant.noIntentNotifyMsg);
+            }
+        });
     }
 
     private void judgeIsUpdate(String softWareVersion, String firmware, final String path) {
@@ -479,8 +507,8 @@ public class DeviceInfoActivity extends BaseActivity {
         if (!TextUtils.isEmpty(macAddress) && !TextUtils.isEmpty(zipFilePath)){
             setProgressUpadteState(progressState_update);
             new DfuServiceInitiator(macAddress)
-                    //.setDisableNotification(true)
-                    .setKeepBond(true)
+                    .setDisableNotification(true)
+                    //.setKeepBond(true)
                     .setZip(zipFilePath)
                     .start(getApplicationContext(), DfuService.class);
         }
@@ -693,7 +721,8 @@ public class DeviceInfoActivity extends BaseActivity {
             LogUtil.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
 
             String leName = device.getName();
-            if (leName!=null && leName.startsWith("OTA_")){
+            if (leName!=null && (leName.startsWith("OTA_") || leName.startsWith("AMSU_DFU_E"))){
+                //amsu升级模式后设备为OTA开头，   神念升级模式后设备为AMSU_DFU_E
                 if (!isConnectting){
                     /*mLeProxy.connect(device.getAddress(),false);
                     Log.i(TAG,"尝试连接OTA_");*/

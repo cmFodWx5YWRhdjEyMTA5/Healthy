@@ -134,10 +134,11 @@ public class ResultCalcuUtil {
 
         int fs = 26;
 
+        //神念新版主机频率为26
         //新版主机步频计算频率为52
-        if (clothDeviceType==BleConstant.clothDeviceType_secondGeneration_IOE || clothDeviceType==BleConstant.clothDeviceType_secondGeneration_AMSU){
+        /*if (clothDeviceType==BleConstant.clothDeviceType_secondGeneration_IOE || clothDeviceType==BleConstant.clothDeviceType_secondGeneration_AMSU){
             fs = 52;
-        }
+        }*/
 
         DiagnosisNDK.AnalysisPedo(accByteData,accByteData.length,results,fs);
         Log.i(TAG,"results: "+results[0]+"  "+results[1]);

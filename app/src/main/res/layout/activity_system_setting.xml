@@ -203,6 +203,33 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_marginTop="@dimen/x48"
+                android:src="@drawable/switch_of"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_persiondata_receivetest"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y140"
+            android:paddingLeft="@dimen/x36"
+            android:paddingRight="@dimen/x40">
+
+            <TextView
+                android:id="@+id/tv_persiondata_receivetest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x48"
+                android:text="打开数据调试"
+                android:textColor="#212121"
+                android:textSize="@dimen/x48"
+                android:layout_centerVertical="true"/>
+
+            <ImageView
+                android:id="@+id/iv_persiondata_receivetest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="@dimen/x48"
                 android:onClick="switchMonitorState"
                 android:src="@drawable/switch_of"
                 android:layout_centerVertical="true"/>

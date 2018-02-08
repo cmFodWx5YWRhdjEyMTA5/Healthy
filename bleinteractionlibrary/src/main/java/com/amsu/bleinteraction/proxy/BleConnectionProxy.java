@@ -19,6 +19,7 @@ import android.util.Log;
 
 import com.amsu.bleinteraction.bean.BleDevice;
 import com.amsu.bleinteraction.utils.BleConstant;
+import com.amsu.bleinteraction.utils.DeviceBindUtil;
 import com.amsu.bleinteraction.utils.EcgAccDataUtil;
 import com.amsu.bleinteraction.utils.SharedPreferencesUtil;
 import com.amsu.bleinteraction.utils.TimerTaskUtil;
@@ -58,21 +59,14 @@ public class BleConnectionProxy {
     public static final int success = 1;
     public static final int fail = 2;
 
-    /*public static final int msgType_Connect = 1;
-    public static final int msgType_HeartRate = 2;
-    public static final int msgType_Stride = 3;
-    public static final int msgType_BatteryPercent = 4;
-    public static final int msgType_OfflineFile = 5;
-    public static final int msgType_ecgDataArray = 6;*/
-
-
     public enum BleConnectionStateType {
         connectTypeDisConnected, connectTypeConnected, connectTypeUnstabitily
     }
 
     //消息类型
     public enum MessageEventType {
-        msgType_Connect, msgType_HeartRate, msgType_Stride, msgType_BatteryPercent,msgType_OfflineFile,msgType_ecgDataArray,msgType_Bind,msgType_serviceDiscover
+        msgType_Connect, msgType_HeartRate, msgType_Stride, msgType_BatteryPercent,msgType_OfflineFile,msgType_ecgDataArray_BeforeFiter, msgType_ecgDataArray_AfterFiter,msgType_Bind,msgType_serviceDiscover,
+        msgType_ReceiveataRate
     }
 
     //设备绑定类型（通过硬件绑定）
@@ -114,8 +108,12 @@ public class BleConnectionProxy {
         return mBleConnectionProxy;
     }
 
-    public void init(Context context) {
+    public void init(Context context, ConnectionConfiguration mConnectionConfiguration) {
+        mContext = context;
         SharedPreferencesUtil.initSharedPreferences(context);
+
+        mConnectionConfiguration.clothDeviceType = SharedPreferencesUtil.getIntValueFromSP(BleConstant.mClothDeviceType);
+        this.mConnectionConfiguration = mConnectionConfiguration;
 
         //绑定蓝牙，获取蓝牙服务
         context.bindService(new Intent(context, BleService.class), mServiceConnection, Context.BIND_AUTO_CREATE);
@@ -132,7 +130,11 @@ public class BleConnectionProxy {
         IntentFilter statusFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         context.registerReceiver(mStatusReceive, statusFilter);
 
+
+
     }
+
+    public Context mContext;
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -158,33 +160,31 @@ public class BleConnectionProxy {
 
     //连接所需要的初始化操作，必须有
     public void initConnectedConfiguration(ConnectionConfiguration mConnectionConfiguration,Context context) {
-        this.mConnectionConfiguration = mConnectionConfiguration;
-        init(context);
+        init(context,mConnectionConfiguration);
     }
 
     //处理蓝牙连接、数据变化
     void onReceiveBleConnectionChange(String address, String action) {
         switch (action){
             case LeProxy.ACTION_GATT_CONNECTED:
-                Log.i(TAG,"已连接 " + " "+address + " ");
+                Log.i(TAG,"onDeviceConnect已连接 " + " "+address + " ");
                 onDeviceConnectSuccessful(address);
                 break;
             case LeProxy.ACTION_GATT_DISCONNECTED:
-                Log.w(TAG,"已断开 "+address);
+                Log.w(TAG,"onDeviceConnect已断开 "+address);
                 dealwithBelDisconnected(address);
                 break;
             case LeProxy.ACTION_CONNECT_ERROR:
                 Log.w(TAG,"连接异常 "+address);
-                onDeviceConnectError(address);
+                onDeviceConnectError(address,"连接异常");
                 break;
             case LeProxy.ACTION_CONNECT_TIMEOUT:
                 Log.w(TAG,"连接超时 "+address);
-                onDeviceConnectError(address);
+                onDeviceConnectError(address,"连接超时");
                 break;
             case LeProxy.ACTION_GATT_SERVICES_DISCOVERED:
-                Log.i(TAG,"Services discovered: " + address);
+                Log.w(TAG,"Services discovered: " + address);
                 onDeviceServicesDiscovered(address);
-                //onDeviceConnectSuccessful(address);
                 break;
             case LeProxy.ACTION_RSSI_AVAILABLE:// 更新rssi
                 break;
@@ -194,42 +194,48 @@ public class BleConnectionProxy {
     }
 
     private void onDeviceServicesDiscovered(String address) {
-        BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_serviceDiscover,connectTypeConnected,address);
+        //BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_serviceDiscover,connectTypeConnected,address);
+        //BleDataProxy.getInstance().updateLightStateByCurHeart(-1);
+        //openClothAccData(address);  //打开加速度数据，在神念的主机上会有加速度出不来的情况，则默认再次打开
+
+        final int send = DeviceBindUtil.bingDevice( address);
+        Log.i(TAG,"发送绑定设备："+send);
+
     }
 
     //新的设备连接成功
     private void onDeviceConnectSuccessful(String address) {
-        mBleSacnEngine.setmIsConnectting(false);
+        mBleSacnEngine.setmIsConnectting(false,"连接成功");
         mBleSacnEngine.setmIsConnectted(true);
 
         if (mConnectionConfiguration.deviceType== BleConstant.sportType_Cloth){
-            mBleSacnEngine.scanLeDevice(false);//停止扫描
+            mBleSacnEngine.stopScan(); //连接成功，停止扫描
             if (!mIsConnectted){
                 mIsConnectted = true;
                 //mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_CONNECTED);
                 BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeConnected);
-                BleDataProxy.getInstance().updateLightStateByCurHeart(0);
+                //BleDataProxy.getInstance().updateLightStateByCurHeart(0);
             }
             mClothDeviceConnecedMac = address ;
 
             int clothDeviceType = mConnectionConfiguration.clothDeviceType;
             Log.i(TAG,"clothDeviceType:"+clothDeviceType);
 
-            if (clothDeviceType==BleConstant.clothDeviceType_old_encrypt || clothDeviceType==BleConstant.clothDeviceType_old_noEncrypt ||
-                    clothDeviceType==BleConstant.clothDeviceType_AMSU_EStartWith){
+            if (clothDeviceType== BleConstant.clothDeviceType_old_encrypt || clothDeviceType== BleConstant.clothDeviceType_old_noEncrypt ||
+                    clothDeviceType== BleConstant.clothDeviceType_AMSU_EStartWith){
                 sendStartDataTransmitOrderToBlueTooth();
                 startSynDeviceOrderTimerTask();
 
-                if (clothDeviceType==BleConstant.clothDeviceType_AMSU_EStartWith){
+                if (clothDeviceType== BleConstant.clothDeviceType_AMSU_EStartWith){
                     //不加密数据可能2种：1、不加密旧版衣服，2、二代衣服      根据读取的设备版本信息来区分   （通用获取设备信息方法）
-                    readSecondGenerationDeviceInfo(address,BleConstant.sportType_Cloth);
+                    readSecondGenerationDeviceInfo(address, BleConstant.sportType_Cloth);
                 }
             }
-            else if (clothDeviceType==BleConstant.clothDeviceType_secondGeneration_IOE || clothDeviceType==BleConstant.clothDeviceType_secondGeneration_AMSU){
-                readSecondGenerationDeviceInfo(address,BleConstant.sportType_Cloth);
+            else if (clothDeviceType== BleConstant.clothDeviceType_secondGeneration_IOE || clothDeviceType== BleConstant.clothDeviceType_secondGeneration_AMSU){
+                readSecondGenerationDeviceInfo(address, BleConstant.sportType_Cloth);
             }
         }
-        else if (mConnectionConfiguration.deviceType==BleConstant.sportType_Insole){
+        else if (mConnectionConfiguration.deviceType== BleConstant.sportType_Insole){
             //mInsoleConnectedCount++;
             Log.e(TAG,"鞋垫连接mInsoleConnectedCount："+mInsoleDeviceBatteryInfos.size());
             if (mInsoleDeviceBatteryInfos.size()==0){
@@ -240,7 +246,7 @@ public class BleConnectionProxy {
                 readSecondGenerationDeviceInfo(address, BleConstant.sportType_Insole);
             }
             else if (mInsoleDeviceBatteryInfos.size()==1){
-                mBleSacnEngine.scanLeDevice(false); //停止扫描
+                mBleSacnEngine.scanLeDevice(false); //2只都连接上，表示停止扫描
                 if (!mIsConnectted){
                     mIsConnectted = true;
                     //mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_CONNECTED);
@@ -248,7 +254,7 @@ public class BleConnectionProxy {
                 }
 
                 mInsoleDeviceBatteryInfos.put(address,new BleDevice());
-                readSecondGenerationDeviceInfo(address,BleConstant.sportType_Insole);
+                readSecondGenerationDeviceInfo(address, BleConstant.sportType_Insole);
                 Log.e(TAG,"2个鞋垫都连接成功============================================================================");
             }
         }
@@ -262,8 +268,9 @@ public class BleConnectionProxy {
     }
 
     //设备连接异常（连接异常、连接超时）
-    private void onDeviceConnectError(String address) {
-        reStartScanBleDevice();
+    private void onDeviceConnectError(String address, String reason) {
+
+        reStartScanBleDevice(address,reason);
         mIsDataStart = false;
 
         if (mIsConnectted){
@@ -276,7 +283,7 @@ public class BleConnectionProxy {
             mClothDeviceConnecedMac = "";
             clothCurrBatteryPowerPercent = -1;
         }
-        else if (mConnectionConfiguration.deviceType==BleConstant.sportType_Insole){
+        else if (mConnectionConfiguration.deviceType== BleConstant.sportType_Insole){
             mInsoleDeviceBatteryInfos.remove(address);
         }
     }
@@ -327,20 +334,33 @@ public class BleConnectionProxy {
     }
 
     private void dealwithPhoneBleClose() {
-        //mBleSacnEngine.stopScan();
+        mBleSacnEngine.stopScan();
     }
 
     //重新扫描蓝牙设备
-    private void reStartScanBleDevice(){
-        mBleSacnEngine.setmIsConnectted(false);
-        mBleSacnEngine.setmIsConnectting(false);
-        mBleSacnEngine.scanLeDevice(true);//开始扫描
+    private void reStartScanBleDevice(String address, String reason){
+        mBleSacnEngine.setmIsConnectting(false,reason);
+        if (!mIsConnectted){
+            //mBleSacnEngine.disconnect(address);
+            mBleSacnEngine.scanLeDevice(true);//开始扫描
+            mBleSacnEngine.setmIsConnectted(false);
+        }
     }
 
     //处理蓝牙断开（address不为空表示当前连接设备断开，address为空表示手机蓝牙关闭，需要将连接的设备信息清空）
     public void dealwithBelDisconnected(String address){
-        Log.i(TAG,"dealwithBelDisconnected:");
-        reStartScanBleDevice();
+        if (mIsConnectted){
+            if (mConnectionConfiguration.deviceType== BleConstant.sportType_Cloth){
+                if (address.equals(mClothDeviceConnecedMac)){
+                    mIsConnectted = false;
+                    BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeDisConnected,address);
+                }
+            }
+            else {
+                mIsConnectted = false;
+                BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeDisConnected);
+            }
+        }
 
         if (mConnectionConfiguration.deviceType== BleConstant.sportType_Cloth){
             mClothDeviceConnecedMac = "";
@@ -348,7 +368,7 @@ public class BleConnectionProxy {
             mIsDataStart = false;
             BleDataProxy.getInstance().setmIsDeviceDroped(false);
         }
-        else if (mConnectionConfiguration.deviceType==BleConstant.sportType_Insole){
+        else if (mConnectionConfiguration.deviceType== BleConstant.sportType_Insole){
             if (!TextUtils.isEmpty(address)){
                 mInsoleDeviceBatteryInfos.remove(address);
             }
@@ -358,10 +378,9 @@ public class BleConnectionProxy {
             }
         }
 
-        if (mIsConnectted){
-            mIsConnectted = false;
-            //mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_DISCONNECTED);
-            BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeDisConnected);
+        if (address!=null){
+            Log.i(TAG,"dealwithBelDisconnected:");
+            reStartScanBleDevice(address,"断开连接");
         }
     }
 
@@ -414,7 +433,7 @@ public class BleConnectionProxy {
     }
 
     //读取设备版本信息、电量信息，鞋垫和二代衣服用的同样的方式
-    private void readSecondGenerationDeviceInfo(final String address, final int deviceType) {
+    public void readSecondGenerationDeviceInfo(final String address, final int deviceType) {
         new Thread(){
 
             private boolean isReadBatterySendOK;
@@ -467,7 +486,7 @@ public class BleConnectionProxy {
                         SystemClock.sleep(100);
                     }
 
-                    openClothAccData(address);
+
 
                     if (allLoopCount>0){
                         if ((isReadBatterySendOK && isReadHardwareRevisionSendOK && isReadSoftwareRevisionSendOK) || allLoopCount==10){
@@ -499,7 +518,7 @@ public class BleConnectionProxy {
 
     //发送查询设备电量信息指令
     public void sendLookBleBatteryInfoOrder() {
-        if (mConnectionConfiguration.deviceType==BleConstant.sportType_Cloth){
+        if (mConnectionConfiguration.deviceType== BleConstant.sportType_Cloth){
             if (mIsConnectted){
                 if (!TextUtils.isEmpty(mClothDeviceConnecedMac)){
                     boolean send = mLeProxy.send(mClothDeviceConnecedMac, DataUtil.hexToByteArray(BleConstant.readDeviceIDOrder));
@@ -555,8 +574,12 @@ public class BleConnectionProxy {
         public boolean isNeedWriteFileHead;  //写入文件时是否需要些写文件头
         public String bindid;  //绑定id
         public BleConnectionProxy.userLoginWay userLoginWay;  //登录方式，手机号，微信
+        public boolean isOpenReceiveDataTest;  //是否打开收到数据比率的调试，打开后后每隔一段时间（10秒）发送心电和加速度收到比率
 
-        public ConnectionConfiguration(int userAge, boolean isAutoOffline, int deviceType, int clothDeviceType,boolean isNeedWriteFileHead) {
+        public ConnectionConfiguration() {
+        }
+
+        public ConnectionConfiguration(int userAge, boolean isAutoOffline, int deviceType, int clothDeviceType, boolean isNeedWriteFileHead) {
             this.userAge = userAge;
             this.isAutoOffline = isAutoOffline;
             this.deviceType = deviceType;
@@ -564,22 +587,25 @@ public class BleConnectionProxy {
             this.isNeedWriteFileHead = isNeedWriteFileHead;
         }
 
-        public ConnectionConfiguration(int userAge, boolean isAutoOffline, int deviceType, int clothDeviceType, boolean isNeedWriteFileHead, String bindid, BleConnectionProxy.userLoginWay userLoginWay) {
+        public ConnectionConfiguration(int userAge, boolean isAutoOffline, int deviceType, boolean isNeedWriteFileHead, String bindid, BleConnectionProxy.userLoginWay userLoginWay) {
             this.userAge = userAge;
             this.isAutoOffline = isAutoOffline;
             this.deviceType = deviceType;
-            this.clothDeviceType = clothDeviceType;
             this.isNeedWriteFileHead = isNeedWriteFileHead;
             this.bindid = bindid;
             this.userLoginWay = userLoginWay;
         }
     }
 
-    public void setmIsDataStart(boolean mIsDataStart) {
+    void setmIsDataStart(boolean mIsDataStart) {
         this.mIsDataStart = mIsDataStart;
+        if (!mIsConnectted){
+            mIsConnectted = true;
+            BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeConnected);
+        }
     }
 
-    public boolean ismIsDataStart() {
+    boolean ismIsDataStart() {
         return mIsDataStart;
     }
 
@@ -587,7 +613,7 @@ public class BleConnectionProxy {
         return clothCurrBatteryPowerPercent;
     }
 
-    public void setClothCurrBatteryPowerPercent(int clothCurrBatteryPowerPercent) {
+    void setClothCurrBatteryPowerPercent(int clothCurrBatteryPowerPercent) {
         this.clothCurrBatteryPowerPercent = clothCurrBatteryPowerPercent;
     }
 
@@ -616,21 +642,50 @@ public class BleConnectionProxy {
         this.mClothDeviceConnecedMac = mClothDeviceConnecedMac;
     }
 
-    public void setDeviceBindSuccess(BleDevice bleDevice,int clothDeviceType){
-        SharedPreferencesUtil.saveDeviceToSP(bleDevice,BleConstant.sportType_Cloth);  //设置运动模式切换到衣服（衣服、鞋垫）
+    public void deviceBindSuccessAndSaveToLocalSP(BleDevice bleDevice){
+        int clothDeviceType = BleConstant.clothDeviceType_Default_NO;
+        if (bleDevice!=null){
+            if (bleDevice.getLEName().startsWith("BLE")){
+                clothDeviceType = BleConstant.clothDeviceType_old_encrypt;
+            }
+            else if (bleDevice.getLEName().startsWith("AMSU")){
+                clothDeviceType = BleConstant.clothDeviceType_AMSU_EStartWith;
+            }
+
+            //绑定成功后，设置绑定的方式，倾听体语默认只有手机号
+            if (bleDevice.getClothDeviceType() == BleConstant.clothDeviceType_secondGeneration_AMSU_BindByHardware){
+                //通过硬件的方式绑定
+                if (BleConnectionProxy.getInstance().getmConnectionConfiguration().userLoginWay== userLoginWay.phoneNumber){
+                    bleDevice.setBindType(DeviceBindByHardWareType.bindByPhone);
+                }
+                else if (BleConnectionProxy.getInstance().getmConnectionConfiguration().userLoginWay== userLoginWay.WeiXinID){
+                    bleDevice.setBindType(DeviceBindByHardWareType.bindByWeiXinID);
+                }
+            }
+
+            mConnectionConfiguration.clothDeviceType = clothDeviceType;
+            if (clothDeviceType== BleConstant.clothDeviceType_old_encrypt){
+                mLeProxy.setmBleDataEncrypt(true);
+            }
+            else {
+                mLeProxy.setmBleDataEncrypt(false);
+            }
+        }
+
+        SharedPreferencesUtil.saveDeviceToSP(bleDevice, BleConstant.sportType_Cloth);
         SharedPreferencesUtil.putIntValueFromSP(BleConstant.mClothDeviceType,clothDeviceType);  //设置衣服的设备主机类型（旧主机、二代、amsu新主机、旧主机）
-        mConnectionConfiguration.clothDeviceType = clothDeviceType;
-        if (clothDeviceType==BleConstant.clothDeviceType_old_encrypt){
-            mLeProxy.setmBleDataEncrypt(true);
-        }
-        else {
-            mLeProxy.setmBleDataEncrypt(false);
-        }
     }
 
     //连接设备，传入Mac地址
-    public boolean connect(String address){
-        return LeProxy.getInstance().connect(address, false);
+    public void connect(final String address){
+        new Thread(){
+            @Override
+            public void run() {
+                mBleSacnEngine.connectDevice(address);
+            }
+        }.start();
+
+        //return LeProxy.getInstance().connect(address, false);
     }
 
     //断开连接，传入Mac地址
@@ -641,6 +696,10 @@ public class BleConnectionProxy {
 
     public boolean isSupportBindByHardware(BluetoothDevice device){
         return mBleSacnEngine.isSupportBindByHardware(device);
+    }
+
+    public void setmCurBindingDeviceAddress(String address){
+        mBleSacnEngine.setmCurBindingDeviceAddress(address);
     }
 
 }

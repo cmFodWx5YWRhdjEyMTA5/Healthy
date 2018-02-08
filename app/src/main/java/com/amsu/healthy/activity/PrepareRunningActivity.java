@@ -50,6 +50,7 @@ public class PrepareRunningActivity extends BaseActivity {
         setContentView(R.layout.activity_prepare_running);
 
         initView();
+        initData();
     }
 
     private void initView() {
@@ -117,8 +118,6 @@ public class PrepareRunningActivity extends BaseActivity {
             bt_choose_offline.setVisibility(View.GONE);
         }
 
-        EventBus.getDefault().register(this);
-
         //boolean mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
 
         int chooseMonitorShowIndex = MyUtil.getIntValueFromSP("chooseMonitorShowIndex");
@@ -126,24 +125,62 @@ public class PrepareRunningActivity extends BaseActivity {
         if (chooseMonitorShowIndex!=-1){
             mWebSocketUtil = new WebSocketProxy();
             //String url = "ws://192.168.0.112:8080/SportMonitor/websocket";
-            String url = "ws://www.amsu-new.com:8081/SportMonitorServer/websocket";
+            String url = "";
+
+            //String hostName = "ws://www.amsu-new.com:8081/";
+            String hostName = "ws://192.168.43.243:8080/";
 
             if (chooseMonitorShowIndex==0){
                 //普通
-                url = "ws://www.amsu-new.com:8081/SportMonitorServer/websocket";
+                url = hostName+"SportMonitorServer/websocket";
             }
             else  if (chooseMonitorShowIndex==1){
                 //健身房
-                url = "ws://www.amsu-new.com:8081/GymSportMonitorServer/websocket";
+                //url = "ws://www.amsu-new.com:8081/GymSportMonitorServer/websocket";
+                url = hostName+"GymSportMonitorServer/websocket";
             }
             if (chooseMonitorShowIndex==2){
                 //马拉松
-                url = "ws://www.amsu-new.com:8081/MarathonSportMonitorServer/websocket";
+                //url = "ws://www.amsu-new.com:8081/MarathonSportMonitorServer/websocket";
+                url = hostName+"MarathonSportMonitorServer/websocket";
             }
             mWebSocketUtil.connectWebSocket(url);
             ((MyApplication)getApplication()).setWebSocketUtil(mWebSocketUtil);
         }
 
+        EventBus.getDefault().register(this);
+
+    }
+
+    private void initData() {
+
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        switch (event.messageType){
+            case msgType_Connect:
+                boolean isConnected = event.singleValue == BleConnectionProxy.connectTypeConnected;
+                Log.i(TAG,"连接变化" );
+                if (!isConnected){
+                    isDeviceDisconnected =  true;
+                    if (isSendOffLineOrder){
+                        MyUtil.hideDialog(PrepareRunningActivity.this);
+                        android.support.v7.app.AlertDialog alertDialog_1 = new android.support.v7.app.AlertDialog.Builder(PrepareRunningActivity.this)
+                                .setTitle(getResources().getString(R.string.The_host_is_off_the_line))
+                                .setPositiveButton("知道了", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        finish();
+                                    }
+                                })
+                                .create();
+                        alertDialog_1.setCanceledOnTouchOutside(false);
+                        alertDialog_1.show();
+                    }
+                }
+                break;
+        }
     }
 
     boolean isonResumeEd ;
@@ -157,33 +194,6 @@ public class PrepareRunningActivity extends BaseActivity {
                 startActivityForResult(enableBtIntent, MainActivity.REQUEST_ENABLE_BT);
             }
             isonResumeEd = true;
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(MessageEvent event) {
-        switch (event.messageType){
-            case msgType_Connect:
-                boolean isConnected = event.singleValue == BleConnectionProxy.connectTypeConnected;
-                Log.i(TAG,"连接变化" );
-               if (!isConnected){
-                   isDeviceDisconnected =  true;
-                   if (isSendOffLineOrder){
-                       MyUtil.hideDialog(PrepareRunningActivity.this);
-                       android.support.v7.app.AlertDialog alertDialog_1 = new android.support.v7.app.AlertDialog.Builder(PrepareRunningActivity.this)
-                               .setTitle(getResources().getString(R.string.The_host_is_off_the_line))
-                               .setPositiveButton("知道了", new DialogInterface.OnClickListener() {
-                                   @Override
-                                   public void onClick(DialogInterface dialog, int which) {
-                                       finish();
-                                   }
-                               })
-                               .create();
-                       alertDialog_1.setCanceledOnTouchOutside(false);
-                       alertDialog_1.show();
-                   }
-               }
-                break;
         }
     }
 
@@ -268,9 +278,7 @@ public class PrepareRunningActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         EventBus.getDefault().unregister(this);
-
     }
 
     @Override
@@ -280,6 +288,7 @@ public class PrepareRunningActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
 
 
 

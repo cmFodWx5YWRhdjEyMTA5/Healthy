@@ -1,6 +1,7 @@
 package com.amsu.bleinteraction.proxy;
 
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.os.SystemClock;
 import android.text.TextUtils;
 
 import com.amsu.bleinteraction.bean.BleCallBackEvent;
@@ -35,7 +36,7 @@ public class BleDataProxy {
     private LeProxy mLeProxy;
     private static BleDataProxy mBleDataProxy;
     private boolean mIsDeviceDroped = false;
-    private int mPreHeartRate = -1;
+    private int mPreHeartRate = -2;
     private final String CLOTH_CONNECTED_DROP_RECEIVER_DATA = "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";  //衣服导联脱落后，心电数据将只有00，所以要补充全为0的心电数据，保证心电波形有（为直线）
     public EcgFilterUtil_1 mEcgFilterUtil_1;
 
@@ -138,14 +139,14 @@ public class BleDataProxy {
                 else if (hexData.length()==14 && hexData.startsWith("42 39")){  //42 39 2B 4F 4B
                     mLeProxy.updateBroadcast(address, characteristic);
                 }
-                else if (hexData.length()==14 && hexData.startsWith("41 77 2B 4F 4B")){  //41 77 2B 4F 4B硬件绑定设备，绑定成功后返回
-                    bindDeviceSuccessByHardWare();
+                else if (hexData.length()==14 && (hexData.startsWith("41 77 2B 4F 4B") || hexData.startsWith("41 37 2B 6F 6B"))){  //41 77 2B 4F 4B硬件绑定设备，绑定成功后返回
+                    bindDeviceSuccessByHardWare(address);
                 }
                 else if (hexData.length()==14 && !hexData.startsWith("42 37 2B")){  //42 37 2B开头的是鞋垫步频
                     deviceVersionInfo(address, hexData, uuid);
                 }
                 else if (hexData.length()==17 && hexData.startsWith("41 37 2B 45 52 52")){  //41 37 2B 45 52 52  硬件绑定设备，绑定失败后返回
-                    bindDeviceFailByHardWare();
+                    bindDeviceFailByHardWare(address);
                 }
                 else if (hexData.length()==17){
                     newClothDeviceVersionInfo(hexData, uuid);
@@ -161,12 +162,10 @@ public class BleDataProxy {
                 }
             }
         }
-
-
     }
 
-
-    private void dealWithOnePackageEcgData(int[] valuableEcgData,String address,String hexData) {
+    private void dealWithOnePackageEcgData(int[] ecgData,String address,String hexData) {
+        mLeProxy.setCurEcgReceivePackageAmountIncreases();
         boolean ismIsDataStart = mConnectionProxy.ismIsDataStart();  //当连接上时ismIsDataStart为false，收到数据时把这个值设置为true
         mConnectionProxy.setmIsDataStart(true);
 
@@ -187,25 +186,26 @@ public class BleDataProxy {
             }
         }
 
-        int[] clone = valuableEcgData.clone();
+        int[] befroreFiterEcgData = ecgData.clone();
 
-       /* String intString = "";
+      /*  String intString = "";
         for (int i:valuableEcgData){
             intString+=i+",";
         }
-        LogUtil.i(TAG,"滤波前心电:"+intString +"  ");*/
+        LogUtil.i(TAG,"滤波前心电:"+intString +"  ");
+*/
+        ecgDataFilter(ecgData);
 
-        ecgDataFilter(valuableEcgData);
-
-        /*String intStringA = "";
+       /* String intStringA = "";
         for (int i:valuableEcgData){
             intStringA+=i+",";
         }
         LogUtil.w(TAG,"滤波后心电:"+intStringA);*/
 
-        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_ecgDataArray,valuableEcgData);
+        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_ecgDataArray_BeforeFiter,befroreFiterEcgData);
+        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_ecgDataArray_AfterFiter,ecgData);
 
-        mResultCalcuUtil.notifyReciveAcgPackageData(clone,valuableEcgData);
+        mResultCalcuUtil.notifyReciveAcgPackageData(befroreFiterEcgData,ecgData);
 
         /*Intent intent = new Intent(LeProxy.ACTION_DATA_AVAILABLE);
         intent.putExtra(EXTRA_ECG_DATA, valuableEcgData);
@@ -217,10 +217,26 @@ public class BleDataProxy {
 
     }
 
+    int testindex = 0;
     private void postBleDataOnBus(BleConnectionProxy.MessageEventType messageType, int[] dataArray) {
         mEcgMessageEvent.messageType = messageType;
         mEcgMessageEvent.dataArray = dataArray;
-        EventBus.getDefault().post(mEcgMessageEvent);
+
+        //滤波前数据
+        if (messageType==BleConnectionProxy.MessageEventType.msgType_ecgDataArray_BeforeFiter){
+            if(beforeFilterbleDataChangeListener!=null){
+                beforeFilterbleDataChangeListener.onBleDataChange(mEcgMessageEvent);
+            }
+        }
+        else  if (messageType==BleConnectionProxy.MessageEventType.msgType_ecgDataArray_AfterFiter){
+            if(afterFilterbleDataChangeListener!=null){
+                mEcgMessageEvent.testIndex = testindex++;
+                if (testindex>10000)testindex=0;
+                afterFilterbleDataChangeListener.onBleDataChange(mEcgMessageEvent);
+            }
+        }
+
+        //EventBus.getDefault().post(mEcgMessageEvent);
     }
 
     void postBleDataOnBus(BleConnectionProxy.MessageEventType messageType, int data) {
@@ -229,11 +245,22 @@ public class BleDataProxy {
         EventBus.getDefault().post(mMessageEvent);
     }
 
-    void postBleDataOnBus(BleConnectionProxy.MessageEventType messageType, int data,String address) {
+    void postBleDataOnBus(BleConnectionProxy.MessageEventType messageType, String msg) {
+        mMessageEvent.messageType = messageType;
+        mMessageEvent.msg = msg;
+        EventBus.getDefault().post(mMessageEvent);
+    }
+
+    void postBleDataOnBus(BleConnectionProxy.MessageEventType messageType, int data, String address) {
         mMessageEvent.messageType = messageType;
         mMessageEvent.singleValue = data;
         mMessageEvent.address = address;
         EventBus.getDefault().post(mMessageEvent);
+       /* MessageEvent messageEvent = new MessageEvent();
+        messageEvent.messageType = messageType;
+        messageEvent.singleValue = data;
+        messageEvent.address = address;
+        EventBus.getDefault().post(messageEvent);*/
     }
 
     //滤波处理
@@ -321,8 +348,7 @@ public class BleDataProxy {
     // 3E  新版衣服心率  电量
     private void newClothDeviceHeartOrBattery(String address, String hexData, String uuid) {
         int intValue = Integer.parseInt(hexData , 16);
-        LogUtil.i(TAG,"hexData:"+hexData);
-        LogUtil.i(TAG,"intValue:"+intValue);
+        LogUtil.i(TAG,"hexData:"+hexData+",  intValue:"+intValue);
         if (uuid.equals(BleConstant.readInsoleBatteryCharUuid)){  //新版衣服电量
             LogUtil.i(TAG,"clothCurrBatteryPowerPercent："+intValue);
             mConnectionProxy.setClothCurrBatteryPowerPercent(intValue);
@@ -342,7 +368,7 @@ public class BleDataProxy {
     }
 
     //根据心率改变灯的状态
-    public void updateLightStateByCurHeart(int curHeartRate) {
+    void updateLightStateByCurHeart(int curHeartRate) {
         String address = mConnectionProxy.getmClothDeviceConnecedMac();
         if (!mIsDeviceDroped){
             if (curHeartRate!=mPreHeartRate){
@@ -373,7 +399,12 @@ public class BleDataProxy {
         UUID serUuid = UUID.fromString(BleConstant.readSecondGenerationInfoSerUuid);
         UUID charUuid = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_1);
         boolean send = mLeProxy.send(address, serUuid, charUuid, orderHex, false);
-        LogUtil.i(TAG,"send:"+send);
+        LogUtil.i(TAG,"发送控制灯指令send:"+send);
+
+        if (!send){
+            SystemClock.sleep(200);
+            mLeProxy.send(address, serUuid, charUuid, orderHex, false);
+        }
     }
 
     //主机状态信息
@@ -395,9 +426,9 @@ public class BleDataProxy {
 
 
     private void dealWithOnePackageAccData(int[] valuableEcgData) {
+        mLeProxy.setCurAccReceivePackageAmountIncreases();
         mResultCalcuUtil.notifyReciveAccPackageData(valuableEcgData);
     }
-
 
     /*
     *   新主机硬件版本：
@@ -507,12 +538,12 @@ public class BleDataProxy {
         }
     }
 
-    private void bindDeviceSuccessByHardWare(){
-        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_Bind,BleConnectionProxy.success);
+    private void bindDeviceSuccessByHardWare(String address){
+        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_Bind,BleConnectionProxy.success,address);
     }
 
-    private void bindDeviceFailByHardWare(){
-        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_Bind,BleConnectionProxy.fail);
+    private void bindDeviceFailByHardWare(String address){
+        postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_Bind,BleConnectionProxy.fail,address);
     }
 
     // 3E  鞋垫电量
@@ -751,5 +782,20 @@ public class BleDataProxy {
 
     public void setmIsDeviceDroped(boolean mIsDeviceDroped) {
         this.mIsDeviceDroped = mIsDeviceDroped;
+    }
+
+    public interface BleDataChangeListener{
+        void onBleDataChange(MessageEvent event);
+    }
+
+    BleDataChangeListener beforeFilterbleDataChangeListener;
+    BleDataChangeListener afterFilterbleDataChangeListener;
+
+    public void setBeforeFilterbleDataChangeListener(BleDataChangeListener beforeFilterbleDataChangeListener) {
+        this.beforeFilterbleDataChangeListener = beforeFilterbleDataChangeListener;
+    }
+
+    public void setAfterFilterbleDataChangeListener(BleDataChangeListener afterFilterbleDataChangeListener) {
+        this.afterFilterbleDataChangeListener = afterFilterbleDataChangeListener;
     }
 }

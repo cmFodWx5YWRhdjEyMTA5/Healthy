@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.bleinteraction.bean.BleDevice;
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.User;
@@ -438,6 +439,7 @@ public class LoginActivity extends BaseActivity {
                         httpUtils1.send(HttpRequest.HttpMethod.POST, Constant.downloadPersionDataURL,params, new RequestCallBack<String>() {
                             @Override
                             public void onSuccess(ResponseInfo<String> responseInfo) {
+                                MyUtil.hideDialog(LoginActivity.this);
                                 String result = responseInfo.result;
                                 Log.i(TAG,"result:"+result);
                                 /*
@@ -499,6 +501,8 @@ public class LoginActivity extends BaseActivity {
                                             User user = new User(phone,userName,birthday,sex,weight,height,address,email,icon,stillRate);
                                             MyUtil.saveUserToSP(user);
                                             MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
+                                            BleConnectionProxy.getInstance().getmConnectionConfiguration().userLoginWay = BleConnectionProxy.userLoginWay.phoneNumber;
+                                            BleConnectionProxy.getInstance().getmConnectionConfiguration().bindid = phone;  //更新蓝牙链接库当前配置
                                             UploadHealthyDataUtil.downlaodWeekReport(-1,-1,true,LoginActivity.this);
                                             MyUtil.showDialog(getResources().getString(R.string.login_successful_synchronizing_data),LoginActivity.this);
                                             //startActivity(new Intent(LoginActivity.this,MainActivity.class));

@@ -27,6 +27,7 @@ import com.amap.api.maps.model.LatLng;
 import com.amsu.bleinteraction.bean.MessageEvent;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.BleDataProxy;
+import com.amsu.bleinteraction.utils.LogUtil;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.AppAbortDataSave;
@@ -470,6 +471,23 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
                 Log.i(TAG,"开始跑步："+sendStartRunningState);
                 mWebSocketUtil.sendSocketMsg(sendStartRunningState);
             }
+
+            //心电通过这里接受
+            BleDataProxy.getInstance().setAfterFilterbleDataChangeListener(new BleDataProxy.BleDataChangeListener() {
+                @Override
+                public void onBleDataChange(MessageEvent event) {
+                    switch (event.messageType){
+                   /* case msgType_HeartRate:
+                        updateUIECGHeartData(event.singleValue);
+                        break;*/
+                        case msgType_ecgDataArray_AfterFiter:
+                            LogUtil.i(TAG,"testIndex:"+event.testIndex);
+                            startRealTimeDataTrasmit(event.dataArray);
+                            break;
+
+                    }
+                }
+            });
         }
     }
 
@@ -650,6 +668,12 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             mMyApplication.setRunningmCurrentHeartRate(heartRate);
         }
 
+        int stridefre = 0;
+        if (mStridefreData.size() > 0) {
+            stridefre = mStridefreData.get(mStridefreData.size() - 1);
+        }
+        String userSportData = "A4," + mFinalFormatSpeed + "," + mFormatDistance + "," + tv_run_time.getText().toString() + "," + tv_run_isoxygen.getText().toString() + "," + heartRate + "," + stridefre + "," + (int) mAllKcal;
+        startUserSportDataTrasmit(userSportData);
     }
 
     Handler mHandler = new Handler(new Handler.Callback() {

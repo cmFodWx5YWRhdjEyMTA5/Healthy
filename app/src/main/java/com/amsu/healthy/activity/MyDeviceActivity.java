@@ -5,9 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,8 +17,6 @@ import com.amsu.bleinteraction.bean.BleDevice;
 import com.amsu.bleinteraction.bean.MessageEvent;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.utils.BleConstant;
-import com.amsu.bleinteraction.utils.DeviceBindUtil;
-import com.amsu.bleinteraction.utils.SharedPreferencesUtil;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.insole.InsoleDeviceInfoActivity;
 import com.amsu.healthy.adapter.DeviceAdapter;
@@ -80,23 +76,8 @@ public class MyDeviceActivity extends BaseActivity {
 
         bleDeviceList = new ArrayList<>();
         lv_device_devicelist = (ListView) findViewById(R.id.lv_device_devicelist);
-        /*List<BleDevice> deviceListFromSP = MyUtil.getDeviceListFromSP();
-
-        Log.i(TAG,"deviceListFromSP:"+deviceListFromSP);
-        for (BleDevice device:deviceListFromSP){
-            BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP();
-            if (bleDeviceFromSP!=null && bleDeviceFromSP.getMac().equals(device.getMac())){
-                bleDeviceList.add(device);
-            }
-        }
-
-        Log.i(TAG,"bleDeviceList:"+bleDeviceList.toString());
-        DeviceList tempDeviceList = new DeviceList();
-        tempDeviceList.setBleDeviceList(this.bleDeviceList);
-        MyUtil.putDeviceListToSP(tempDeviceList);*/
 
         mUserFromSP = MyUtil.getUserFromSP();
-
 
         BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
         BleDevice bleDeviceClothFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
@@ -110,13 +91,6 @@ public class MyDeviceActivity extends BaseActivity {
         Log.i(TAG,"bleDeviceFromSP:"+ bleDeviceFromSP);
         Log.i(TAG,"bleDeviceClothFromSP:"+ bleDeviceClothFromSP);
 
-        /*List<BleDevice> deviceListFromSP = MyUtil.getDeviceListFromSP();
-        if (deviceListFromSP!=null){
-            for (int i=0;i<deviceListFromSP.size();i++){
-                bleDeviceList.add(deviceListFromSP.get(i));
-            }
-        }*/
-
         deviceAdapter = new DeviceAdapter(this, this.bleDeviceList);
         lv_device_devicelist.setAdapter(deviceAdapter);
 
@@ -125,11 +99,6 @@ public class MyDeviceActivity extends BaseActivity {
         rl_device_adddevice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*if (MyApplication.isHaveDeviceConnectted){
-                    MyUtil.showToask(MyDeviceActivity.this,"设备正在连接，要连接其他设备，请先断开连接设备");
-                    return;
-                }*/
-
                 if (MainActivity.mBluetoothAdapter!=null && !MainActivity.mBluetoothAdapter.isEnabled()) {
                     Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     startActivity(enableBtIntent);
@@ -150,7 +119,7 @@ public class MyDeviceActivity extends BaseActivity {
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 mCurClickPosition = position;
                 final BleDevice bleDevice = bleDeviceList.get(position);
-                Log.i(TAG,"bleDevice:"+ bleDevice);
+                Log.i(TAG,"点击bleDevice:"+ bleDevice);
 
                 if (bleDevice.getDeviceType()==Constant.sportType_Cloth){
                     if (bleDevice.getClothDeviceType() == BleConstant.clothDeviceType_secondGeneration_AMSU_BindByHardware){
@@ -163,26 +132,26 @@ public class MyDeviceActivity extends BaseActivity {
                             }
                             else {
                                 //这个设备是以前自己绑定过，现在点击可以切换设备
-                                ShowToaskDialogUtil.showTipDialog(MyDeviceActivity.this, "设备切换成功");
-
-                                connectNewDevice(bleDevice);
-                                setDeviceBindSuccess(bleDevice,position);
-
+                                MyUtil.showToask(MyDeviceActivity.this,"设备已添加");
+                                connectNewDevice(bleDevice,position);
                             }
                         }
                         else if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByOther){
                             //被别人绑定,提示用户解绑
-                            ShowToaskDialogUtil.showTipDialog(MyDeviceActivity.this, "设备被别人误绑定，请先关机，然后开机长按5秒，红灯亮2秒表示解绑成功");
+                            ShowToaskDialogUtil.showTipDialog(MyDeviceActivity.this, "设备被别人绑定，请先关机，然后开机长按15秒");
                         }
                         else if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByNO){
-                            //没绑定，进行绑定
-                            mClickBleDevice = bleDevice;
-                            //setDeviceBindSuccess(bleDevice,position);
-                            connectNewDevice(bleDevice);
-                            needBindDeviceAddress = bleDevice.getMac();
+                            if(bleDevice.getState().equals(getResources().getString(R.string.click_bind))){
+                                //没绑定，进行绑定
+                                MyUtil.showToask(MyDeviceActivity.this,"设备已添加");
+                                connectNewDevice(bleDevice,position);
+                            }
+                            else {
+                                dumpToDeviceDetail();
+                            }
                         }
-                        else if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByNO){
-                            MyUtil.showToask(MyDeviceActivity.this,"主机硬件不支持");
+                        else if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.devideNOSupport){
+                            MyUtil.showToask(MyDeviceActivity.this,"是新主机但是主机硬件不支持这种绑定");
                         }
                         else{
                             MyUtil.showToask(MyDeviceActivity.this,"绑定类型错误");
@@ -294,31 +263,60 @@ public class MyDeviceActivity extends BaseActivity {
         EventBus.getDefault().register(this);
     }
 
-    private void connectNewDevice(final BleDevice bleDevice) {
-        //如果有正在连接的设备，断开连接
-        disConnectClothDevice();
-
-        new Thread(){
-            @Override
-            public void run() {
-                SystemClock.sleep(200);
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //连接新得设备
-                        boolean connect = BleConnectionProxy.getInstance().connect(bleDevice.getMac());
-                        Log.i(TAG,"connect:"+connect);
-
-                        if (!connect){
-                            MyUtil.showToask(getApplication(),"新设备连接失败，无法绑定，请检查主机是否开启");
-                        }
-                    }
-                });
-            }
-        }.start();
+    //连接变化
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        switch (event.messageType){
+            case msgType_Connect:
+                Log.i(TAG,"连接变化:"+event.singleValue );
+                setDeviceConnectedState(event);
+                break;
+            case msgType_serviceDiscover:
+                Log.i(TAG,"发现服务" );
+                //sendBindDeviceOrder();
+                break;
+            case msgType_Bind:
+                Log.i(TAG,"绑定变化:"+event.singleValue );
+                //onDeviceBindCallBack(event.singleValue);
+                break;
+        }
     }
 
+    private void connectNewDevice(final BleDevice bleDevice,int position) {
+        if (lv_device_devicelist.getChildAt(position)!=null) {
+            TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(position).findViewById(R.id.tv_item_state);
+            tv_item_state.setText(getResources().getString(R.string.unconnected));
+            bleDevice.setState(getResources().getString(R.string.unconnected));
+        }
+
+        if (BleConnectionProxy.getInstance().ismIsConnectted()){
+            disConnectClothDevice();  //断开其他连接的设备
+        }
+        BleConnectionProxy.getInstance().connect(bleDevice.getMac());
+
+        setDeviceBindSuccess(bleDevice);
+    }
+
+    //设备连接状态变化,修改条目状态
+    private void setDeviceConnectedState(MessageEvent event ) {
+        int singleValue = event.singleValue;
+        if (lv_device_devicelist.getChildAt(mCurClickPosition)!=null){
+            TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(mCurClickPosition).findViewById(R.id.tv_item_state);
+
+            if(singleValue==BleConnectionProxy.connectTypeConnected) {
+                Log.i(TAG,"设备连接");
+                tv_item_state.setText(getResources().getString(R.string.connected));
+                tv_item_state.setTextColor(Color.parseColor("#43CD80"));
+
+            } else if (singleValue == BleConnectionProxy.connectTypeDisConnected){
+                tv_item_state.setText(getResources().getString(R.string.unconnected));
+                Log.i(TAG,"设备断开");
+                tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
+            }
+        }
+    }
+
+    //调到设备详情页
     private void dumpToDeviceDetail() {
         final BleConnectionProxy instance = BleConnectionProxy.getInstance();
         if (instance.ismIsConnectted()){
@@ -354,89 +352,6 @@ public class MyDeviceActivity extends BaseActivity {
             }
         }
         return false;
-    }
-
-    String needBindDeviceAddress;
-
-    /*  > 1、先连接设备，
-        > 2、收到连接成功后显示设备已连接 ，
-        > 3、在收到发现服务条目（msgType_serviceDiscover）时发送绑定的指令，发送成功则绑定成功，发送失败则绑定失败，发送成功后设备会自动休眠，
-        > 5、完成.（在下次设备打开后会自动连接）*/
-
-    //连接变化
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(MessageEvent event) {
-        switch (event.messageType){
-            case msgType_Connect:
-                Log.i(TAG,"连接变化" );
-                setDeviceConnectedState(event.singleValue);
-                break;
-            case msgType_Bind:
-                Log.i(TAG,"绑定变化" );
-                onDeviceBindCallBack(event.singleValue);
-                break;
-            case msgType_serviceDiscover:
-                Log.i(TAG,"发现服务" );
-                sendBindDeviceOrder();
-                break;
-        }
-    }
-
-    //设备连接状态变化,修改条目状态
-    private void setDeviceConnectedState(int singleValue) {
-        if (lv_device_devicelist==null || lv_device_devicelist.getChildAt(mBndDevicePostion)==null)return;
-        TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);
-
-        if(singleValue==BleConnectionProxy.connectTypeConnected) {
-            Log.i(TAG,"设备连接");
-            tv_item_state.setText(getResources().getString(R.string.connected));
-            tv_item_state.setTextColor(Color.parseColor("#43CD80"));
-
-
-        } else if (singleValue == BleConnectionProxy.connectTypeDisConnected){
-            tv_item_state.setText(getResources().getString(R.string.unconnected));
-            tv_item_state.setTextColor(Color.parseColor("#c7c7cc"));
-        }
-
-    }
-
-    private BleDevice mClickBleDevice;
-
-    //发送绑定指令，发送成功则绑定成功，发送失败则绑定失败
-    private void sendBindDeviceOrder() {
-        Log.i(TAG,"needBindDeviceAddress:"+needBindDeviceAddress);
-        Log.i(TAG,"mUserFromSP.getPhone():"+mUserFromSP.getPhone());
-        if (!TextUtils.isEmpty(needBindDeviceAddress)){
-            boolean send = DeviceBindUtil.bingDevice(BleConnectionProxy.userLoginWay.phoneNumber, mUserFromSP.getPhone(), needBindDeviceAddress);
-            Log.i(TAG,"发送绑定设备："+send);
-            if (send){
-                //绑定成功
-                setDeviceBindSuccess(mClickBleDevice,-1);
-                ShowToaskDialogUtil.showTipDialog(MyDeviceActivity.this,"设备绑定成功，主机已关机，需要重新启动设备");
-                BleConnectionProxy.getInstance().dealwithBelDisconnected(null);
-                BleDevice deviceFromSP = SharedPreferencesUtil.getDeviceFromSP(BleConstant.sportType_Cloth);
-                if (deviceFromSP!=null){
-                    deviceFromSP.setBindType(BleConnectionProxy.DeviceBindByHardWareType.bindByPhone);
-                    deviceFromSP.setJustDoSP(false);
-                    SharedPreferencesUtil.saveDeviceToSP(deviceFromSP,BleConstant.sportType_Cloth);
-                }
-            }else {
-                ShowToaskDialogUtil.showTipDialog(MyDeviceActivity.this,"设备绑定失败，请重试");
-            }
-            needBindDeviceAddress = null;
-        }
-    }
-
-    private void onDeviceBindCallBack(int singleValue) {
-        if(singleValue==BleConnectionProxy.success) {
-            //绑定成功，提示
-            ShowToaskDialogUtil.showTipDialog(this,"设备绑定成功，主机已关机，需要重新启动设备");
-
-        }
-        else if(singleValue==BleConnectionProxy.fail) {
-            //绑定失败，提示
-            ShowToaskDialogUtil.showTipDialog(this,"设备绑定失败，请重试");
-        }
     }
 
     private void bingDeviceToServer(final BleDevice bleDevice, final int position, final boolean iSNeedUnbind, final int deviceType) {
@@ -505,10 +420,13 @@ public class MyDeviceActivity extends BaseActivity {
                         TextView tv_item_state = (TextView) lv_device_devicelist.getChildAt(position).findViewById(R.id.tv_item_state);
                         tv_item_state.setText(getResources().getString(R.string.bound));
 
-                        setDeviceBindSuccess(bleDevice,position);
+                        setDeviceBindSuccess(bleDevice);
 
                         if (iSNeedUnbind){
-                            disConnectClothDevice();
+                            if (BleConnectionProxy.getInstance().ismIsConnectted()){
+                                disConnectClothDevice();
+                            }
+
                         }
 
                         //绑定成功后立马连接
@@ -546,37 +464,21 @@ public class MyDeviceActivity extends BaseActivity {
     }
 
     private void disConnectClothDevice() {
-        if (BleConnectionProxy.getInstance().ismIsConnectted()){
-            //断开蓝牙连接
-            BleConnectionProxy.getInstance().disconnect(BleConnectionProxy.getInstance().getmClothDeviceConnecedMac());
-            //BleConnectionProxy.getInstance().dealwithBelDisconnected(BleConnectionProxy.getInstance().getmClothDeviceConnecedMac());
+        //断开蓝牙连接
+        BleConnectionProxy.getInstance().disconnect(BleConnectionProxy.getInstance().getmClothDeviceConnecedMac());
+        BleConnectionProxy.getInstance().dealwithBelDisconnected(BleConnectionProxy.getInstance().getmClothDeviceConnecedMac());
 
-            if (mBndDevicePostion<bleDeviceList.size()){
-                bleDeviceList.get(mBndDevicePostion).setState(getResources().getString(R.string.click_bind));
-                TextView tv_item_state1 = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);
-                tv_item_state1.setText(getResources().getString(R.string.click_bind));
-                tv_item_state1.setTextColor(Color.parseColor("#c7c7cc"));
-            }
+        if (mBndDevicePostion<bleDeviceList.size()){
+            bleDeviceList.get(mBndDevicePostion).setState(getResources().getString(R.string.click_bind));
+            TextView tv_item_state1 = (TextView) lv_device_devicelist.getChildAt(mBndDevicePostion).findViewById(R.id.tv_item_state);
+            tv_item_state1.setText(getResources().getString(R.string.click_bind));
+            tv_item_state1.setTextColor(Color.parseColor("#c7c7cc"));
         }
+
     }
 
-    private void setDeviceBindSuccess(BleDevice bleDevice,int position) {
-        if (bleDevice!=null){
-            int clothDeviceType = BleConstant.clothDeviceType_Default_NO;
-            if (bleDevice.getLEName().startsWith("BLE")){
-                clothDeviceType = BleConstant.clothDeviceType_old_encrypt;
-            }
-            else if (bleDevice.getLEName().startsWith("AMSU")){
-                clothDeviceType = BleConstant.clothDeviceType_AMSU_EStartWith;
-            }
-
-            bleDevice.setJustDoSP(true);
-            BleConnectionProxy.getInstance().setDeviceBindSuccess(bleDevice,clothDeviceType);
-        }
-
-        if (position!=-1){
-            mBndDevicePostion = position;
-        }
+    private void setDeviceBindSuccess(BleDevice bleDevice) {
+        BleConnectionProxy.getInstance().deviceBindSuccessAndSaveToLocalSP(bleDevice);
     }
 
     @Override
@@ -623,7 +525,7 @@ public class MyDeviceActivity extends BaseActivity {
 
                         if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByPhone || bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXinID){
                             if (!BleConnectionProxy.getInstance().ismIsConnectted()){
-                                setDeviceBindSuccess(bleDevice,-1);
+                                setDeviceBindSuccess(bleDevice);
                             }
                         }
                         bleDeviceList.add(bleDevice);

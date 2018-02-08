@@ -9,19 +9,18 @@ import com.amsu.bleinteraction.proxy.BleConnectionProxy;
  * Created by HP on 2016/12/23.
  */
 public class BleDevice implements Parcelable {
-    String name;
-    String state;
-    String mac;
-    String LEName;
-    int deviceType;
-    Integer rssi;
-    String hardWareVersion;
-    String softWareVersion;
-    String modelNumber;
-    int battery;
-    int clothDeviceType;
-    BleConnectionProxy.DeviceBindByHardWareType bindType;
-    boolean isJustDoSP;
+    private String name;
+    private String state;
+    private String mac;
+    private String LEName;
+    private int deviceType;
+    private Integer rssi;
+    private String hardWareVersion;
+    private  String softWareVersion;
+    private String modelNumber;
+    private int battery;
+    private int clothDeviceType;
+    private BleConnectionProxy.DeviceBindByHardWareType bindType;
 
     public BleDevice() {
         this.name = "";
@@ -236,13 +235,5 @@ public class BleDevice implements Parcelable {
                 ", battery=" + battery +
                 ", bindType=" + bindType +
                 '}';
-    }
-
-    public boolean isJustDoSP() {
-        return isJustDoSP;
-    }
-
-    public void setJustDoSP(boolean justDoSP) {
-        isJustDoSP = justDoSP;
     }
 }

@@ -150,6 +150,7 @@ public class MainActivity extends BaseActivity {
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         Log.i(TAG,"heigth : " + dm.heightPixels);
         Log.i(TAG,"width : " + dm.widthPixels);
+
     }
 
     private void initData() {

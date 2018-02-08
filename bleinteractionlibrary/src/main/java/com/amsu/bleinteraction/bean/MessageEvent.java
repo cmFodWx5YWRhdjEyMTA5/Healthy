@@ -12,6 +12,8 @@ import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 public class MessageEvent {
     public BleConnectionProxy.MessageEventType messageType;
     public int singleValue;
+    public int testIndex;
     public int[] dataArray;
     public String address;
+    public String msg;
 }

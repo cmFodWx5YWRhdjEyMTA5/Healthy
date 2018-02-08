@@ -184,8 +184,9 @@ public class SearchDevicehActivity extends BaseActivity {
     private void scanLeDevice(final boolean enable) {
         if (enable) {
             if (mBluetoothAdapter.isEnabled()) {
-                if (mScanning)
+                if (mScanning) {
                     return;
+                }
                 mScanning = true;
                 mBluetoothAdapter.startLeScan(mLeScanCallback);
                 Log.i(TAG,"startLeScan");

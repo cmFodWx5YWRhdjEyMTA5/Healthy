@@ -7,11 +7,14 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.amsu.bleinteraction.utils.BleConstant;
+import com.amsu.bleinteraction.utils.DeviceBindUtil;
 import com.amsu.bleinteraction.utils.LogUtil;
+import com.amsu.bleinteraction.utils.TimerTaskUtil;
 import com.ble.api.DataUtil;
 import com.ble.ble.BleCallBack;
 import com.ble.ble.BleService;
@@ -74,14 +77,16 @@ public class LeProxy {
     }
 
     //bleDataEncrypt为数据是否加密
-    public void setBleService(IBinder binder,boolean bleDataEncrypt){
+    public void setBleService(IBinder binder, boolean bleDataEncrypt){
 
         mBleDataEncrypt = bleDataEncrypt;
         mBleService = ((BleService.LocalBinder) binder).getService(mBleCallBack);
         // mBleService.setMaxConnectedNumber(max);// 设置最大可连接从机数量，默认为4
         mBleService.setDecode(bleDataEncrypt); //设置是否解密接收的数据（仅限于默认的接收通道【0x1002】，依据模透传块数据是否加密而定）
-        mBleService.setConnectTimeout(4000);//设置APP端的连接超时时间（单位ms）
+        mBleService.setConnectTimeout(5000);//设置APP端的连接超时时间（单位ms）
         mBleService.initialize();// 必须调用初始化函数
+
+        startBleReceiveDataStatistics();
     }
 
     public OADProxy getOADProxy(OADListener listener, OADType type){
@@ -153,10 +158,13 @@ public class LeProxy {
      * @param encode 是否加密发送数据（依据模块来定）
      */
     public boolean send(String address, UUID serUuid, UUID charUuid, byte[] data, boolean encode){
+        Log.i(TAG,"send:");
         if (mBleService != null) {
             BluetoothGatt gatt = mBleService.getBluetoothGatt(address);
             BluetoothGattCharacteristic c = GattUtil.getGattCharacteristic(gatt, serUuid, charUuid);
-            return mBleService.send(gatt, c, data, encode);
+            boolean send = mBleService.send(gatt, c, data, encode);
+            Log.i(TAG,"发送:"+send);
+            return send;
         }
         return false;
     }
@@ -251,20 +259,13 @@ public class LeProxy {
         return filter;
     }
 
-    public static IntentFilter makeFilter(String ...action){
+    public static IntentFilter makeFilter(String...action){
         IntentFilter filter = new IntentFilter();
         for (String a:action){
             filter.addAction(a);
         }
         return filter;
     }
-
-    public static final int BleOnConnected = 1;
-    public static final int BleOnConnectTimeout = 2;
-    public static final int BleOnConnectionError = 3;
-    public static final int BleOnDisconnected = 4;
-    public static final int BleOnCharacteristicChanged = 5;
-    public static final int BleOnCharacteristicRead = 6;
 
     //这里集合了所有的蓝牙交互事件
     //注意事项：回调方法所在线程不能有阻塞操作，否则可能导致数据发送失败或者某些方法无法正常回调！！！
@@ -286,6 +287,14 @@ public class LeProxy {
             //updateBroadcast(address, ACTION_CONNECT_TIMEOUT);
             //postBleDataOnBus(BleOnConnectTimeout,address);
             BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_CONNECT_TIMEOUT);
+            BluetoothGatt bluetoothGatt = mBleService.getBluetoothGatt(address);
+            if (bluetoothGatt!=null){
+                bluetoothGatt.close();
+                LogUtil.e(TAG,"超时清除");
+            }
+
+
+
         }
 
         @Override
@@ -293,6 +302,19 @@ public class LeProxy {
             LogUtil.e(TAG, "onConnectionError() - " + address + " error code: " + error + ", new state: " + newState);
             //updateBroadcast(address, ACTION_CONNECT_ERROR);
             //postBleDataOnBus(BleOnConnectionError,address);
+
+            BluetoothGatt bluetoothGatt = mBleService.getBluetoothGatt(address);
+            if (bluetoothGatt!=null){
+                if (newState==0){
+                    //bluetoothGatt.connect();
+                    //LogUtil.e(TAG,"重连");
+                }
+                else {
+                    bluetoothGatt.close();
+                    LogUtil.e(TAG,"清除");
+                }
+            }
+
             BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_CONNECT_ERROR);
         }
 
@@ -309,7 +331,7 @@ public class LeProxy {
             //!!!检索服务成功，到这一步才可以与从机进行数据交互，有些手机可能需要延时几百毫秒才能数据交互
             LogUtil.i(TAG, "onServicesDiscovered() - " + address);
             new Timer().schedule(new ServicesDiscoveredTask(address), 300, 100);
-            BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_GATT_SERVICES_DISCOVERED);
+            BleDataProxy.getInstance().updateLightStateByCurHeart(-1);  //在一发现服务，发送控制灯的指令
         }
 
         @Override
@@ -319,12 +341,13 @@ public class LeProxy {
         }
 
         @Override
-        public void onCharacteristicChanged(String address, BluetoothGattCharacteristic characteristic) {
-            /*Log.i(TAG, "onCharacteristicChanged() - " + address + " uuid=" + characteristic.getUuid().toString()
+        public void onCharacteristicChanged(final String address, final BluetoothGattCharacteristic characteristic) {
+            LogUtil.i(TAG, "onCharacteristicChanged() - " + address + " uuid=" + characteristic.getUuid().toString()
                     + "   len=" + characteristic.getValue().length
-                    + " [" + DataUtil.byteArrayToHex(characteristic.getValue()) + ']');*/
+                    + " [" + DataUtil.byteArrayToHex(characteristic.getValue()) + ']');
 
             BleDataProxy.getInstance().bleCharacteristicChanged(address,characteristic);
+
 
             //updateBroadcast(address, characteristic);
 
@@ -382,7 +405,7 @@ public class LeProxy {
     };
 
     //将字节数组转换为16进制字符串
-    public static String binaryToHexString(byte[] bytes,int length) {
+    public static String binaryToHexString(byte[] bytes, int length) {
         String hexStr = "0123456789ABCDEF";
         String result = "";
         String hex = "";
@@ -429,7 +452,27 @@ public class LeProxy {
         void cancelTask(){
             //准备工作完成，向外发送广播
             updateBroadcast(address, ACTION_GATT_SERVICES_DISCOVERED);
+
+            final int send = DeviceBindUtil.bingDevice( address);
+            Log.i(TAG,"发送绑定设备："+send);
+
             LogUtil.w(TAG, "Cancel ServicesDiscoveredTask: " + cancel() + ", i=" + i);
+            BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_GATT_SERVICES_DISCOVERED);
+
+           /* UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+            UUID charUuid = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
+
+            byte[] head = DataUtil.hexToByteArray("41372B");
+            byte[] userInfo = AesEncodeUtil.encryptReturnBytes("18689463192");
+            byte[] end = DataUtil.hexToByteArray("01");
+
+            byte[] all = new byte[20];
+            System.arraycopy(head,0,all,0,head.length);
+            System.arraycopy(userInfo,0,all,head.length,userInfo.length);
+            System.arraycopy(end,0,all,head.length+userInfo.length,end.length);
+
+            boolean send = send(address, serUuid, charUuid, all, false);
+            Log.i(TAG,"LeProxy 发送绑定设备："+send);*/
 
         }
 
@@ -444,16 +487,16 @@ public class LeProxy {
                         LogUtil.i(TAG, "connectionConfiguration.clothDeviceType: " + connectionConfiguration.clothDeviceType);
 
                         //打开模组默认的数据接收通道【0x1002】，这一步成功才能保证APP收到数据
-                        if (connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_old_encrypt ||
-                                connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_old_noEncrypt
-                                || connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_AMSU_EStartWith){
+                        if (connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_old_encrypt ||
+                                connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_old_noEncrypt
+                                || connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_AMSU_EStartWith){
                             boolean success = enableNotification(address, BleUUIDS.PRIMARY_SERVICE, BleUUIDS.CHARACTERS[1]);
                             LogUtil.i(TAG, "Enable 0x1002 notification: " + success);
                         }
 
-                        if (connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_AMSU_EStartWith ||
-                                connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_secondGeneration_AMSU
-                                || connectionConfiguration.clothDeviceType==BleConstant.clothDeviceType_secondGeneration_IOE) {
+                        if (connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_AMSU_EStartWith ||
+                                connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_secondGeneration_AMSU
+                                || connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_secondGeneration_IOE) {
                             {
                                 UUID serUuid = UUID.fromString(BleConstant.readSecondGenerationInfoSerUuid);
                                 //UUID charUuid_2 = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_1);
@@ -462,56 +505,33 @@ public class LeProxy {
                                 UUID charUuid_acc = UUID.fromString(BleConstant.readSecondGenerationClothACCCharUuid);
                                 UUID charUuid_heart = UUID.fromString(BleConstant.readSecondGenerationClothHeartRateCharUuid);
 
-                                try {
                                 /*Thread.sleep(100);
                                 boolean success_2 = enableNotification(address, serUuid, charUuid_2);
                                 LogUtil.i(TAG, "success_2: " + success_2);*/
 
-                                    Thread.sleep(1000);
-                                    boolean success_charUuid_ecg = enableNotification(address, serUuid, charUuid_ecg);
-                                    LogUtil.i(TAG, "success_charUuid_ecg: " + success_charUuid_ecg);
+                                SystemClock.sleep(1000);
+                                boolean success_charUuid_notify = enableNotification(address, serUuid, charUuid_notify);
+                                LogUtil.i(TAG, "success_charUuid_notify: " + success_charUuid_notify);
 
-                                    Thread.sleep(2000);
-                                    boolean success_charUuid_acc = enableNotification(address, serUuid, charUuid_acc);
-                                    LogUtil.i(TAG, "success_charUuid_acc: " + success_charUuid_acc);
 
-                                    Thread.sleep(2000);
-                                    boolean success_charUuid_heart = enableNotification(address, serUuid, charUuid_heart);
-                                    LogUtil.i(TAG, "success_charUuid_heart: " + success_charUuid_heart);
+                                //打开通道直接需要有间隔，不然后面的通道会打开失败
+                                SystemClock.sleep(1000);
+                                boolean success_charUuid_ecg = enableNotification(address, serUuid, charUuid_ecg);
+                                LogUtil.i(TAG, "success_charUuid_ecg: " + success_charUuid_ecg);
 
-                                    Thread.sleep(2000);
-                                    boolean success_charUuid_notify = enableNotification(address, serUuid, charUuid_notify);
-                                    LogUtil.i(TAG, "success_charUuid_notify: " + success_charUuid_notify);
+                                SystemClock.sleep(1000);
+                                boolean success_charUuid_acc = enableNotification(address, serUuid, charUuid_acc);
+                                LogUtil.i(TAG, "success_charUuid_acc: " + success_charUuid_acc);
 
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                    LogUtil.i(TAG, "打开通道e: " + e);
-                                }
+                                SystemClock.sleep(1000);
+                                boolean success_charUuid_heart = enableNotification(address, serUuid, charUuid_heart);
+                                LogUtil.i(TAG, "success_charUuid_heart: " + success_charUuid_heart);
+
+                                SystemClock.sleep(1000);
                             }
-
                         }
-
-
-                        /*while (true){
-                            Log.i(TAG,"mClothDeviceType:"+mClothDeviceType);
-                            if (mClothDeviceType != BleConstant.clothDeviceType_AMSU_EStartWith){
-                                break;
-                            }
-                            try {
-                                Thread.sleep(500);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }*/
-
-                        //if (mClothDeviceType ==BleConstant.clothDeviceType_secondGeneration_IOE || mClothDeviceType ==BleConstant.clothDeviceType_secondGeneration_AMSU){
-
-                        //}
-                       // else {
-
-                        //}
                     }
-                    else if(connectionConfiguration.deviceType==BleConstant.sportType_Insole){
+                    else if(connectionConfiguration.deviceType== BleConstant.sportType_Insole){
                         UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
                         UUID charUuid_order = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
                         UUID charUuid_data = UUID.fromString("6e400004-b5a3-f393-e0a9-e50e24dcca9e");
@@ -591,5 +611,46 @@ public class LeProxy {
         this.mBleDataEncrypt = mBleDataEncrypt;
         mBleService.setDecode(mBleDataEncrypt);
     }
+
+
+    private static final int ecgOneSecondReceivePackageAmount = 15; //1秒钟收到的心电包数量
+    private static final int accOneSecondReceivePackageAmount = 26;
+    private static final int statisticsTimeSeconds = 10;
+
+    private int curEcgReceivePackageAmount;
+    private int curAccReceivePackageAmount;
+
+    //开始测试收到数据比率
+    private void startBleReceiveDataStatistics(){
+        TimerTaskUtil timerTaskUtil = new TimerTaskUtil();
+        //10秒统计一次
+        timerTaskUtil.startTimeRiseTimerTask(1000 * statisticsTimeSeconds, new TimerTask() {
+            @Override
+            public void run() {
+                int ecgReceiveRate = (int) (100*curEcgReceivePackageAmount/((float)ecgOneSecondReceivePackageAmount*statisticsTimeSeconds));
+                int accReceiveRate = (int) (100*curAccReceivePackageAmount/((float)accOneSecondReceivePackageAmount*statisticsTimeSeconds));
+
+                String msg = statisticsTimeSeconds+"秒     心电:"+ecgReceiveRate+"%      加速度:"+accReceiveRate+"%";
+
+                if (BleConnectionProxy.getInstance().getmConnectionConfiguration().isOpenReceiveDataTest){
+                    BleDataProxy.getInstance().postBleDataOnBus(BleConnectionProxy.MessageEventType.msgType_ReceiveataRate,msg);
+                }
+
+                LogUtil.e(TAG, statisticsTimeSeconds+"秒到，收到数据：   心电："+curEcgReceivePackageAmount+",  加速度："+curAccReceivePackageAmount);
+
+                curEcgReceivePackageAmount = 0;
+                curAccReceivePackageAmount = 0;
+            }
+        });
+    }
+
+    public void setCurEcgReceivePackageAmountIncreases(){
+        curEcgReceivePackageAmount++;
+    }
+
+    public void setCurAccReceivePackageAmountIncreases(){
+        curAccReceivePackageAmount++;
+    }
+
 
 }

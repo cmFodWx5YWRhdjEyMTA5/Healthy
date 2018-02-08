@@ -14,9 +14,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.utils.ApkUtil;
+import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.InputTextAlertDialogUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.umeng.analytics.MobclickAgent;
@@ -31,6 +33,8 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
     private ImageView iv_persiondata_switvh;
     private TextView tv_persiondata_switvhname;
     private int chooseMonitorShowIndex;
+    private ImageView iv_persiondata_receivetest;
+    private boolean mIsOpenReceiveDataTest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +62,12 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         RelativeLayout rl_persiondata_questionnaire = (RelativeLayout) findViewById(R.id.rl_persiondata_questionnaire);
         RelativeLayout rl_persiondata_Multilingual = (RelativeLayout) findViewById(R.id.rl_persiondata_Multilingual);
         RelativeLayout rl_persiondata_switvh = (RelativeLayout) findViewById(R.id.rl_persiondata_switvh);
+        RelativeLayout rl_persiondata_receivetest = (RelativeLayout) findViewById(R.id.rl_persiondata_receivetest);
 
         iv_persiondata_switvh = (ImageView) findViewById(R.id.iv_persiondata_switvh);
         tv_persiondata_switvhname = (TextView) findViewById(R.id.tv_persiondata_switvhname);
+
+        iv_persiondata_receivetest = (ImageView) findViewById(R.id.iv_persiondata_receivetest);
 
         rl_persiondata_persiondata.setOnClickListener(this);
         rl_persiondata_device.setOnClickListener(this);
@@ -69,6 +76,9 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         rl_persiondata_exit.setOnClickListener(this);
         rl_persiondata_questionnaire.setOnClickListener(this);
         rl_persiondata_Multilingual.setOnClickListener(this);
+
+        iv_persiondata_switvh.setOnClickListener(this);
+        iv_persiondata_receivetest.setOnClickListener(this);
 
         List<Activity> mActivities = ((MyApplication) getApplication()).mActivities;
         if (!mActivities.contains(this)){
@@ -94,8 +104,9 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
             rl_persiondata_switvh.setVisibility(View.GONE);
         }
 
-        if (!ApkUtil.isInnerUpdateAllowed){
-            rl_persiondata_update.setVisibility(View.GONE);
+        mIsOpenReceiveDataTest = MyUtil.getBooleanValueFromSP(Constant.isOpenReceiveDataTest);
+        if (mIsOpenReceiveDataTest){
+            iv_persiondata_receivetest.setImageResource(R.drawable.switch_on);
         }
 
     }
@@ -122,10 +133,31 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
             case R.id.rl_persiondata_Multilingual:
                 changeLanguage();
                 break;
+            case R.id.iv_persiondata_switvh:
+                switchMonitorState();
+                break;
+            case R.id.iv_persiondata_receivetest:
+                switchReceiveDataTestState();
+                break;
             case R.id.rl_persiondata_exit:
                 exit();
                 break;
         }
+    }
+
+    private void switchReceiveDataTestState() {
+        if (mIsOpenReceiveDataTest){
+            iv_persiondata_receivetest.setImageResource(R.drawable.switch_of);
+            MyUtil.putBooleanValueFromSP(Constant.isOpenReceiveDataTest,false);
+            mIsOpenReceiveDataTest = false;
+        }
+        else {
+            iv_persiondata_receivetest.setImageResource(R.drawable.switch_on);
+            MyUtil.putBooleanValueFromSP(Constant.isOpenReceiveDataTest,true);
+            mIsOpenReceiveDataTest = true;
+        }
+        BleConnectionProxy.getInstance().getmConnectionConfiguration().isOpenReceiveDataTest = mIsOpenReceiveDataTest;
+
     }
 
     private void changeLanguage() {
@@ -240,6 +272,10 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         int healthyIindexvalue = MyUtil.getIntValueFromSP("healthyIindexvalue");
         int physicalAge = MyUtil.getIntValueFromSP("physicalAge");
 
+        if (BleConnectionProxy.getInstance().ismIsConnectted()){
+            BleConnectionProxy.getInstance().disconnect(BleConnectionProxy.getInstance().getmClothDeviceConnecedMac());
+        }
+
         Log.i(TAG,"healthyIindexvalue:"+healthyIindexvalue+"  physicalAge:"+physicalAge);
     }
 
@@ -254,7 +290,7 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
     }
 
 
-    public void switchMonitorState(View view) {
+    public void switchMonitorState() {
         if (chooseMonitorShowIndex==-1){
             InputTextAlertDialogUtil textAlertDialogUtil = new InputTextAlertDialogUtil(this);
             textAlertDialogUtil.setAlertDialogText("输入邀请码",getResources().getString(R.string.exit_confirm),getResources().getString(R.string.exit_cancel));

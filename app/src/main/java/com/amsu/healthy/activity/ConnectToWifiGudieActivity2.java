@@ -112,6 +112,9 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
             connectNow(null);
         }
 
+        MyUtil.putStringValueFromSP("wifiNname","");
+        MyUtil.putStringValueFromSP("wifiPassword","");
+        MyUtil.putStringValueFromSP(Constant.moduleIP,"");
     }
 
     public void connectNow(View view) {
@@ -267,7 +270,6 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
         }
 
     }
-
 
     private void showProgressDialog(){
         View inflate = View.inflate(this, R.layout.view_connectwifi_progress, null);
@@ -467,7 +469,7 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
         }
 
 
-        new Sender(connectedIP,socketType, isHaveIPSaveBefore).start();
+        new Sender(connectedIP,socketType,isHaveIPSaveBefore).start();
         Log.i(TAG, "connectedIP:"+connectedIP);
 
     }
@@ -571,11 +573,12 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
         isNeedLoopSendConfirmConnectionValid = true;
         int sentCount = 0;
         long lastSendConfirmConnectionValidOrderTime = -1;
+        Thread.sleep(10000);
         while (isNeedLoopSendConfirmConnectionValid && sentCount<5){  //发送5次
-            Thread.sleep(500);
             sendConfirmConnectionValidOrder();
             lastSendConfirmConnectionValidOrderTime = System.currentTimeMillis();
             sentCount++;
+            Thread.sleep(5000);
         }
 
         final byte[] bytes = new byte[1024*10];
@@ -663,7 +666,7 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
             }
             else {
                 isNeedLoopSendConfirmConnectionValid = false;
-                wifiReset(); //发送复位指令
+                //wifiReset(); //发送复位指令
 
                 MyUtil.putStringValueFromSP("moduleIP",mIpAddress);   //IP地址获取成功后，下次不用再次获取
 

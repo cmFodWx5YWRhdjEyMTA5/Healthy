@@ -10,7 +10,7 @@ import android.util.Log;
  * @describe
  */
 public class LogUtil {
-    private static final boolean isShow = false;
+    private static final boolean isShow = true;
 
     public static void v(String tag, String msg){
         if (isShow){

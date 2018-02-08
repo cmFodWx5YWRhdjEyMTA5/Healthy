@@ -1,7 +1,6 @@
 package com.amsu.bleinteraction.utils;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.LeProxy;
@@ -19,6 +18,9 @@ import java.util.UUID;
 public class DeviceBindUtil {
 
     private static final String TAG = DeviceBindUtil.class.getSimpleName();
+    public static final int bindOrderSendSuccess = 1;
+    public static final int bindOrderSendFail = 0;
+    public static final int bindOrderInfoError = -1;
 
     public static BleConnectionProxy.DeviceBindByHardWareType getDeviceBindTypeByBleBroadcastInfo(byte[] scanRecord){
         String hexData = DataUtil.byteArrayToHex(scanRecord);
@@ -78,16 +80,20 @@ public class DeviceBindUtil {
         return BleConnectionProxy.DeviceBindByHardWareType.bindByNO;
     }
 
-    public static boolean bingDevice(BleConnectionProxy.userLoginWay userLoginWay, String id,String address){
+    public static int bingDevice(String address){
+        BleConnectionProxy.ConnectionConfiguration connectionConfiguration = BleConnectionProxy.getInstance().getmConnectionConfiguration();
+        BleConnectionProxy.userLoginWay userLoginWay = connectionConfiguration.userLoginWay;
+        String bindid = connectionConfiguration.bindid;
+
         String endString;
-        if (userLoginWay==BleConnectionProxy.userLoginWay.phoneNumber){
+        if (userLoginWay== BleConnectionProxy.userLoginWay.phoneNumber){
             endString = "01";
         }else {
             endString = "02";
         }
 
         byte[] head = DataUtil.hexToByteArray("41372B");
-        byte[] userInfo = AesEncodeUtil.encryptReturnBytes(id);
+        byte[] userInfo = AesEncodeUtil.encryptReturnBytes(bindid);
         byte[] end = DataUtil.hexToByteArray(endString);
 
         if (userInfo!=null && userInfo.length>=16){ //确保加密没错
@@ -99,8 +105,14 @@ public class DeviceBindUtil {
             UUID serUuid = UUID.fromString(BleConstant.readSecondGenerationInfoSerUuid);
             UUID charUuid = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_1);
 
-            return LeProxy.getInstance().send(address,serUuid,charUuid,all, false);
+            boolean send = LeProxy.getInstance().send(address, serUuid, charUuid, all, false);
+            if (send){
+                return bindOrderSendSuccess;
+            }
+            else {
+                return bindOrderSendFail;
+            }
         }
-        return false;
+        return bindOrderInfoError;
     }
 }

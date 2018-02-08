@@ -3,6 +3,7 @@ package com.amsu.healthy.utils;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 
 import com.amsu.healthy.R;
 
@@ -25,11 +26,16 @@ public class ShowToaskDialogUtil {
     }
 
     public static void showTipDialog(Context context,String message){
-        AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setTitle(message)
-                .setPositiveButton(context.getResources().getString(R.string.exit_confirm), null)
-                .create();
-        alertDialog.setCanceledOnTouchOutside(false);
-        alertDialog.show();
+        try {
+            AlertDialog alertDialog = new AlertDialog.Builder(context)
+                    .setTitle(message)
+                    .setPositiveButton(context.getResources().getString(R.string.exit_confirm), null)
+                    .create();
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.show();
+        }catch (Exception e){
+            Log.e("MyDeviceActivity","e:"+e);
+        }
     }
+
 }

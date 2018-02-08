@@ -10,6 +10,7 @@
         android:id="@+id/rl_base_head">
     </include>
 
+
     <RelativeLayout
         android:id="@+id/rl_healthydata_top"
         android:layout_width="match_parent"
@@ -126,5 +127,19 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/x40"
         android:layout_above="@+id/bt_healthydata_sos"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/rl_base_head"
+        android:layout_above="@+id/bt_healthydata_sos">
+        <TextView
+            android:id="@+id/tv_rate_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_light"
+            android:text=""
+            android:visibility="gone"/>
+    </ScrollView>
 
 </RelativeLayout>

@@ -75,9 +75,8 @@ public class CoreService extends Service {
         int userAge = HealthyIndexUtil.getUserAge();
         boolean isAutoOffline = MyUtil.getBooleanValueFromSP("mIsAutoOffline");
         int deivceType = MyUtil.getIntValueFromSP(Constant.sportType,Constant.sportType_Cloth);
-        int clothDeviceType = MyUtil.getIntValueFromSP(Constant.mClothDeviceType);
-        Log.i(TAG,"保存的衣服设备类型 clothDeviceType："+clothDeviceType);
         User userFromSP = MyUtil.getUserFromSP();
+        boolean isOpenReceiveDataTest = MyUtil.getBooleanValueFromSP(Constant.isOpenReceiveDataTest);
 
         String phone = "";
 
@@ -87,23 +86,25 @@ public class CoreService extends Service {
 
         boolean isNeedWriteFileHead = false;   //心电文件是否需要些写入文件头，暂时不需要
         //mBleConnectionProxy.initConnectedConfiguration(new BleConnectionProxy.ConnectionConfiguration(userAge,isAutoOffline,deivceType,clothDeviceType,isNeedWriteFileHead),this);
-        mBleConnectionProxy.initConnectedConfiguration(
-                new BleConnectionProxy.ConnectionConfiguration(
-                        userAge,
-                        isAutoOffline,
-                        deivceType,
-                        clothDeviceType,
-                        isNeedWriteFileHead,
-                        phone,
-                        BleConnectionProxy.userLoginWay.phoneNumber),
-                this);
+
+        BleConnectionProxy.ConnectionConfiguration connectionConfiguration = new BleConnectionProxy.ConnectionConfiguration(
+                userAge,
+                isAutoOffline,
+                deivceType,
+                isNeedWriteFileHead,
+                phone,
+                BleConnectionProxy.userLoginWay.phoneNumber);
+        connectionConfiguration.isOpenReceiveDataTest = isOpenReceiveDataTest;
+
+        mBleConnectionProxy.initConnectedConfiguration(connectionConfiguration, this);
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         switch (event.messageType){
             case msgType_Connect:
-                Log.i(TAG,"连接变化" );//event.singleValue为连接状态，等于BleConnectionProxy.connectTypeConnected为连接成功，BleConnectionProxy.connectTypeDisConnected为断开连接
+                Log.i(TAG,"onDeviceConnect连接变化" );//event.singleValue为连接状态，等于BleConnectionProxy.connectTypeConnected为连接成功，BleConnectionProxy.connectTypeDisConnected为断开连接
                 setDeviceConnectedState(event.singleValue);
                 break;
             case msgType_BatteryPercent:

@@ -20,6 +20,7 @@ import com.amsu.bleinteraction.bean.MessageEvent;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.BleDataProxy;
 import com.amsu.bleinteraction.utils.EcgAccDataUtil;
+import com.amsu.bleinteraction.utils.LogUtil;
 import com.amsu.healthy.R;
 import com.amsu.healthy.receiver.SmsReceiver;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
@@ -56,6 +57,7 @@ public class HealthyDataActivity extends BaseActivity {
     private BleDataProxy mBleDataProxy;
     private BleConnectionProxy mBleConnectionProxy;
     private TextView tv_healthydata_analysis;
+    private TextView tv_rate_test;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +93,7 @@ public class HealthyDataActivity extends BaseActivity {
         iv_base_connectedstate = (ImageView) findViewById(R.id.iv_base_connectedstate);
         iv_base_connectedstate.setVisibility(View.VISIBLE);
         tv_base_charge = (TextView) findViewById(R.id.tv_base_charge);
+        tv_rate_test = (TextView) findViewById(R.id.tv_rate_test);
     }
 
     private void initData() {
@@ -108,8 +111,6 @@ public class HealthyDataActivity extends BaseActivity {
             mBleDataProxy.setRecordingStarted();
         }
 
-        EventBus.getDefault().register(this);
-
         heartRateDates = new ArrayList<>();
 
         int clothCurrBatteryPowerPercent = BleConnectionProxy.getInstance().getClothCurrBatteryPowerPercent();
@@ -119,6 +120,50 @@ public class HealthyDataActivity extends BaseActivity {
             tv_base_charge.setText(String.valueOf(clothCurrBatteryPowerPercent));
         }
 
+        //心率通过这里接受
+        EventBus.getDefault().register(this);
+
+        //心电通过这里接受
+        BleDataProxy.getInstance().setAfterFilterbleDataChangeListener(new BleDataProxy.BleDataChangeListener() {
+            @Override
+            public void onBleDataChange(MessageEvent event) {
+                switch (event.messageType){
+                   /* case msgType_HeartRate:
+                        updateUIECGHeartData(event.singleValue);
+                        break;*/
+                    case msgType_ecgDataArray_AfterFiter:
+                        LogUtil.i(TAG,"testIndex:"+event.testIndex);
+                        dealWithEcgData(event.dataArray);
+                        break;
+
+                }
+            }
+        });
+        boolean isOpenReceiveDataTest = MyUtil.getBooleanValueFromSP(Constant.isOpenReceiveDataTest);
+        if (isOpenReceiveDataTest){
+            tv_rate_test.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    String testReceiveData = "";
+
+    //连接变化
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        switch (event.messageType){
+            case msgType_HeartRate:
+                updateUIECGHeartData(event.singleValue);
+                break;
+            case msgType_ReceiveataRate:
+                testReceiveData += event.msg+"\n";
+                tv_rate_test.setText(testReceiveData);
+                break;
+            /*case msgType_ecgDataArray_AfterFiter:
+                LogUtil.i(TAG,"testIndex:"+event.testIndex);
+                dealWithEcgData(event.dataArray);
+                break;*/
+        }
     }
 
     @Override
@@ -127,21 +172,15 @@ public class HealthyDataActivity extends BaseActivity {
         Log.i(TAG,"onStart:");
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(MessageEvent event) {
-        switch (event.messageType){
-            case msgType_HeartRate:
-                updateUIECGHeartData(event.singleValue);
-                break;
-            case msgType_ecgDataArray:
-                dealWithEcgData(event.dataArray);
-                break;
-        }
-    }
-
     //处理心电数据
     private void dealWithEcgData(int[] ecgData) {
         if (isActivityFinsh) return;
+
+        String intStringA = "";
+        for (int i:ecgData){
+            intStringA+=i+",";
+        }
+        LogUtil.w(TAG,"滤波后心电:"+intStringA);
 
         if (isNeedDrawEcgData){
             if (startTimeMillis==-1){
@@ -296,11 +335,11 @@ public class HealthyDataActivity extends BaseActivity {
         super.onDestroy();
         Log.i(TAG,"onDestroy");
 
-        EventBus.getDefault().unregister(this);
-
         if (heartRateDates.size()>0){
             ShowNotificationBarUtil.detoryServiceForegrounByNotify();
         }
+
+        EventBus.getDefault().unregister(this);
 
     }
 

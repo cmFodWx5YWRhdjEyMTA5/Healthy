@@ -503,9 +503,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                         heartRateResult2.HF,heartRateResult2.LF,heartRateResult2.RR_SDNN);*/
             }
 
-
-
-            zaobo = heartRateResult.RR_Pvc;
+            zaobo = heartRateResult.RR_Apb+ heartRateResult.RR_Pvc + heartRateResult.RR_2 + heartRateResult.RR_3 + heartRateResult.RR_Iovp + heartRateResult.RR_double;
             loubo = heartRateResult.RR_Boleakage;
 
             if (zaobo>0){
@@ -602,8 +600,8 @@ public class HeartRateAnalysisActivity extends BaseActivity {
         Log.i(TAG,"uploadRecord:"+uploadRecord);
         uploadDataAndJumpToShowPage(uploadRecord,sportCreateRecordID);
 
-        boolean mIsAutoMonitor = MyUtil.getBooleanValueFromSP("mIsAutoMonitor");
-        if (mIsAutoMonitor){
+        int chooseMonitorShowIndex = MyUtil.getIntValueFromSP("chooseMonitorShowIndex");
+        if (chooseMonitorShowIndex!=-1){
             uploadAnlysisREsultToSocket(uploadRecord);
         }
         HeartRateResultShowActivity.mUploadRecord = uploadRecord;
@@ -672,7 +670,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             sexString = "女";
         }
 
-        int prematureCount = uploadRecord.zaobo;
+        /*int prematureCount = uploadRecord.zaobo;
         int missCount = uploadRecord.loubo;
         int overScore = calOverScore(uploadRecord.zaobo,uploadRecord.loubo);
 
@@ -689,6 +687,33 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             }
             kcal = (int) allcalorie;
         }
+
+        int kcalScore = 3;
+        int allscore = overScore+averageHeartScore+maxHeartScore+kcalScore;
+
+
+        */
+
+        //测试
+        int prematureCount = 2;
+        int missCount = 2;
+        int overScore = calOverScore(prematureCount,missCount);
+
+        int averageHeart = 87;
+        int averageHeartScore = calAverageHeartScore(averageHeart);;
+        int maxHeart = 105;
+        int maxHeartScore = calMaxHeart(maxHeart);
+
+        int kcal = 0;
+        if (uploadRecord.calorie!=null && uploadRecord.calorie.size()>0){ //卡路里
+            float allcalorie = 0 ;
+            for (String i: uploadRecord.calorie){
+                allcalorie+=Float.parseFloat(i);
+            }
+            kcal = (int) allcalorie;
+        }
+
+        kcal = 58;
 
         int kcalScore = 3;
         int allscore = overScore+averageHeartScore+maxHeartScore+kcalScore;

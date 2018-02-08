@@ -15,8 +15,8 @@ android {
         applicationId "com.amsu.healthy"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 158
-        versionName "1.5.8"
+        versionCode 161
+        versionName "1.6.1"
 
         multiDexEnabled true
 
@@ -35,7 +35,7 @@ android {
             android.applicationVariants.all { variant ->
                 variant.outputs.all{ output ->
                     // apk_渠道名-版本号-版本名称-编译时间.apk
-                    outputFileName = "app_${variant.productFlavors[0].name}_${defaultConfig.versionCode}_${defaultConfig.versionName}_${releaseTime()}_release.apk"
+                    outputFileName = "app_${variant.productFlavors[0].name}_${defaultConfig.versionName}_${releaseTime()}_release.apk"
                 }
             }
         }

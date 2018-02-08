@@ -195,6 +195,7 @@ public class Constant {
 
     public static final String mClothDeviceType = "mClothDeviceType";
     public static final String moduleIP = "moduleIP";
+    public static final String isOpenReceiveDataTest = "isOpenReceiveDataTest";
 
 }
 

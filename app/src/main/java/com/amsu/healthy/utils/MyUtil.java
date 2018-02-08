@@ -85,12 +85,19 @@ public class MyUtil {
 
     public static void showDialog(String message,Context context){
         try {
-            dialog = new ProgressDialog(context);
-            dialog.setCanceledOnTouchOutside(false);
+            if (dialog!=null && dialog.isShowing()){
+                dialog.setMessage(message);
+                Log.i(TAG,"dialog.pudate msssage;");
+            }
+            else {
+                dialog = new ProgressDialog(context);
+                dialog.setCanceledOnTouchOutside(false);
                 //dialog.setProgressStyle(R.style.progresStyle);
-            dialog.setMessage(message);
-            dialog.show();
-            Log.i(TAG,"dialog.show();");
+                dialog.setMessage(message);
+                dialog.show();
+                Log.i(TAG,"dialog.show();");
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             // 在其他线程调用dialog会报错

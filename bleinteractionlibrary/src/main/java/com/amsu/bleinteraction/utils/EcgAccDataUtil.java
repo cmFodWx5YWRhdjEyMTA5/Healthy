@@ -1,7 +1,5 @@
 package com.amsu.bleinteraction.utils;
 
-import android.util.Log;
-
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 
 import java.text.SimpleDateFormat;

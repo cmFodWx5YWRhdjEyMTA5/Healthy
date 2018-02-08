@@ -4,6 +4,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
 import android.text.TextUtils;
 
 import com.amsu.bleinteraction.bean.BleDevice;
@@ -58,39 +61,38 @@ public class BleSacnEngine {
     }
 
 
-    private void stopScan(){
+    void stopScan(){
         scanLeDevice(false);
     }
 
     void scanLeDevice(final boolean enable) {
+        LogUtil.i(TAG,"scanLeDevice enable: "+enable);
         if (enable) {
             //if (mBluetoothAdapter.isEnabled()) {
-            if(mBluetoothAdapter==null){
-                BluetoothManager bluetoothManager = (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
-                if(bluetoothManager!=null){
-                    mBluetoothAdapter = bluetoothManager.getAdapter();
+            if (mBluetoothAdapter.isEnabled()) {
+                if (mScanning){
+                    return;
+                }
+                mScanning = true;
+                boolean startLeScan = mBluetoothAdapter.startLeScan(mLeScanCallback);
+                LogUtil.i(TAG,"startLeScan:"+startLeScan);
+            }
+            else {
+                LogUtil.i(TAG,"蓝牙未打开，尝试睡眠一会");
+                SystemClock.sleep(2000);
+
+                if (mBluetoothAdapter.isEnabled() && !mScanning) {
+                    boolean startLeScan = mBluetoothAdapter.startLeScan(mLeScanCallback);
+                    LogUtil.i(TAG,"睡眠后扫描startLeScan:"+startLeScan);
+                    mScanning = true;
                 }
             }
-            if (mBluetoothAdapter!=null && mBluetoothAdapter.getState()==BluetoothAdapter.STATE_ON) {
-                //if (!mScanning){
-                    mScanning = true;
-                    mScanning = true;
-                    boolean startLeScan = mBluetoothAdapter.startLeScan(mLeScanCallback);
-                    LogUtil.i(TAG,"startLeScan:"+startLeScan);
+        }
+        else {
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            LogUtil.i(TAG,"stopLeScan");
+            mScanning = false;
 
-                    if (!startLeScan){
-                        boolean startLeScanAgain = mBluetoothAdapter.startLeScan(mLeScanCallback);
-                        LogUtil.i(TAG,"startLeScanAgain:"+startLeScanAgain);
-                        restartPhoneBluetooth();
-                    }
-               // }
-            }
-        } else {
-            if (mBluetoothAdapter!=null){
-                mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                LogUtil.i(TAG,"stopLeScan");
-                mScanning = false;
-            }
         }
     }
 
@@ -133,36 +135,44 @@ public class BleSacnEngine {
 
 
     private void dealwithScanReceive(BluetoothDevice device, int rssi, byte[] scanRecord) {
-        LogUtil.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
-        if (!TextUtils.isEmpty(device.getName()) && device.getName().length()<25){
+        if (!TextUtils.isEmpty(device.getName()) && device.getName().length()<25) {
             String leName = device.getName();
-
+            LogUtil.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
             //设备标识
             if (leName.startsWith("BLE") || leName.startsWith("AMSU")) {
-                BleDevice deviceFromSP = SharedPreferencesUtil.getDeviceFromSP(mBleConnectionProxy.getmConnectionConfiguration().deviceType);
-                LogUtil.i(TAG,"deviceFromSP："+deviceFromSP);
-                if (deviceFromSP!=null){
-                    int deviceType = mBleConnectionProxy.getmConnectionConfiguration().deviceType;
-                    if (deviceType== BleConstant.sportType_Cloth ){
-                        if (isSupportBindByHardware(device)){
-                            BleConnectionProxy.DeviceBindByHardWareType deviceBindTypeByBleBroadcastInfo = DeviceBindUtil.getDeviceBindTypeByBleBroadcastInfo(scanRecord);
-                            //LogUtil.i(TAG,"deviceBindTypeByBleBroadcastInfo:"+deviceBindTypeByBleBroadcastInfo);
 
-                            if (deviceBindTypeByBleBroadcastInfo==BleConnectionProxy.DeviceBindByHardWareType.bindByNO && device.getAddress().equals(deviceFromSP.getMac())){
-                                //没有人绑定，但是本地还是缓存的这个设备，需要将本地的这个设备清空
-                                SharedPreferencesUtil.saveDeviceToSP(null,deviceType);
-                                deviceFromSP = new BleDevice();
+                if (mCurBindingDeviceAddress!=null){
+                    //不为空，则为衣服正在通过硬件方式绑定进行绑定
+                    if (device.getAddress().equals(mCurBindingDeviceAddress)){
+                        connectDevice(device.getAddress());
+                    }
+                }
+                else {
+                    BleDevice deviceFromSP = SharedPreferencesUtil.getDeviceFromSP(mBleConnectionProxy.getmConnectionConfiguration().deviceType);
+                    LogUtil.i(TAG,"deviceFromSP："+deviceFromSP);
+                    if (deviceFromSP!=null){
+                        int deviceType = mBleConnectionProxy.getmConnectionConfiguration().deviceType;
+                        if (deviceType== BleConstant.sportType_Cloth ) {
+                            if (isSupportBindByHardware(device)){
+                                BleConnectionProxy.DeviceBindByHardWareType deviceBindTypeByBleBroadcastInfo = DeviceBindUtil.getDeviceBindTypeByBleBroadcastInfo(scanRecord);
+                                //LogUtil.i(TAG,"deviceBindTypeByBleBroadcastInfo:"+deviceBindTypeByBleBroadcastInfo);
+
+                                if ((deviceBindTypeByBleBroadcastInfo==BleConnectionProxy.DeviceBindByHardWareType.bindByNO || deviceBindTypeByBleBroadcastInfo==BleConnectionProxy.DeviceBindByHardWareType.bindByOther) && device.getAddress().equals(deviceFromSP.getMac())){
+                                    //被其他人绑定，但是本地还是缓存的这个设备，需要将本地的这个设备清空
+                                    SharedPreferencesUtil.saveDeviceToSP(null,deviceType);
+                                    deviceFromSP = new BleDevice();
+                                }
+                            }
+
+                            if (device.getAddress().equals(deviceFromSP.getMac())){  //只有扫描到的蓝牙是sp里的当前设备时（激活状态），才能进行连接
+                                connectDevice(device.getAddress());
                             }
                         }
-
-                        if (device.getAddress().equals(deviceFromSP.getMac())){  //只有扫描到的蓝牙是sp里的当前设备时（激活状态），才能进行连接
-                            connectDevice(device.getAddress());
-                        }
-                    }
-                    else if (deviceType== BleConstant.sportType_Insole && leName.startsWith("AMSU_P")){
-                        String[] split = deviceFromSP.getMac().split(",");
-                        if (split.length==2 && (device.getAddress().equals(split[0]) || device.getAddress().equals(split[1]))){
-                            connectDevice(device.getAddress());
+                        else if (deviceType== BleConstant.sportType_Insole && leName.startsWith("AMSU_P")){
+                            String[] split = deviceFromSP.getMac().split(",");
+                            if (split.length==2 && (device.getAddress().equals(split[0]) || device.getAddress().equals(split[1]))){
+                                connectDevice(device.getAddress());
+                            }
                         }
                     }
                 }
@@ -170,61 +180,81 @@ public class BleSacnEngine {
         }
     }
 
-    //判断是否支持通过硬件绑定
+    private String mCurBindingDeviceAddress;
+
+    //判断是否支持通过硬件绑定，以AMSU_E开头，并且蓝牙设备名字符串长度为10
     public boolean isSupportBindByHardware(BluetoothDevice device){
         return device != null && device.getName().startsWith("AMSU_E") && device.getName().length() == 10;
     }
 
-    private void connectDevice(final String macAddress) {
+    public void connectDevice(final String macAddress) {
         LogUtil.i(TAG,"macAddress:"+macAddress);
         LogUtil.i(TAG,"mIsConnectted:"+ mIsConnectted);
         LogUtil.i(TAG,"mIsConnectting:"+ mIsConnectting);
 
-        //配对成功`
+        //配对成功
         //clothDeviceConnecedMac = device.getAddress();
         if (!mIsConnectted && !mIsConnectting){
             //没有链接上，并且没有正在链接
-
             mIsConnectting = true;
-            stopScan();
 
-            new Thread(){
-                @Override
-                public void run() {
-                    super.run();
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    boolean connect = mBleConnectionProxy.connect(macAddress);
-                    LogUtil.i(TAG,"connect:"+connect);
+            try {
+                Thread.sleep(600);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-                    if (!connect){
-                        mIsConnectting = false;
-                        startScan();
-                    }
-                    LogUtil.i(TAG,"开始连接");
-                }
-            }.start();
+            Message message = mHandler.obtainMessage();
+            message.obj = macAddress;
+            message.what = 0;
+            mHandler.sendMessage(message);
 
+            /*final boolean connect = LeProxy.getInstance().connect(macAddress,false);
+            LogUtil.i(TAG,"开始连接 connect:"+connect);*/
         }
     }
 
-    public boolean ismIsConnectting() {
-        return mIsConnectting;
-    }
+    //将连接、连接失败后的断开都放在主线程
+    private Handler mHandler = new Handler(BleConnectionProxy.getInstance().mContext.getMainLooper(),new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            String address = (String) msg.obj;
+            switch (msg.what){
+                case 0:
+                    //连接
+                    final boolean connect = LeProxy.getInstance().connect(address,true);
+                    LogUtil.i(TAG,"开始连接 connect:"+connect);
+                    break;
+                case 1:
+                    //断开
+                    LeProxy.getInstance().disconnect(address);
+                    LogUtil.i(TAG,"断开连接");
+                    break;
+            }
 
-    void setmIsConnectting(boolean mIsConnectting) {
+            return false;
+        }
+    });
+
+    void setmIsConnectting(boolean mIsConnectting,String reason) {
+        LogUtil.i(TAG,"setmIsConnectting:"+mIsConnectting+",  reason:"+reason);
         this.mIsConnectting = mIsConnectting;
-    }
-
-    public boolean ismIsConnectted() {
-        return mIsConnectted;
     }
 
     void setmIsConnectted(boolean mIsConnectted) {
         this.mIsConnectted = mIsConnectted;
     }
+
+    public void setmCurBindingDeviceAddress(String mCurBindingDeviceAddress) {
+        this.mCurBindingDeviceAddress = mCurBindingDeviceAddress;
+    }
+
+    public void disconnect(String address){
+        Message message = mHandler.obtainMessage();
+        message.obj = address;
+        message.what = 1;
+        mHandler.sendMessage(message);
+    }
+
 
 }

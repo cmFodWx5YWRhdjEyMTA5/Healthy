@@ -184,9 +184,11 @@ public class SharedPreferencesUtil {
     }
 
     public static void saveDeviceToSP(BleDevice bleDevice, int type) {
-        if (bleDevice==null){bleDevice = new BleDevice();}
-        Gson gson = new Gson();
-        String bleDeviceJson = gson.toJson(bleDevice);
+        String bleDeviceJson = "";
+        if (bleDevice!=null){
+            Gson gson = new Gson();
+            bleDeviceJson = gson.toJson(bleDevice);
+        }
         if (type == BleConstant.sportType_Cloth) {
             putStringValueFromSP("sportType_Cloth", bleDeviceJson);
         } else {
