@@ -39,7 +39,7 @@ import java.util.Map;
 
 public class UploadOfflineFileActivity extends BaseActivity {
 
-    private static final String TAG = "UploadOfflineFile";
+    private static final String TAG = UploadOfflineFileActivity.class.getSimpleName();
     private ListView lv_history_upload;
     private List<HistoryRecord> mUploadHistoryRecords;
     private OutputStream mSocketWriter;
@@ -442,6 +442,7 @@ public class UploadOfflineFileActivity extends BaseActivity {
                 e.printStackTrace();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                e.printStackTrace();
             }
         }
     }
@@ -836,16 +837,25 @@ public class UploadOfflineFileActivity extends BaseActivity {
 
                 }*/
 
-                ProgressBar pb_item_progress = (ProgressBar) lv_history_upload.getChildAt(mUploadFileIndex/2).findViewById(R.id.pb_item_progress);
+                ProgressBar pb_item_progress = null;
+                View childAt = lv_history_upload.getChildAt(mUploadFileIndex / 2);
+                if (childAt!=null){
+                    pb_item_progress = (ProgressBar) childAt.findViewById(R.id.pb_item_progress);
+                }
+
                 //ProgressBar pb_item_progress = HistoryRecordAdapter.progressBarList.get(mUploadFileIndex);
                 if (mCurrListViewItemProgress>=0.5f){
                     mCurrListViewItemProgress = 0;
-                    pb_item_progress.setProgress(100);
+                    if (pb_item_progress!=null){
+                        pb_item_progress.setProgress(100);
+                    }
                     Log.i(TAG,"设置进度:"+100);
                 }
                 else {
                     mCurrListViewItemProgress = 0.5f;
-                    pb_item_progress.setProgress(50);
+                    if (pb_item_progress!=null){
+                        pb_item_progress.setProgress(50);
+                    }
                     Log.i(TAG,"设置进度:"+50);
                 }
 

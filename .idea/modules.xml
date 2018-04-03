@@ -5,6 +5,9 @@
       <module fileurl="file://$PROJECT_DIR$/Healthy-master.iml" filepath="$PROJECT_DIR$/Healthy-master.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/bleinteractionlibrary/bleinteractionlibrary.iml" filepath="$PROJECT_DIR$/bleinteractionlibrary/bleinteractionlibrary.iml" />
+      <module fileurl="file://C:\Users\HP\AndroidStudioProjects\Healthy-master\wifioffline\offline.iml" filepath="C:\Users\HP\AndroidStudioProjects\Healthy-master\wifioffline\offline.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wear/wear.iml" filepath="$PROJECT_DIR$/wear/wear.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wifioffline/wifioffline.iml" filepath="$PROJECT_DIR$/wifioffline/wifioffline.iml" />
     </modules>
   </component>
 </project>

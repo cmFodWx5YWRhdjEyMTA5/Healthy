@@ -2,7 +2,6 @@ package com.amsu.bleinteraction.utils;
 
 import android.util.Log;
 
-import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.test.objects.HeartRate;
 import com.test.utils.DiagnosisNDK;
 
@@ -104,7 +103,7 @@ public class ResultCalcuUtil {
 
     //处理加速度数据
     public void notifyReciveAccPackageData(int[] accOneGroupDataInts) {
-        mFileWriteHelper.writeAccDataToFile(accOneGroupDataInts);
+        //mFileWriteHelper.writeAccDataToFile(accOneGroupDataInts);
 
         if (accCalcuDataIndex<EcgAccDataUtil.accDataLength){
             for (int i: accOneGroupDataInts){
@@ -129,7 +128,7 @@ public class ResultCalcuUtil {
     }
 
     private int getStridefreByAccData(byte[] accByteData){
-        int clothDeviceType = BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType;
+        //int clothDeviceType = BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType;
         int[] results = new int[2];
 
         int fs = 26;

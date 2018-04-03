@@ -17,6 +17,7 @@ import com.amsu.bleinteraction.bean.BleDevice;
 import com.amsu.bleinteraction.bean.MessageEvent;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.utils.BleConstant;
+import com.amsu.bleinteraction.utils.SharedPreferencesUtil;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.insole.InsoleDeviceInfoActivity;
 import com.amsu.healthy.adapter.DeviceAdapter;
@@ -79,8 +80,9 @@ public class MyDeviceActivity extends BaseActivity {
 
         mUserFromSP = MyUtil.getUserFromSP();
 
-        BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
-        BleDevice bleDeviceClothFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
+        BleDevice bleDeviceFromSP = SharedPreferencesUtil.getDeviceFromSP(Constant.sportType_Cloth);
+        BleDevice bleDeviceClothFromSP = SharedPreferencesUtil.getDeviceFromSP(Constant.sportType_Insole);
+
         if (bleDeviceFromSP !=null){
             bleDeviceList.add(bleDeviceFromSP);
         }
@@ -123,9 +125,9 @@ public class MyDeviceActivity extends BaseActivity {
 
                 if (bleDevice.getDeviceType()==Constant.sportType_Cloth){
                     if (bleDevice.getClothDeviceType() == BleConstant.clothDeviceType_secondGeneration_AMSU_BindByHardware){
-                        if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXinID || bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByPhone){
+                        if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXin || bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByPhone){
                             //自己绑定
-                            BleDevice deviceFromSP = MyUtil.getDeviceFromSP(BleConstant.sportType_Cloth);
+                            BleDevice deviceFromSP = SharedPreferencesUtil.getDeviceFromSP(BleConstant.sportType_Cloth);
                             if (deviceFromSP!=null && bleDevice.getMac().equals(deviceFromSP.getMac())){
                                 //当前点击的是储存在SP的,则调到详情
                                 dumpToDeviceDetail();
@@ -158,7 +160,7 @@ public class MyDeviceActivity extends BaseActivity {
                         }
                     }
                     else {
-                        BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(BleConstant.sportType_Cloth);
+                        BleDevice bleDeviceFromSP = SharedPreferencesUtil.getDeviceFromSP(BleConstant.sportType_Cloth);
                         if (bleDeviceFromSP == null ){
                             //没有绑定过，直接绑定
                             if(bleDevice.getState().equals(getResources().getString(R.string.click_bind))){
@@ -186,7 +188,7 @@ public class MyDeviceActivity extends BaseActivity {
                     //需要绑定到服务器
                     //这里现在本地缓存
 
-                    BleDevice bleDeviceClothFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Insole);
+                    BleDevice bleDeviceClothFromSP = SharedPreferencesUtil.getDeviceFromSP(Constant.sportType_Insole);
                     if (bleDeviceClothFromSP ==null){
                         if(bleDevice.getState().equals(getResources().getString(R.string.click_bind))){
                             bingDeviceToServer(bleDevice,position,false,Constant.sportType_Insole);
@@ -523,7 +525,7 @@ public class MyDeviceActivity extends BaseActivity {
                         bleDevice.setState(getResources().getString(R.string.click_bind));
                         //bleDevice.setDeviceType(Constant.sportType_Cloth);
 
-                        if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByPhone || bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXinID){
+                        if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByPhone || bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXin){
                             if (!BleConnectionProxy.getInstance().ismIsConnectted()){
                                 setDeviceBindSuccess(bleDevice);
                             }
@@ -536,7 +538,7 @@ public class MyDeviceActivity extends BaseActivity {
                 //没有搜索到设备
             }
 
-            BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(Constant.sportType_Cloth);
+            BleDevice bleDeviceFromSP = SharedPreferencesUtil.getDeviceFromSP(Constant.sportType_Cloth);
             if (bleDeviceFromSP !=null){
                 boolean isNeedAdd = true;
                 for (int i = 0; i< bleDeviceList.size(); i++){

@@ -90,7 +90,6 @@ public class MainActivity extends BaseActivity {
 
         initView();
         initData();
-
     }
 
     private void initView() {

@@ -39,6 +39,7 @@ public class Constant {
     public static String getAfter20ItemHealthyPlanListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningPastList";
     //public static String uploadReportURL = "http://bodylistener.amsu-new.com:83/intellingence/ReportController/uploadReport";
     public static String uploadReportURL = "http://www.amsu-new.com:8081/intellingence-web/uploadReport.do";
+    public static String uploadReportURL_new = "http://www.amsu-new.com:8081/intellingence-web/uploadReportNew.do";
     //public static String uploadReportURL = "http://192.168.1.124:8080/intellingence-web/uploadReport.do";
     //public static String downloadQuarterReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadQuarterReport";
     public static String downloadQuarterReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadQuarterReport.do";

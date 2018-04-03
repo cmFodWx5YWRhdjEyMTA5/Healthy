@@ -31,7 +31,7 @@ import java.net.Socket;
  */
 
 public class ConnectToWifiGudieActivity2 extends BaseActivity {
-    private static final String TAG = "ConnectToWifi2";
+    private static final String TAG = ConnectToWifiGudieActivity2.class.getSimpleName();
     public static Socket mSock;
     private WifiManager mWifiManage;
     //public String serverAddress;
@@ -112,9 +112,6 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
             connectNow(null);
         }
 
-        MyUtil.putStringValueFromSP("wifiNname","");
-        MyUtil.putStringValueFromSP("wifiPassword","");
-        MyUtil.putStringValueFromSP(Constant.moduleIP,"");
     }
 
     public void connectNow(View view) {
@@ -133,7 +130,7 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
 
             Log.i(TAG,"moduleIP:"+moduleIP);
 
-            if (!MyUtil.isEmpty(moduleIP)){
+            if (!MyUtil.isEmpty(moduleIP) && view==null){
                 //之前有保存IP地址，不用重新获取IP地址
                 setProgressUpadteState(progressState_contoAmsu);
                 setProgressUpadteState(progressState_contoAmsuSuccess);
@@ -282,7 +279,6 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
 
         mProgressAlertDialog.getWindow().setLayout(new Float(width).intValue(),new Float(height).intValue());
 
-
         ll_progress_contoamsu = (LinearLayout) inflate.findViewById(R.id.ll_progress_contoamsu);
         pb_progress_contoamsu = (ProgressBar) inflate.findViewById(R.id.pb_progress_contoamsu);
         iv_progress_contoamsu = (ImageView) inflate.findViewById(R.id.iv_progress_contoamsu);
@@ -297,7 +293,6 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
         pb_progress_getamsuip = (ProgressBar) inflate.findViewById(R.id.pb_progress_getamsuip);
         iv_progress_getamsuip = (ImageView) inflate.findViewById(R.id.iv_progress_getamsuip);
         tv_progress_getamsuip = (TextView) inflate.findViewById(R.id.tv_progress_getamsuip);
-
 
         ll_progress_conntohomefwifi = (LinearLayout) inflate.findViewById(R.id.ll_progress_conntohomefwifi);
         pb_progress_conntohomefwifi = (ProgressBar) inflate.findViewById(R.id.pb_progress_conntohomefwifi);
@@ -383,7 +378,6 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
     private int moduleWifiSocketTryConnectedCount = 0;
     private int homeWifiSocketTryConnectedCount = 0;
 
-
     private void loopCreateSocketConnect(final int socketType, final String ipAddress, final boolean isHaveIPSaveBefore){
         mIsSocketConnected = false;
         new Thread(){
@@ -392,22 +386,24 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
                 super.run();
                 int tryToConnectCount = 0;
                 while (!mIsSocketConnected){
-                    try {
-                        Log.i(TAG, "睡眠" );
-                        Thread.sleep(1500);
-                    } catch (InterruptedException ie) {
+                    if (!mIsSocketConnected){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                createSocketConnect(socketType,ipAddress,isHaveIPSaveBefore);
+                            }
+                        });
                     }
 
-                    createSocketConnect(socketType,ipAddress,isHaveIPSaveBefore);
+                    try {
+                        Log.i(TAG, "睡眠" );
+                        Thread.sleep(2000);
+                    } catch (InterruptedException ie) {
+                    }
 
                     tryToConnectCount++;
 
                     if (tryToConnectCount==8){
-                        try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException ie) {
-                        }
-
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -439,8 +435,6 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
                                     }
 
                                 }
-
-
                             }
                         });
                         break;
@@ -467,7 +461,6 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
         else if (socketType == socketType_home){
             connectedIP = ipAddress;
         }
-
 
         new Sender(connectedIP,socketType,isHaveIPSaveBefore).start();
         Log.i(TAG, "connectedIP:"+connectedIP);
@@ -497,39 +490,37 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
                 // 声明sock，其中参数为服务端的IP地址与自定义端口
                 Log.i(TAG, "serverIp：" + serverIp);
 
-                if (!mIsSocketConnected){
-                    Log.i(TAG, "创建Socket" );
-                    Socket socket = new Socket(serverIp, 8080);
-                    Log.i(TAG, "socket:"+socket );
+                Log.i(TAG, "创建Socket" );
+                Socket socket = new Socket(serverIp, 8080);
+                Log.i(TAG, "socket:"+socket );
 
-                    Log.i(TAG, "创建Socket成功" );
-                    mIsSocketConnected = true;
+                Log.i(TAG, "创建Socket成功" );
+                mIsSocketConnected = true;
 
-                    socketWriter = socket.getOutputStream();
-                    InputStream inputStream = socket.getInputStream();
+                socketWriter = socket.getOutputStream();
+                InputStream inputStream = socket.getInputStream();
 
-                    if (socketType == socketType_module){
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //MyUtil.showToask(ConnectToWifiGudieActivity2.this,"底座通信建立，正在传递数据");
-                                //MyUtil.showDialog("底座通信建立，正在获取对方IP地址",ConnectToWifiGudieActivity2.this);
-                                setProgressUpadteState(progressState_contoAmsuSocketSuccess);
-                                setProgressUpadteState(progressState_getAmsuIPAddress);
-                            }
-                        });
+                if (socketType == socketType_module){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            //MyUtil.showToask(ConnectToWifiGudieActivity2.this,"底座通信建立，正在传递数据");
+                            //MyUtil.showDialog("底座通信建立，正在获取对方IP地址",ConnectToWifiGudieActivity2.this);
+                            setProgressUpadteState(progressState_contoAmsuSocketSuccess);
+                            setProgressUpadteState(progressState_getAmsuIPAddress);
+                        }
+                    });
 
-                        sendAndConfirmIPValid(inputStream,false);
+                    sendAndConfirmIPValid(inputStream,false);
+                }
+                else if (socketType == socketType_home){
+                    mSock = socket;
+
+                    if (isHaveIPSaveBefore){
+                        sendAndConfirmIPValid(inputStream,true);
                     }
-                    else if (socketType == socketType_home){
-                        mSock = socket;
-
-                        if (isHaveIPSaveBefore){
-                            sendAndConfirmIPValid(inputStream,true);
-                        }
-                        else {
-                            lastStepFinshed();
-                        }
+                    else {
+                        lastStepFinshed();
                     }
                 }
             } catch (IOException e) {
@@ -573,12 +564,12 @@ public class ConnectToWifiGudieActivity2 extends BaseActivity {
         isNeedLoopSendConfirmConnectionValid = true;
         int sentCount = 0;
         long lastSendConfirmConnectionValidOrderTime = -1;
-        Thread.sleep(10000);
-        while (isNeedLoopSendConfirmConnectionValid && sentCount<5){  //发送5次
+        Thread.sleep(1000);
+        while (isNeedLoopSendConfirmConnectionValid && sentCount<2){  //发送5次
             sendConfirmConnectionValidOrder();
             lastSendConfirmConnectionValidOrderTime = System.currentTimeMillis();
             sentCount++;
-            Thread.sleep(5000);
+            Thread.sleep(500);
         }
 
         final byte[] bytes = new byte[1024*10];

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x12"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/sportSignal"
+                android:layout_width="@dimen/x28"
+                android:layout_height="@dimen/x28"
+                android:src="@drawable/gps1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/x5"
+                android:text="GPS"
+                android:textColor="@color/font_txt_content_4"
+                android:textSize="@dimen/x28" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/sportStop"
+            android:layout_width="@dimen/x88"
+            android:layout_height="@dimen/x48"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/x5"
+            android:background="@color/transparent"
+            android:padding="@dimen/x5"
+            android:src="@drawable/tingzhi_icon" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/sportValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="00:00:00"
+                android:textColor="@color/white"
+                android:textSize="@dimen/x92" />
+            <TextView
+                android:id="@+id/sportTypeTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="value"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/font_txt_content_5"
+                android:textSize="@dimen/x32" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x1"
+            android:layout_marginTop="@dimen/x5"
+            android:background="@color/line_color_1" />
+
+        <LinearLayout
+            android:id="@+id/sportECGLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/sportContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textColor="@color/white"
+                android:textSize="@dimen/x62" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="心率"
+                android:textColor="@color/font_txt_content_5"
+                android:textSize="@dimen/x30" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

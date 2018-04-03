@@ -23,6 +23,7 @@ import com.amsu.healthy.utils.InputTextAlertDialogUtil;
 import com.amsu.healthy.utils.MyUtil;
 import com.umeng.analytics.MobclickAgent;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
@@ -108,6 +109,8 @@ public class SystemSettingActivity extends BaseActivity implements View.OnClickL
         if (mIsOpenReceiveDataTest){
             iv_persiondata_receivetest.setImageResource(R.drawable.switch_on);
         }
+
+
 
     }
 

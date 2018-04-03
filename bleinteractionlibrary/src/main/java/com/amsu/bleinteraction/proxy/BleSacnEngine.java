@@ -46,7 +46,6 @@ public class BleSacnEngine {
         if(bluetoothManager!=null){
             mBluetoothAdapter = bluetoothManager.getAdapter();
         }
-
     }
 
     static BleSacnEngine getInStance(Context context){
@@ -153,14 +152,16 @@ public class BleSacnEngine {
                     if (deviceFromSP!=null){
                         int deviceType = mBleConnectionProxy.getmConnectionConfiguration().deviceType;
                         if (deviceType== BleConstant.sportType_Cloth ) {
-                            if (isSupportBindByHardware(device)){
-                                BleConnectionProxy.DeviceBindByHardWareType deviceBindTypeByBleBroadcastInfo = DeviceBindUtil.getDeviceBindTypeByBleBroadcastInfo(scanRecord);
-                                //LogUtil.i(TAG,"deviceBindTypeByBleBroadcastInfo:"+deviceBindTypeByBleBroadcastInfo);
+                            if (isSupportBindByHardware(device.getName())){
+                                BleConnectionProxy.DeviceBindByHardWareType bindType = DeviceBindUtil.getDeviceBindTypeByBleBroadcastInfo(scanRecord);
+                                LogUtil.i(TAG,"bindType:"+bindType);
 
-                                if ((deviceBindTypeByBleBroadcastInfo==BleConnectionProxy.DeviceBindByHardWareType.bindByNO || deviceBindTypeByBleBroadcastInfo==BleConnectionProxy.DeviceBindByHardWareType.bindByOther) && device.getAddress().equals(deviceFromSP.getMac())){
-                                    //被其他人绑定，但是本地还是缓存的这个设备，需要将本地的这个设备清空
+                                if ((bindType== BleConnectionProxy.DeviceBindByHardWareType.bindByOther || bindType== BleConnectionProxy.DeviceBindByHardWareType.bindByNO)
+                                        && device.getAddress().equals(deviceFromSP.getMac())
+                                        && (deviceFromSP.getBindType()== BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXin || deviceFromSP.getBindType()== BleConnectionProxy.DeviceBindByHardWareType.bindByPhone )){
+                                    //没有人绑定，但是本地还是缓存的这个设备，需要将本地的这个设备清空
                                     SharedPreferencesUtil.saveDeviceToSP(null,deviceType);
-                                    deviceFromSP = new BleDevice();
+                                    return;
                                 }
                             }
 
@@ -183,8 +184,8 @@ public class BleSacnEngine {
     private String mCurBindingDeviceAddress;
 
     //判断是否支持通过硬件绑定，以AMSU_E开头，并且蓝牙设备名字符串长度为10
-    public boolean isSupportBindByHardware(BluetoothDevice device){
-        return device != null && device.getName().startsWith("AMSU_E") && device.getName().length() == 10;
+    public boolean isSupportBindByHardware(String bleName){
+        return !TextUtils.isEmpty(bleName) && bleName.startsWith("AMSU_E") && bleName.length() == 10;
     }
 
     public void connectDevice(final String macAddress) {
@@ -222,8 +223,11 @@ public class BleSacnEngine {
             switch (msg.what){
                 case 0:
                     //连接
-                    final boolean connect = LeProxy.getInstance().connect(address,true);
+                    final boolean connect = LeProxy.getInstance().connect(address,false);
                     LogUtil.i(TAG,"开始连接 connect:"+connect);
+                    if (!connect){
+                        mIsConnectting = false;
+                    }
                     break;
                 case 1:
                     //断开
@@ -256,5 +260,10 @@ public class BleSacnEngine {
         mHandler.sendMessage(message);
     }
 
+
+    //重新扫描蓝牙设备
+    public void reStartScanBleDevice(String address, String reason){
+        scanLeDevice(true);//开始扫描
+    }
 
 }

@@ -17,7 +17,7 @@ import com.google.gson.Gson;
 
 public class SharedPreferencesUtil {
 
-    public static final String spName = "userinfo";
+    public static final String spName = "bleConfig";
     //创建一个写入器
     private static SharedPreferences mPreferences;
 
@@ -29,22 +29,33 @@ public class SharedPreferencesUtil {
     }
 
     public static void putIntValueFromSP(String key,int value){
-        SharedPreferences.Editor edit = mPreferences.edit();
-        edit.putInt(key,value).apply();
+        if (mPreferences!=null){
+            SharedPreferences.Editor edit = mPreferences.edit();
+            edit.putInt(key,value).apply();
+        }
     }
 
     public static int getIntValueFromSP(String key){
-        return mPreferences.getInt(key,-1);
+        if (mPreferences!=null){
+            return mPreferences.getInt(key,-1);
+        }
+        return -1;
     }
 
 
     public static void putStringValueFromSP(String key,String value){
-        SharedPreferences.Editor edit = mPreferences.edit();
-        edit.putString(key,value).apply();
+        if (mPreferences!=null){
+            SharedPreferences.Editor edit = mPreferences.edit();
+            edit.putString(key,value).apply();
+        }
+
     }
 
     public static String getStringValueFromSP(String key){
-        return mPreferences.getString(key,"");
+        if (mPreferences!=null){
+            return mPreferences.getString(key,"");
+        }
+        return null;
     }
 
     /*public static BleDevice getDeviceFromSP(int deviceType){
@@ -176,10 +187,13 @@ public class SharedPreferencesUtil {
         else {
             bleDeviceJson =  getStringValueFromSP("sportType_Insole");
         }
-        BleDevice bleDevice = gson.fromJson(bleDeviceJson, BleDevice.class);
-        if (bleDevice!=null && !TextUtils.isEmpty(bleDevice.getName())){
-            return bleDevice;
+        if (!TextUtils.isEmpty(bleDeviceJson)){
+            BleDevice bleDevice = gson.fromJson(bleDeviceJson, BleDevice.class);
+            if (bleDevice!=null && !TextUtils.isEmpty(bleDevice.getName())){
+                return bleDevice;
+            }
         }
+
         return null;
     }
 

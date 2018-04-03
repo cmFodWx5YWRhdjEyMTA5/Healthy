@@ -11,6 +11,7 @@ import java.util.UUID;
  */
 public class BleConstant {
 
+    public static final String sportType = "sportType";
     /**
      * 运动服/跑步
      */
@@ -68,6 +69,15 @@ public class BleConstant {
     public static final String greenLightAlwaysOnOrder = "42382B02FF";//绿灯
     public static final String redLightAlwaysOnOrder = "42382B01FF";//红灯
     public static final String threenlightSpacedFlickerOrder = "42382BFF03";//3灯循环闪,间隔为0.3s（末尾03为间隔时间，可以自定义）
+
+    public static final String nameStartWith_BLE = "BLE";
+    public static final String nameStartWith_AMSU = "AMSU";
+
+    public static final short bleSupplyData = 500;
+
+    public static final String upDateHardwareLeName = "AMSU_DFU_E";
+
+
 
 
 

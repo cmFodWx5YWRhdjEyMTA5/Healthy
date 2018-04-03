@@ -1,1 +1,1 @@
-include ':app', ':bleinteractionlibrary'
+include ':app', ':bleinteractionlibrary', ':wear', ':wifioffline'

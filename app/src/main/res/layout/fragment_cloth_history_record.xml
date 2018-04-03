@@ -6,7 +6,7 @@
     tools:context="com.amsu.healthy.fragment.historyrecord.ClothHistoryRecordFragment">
 
     <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/sr1"
+        android:id="@+id/sr_history_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/rl_base_head">

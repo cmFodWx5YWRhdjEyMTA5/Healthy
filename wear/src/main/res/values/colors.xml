@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="app_main_color">#030303</color>
+    <color name="app_main_background_color">#030303</color>
+    <color name="app_main_text_clolor">#0c64b5</color>
+
+
+    <color name="background">#030303</color>
+    <color name="transparent">#00000000</color>
+    <color name="transparent9">#90000000</color>
+    <color name="transparent8">#80000000</color>
+    <color name="transparent7">#70000000</color>
+    <color name="transparent6">#60000000</color>
+    <color name="transparent5">#50000000</color>
+    <color name="transparent4">#40000000</color>
+    <color name="transparent3">#30000000</color>
+    <color name="transparent2">#20000000</color>
+    <color name="transparent1">#10000000</color>
+    <color name="font_color_red">#f71656</color>
+    <color name="white">#ffffff</color>
+    <color name="font_txt_content_1">#cccccc</color>
+    <color name="font_txt_content_2">#707070</color>
+    <color name="font_txt_content_3">#0c64b5</color>
+    <color name="font_txt_content_4">#e7e7e7</color>
+    <color name="font_txt_content_5">#3b3b3b</color>
+    <color name="font_txt_content_6">#ff3d32</color>
+    <color name="line_color_1">#212121</color>
+    <color name="color_red_1">#f72f55</color>
+    <color name="color_red_2">#f5317b</color>
+    <color name="color_red_bg">#340c14</color>
+    <color name="color_green">#4ed966</color>
+    <color name="color_green_bg">#122e17</color>
+    <color name="color_yellow">#ffa527</color>
+    <color name="color_orange">#ff8003</color>
+    <color name="color_yellow_bg">#352003</color>
+
+    <color name="default_text_color_fz_1">#b2b2b2</color>
+    <color name="default_text_color_fz_2">#b7b7b7</color>
+    <color name="default_text_color_fz_3">#e4e4da</color>
+
+
+    <color name="app_Refresh_start_color">#00B2EE</color>
+    <color name="app_background_color">#EBEBEB</color>
+
+
+    <color name="color_red_above">#f72f55</color>
+    <color name="color_red_back">#f72f55</color>
+</resources>

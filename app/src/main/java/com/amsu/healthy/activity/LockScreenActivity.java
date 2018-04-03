@@ -203,4 +203,3 @@ public class LockScreenActivity extends BaseActivity {
 
 
 }
-

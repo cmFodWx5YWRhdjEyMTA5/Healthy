@@ -8,8 +8,7 @@
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/sr1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/rl_base_head">
+        android:layout_height="match_parent">
         <com.amsu.healthy.view.SwipeListView
             android:id="@+id/lv_history_insole"
             android:layout_width="match_parent"

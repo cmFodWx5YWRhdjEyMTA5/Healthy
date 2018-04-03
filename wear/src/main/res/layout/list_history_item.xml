@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="@dimen/x280"
+        android:layout_height="@dimen/x93"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="@dimen/x20"
+        android:background="@drawable/bg_home_blcak_radius"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/tv_history_sportstate"
+            android:layout_width="@dimen/x40"
+            android:layout_height="@dimen/x40"
+            android:layout_margin="@dimen/x12"
+            android:src="@drawable/huwai_3" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_history_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="2017/08/22 "
+                android:textColor="@color/white"
+                android:textSize="@dimen/x28" />
+
+            <TextView
+                android:id="@+id/tv_history_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x12"
+                android:text="12:32   3.2km"
+                android:textColor="@color/font_txt_content_2"
+                android:textSize="@dimen/x28" />
+        </LinearLayout>
+    </LinearLayout>
+
+<!--    <RelativeLayout
+        android:id="@+id/item_right"
+        android:layout_width="@dimen/x300"
+        android:layout_height="@dimen/y172"
+        android:background="@android:color/holo_red_light">
+        &lt;!&ndash;<ImageView
+            android:id="@+id/iv_test"
+            android:layout_width="@dimen/x80"
+            android:layout_height="@dimen/y80"
+            android:src="@drawable/del_icon_normal"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/x60"/>&ndash;&gt;
+        <TextView
+            android:id="@+id/item_right_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="删除"
+            android:textColor="#FFF"
+            android:layout_marginLeft="@dimen/x10"/>
+    </RelativeLayout>-->
+
+</LinearLayout>
+

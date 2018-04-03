@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/ll_qrcode_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/x72"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/qrCode"
+            android:layout_width="@dimen/x200"
+            android:layout_height="@dimen/x200"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x24"
+            android:gravity="center"
+            android:text="请使用手机版APP\n扫描二维码登录"
+            android:textColor="@color/font_txt_content_1"
+            android:textSize="@dimen/x24" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_qrcode_success"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/x114"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="@dimen/x120"
+            android:layout_height="@dimen/x120"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/chenggong" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x64"
+            android:gravity="center"
+            android:text="扫描成功，请在手机上\n确认是否授权登录"
+            android:textColor="@color/font_txt_content_1"
+            android:textSize="@dimen/x24" />
+    </LinearLayout>
+</RelativeLayout>

@@ -102,67 +102,74 @@ public class HealthyIndexUtil {
 
     //储备心率
     public static IndicatorAssess calculateScorehrReserve(Context context){
-        int age = getUserAge();
-        if (age!=0){
-            int hrReserve;
-            if (!MyUtil.isEmpty(MyUtil.getStringValueFromSP(Constant.restingHR))){
-                int restingHR = Integer.parseInt(MyUtil.getStringValueFromSP(Constant.restingHR));
-                if (restingHR !=0){
-                    hrReserve = 220-age-restingHR;
-                    Log.i(TAG,"hrReserveeserve:"+hrReserve);
+        try {
+            int age = getUserAge();
+            if (age!=0){
+                int hrReserve;
+                String stringValueFromSP = MyUtil.getStringValueFromSP(Constant.restingHR);
+                if (!MyUtil.isEmpty(stringValueFromSP) && MyUtil.isNumeric(stringValueFromSP)){
+                    int restingHR = Integer.parseInt(stringValueFromSP);
+                    if (restingHR !=0){
+                        hrReserve = 220-age-restingHR;
+                        Log.i(TAG,"hrReserveeserve:"+hrReserve);
 
-                    if(hrReserve<0){
-                        hrReserve = 0;
-                    }
-                    int scorehrReserve = 0;
-                    String suggestion = "";
-                    if (hrReserve>=200){
-                        scorehrReserve = 100;
-                        suggestion =context.getResources().getString(R.string.reserverate_suggetstion_lev1);
-                    }
-                    else if (190<=hrReserve && hrReserve<=199){
-                        //91-100
-                        scorehrReserve = (int) (91+(hrReserve-190)*(float)((100.0-91.0)/(199.0-190.0)));
-                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev2);
-                    }
-                    else if (160<hrReserve && hrReserve<=189){
-                        //81-90
-                        scorehrReserve = (int) (81+(hrReserve-160)*(float)((90.0-81.0)/(189.0-160.0)));
-                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev3);
-                    }
-                    else if (130<=hrReserve && hrReserve<=159){
-                        //71-80
-                        scorehrReserve = (int) (71+(hrReserve-130)*(float)((80.0-71.0)/(159.0-130.0)));
-                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev4);
-                    }
-                    else if (100<=hrReserve && hrReserve<=129){
-                        //61-70
-                        scorehrReserve = (int) (61+(hrReserve-100)*(float)((70.0-61.0)/(129.0-100.0)));
-                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev5);
-                    }
-                    else if (70<=hrReserve && hrReserve<=99){
-                        //31-60
-                        scorehrReserve = (int) (31+(hrReserve-70)*(float)((60.0-31.0)/(99.0-70.0)));
-                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev6);
-                    }
-                    else if (11<=hrReserve && hrReserve<=69){
-                        //1-30
-                        scorehrReserve = (int) (hrReserve*(float)(30.0/(69.0-11.0)));
-                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev6);
-                    }
-                    else if (0<=hrReserve && hrReserve<=10){
-                        //0
-                        scorehrReserve =0;
-                        suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev6);
-                    }
-                    Log.i(TAG,"scorehrReserve:"+scorehrReserve);
-                    IndicatorAssess indicatorAssess = new IndicatorAssess(hrReserve,scorehrReserve,context.getResources().getString(R.string.heart_rate_reserve),suggestion);
+                        if(hrReserve<0){
+                            hrReserve = 0;
+                        }
+                        int scorehrReserve = 0;
+                        String suggestion = "";
+                        if (hrReserve>=200){
+                            scorehrReserve = 100;
+                            suggestion =context.getResources().getString(R.string.reserverate_suggetstion_lev1);
+                        }
+                        else if (190<=hrReserve && hrReserve<=199){
+                            //91-100
+                            scorehrReserve = (int) (91+(hrReserve-190)*(float)((100.0-91.0)/(199.0-190.0)));
+                            suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev2);
+                        }
+                        else if (160<hrReserve && hrReserve<=189){
+                            //81-90
+                            scorehrReserve = (int) (81+(hrReserve-160)*(float)((90.0-81.0)/(189.0-160.0)));
+                            suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev3);
+                        }
+                        else if (130<=hrReserve && hrReserve<=159){
+                            //71-80
+                            scorehrReserve = (int) (71+(hrReserve-130)*(float)((80.0-71.0)/(159.0-130.0)));
+                            suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev4);
+                        }
+                        else if (100<=hrReserve && hrReserve<=129){
+                            //61-70
+                            scorehrReserve = (int) (61+(hrReserve-100)*(float)((70.0-61.0)/(129.0-100.0)));
+                            suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev5);
+                        }
+                        else if (70<=hrReserve && hrReserve<=99){
+                            //31-60
+                            scorehrReserve = (int) (31+(hrReserve-70)*(float)((60.0-31.0)/(99.0-70.0)));
+                            suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev6);
+                        }
+                        else if (11<=hrReserve && hrReserve<=69){
+                            //1-30
+                            scorehrReserve = (int) (hrReserve*(float)(30.0/(69.0-11.0)));
+                            suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev6);
+                        }
+                        else if (0<=hrReserve && hrReserve<=10){
+                            //0
+                            scorehrReserve =0;
+                            suggestion = context.getResources().getString(R.string.reserverate_suggetstion_lev6);
+                        }
+                        Log.i(TAG,"scorehrReserve:"+scorehrReserve);
+                        IndicatorAssess indicatorAssess = new IndicatorAssess(hrReserve,scorehrReserve,context.getResources().getString(R.string.heart_rate_reserve),suggestion);
 
-                    return indicatorAssess;
+                        return indicatorAssess;
+                    }
                 }
+
             }
+            return null;
+        }catch (Exception e){
 
         }
+
         return null;
     }
 
@@ -985,7 +992,6 @@ public class HealthyIndexUtil {
                     scoreBeat.getPercent()*0.125+scoreReserveHealth.getPercent()*0.25);
         }
         return 0;
-
     }
 
     //情绪指数（精神紧张或放松状态）LF/HF   SDNN:80-200
@@ -1379,32 +1385,33 @@ public class HealthyIndexUtil {
     public static HRVFragment.HRVResult judgeHRVPhysicalFatigueStatic(Context context,double HF, double LF, double HF3, double LF3, int SDNN3, double HF4, double LF4, int SDNN4,int t) {
         int state = 0;
         String suggestion = "";
-        //静态
+        //静态  2018.3.2更新
         /*1、	非运动状态,不疲劳
-        SDNN4>120	||
+        SDNN4>170	||
         ((SDNN4-SDNN3)/SDNN3>0.01t	&	(LF/HF4-LF/HF3)/LF/HF3>0.01t	&	SDNN3>70)
         建议：您现在体能充沛，现在进行体育锻炼将能取得良好的效果，快去进行一些运动吧。
         2、	非运动状态,比较疲劳
-        (50<SDNN4<120	&	-0.01t<(LF/HF4-LF/HF3)/LF/HF3<0.01t)	||	0.02t>(LF/HF4-LF/HF3)/LF/HF3>0.01t
+        (90<SDNN4<170	&	-0.01t<(LF/HF4-LF/HF3)/LF/HF3<0.01t)	||	(0.02t>(LF/HF4-LF/HF3)/LF/HF3>0.01t & 30<SDNN4<70)
         建议：您现在体力消耗较多，建议您现在不要进行体力运动，适当进行休息吧。
 
         3、	非运动状态,非常疲劳
-        SDNN4<50	&	-0.01t<(LF/HF4-LF/HF3)/LF/HF3<0.01t)	||	 ((LF/HF4-LF/HF3)/LF/HF3>0.02t	&	SDNN4<70)
+        (SDNN4<90 	&	-0.01t<(LF/HF4-LF/HF3)/LF/HF3<0.01t))	||	 ((LF/HF4-LF/HF3)/LF/HF3>0.02t	 &	SDNN4<30)
         建议：您的体力似乎已经消耗殆尽，请不要过度透支自己的体力，放松下自己的疲惫的身体吧！
+
 */
 
         try {
-            if (SDNN4>120 || ((SDNN4-SDNN3)/SDNN3>0.01*t && (LF/HF4-LF/HF3)/LF/HF3>0.01*t && SDNN3>70)){
+            if (SDNN4>=170 || ((SDNN4-SDNN3)/SDNN3>=0.01*t && (LF/HF4-LF/HF3)/LF/HF3>=0.01*t && SDNN3>70)){
                 state = 1;
                 //suggestion = "您现在体能充沛，现在进行体育锻炼将能取得良好的效果，快去进行一些运动吧。";
                 suggestion =  context.getResources().getString(R.string.hrv_body_fatigue_rest_suggestion1);
             }
-            else if ((SDNN4>50&&SDNN4<120 && ((LF/HF4-LF/HF3)/LF/HF3>-0.01*t && (LF/HF4-LF/HF3)/LF/HF3<0.01*t)) || (LF/HF4-LF/HF3)/LF/HF3<0.02*t&&(LF/HF4-LF/HF3)/LF/HF3>0.01*t){
+            else if ((SDNN4>=90&&SDNN4<170 && ((LF/HF4-LF/HF3)/LF/HF3>-0.01*t && (LF/HF4-LF/HF3)/LF/HF3<0.01*t)) || (LF/HF4-LF/HF3)/LF/HF3<0.02*t&&(LF/HF4-LF/HF3)/LF/HF3>=0.01*t){
                 state = 3;
                 //suggestion = "您现在体力消耗较多，建议您现在不要进行体力运动，适当进行休息吧。";
                 suggestion =  context.getResources().getString(R.string.hrv_body_fatigue_rest_suggestion2);
             }
-            else if ((SDNN4 <50 && (LF/HF4-LF/HF3)/LF/HF3>-0.01*t && (LF/HF4-LF/HF3)/LF/HF3<0.01*t) || ((LF/HF4-LF/HF3)/LF/HF3>0.02*t && SDNN4<70)){
+            else if ((SDNN4 <90 && (LF/HF4-LF/HF3)/LF/HF3>-0.01*t && (LF/HF4-LF/HF3)/LF/HF3<0.01*t) || ((LF/HF4-LF/HF3)/LF/HF3>0.02*t && SDNN4<70)){
                 state = 4;
                 //suggestion = "您的体力似乎已经消耗殆尽，请不要过度透支自己的体力，放松下自己的疲惫的身体吧！";
                 suggestion =  context.getResources().getString(R.string.hrv_body_fatigue_rest_suggestion3);

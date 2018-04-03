@@ -20,7 +20,7 @@
         android:footerDividersEnabled="true">
     </ListView>
 
-    <Button
+    <!--<Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -44,6 +44,6 @@
         android:text="上传"
         android:onClick="uoloadFile"
         android:layout_marginLeft="200dp"
-        android:textSize="10dp"/>
+        android:textSize="10dp"/>-->
 
 </RelativeLayout>

@@ -577,7 +577,6 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
         final ArrayList<String> grade = new ArrayList<>();
         for(int i=100;i<220;i++){
             grade.add(i+"");
-
         }
         upLoadheightValue = 160+"";
         //为滚动选择器设置数据

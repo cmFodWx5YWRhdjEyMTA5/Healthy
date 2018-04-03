@@ -1,7 +1,6 @@
 package com.amsu.bleinteraction.proxy;
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,15 +11,13 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.SystemClock;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.amsu.bleinteraction.bean.BleDevice;
 import com.amsu.bleinteraction.utils.BleConstant;
-import com.amsu.bleinteraction.utils.DeviceBindUtil;
 import com.amsu.bleinteraction.utils.EcgAccDataUtil;
+import com.amsu.bleinteraction.utils.ReadDeviceInfoUtil;
 import com.amsu.bleinteraction.utils.SharedPreferencesUtil;
 import com.amsu.bleinteraction.utils.TimerTaskUtil;
 import com.ble.api.DataUtil;
@@ -46,7 +43,7 @@ public class BleConnectionProxy {
     private boolean mIsConnectted;
     private boolean mIsDataStart;
     private String mClothDeviceConnecedMac;
-    private ConnectionConfiguration mConnectionConfiguration;
+    private BleConfiguration mConnectionConfiguration;
     private Map<String, BleDevice> mInsoleDeviceBatteryInfos;
     private int clothCurrBatteryPowerPercent = -1;
     private static BleConnectionProxy mBleConnectionProxy;
@@ -58,6 +55,9 @@ public class BleConnectionProxy {
 
     public static final int success = 1;
     public static final int fail = 2;
+
+    public Context mContext;
+
 
     public enum BleConnectionStateType {
         connectTypeDisConnected, connectTypeConnected, connectTypeUnstabitily
@@ -71,7 +71,7 @@ public class BleConnectionProxy {
 
     //设备绑定类型（通过硬件绑定）
     public enum DeviceBindByHardWareType implements Parcelable {
-        bindByPhone, bindByWeiXinID, bindByOther,bindByNO,devideNOSupport,bindByLocalSave;
+        bindByPhone, bindByWeiXin, bindByOther,bindByNO,devideNOSupport,bindByLocalSave;
         @Override
         public int describeContents() {
             // TODO Auto-generated method stub
@@ -98,7 +98,7 @@ public class BleConnectionProxy {
 
     //设备绑定类型（通过硬件绑定）
     public enum userLoginWay {
-        phoneNumber, WeiXinID
+        phone, WeiXin
     }
 
     public static BleConnectionProxy getInstance(){
@@ -108,7 +108,8 @@ public class BleConnectionProxy {
         return mBleConnectionProxy;
     }
 
-    public void init(Context context, ConnectionConfiguration mConnectionConfiguration) {
+    //连接所需要的初始化操作，必须有
+    public void init(Context context, BleConfiguration mConnectionConfiguration) {
         mContext = context;
         SharedPreferencesUtil.initSharedPreferences(context);
 
@@ -125,16 +126,11 @@ public class BleConnectionProxy {
 
         checkDeviceBatteryTimerTask();
 
-        LocalBroadcastManager.getInstance(context).registerReceiver(mStatusReceive, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+        //LocalBroadcastManager.getInstance(context).registerReceiver(mStatusReceive, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 
         IntentFilter statusFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         context.registerReceiver(mStatusReceive, statusFilter);
-
-
-
     }
-
-    public Context mContext;
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -158,10 +154,6 @@ public class BleConnectionProxy {
         return deviceFromSP != null && (deviceFromSP.getLEName()!=null && deviceFromSP.getLEName().startsWith("BLE"));
     }
 
-    //连接所需要的初始化操作，必须有
-    public void initConnectedConfiguration(ConnectionConfiguration mConnectionConfiguration,Context context) {
-        init(context,mConnectionConfiguration);
-    }
 
     //处理蓝牙连接、数据变化
     void onReceiveBleConnectionChange(String address, String action) {
@@ -198,8 +190,9 @@ public class BleConnectionProxy {
         //BleDataProxy.getInstance().updateLightStateByCurHeart(-1);
         //openClothAccData(address);  //打开加速度数据，在神念的主机上会有加速度出不来的情况，则默认再次打开
 
-        final int send = DeviceBindUtil.bingDevice( address);
-        Log.i(TAG,"发送绑定设备："+send);
+        /*final int send = DeviceBindUtil.bingDevice( address);
+        Log.i(TAG,"发送绑定设备："+send);*/
+
 
     }
 
@@ -213,8 +206,7 @@ public class BleConnectionProxy {
             if (!mIsConnectted){
                 mIsConnectted = true;
                 //mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_CONNECTED);
-                BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeConnected);
-                //BleDataProxy.getInstance().updateLightStateByCurHeart(0);
+                BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeConnected,address);
             }
             mClothDeviceConnecedMac = address ;
 
@@ -228,11 +220,11 @@ public class BleConnectionProxy {
 
                 if (clothDeviceType== BleConstant.clothDeviceType_AMSU_EStartWith){
                     //不加密数据可能2种：1、不加密旧版衣服，2、二代衣服      根据读取的设备版本信息来区分   （通用获取设备信息方法）
-                    readSecondGenerationDeviceInfo(address, BleConstant.sportType_Cloth);
+                    new ReadDeviceInfoUtil().readSecondGenerationDeviceInfo(address, BleConstant.sportType_Cloth);
                 }
             }
             else if (clothDeviceType== BleConstant.clothDeviceType_secondGeneration_IOE || clothDeviceType== BleConstant.clothDeviceType_secondGeneration_AMSU){
-                readSecondGenerationDeviceInfo(address, BleConstant.sportType_Cloth);
+                new ReadDeviceInfoUtil().readSecondGenerationDeviceInfo(address, BleConstant.sportType_Cloth);
             }
         }
         else if (mConnectionConfiguration.deviceType== BleConstant.sportType_Insole){
@@ -243,7 +235,7 @@ public class BleConnectionProxy {
                 mBleSacnEngine.setmIsConnectted(false);
                 mBleSacnEngine.scanLeDevice(true);//继续扫描另一个鞋垫
                 mInsoleDeviceBatteryInfos.put(address,new BleDevice());
-                readSecondGenerationDeviceInfo(address, BleConstant.sportType_Insole);
+                new ReadDeviceInfoUtil().readSecondGenerationDeviceInfo(address, BleConstant.sportType_Cloth);
             }
             else if (mInsoleDeviceBatteryInfos.size()==1){
                 mBleSacnEngine.scanLeDevice(false); //2只都连接上，表示停止扫描
@@ -254,7 +246,7 @@ public class BleConnectionProxy {
                 }
 
                 mInsoleDeviceBatteryInfos.put(address,new BleDevice());
-                readSecondGenerationDeviceInfo(address, BleConstant.sportType_Insole);
+                new ReadDeviceInfoUtil().readSecondGenerationDeviceInfo(address, BleConstant.sportType_Cloth);
                 Log.e(TAG,"2个鞋垫都连接成功============================================================================");
             }
         }
@@ -269,14 +261,17 @@ public class BleConnectionProxy {
 
     //设备连接异常（连接异常、连接超时）
     private void onDeviceConnectError(String address, String reason) {
+        mBleSacnEngine.setmIsConnectting(false,"断开连接");
+        mBleSacnEngine.setmIsConnectted(false);
+        disconnect(address);
 
-        reStartScanBleDevice(address,reason);
+        mBleSacnEngine.reStartScanBleDevice(address,reason);
         mIsDataStart = false;
 
         if (mIsConnectted){
             mIsConnectted = false;
             //mLeProxy.updateBroadcast(LeProxy.ACTION_DEVICE_DISCONNECTED);
-            BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeDisConnected);
+            BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeDisConnected,address);
         }
 
         if (mConnectionConfiguration.deviceType== BleConstant.sportType_Cloth){
@@ -337,29 +332,12 @@ public class BleConnectionProxy {
         mBleSacnEngine.stopScan();
     }
 
-    //重新扫描蓝牙设备
-    private void reStartScanBleDevice(String address, String reason){
-        mBleSacnEngine.setmIsConnectting(false,reason);
-        if (!mIsConnectted){
-            //mBleSacnEngine.disconnect(address);
-            mBleSacnEngine.scanLeDevice(true);//开始扫描
-            mBleSacnEngine.setmIsConnectted(false);
-        }
-    }
 
     //处理蓝牙断开（address不为空表示当前连接设备断开，address为空表示手机蓝牙关闭，需要将连接的设备信息清空）
     public void dealwithBelDisconnected(String address){
         if (mIsConnectted){
-            if (mConnectionConfiguration.deviceType== BleConstant.sportType_Cloth){
-                if (address.equals(mClothDeviceConnecedMac)){
-                    mIsConnectted = false;
-                    BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeDisConnected,address);
-                }
-            }
-            else {
-                mIsConnectted = false;
-                BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeDisConnected);
-            }
+            mIsConnectted = false;
+            BleDataProxy.getInstance().postBleDataOnBus(MessageEventType.msgType_Connect,connectTypeDisConnected,address);
         }
 
         if (mConnectionConfiguration.deviceType== BleConstant.sportType_Cloth){
@@ -378,9 +356,12 @@ public class BleConnectionProxy {
             }
         }
 
+        mBleSacnEngine.setmIsConnectting(false,"断开连接");
+        mBleSacnEngine.setmIsConnectted(false);
+
         if (address!=null){
             Log.i(TAG,"dealwithBelDisconnected:");
-            reStartScanBleDevice(address,"断开连接");
+            mBleSacnEngine.reStartScanBleDevice(address,"断开连接");
         }
     }
 
@@ -391,7 +372,7 @@ public class BleConnectionProxy {
             @Override
             public void run() {
                 super.run();
-                while (mIsConnectted && !mIsDataStart){
+                while (mIsConnectted && !mIsDataStart){  //连接成功并且数据没有开始传输
                     Log.i(TAG,"mIsConnectted:"+ mIsConnectted +"          mIsDataStart: "+mIsDataStart);
 
                     try {
@@ -432,78 +413,6 @@ public class BleConnectionProxy {
         }.start();
     }
 
-    //读取设备版本信息、电量信息，鞋垫和二代衣服用的同样的方式
-    public void readSecondGenerationDeviceInfo(final String address, final int deviceType) {
-        new Thread(){
-
-            private boolean isReadBatterySendOK;
-            private boolean isReadHardwareRevisionSendOK;
-            private boolean isReadSoftwareRevisionSendOK;
-            private boolean isReadModelNumberSendOK;
-            private int allLoopCount;
-
-            @Override
-            public void run() {
-
-                while (true){
-                    if (allLoopCount==0){
-                        long sleepTime = 0;
-                        if (deviceType == BleConstant.sportType_Cloth){
-                            sleepTime = 100;
-                        }
-                        else if (deviceType == BleConstant.sportType_Insole){
-                            sleepTime = 5000;   //鞋垫主机在连接成功后需要睡眠5秒，设备电量才能正确的读取到
-                        }
-
-                        SystemClock.sleep(sleepTime);
-                    }
-
-                    if (!isReadBatterySendOK){
-                        isReadBatterySendOK = mLeProxy.readCharacteristic(address, BleConstant.readInsoleBatterySerUuidUUID, BleConstant.readInsoleBatteryCharUuidUUID);
-                        Log.i(TAG,"isReadBatterySendOK:"+ isReadBatterySendOK);
-                        SystemClock.sleep(100);
-                    }
-
-                    UUID readInsoleDeviceInfoSerUuid = UUID.fromString(BleConstant.readInsoleDeviceInfoSerUuid);
-                    if (!isReadHardwareRevisionSendOK || allLoopCount<=1){
-                        UUID readInsoleDeviceInfoHardwareRevisionCharUuid = UUID.fromString(BleConstant.readInsoleDeviceInfoHardwareRevisionCharUuid);
-                        isReadHardwareRevisionSendOK = mLeProxy.readCharacteristic(address, readInsoleDeviceInfoSerUuid, readInsoleDeviceInfoHardwareRevisionCharUuid);
-                        Log.i(TAG,"isReadHardwareRevisionSendOK:"+ isReadHardwareRevisionSendOK);
-                        SystemClock.sleep(100);
-                    }
-
-                    if (!isReadSoftwareRevisionSendOK || allLoopCount<=1){
-                        UUID readInsoleDeviceInfoSoftwareRevisionCharUuid = UUID.fromString(BleConstant.readInsoleDeviceInfoSoftwareRevisionCharUuid);
-                        isReadSoftwareRevisionSendOK = mLeProxy.readCharacteristic(address, readInsoleDeviceInfoSerUuid, readInsoleDeviceInfoSoftwareRevisionCharUuid);
-                        Log.i(TAG,"isReadSoftwareRevisionSendOK:"+ isReadSoftwareRevisionSendOK);
-                        SystemClock.sleep(100);
-                    }
-
-                    if (!isReadModelNumberSendOK || allLoopCount<=1){
-                        UUID readInsoleDeviceInfoModelNumberCharUuid = UUID.fromString(BleConstant.readInsoleDeviceInfoModelNumberCharUuid);
-                        isReadModelNumberSendOK = mLeProxy.readCharacteristic(address, readInsoleDeviceInfoSerUuid, readInsoleDeviceInfoModelNumberCharUuid);
-                        Log.i(TAG,"isReadModelNumberSendOK:"+ isReadModelNumberSendOK);
-                        SystemClock.sleep(100);
-                    }
-
-
-
-                    if (allLoopCount>0){
-                        if ((isReadBatterySendOK && isReadHardwareRevisionSendOK && isReadSoftwareRevisionSendOK) || allLoopCount==10){
-                            //三次都发送成功或者已经循环10次（防止一直循环执行），则退出
-                            break;
-                        }
-                    }
-
-                    allLoopCount++;
-                    Log.i(TAG,"allLoopCount:"+allLoopCount);
-
-                    SystemClock.sleep(1000);
-                }
-            }
-        }.start();
-    }
-
     //检查设备电量   5分钟读一次电量
     private void checkDeviceBatteryTimerTask() {
         long timeSpan = 1000*60*5;
@@ -535,7 +444,7 @@ public class BleConnectionProxy {
         }
     }
 
-    //给蓝牙设备同步指令
+    //给蓝牙设备同步指令,旧版主机需要每隔一秒给蓝牙发送同步指令
     private void startSynDeviceOrderTimerTask(){
         long timeSpan = 1000;
         TimerTaskUtil mSysOrderTimerTaskUtil = new TimerTaskUtil();
@@ -566,37 +475,6 @@ public class BleConnectionProxy {
         }
     }
 
-    public static class ConnectionConfiguration {
-        public int userAge;  //用户年龄
-        public boolean isAutoOffline;  //是否在蓝牙断开后自动进入离线
-        public int deviceType;   // 设备类型，暂时有衣服、鞋垫
-        public int clothDeviceType;   //衣服蓝牙硬件版本类型,暂时有 Ble，AMSU_E开头旧主机，AMSU_E开头神念主机，AMSU_E阿木主机
-        public boolean isNeedWriteFileHead;  //写入文件时是否需要些写文件头
-        public String bindid;  //绑定id
-        public BleConnectionProxy.userLoginWay userLoginWay;  //登录方式，手机号，微信
-        public boolean isOpenReceiveDataTest;  //是否打开收到数据比率的调试，打开后后每隔一段时间（10秒）发送心电和加速度收到比率
-
-        public ConnectionConfiguration() {
-        }
-
-        public ConnectionConfiguration(int userAge, boolean isAutoOffline, int deviceType, int clothDeviceType, boolean isNeedWriteFileHead) {
-            this.userAge = userAge;
-            this.isAutoOffline = isAutoOffline;
-            this.deviceType = deviceType;
-            this.clothDeviceType = clothDeviceType;
-            this.isNeedWriteFileHead = isNeedWriteFileHead;
-        }
-
-        public ConnectionConfiguration(int userAge, boolean isAutoOffline, int deviceType, boolean isNeedWriteFileHead, String bindid, BleConnectionProxy.userLoginWay userLoginWay) {
-            this.userAge = userAge;
-            this.isAutoOffline = isAutoOffline;
-            this.deviceType = deviceType;
-            this.isNeedWriteFileHead = isNeedWriteFileHead;
-            this.bindid = bindid;
-            this.userLoginWay = userLoginWay;
-        }
-    }
-
     void setmIsDataStart(boolean mIsDataStart) {
         this.mIsDataStart = mIsDataStart;
         if (!mIsConnectted){
@@ -617,10 +495,6 @@ public class BleConnectionProxy {
         this.clothCurrBatteryPowerPercent = clothCurrBatteryPowerPercent;
     }
 
-    public ConnectionConfiguration getmConnectionConfiguration() {
-        return mConnectionConfiguration;
-    }
-
     public Map<String, BleDevice> getmInsoleDeviceBatteryInfos() {
         return mInsoleDeviceBatteryInfos;
     }
@@ -633,6 +507,9 @@ public class BleConnectionProxy {
         return mIsConnectted;
     }
 
+    public void setmIsConnectted(boolean mIsConnectted) {
+        this.mIsConnectted = mIsConnectted;
+    }
 
     public String getmClothDeviceConnecedMac() {
         return mClothDeviceConnecedMac;
@@ -645,22 +522,18 @@ public class BleConnectionProxy {
     public void deviceBindSuccessAndSaveToLocalSP(BleDevice bleDevice){
         int clothDeviceType = BleConstant.clothDeviceType_Default_NO;
         if (bleDevice!=null){
-            if (bleDevice.getLEName().startsWith("BLE")){
+            if (bleDevice.getLEName().startsWith(BleConstant.nameStartWith_BLE)){
                 clothDeviceType = BleConstant.clothDeviceType_old_encrypt;
             }
-            else if (bleDevice.getLEName().startsWith("AMSU")){
+            else if (bleDevice.getLEName().startsWith(BleConstant.nameStartWith_AMSU)){
                 clothDeviceType = BleConstant.clothDeviceType_AMSU_EStartWith;
             }
 
-            //绑定成功后，设置绑定的方式，倾听体语默认只有手机号
-            if (bleDevice.getClothDeviceType() == BleConstant.clothDeviceType_secondGeneration_AMSU_BindByHardware){
-                //通过硬件的方式绑定
-                if (BleConnectionProxy.getInstance().getmConnectionConfiguration().userLoginWay== userLoginWay.phoneNumber){
-                    bleDevice.setBindType(DeviceBindByHardWareType.bindByPhone);
-                }
-                else if (BleConnectionProxy.getInstance().getmConnectionConfiguration().userLoginWay== userLoginWay.WeiXinID){
-                    bleDevice.setBindType(DeviceBindByHardWareType.bindByWeiXinID);
-                }
+            if (isSupportBindByHardware(bleDevice.getLEName())){
+                //如果支持硬件绑定方式，则设置默认的方式为神念的主机方式（注：硬件绑定方式的主机有2种，二代神念主机和二代amau主机; 2种不同的方式对于数据的处理不同）
+                clothDeviceType = BleConstant.clothDeviceType_secondGeneration_IOE;
+                BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType = clothDeviceType;
+                SharedPreferencesUtil.putIntValueFromSP(BleConstant.mClothDeviceType, clothDeviceType);
             }
 
             mConnectionConfiguration.clothDeviceType = clothDeviceType;
@@ -694,12 +567,71 @@ public class BleConnectionProxy {
     }
 
 
-    public boolean isSupportBindByHardware(BluetoothDevice device){
-        return mBleSacnEngine.isSupportBindByHardware(device);
+    public boolean isSupportBindByHardware(String bleName){
+        return mBleSacnEngine.isSupportBindByHardware(bleName);
     }
 
     public void setmCurBindingDeviceAddress(String address){
         mBleSacnEngine.setmCurBindingDeviceAddress(address);
+    }
+
+    public ServiceConnection getmServiceConnection() {
+        return mServiceConnection;
+    }
+
+
+    public BleConfiguration getmConnectionConfiguration() {
+        return mConnectionConfiguration;
+    }
+
+    public void setmConnectionConfiguration(BleConfiguration mConnectionConfiguration) {
+        this.mConnectionConfiguration = mConnectionConfiguration;
+    }
+
+
+    public static class BleConfiguration {
+        public int userAge;  //用户年龄
+        public boolean isAutoOffline;  //是否在蓝牙断开后自动进入离线
+        public int deviceType;   // 设备类型，暂时有衣服、鞋垫
+        public int clothDeviceType;   //衣服蓝牙硬件版本类型,暂时有 Ble，AMSU_E开头旧主机，AMSU_E开头神念主机，AMSU_E阿木主机
+        public boolean isNeedWriteFileHead;  //写入文件时是否需要些写文件头
+        public String userid;  //绑定id
+        public BleConnectionProxy.userLoginWay userLoginWay;  //登录方式，手机号，微信
+        public boolean isOpenReceiveDataTest;  //是否打开收到数据比率的调试，打开后后每隔一段时间（10秒）发送心电和加速度收到比率
+
+        public int sex; // 男=1 女=2
+        public int height;
+        public int weight;
+
+        public BleConfiguration(int userAge, boolean isNeedWriteFileHead, int deviceType, String bindid, BleConnectionProxy.userLoginWay userLoginWay) {
+            this.userAge = userAge;
+            this.isNeedWriteFileHead = isNeedWriteFileHead;
+            this.deviceType = deviceType;
+            this.userid = bindid;
+            this.userLoginWay = userLoginWay;
+        }
+
+        public BleConfiguration(int userAge, boolean isAutoOffline, int deviceType, boolean isNeedWriteFileHead, String bindid, BleConnectionProxy.userLoginWay userLoginWay) {
+            this.userAge = userAge;
+            this.isAutoOffline = isAutoOffline;
+            this.deviceType = deviceType;
+            this.isNeedWriteFileHead = isNeedWriteFileHead;
+            this.userid = bindid;
+            this.userLoginWay = userLoginWay;
+        }
+
+        public BleConfiguration(int userAge, boolean isAutoOffline, int deviceType, boolean isNeedWriteFileHead, String userid, BleConnectionProxy.userLoginWay userLoginWay, boolean isOpenReceiveDataTest, int sex, int height, int weight) {
+            this.userAge = userAge;
+            this.isAutoOffline = isAutoOffline;
+            this.deviceType = deviceType;
+            this.isNeedWriteFileHead = isNeedWriteFileHead;
+            this.userid = userid;
+            this.userLoginWay = userLoginWay;
+            this.isOpenReceiveDataTest = isOpenReceiveDataTest;
+            this.sex = sex;
+            this.height = height;
+            this.weight = weight;
+        }
     }
 
 }

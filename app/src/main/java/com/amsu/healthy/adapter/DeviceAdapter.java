@@ -70,7 +70,7 @@ public class DeviceAdapter extends BaseAdapter{
         String clothDeviceConnecedMac = instance.getmClothDeviceConnecedMac();
 
         if (bleDevice.getClothDeviceType() == BleConstant.clothDeviceType_secondGeneration_AMSU_BindByHardware){
-            if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXinID || bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByPhone){
+            if (bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXin || bleDevice.getBindType()==BleConnectionProxy.DeviceBindByHardWareType.bindByPhone){
                 //自己绑定
                 if (isConnectted && bleDevice.getMac().equals(clothDeviceConnecedMac)){
                     tv_item_state.setText(R.string.connected);

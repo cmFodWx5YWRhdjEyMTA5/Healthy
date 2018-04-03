@@ -500,8 +500,12 @@ public class MyUtil {
         /*SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA);  //07-12 15:10
         String fileName = format.format(new Date(timeMillis));*/
         String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth";
+        File file = new File(filePath);
+        if (!file.exists()) {
+            boolean mkdirs = file.mkdirs();
+            Log.i(TAG,"mkdirs:"+mkdirs);
+        }
         return filePath+"/"+MyUtil.getECGFileNameDependFormatTime(new Date(timeMillis))+".ecg";
-
     }
 
     public static  List<String> getWeekStringList(int weekCount) {

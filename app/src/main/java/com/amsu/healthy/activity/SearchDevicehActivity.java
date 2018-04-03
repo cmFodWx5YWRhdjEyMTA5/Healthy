@@ -29,7 +29,7 @@ import com.amsu.healthy.utils.MyUtil;
 
 import java.util.ArrayList;
 
-public class SearchDevicehActivity extends BaseActivity {
+public class  SearchDevicehActivity extends BaseActivity {
     private static final String TAG = "SearchDevicehActivity";
     private Animation animation;
     private TextView tv_search_state;
@@ -225,8 +225,6 @@ public class SearchDevicehActivity extends BaseActivity {
         if (leName!=null && (leName.startsWith("BLE") || leName.startsWith("AMSU")) && leName.length()<25){
             Log.i(TAG,"发现目标主机");
 
-            Log.i(TAG,"scanRecord:"+bytesToHex(scanRecord));
-
             boolean isAddToList = true;
             for (BleDevice device1:searchDeviceList){
                 if (device1.getLEName().equals(leName)){
@@ -241,11 +239,10 @@ public class SearchDevicehActivity extends BaseActivity {
                 }
                 else {
                     bleDevice = new BleDevice(getResources().getString(R.string.sportswear) + ":" + leName, "", device.getAddress(), leName, Constant.sportType_Cloth, rssi);
-
                 }
 
                 BleConnectionProxy.DeviceBindByHardWareType deviceBindTypeByBleBroadcastInfo = BleConnectionProxy.DeviceBindByHardWareType.devideNOSupport;
-                if (BleConnectionProxy.getInstance().isSupportBindByHardware(device)){
+                if (BleConnectionProxy.getInstance().isSupportBindByHardware(device.getName())){
                     //需要通过硬件来进行绑定 AMSU_EADE4
                     deviceBindTypeByBleBroadcastInfo = DeviceBindUtil.getDeviceBindTypeByBleBroadcastInfo(scanRecord);
                     Log.i(TAG,"deviceBindTypeByBleBroadcastInfo:"+deviceBindTypeByBleBroadcastInfo);
@@ -263,35 +260,6 @@ public class SearchDevicehActivity extends BaseActivity {
         }
     }
 
-
-    //scanRecords的格式转换
-    static final char[] hexArray = "0123456789ABCDEF".toCharArray();
-    private static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
-    }
-
-    public static String byteArrayToHex(byte[] var0) {
-        if(var0 != null && var0.length != 0) {
-            StringBuilder var1 = new StringBuilder(var0.length);
-
-            for(int var2 = 0; var2 < var0.length; ++var2) {
-                var1.append(String.format("%02X", new Object[]{Byte.valueOf(var0[var2])}));
-                if(var2 < var0.length - 1) {
-                    var1.append(' ');
-                }
-            }
-
-            return var1.toString();
-        } else {
-            return "";
-        }
-    }
 
     public void stopsearch(View view) {
         scanTimeOver();

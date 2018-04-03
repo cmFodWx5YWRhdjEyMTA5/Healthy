@@ -2,6 +2,7 @@ package com.amsu.bleinteraction.utils;
 
 import android.text.TextUtils;
 
+import com.amsu.bleinteraction.proxy.Ble;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.LeProxy;
 import com.ble.api.DataUtil;
@@ -36,8 +37,8 @@ public class DeviceBindUtil {
             int vendorDataStringLength = Integer.parseInt(split[3], 16);
             LogUtil.i(TAG,"vendorDataStringLength:"+vendorDataStringLength);
 
-            BleConnectionProxy.ConnectionConfiguration connectionConfiguration = BleConnectionProxy.getInstance().getmConnectionConfiguration();
-            String id = connectionConfiguration.bindid;
+            BleConnectionProxy.BleConfiguration connectionConfiguration = Ble.configuration();
+            String id = connectionConfiguration.userid;
             BleConnectionProxy.userLoginWay userLoginWay= connectionConfiguration.userLoginWay;
 
 
@@ -59,12 +60,12 @@ public class DeviceBindUtil {
 
                 if (localID.equals(HardWareUserID)){
                     //手机号绑定
-                    if (userType.equals("01") && userLoginWay == BleConnectionProxy.userLoginWay.phoneNumber) {
+                    if (userType.equals("01") && userLoginWay == BleConnectionProxy.userLoginWay.phone) {
                         return BleConnectionProxy.DeviceBindByHardWareType.bindByPhone;
                     }
-                    else if (userType.equals("02") && userLoginWay == BleConnectionProxy.userLoginWay.WeiXinID){
+                    else if (userType.equals("02") && userLoginWay == BleConnectionProxy.userLoginWay.WeiXin){
                         //微信号绑定
-                        return BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXinID;
+                        return BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXin;
                     }
                 }else {
                     return BleConnectionProxy.DeviceBindByHardWareType.bindByOther;
@@ -81,12 +82,12 @@ public class DeviceBindUtil {
     }
 
     public static int bingDevice(String address){
-        BleConnectionProxy.ConnectionConfiguration connectionConfiguration = BleConnectionProxy.getInstance().getmConnectionConfiguration();
+        BleConnectionProxy.BleConfiguration connectionConfiguration = Ble.configuration();
         BleConnectionProxy.userLoginWay userLoginWay = connectionConfiguration.userLoginWay;
-        String bindid = connectionConfiguration.bindid;
+        String bindid = connectionConfiguration.userid;
 
         String endString;
-        if (userLoginWay== BleConnectionProxy.userLoginWay.phoneNumber){
+        if (userLoginWay== BleConnectionProxy.userLoginWay.phone){
             endString = "01";
         }else {
             endString = "02";
@@ -96,11 +97,11 @@ public class DeviceBindUtil {
         byte[] userInfo = AesEncodeUtil.encryptReturnBytes(bindid);
         byte[] end = DataUtil.hexToByteArray(endString);
 
-        if (userInfo!=null && userInfo.length>=16){ //确保加密没错
+        if (userInfo!=null && userInfo.length>=16){ //确保加密没错，微信长度超出16时选择前面16个长度
             byte[] all = new byte[20];
             System.arraycopy(head,0,all,0,head.length);
             System.arraycopy(userInfo,0,all,head.length,16);
-            System.arraycopy(end,0,all,head.length+userInfo.length,end.length);
+            System.arraycopy(end,0,all,head.length+16,end.length);
 
             UUID serUuid = UUID.fromString(BleConstant.readSecondGenerationInfoSerUuid);
             UUID charUuid = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_1);
@@ -115,4 +116,5 @@ public class DeviceBindUtil {
         }
         return bindOrderInfoError;
     }
+
 }

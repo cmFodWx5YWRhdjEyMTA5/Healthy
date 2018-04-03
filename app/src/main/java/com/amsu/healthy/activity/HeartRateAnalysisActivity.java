@@ -45,8 +45,7 @@ import java.util.Date;
 import java.util.List;
 
 public class HeartRateAnalysisActivity extends BaseActivity {
-
-    private static final String TAG = "HeartRateAnalysis";
+    private static final String TAG = HeartRateAnalysisActivity.class.getSimpleName();
     private Animation animation;
     private FileInputStream fileInputStream;
 

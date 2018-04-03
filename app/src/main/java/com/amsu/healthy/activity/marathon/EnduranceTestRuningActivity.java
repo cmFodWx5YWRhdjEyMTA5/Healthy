@@ -16,6 +16,7 @@ import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.model.LatLng;
 import com.amsu.bleinteraction.bean.MessageEvent;
+import com.amsu.bleinteraction.proxy.Ble;
 import com.amsu.bleinteraction.proxy.BleDataProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.BaseActivity;
@@ -115,8 +116,8 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
         application.setRunningCurrTimeDate(mCurrTimeDate = new Date(0, 0, 0));
         mIsRunning = true;
 
-        mBleDataProxy = BleDataProxy.getInstance();
-        mBleDataProxy.setRecordingStarted();
+        mBleDataProxy = Ble.bleDataProxy();
+        mBleDataProxy.startRecording();
     }
 
     private void initEvents() {
@@ -180,7 +181,7 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
         chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
             @Override
             public void onConfirmClick() {
-                mBleDataProxy.stopWriteEcgToFileAndGetFileName();
+                mBleDataProxy.stopRecording();
                 finish();
             }
         });
@@ -220,7 +221,7 @@ public class EnduranceTestRuningActivity extends BaseActivity implements AMapLoc
     private String strideFrequency = "";
 
     private void uploadData() {
-        String[] fileNames = mBleDataProxy.stopWriteEcgToFileAndGetFileName();
+        String[] fileNames = mBleDataProxy.stopRecording();
 
         RequestParams params = new RequestParams();
         Gson gson = new Gson();

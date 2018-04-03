@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -60,6 +59,7 @@ public class LeProxy {
     public static final String EXTRA_REG_DATA = ".LeProxy.EXTRA_REG_DATA";
     public static final String EXTRA_REG_FLAG = ".LeProxy.EXTRA_REG_FLAG";
     public static final String EXTRA_RSSI = ".LeProxy.EXTRA_RSSI";
+    private final Object _lockObj = new Object();
 
 
     private static LeProxy mInstance;
@@ -78,7 +78,6 @@ public class LeProxy {
 
     //bleDataEncrypt为数据是否加密
     public void setBleService(IBinder binder, boolean bleDataEncrypt){
-
         mBleDataEncrypt = bleDataEncrypt;
         mBleService = ((BleService.LocalBinder) binder).getService(mBleCallBack);
         // mBleService.setMaxConnectedNumber(max);// 设置最大可连接从机数量，默认为4
@@ -201,9 +200,11 @@ public class LeProxy {
      * @param charUuid 特征uuid
      */
     public boolean enableNotification(String address, UUID serUuid, UUID charUuid){
-        BluetoothGatt gatt = mBleService.getBluetoothGatt(address);
-        BluetoothGattCharacteristic c = GattUtil.getGattCharacteristic(gatt, serUuid, charUuid);
-        return setCharacteristicNotification(gatt, c, true);
+        synchronized (_lockObj) {
+            BluetoothGatt gatt = mBleService.getBluetoothGatt(address);
+            BluetoothGattCharacteristic c = GattUtil.getGattCharacteristic(gatt, serUuid, charUuid);
+            return setCharacteristicNotification(gatt, c, true);
+        }
     }
 
     public boolean setCharacteristicNotification(BluetoothGatt gatt, BluetoothGattCharacteristic c, boolean enable){
@@ -292,9 +293,7 @@ public class LeProxy {
                 bluetoothGatt.close();
                 LogUtil.e(TAG,"超时清除");
             }
-
-
-
+            mBleService.refresh(address);
         }
 
         @Override
@@ -330,8 +329,10 @@ public class LeProxy {
         public void onServicesDiscovered(String address) {
             //!!!检索服务成功，到这一步才可以与从机进行数据交互，有些手机可能需要延时几百毫秒才能数据交互
             LogUtil.i(TAG, "onServicesDiscovered() - " + address);
+            BleDataProxy.getInstance().updateLightStateByCurHeart(0);
             new Timer().schedule(new ServicesDiscoveredTask(address), 300, 100);
-            BleDataProxy.getInstance().updateLightStateByCurHeart(-1);  //在一发现服务，发送控制灯的指令
+
+
         }
 
         @Override
@@ -369,7 +370,6 @@ public class LeProxy {
 
         @Override
         public void onRegRead(String address, String regData, int regFlag, int status) {
-
             //获取到模组寄存器数据
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 Intent intent = new Intent(ACTION_REG_DATA_AVAILABLE);
@@ -403,20 +403,6 @@ public class LeProxy {
             }
         }
     };
-
-    //将字节数组转换为16进制字符串
-    public static String binaryToHexString(byte[] bytes, int length) {
-        String hexStr = "0123456789ABCDEF";
-        String result = "";
-        String hex = "";
-        for (int i=0;i<length;i++) {
-            byte b = bytes[i];
-            hex = String.valueOf(hexStr.charAt((b & 0xF0) >> 4));
-            hex += String.valueOf(hexStr.charAt(b & 0x0F));
-            result += hex + " ";
-        }
-        return result;
-    }
 
     public void updateBroadcast(String action){
         LocalBroadcastManager.getInstance(mBleService).sendBroadcast(new Intent(action));
@@ -452,118 +438,18 @@ public class LeProxy {
         void cancelTask(){
             //准备工作完成，向外发送广播
             updateBroadcast(address, ACTION_GATT_SERVICES_DISCOVERED);
-
-            final int send = DeviceBindUtil.bingDevice( address);
-            Log.i(TAG,"发送绑定设备："+send);
-
             LogUtil.w(TAG, "Cancel ServicesDiscoveredTask: " + cancel() + ", i=" + i);
             BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_GATT_SERVICES_DISCOVERED);
-
-           /* UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-            UUID charUuid = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
-
-            byte[] head = DataUtil.hexToByteArray("41372B");
-            byte[] userInfo = AesEncodeUtil.encryptReturnBytes("18689463192");
-            byte[] end = DataUtil.hexToByteArray("01");
-
-            byte[] all = new byte[20];
-            System.arraycopy(head,0,all,0,head.length);
-            System.arraycopy(userInfo,0,all,head.length,userInfo.length);
-            System.arraycopy(end,0,all,head.length+userInfo.length,end.length);
-
-            boolean send = send(address, serUuid, charUuid, all, false);
-            Log.i(TAG,"LeProxy 发送绑定设备："+send);*/
-
         }
 
         @Override
         public void run() {
             switch (i) {
                 case 0:
-                    BleConnectionProxy.ConnectionConfiguration connectionConfiguration = BleConnectionProxy.getInstance().getmConnectionConfiguration();
-
-                    if (connectionConfiguration.deviceType == BleConstant.sportType_Cloth) {
-                        //衣服
-                        LogUtil.i(TAG, "connectionConfiguration.clothDeviceType: " + connectionConfiguration.clothDeviceType);
-
-                        //打开模组默认的数据接收通道【0x1002】，这一步成功才能保证APP收到数据
-                        if (connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_old_encrypt ||
-                                connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_old_noEncrypt
-                                || connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_AMSU_EStartWith){
-                            boolean success = enableNotification(address, BleUUIDS.PRIMARY_SERVICE, BleUUIDS.CHARACTERS[1]);
-                            LogUtil.i(TAG, "Enable 0x1002 notification: " + success);
-                        }
-
-                        if (connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_AMSU_EStartWith ||
-                                connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_secondGeneration_AMSU
-                                || connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_secondGeneration_IOE) {
-                            {
-                                UUID serUuid = UUID.fromString(BleConstant.readSecondGenerationInfoSerUuid);
-                                //UUID charUuid_2 = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_1);
-                                UUID charUuid_notify = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_2);
-                                UUID charUuid_ecg = UUID.fromString(BleConstant.readSecondGenerationClothECGCharUuid);
-                                UUID charUuid_acc = UUID.fromString(BleConstant.readSecondGenerationClothACCCharUuid);
-                                UUID charUuid_heart = UUID.fromString(BleConstant.readSecondGenerationClothHeartRateCharUuid);
-
-                                /*Thread.sleep(100);
-                                boolean success_2 = enableNotification(address, serUuid, charUuid_2);
-                                LogUtil.i(TAG, "success_2: " + success_2);*/
-
-                                SystemClock.sleep(1000);
-                                boolean success_charUuid_notify = enableNotification(address, serUuid, charUuid_notify);
-                                LogUtil.i(TAG, "success_charUuid_notify: " + success_charUuid_notify);
-
-
-                                //打开通道直接需要有间隔，不然后面的通道会打开失败
-                                SystemClock.sleep(1000);
-                                boolean success_charUuid_ecg = enableNotification(address, serUuid, charUuid_ecg);
-                                LogUtil.i(TAG, "success_charUuid_ecg: " + success_charUuid_ecg);
-
-                                SystemClock.sleep(1000);
-                                boolean success_charUuid_acc = enableNotification(address, serUuid, charUuid_acc);
-                                LogUtil.i(TAG, "success_charUuid_acc: " + success_charUuid_acc);
-
-                                SystemClock.sleep(1000);
-                                boolean success_charUuid_heart = enableNotification(address, serUuid, charUuid_heart);
-                                LogUtil.i(TAG, "success_charUuid_heart: " + success_charUuid_heart);
-
-                                SystemClock.sleep(1000);
-                            }
-                        }
-                    }
-                    else if(connectionConfiguration.deviceType== BleConstant.sportType_Insole){
-                        UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-                        UUID charUuid_order = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
-                        UUID charUuid_data = UUID.fromString("6e400004-b5a3-f393-e0a9-e50e24dcca9e");
-
-                        try {
-                            while (true){
-                                Thread.sleep(1000);
-                                boolean success_order = enableNotification(address, serUuid, charUuid_order);
-                                LogUtil.i(TAG, "success_order: " + success_order);
-                                if (success_order){
-                                    break;
-                                }
-                            }
-
-                            while (true){
-                                Thread.sleep(1000);
-                                boolean success_data = enableNotification(address, serUuid, charUuid_data);
-                                LogUtil.i(TAG, "success_data: " + success_data);
-                                if (success_data){
-                                    break;
-                                }
-                            }
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
+                    openDataChannel(address);
                     break;
 
 //                case 1:
-
-
 //                    //适配CC2541透传模块与部分手机的连接问题（就是连线后不走onServicesDiscovered()方法，一段时间后自动断开），
 //                    //初次成功需要重启模块，2.6以下版本还要重启手机蓝牙或者断线时调用mBleService.refresh()，
 //                    //不过mBleService.refresh()会清除手机缓存的uuid，影响再次连接的速度
@@ -571,12 +457,120 @@ public class LeProxy {
 //                    au.setOnResultListener(mAdaptionResultListener);
 //                    au.writeAdaptionConfigs(address);
 //                    break;
-
                 default:
                     cancelTask();
                     break;
             }
             i++;
+        }
+    }
+
+    private void openDataChannel(String address) {
+        BleConnectionProxy.BleConfiguration connectionConfiguration = BleConnectionProxy.getInstance().getmConnectionConfiguration();
+        if (connectionConfiguration.deviceType == BleConstant.sportType_Cloth) {
+
+            //衣服
+            LogUtil.i(TAG, "connectionConfiguration.clothDeviceType: " + connectionConfiguration.clothDeviceType);
+
+            //打开模组默认的数据接收通道【0x1002】，这一步成功才能保证APP收到数据
+            if (connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_old_encrypt ||
+                    connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_old_noEncrypt
+                    || connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_AMSU_EStartWith){
+                boolean success = enableNotification(address, BleUUIDS.PRIMARY_SERVICE, BleUUIDS.CHARACTERS[1]);
+                LogUtil.i(TAG, "Enable 0x1002 notification: " + success);
+            }
+
+            if (connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_AMSU_EStartWith ||
+                    connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_secondGeneration_AMSU
+                    || connectionConfiguration.clothDeviceType== BleConstant.clothDeviceType_secondGeneration_IOE) {
+                try {
+                    UUID serUuid = UUID.fromString(BleConstant.readSecondGenerationInfoSerUuid);
+                    //UUID charUuid_2 = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_1);
+                    UUID charUuid_notify = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_2);
+                    UUID charUuid_ecg = UUID.fromString(BleConstant.readSecondGenerationClothECGCharUuid);
+                    UUID charUuid_acc = UUID.fromString(BleConstant.readSecondGenerationClothACCCharUuid);
+                    UUID charUuid_heart = UUID.fromString(BleConstant.readSecondGenerationClothHeartRateCharUuid);
+
+                        /*Thread.sleep(100);
+                        boolean success_2 = enableNotification(address, serUuid, charUuid_2);
+                        LogUtil.i(TAG, "success_2: " + success_2);*/
+
+                    Thread.sleep(500);
+                    boolean success_charUuid_notify = enableNotification(address, serUuid, charUuid_notify);
+                    LogUtil.i(TAG, "success_charUuid_notify: " + success_charUuid_notify);
+
+
+                    boolean bindedByHardware = Ble.device().isBindedByHardware();
+                    if (!bindedByHardware){
+                        //没有绑定的话连接成功后先需要绑定
+                        Thread.sleep(500);
+                        final int send = DeviceBindUtil.bingDevice( address);
+                        Log.i(TAG,"发送绑定设备："+send);
+
+                        if (send==0){
+                            Thread.sleep(500);
+                            final int send1 = DeviceBindUtil.bingDevice( address);
+                            Log.i(TAG,"发送绑定设备1："+send1);
+                        }
+                    }
+
+                    //打开通道直接需要有间隔，不然后面的通道会打开失败
+                    Thread.sleep(100);
+                    boolean success_charUuid_acc = enableNotification(address, serUuid, charUuid_acc);
+                    LogUtil.i(TAG, "success_charUuid_acc: " + success_charUuid_acc);
+
+                    Thread.sleep(100);
+                    boolean success_charUuid_ecg = enableNotification(address, serUuid, charUuid_ecg);
+                    LogUtil.i(TAG, "success_charUuid_ecg: " + success_charUuid_ecg);
+
+                    Thread.sleep(100);
+                    boolean success_charUuid_heart = enableNotification(address, serUuid, charUuid_heart);
+                    LogUtil.i(TAG, "success_charUuid_heart: " + success_charUuid_heart);
+
+
+                    Thread.sleep(2000);
+
+                    boolean success_charUuid_ecg1 = enableNotification(address, serUuid, charUuid_ecg);
+                    LogUtil.i(TAG, "success_charUuid_ecg1: " + success_charUuid_ecg1);
+
+                    Thread.sleep(500);
+                    boolean success_charUuid_acc1 = enableNotification(address, serUuid, charUuid_acc);
+                    LogUtil.i(TAG, "success_charUuid_acc1: " + success_charUuid_acc1);
+
+                    Thread.sleep(500);
+                    boolean success_charUuid_heart1 = enableNotification(address, serUuid, charUuid_heart);
+                    LogUtil.i(TAG, "success_charUuid_heart1: " + success_charUuid_heart1);
+                }catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        else if(connectionConfiguration.deviceType== BleConstant.sportType_Insole){
+            UUID serUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+            UUID charUuid_order = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
+            UUID charUuid_data = UUID.fromString("6e400004-b5a3-f393-e0a9-e50e24dcca9e");
+
+            try {
+                while (true){
+                    Thread.sleep(1000);
+                    boolean success_order = enableNotification(address, serUuid, charUuid_order);
+                    LogUtil.i(TAG, "success_order: " + success_order);
+                    if (success_order){
+                        break;
+                    }
+                }
+
+                while (true){
+                    Thread.sleep(1000);
+                    boolean success_data = enableNotification(address, serUuid, charUuid_data);
+                    LogUtil.i(TAG, "success_data: " + success_data);
+                    if (success_data){
+                        break;
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -605,7 +599,6 @@ public class LeProxy {
             }
         }
     };
-
 
     public void setmBleDataEncrypt(boolean mBleDataEncrypt) {
         this.mBleDataEncrypt = mBleDataEncrypt;

@@ -25,6 +25,7 @@ import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps.AMapUtils;
 import com.amap.api.maps.model.LatLng;
 import com.amsu.bleinteraction.bean.MessageEvent;
+import com.amsu.bleinteraction.proxy.Ble;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.BleDataProxy;
 import com.amsu.bleinteraction.utils.LogUtil;
@@ -278,9 +279,9 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         Log.i(TAG,"ecgFileName:"+ecgFileName);
         Log.i(TAG,"accFileName:"+accFileName);
 
-        mBleDataProxy = BleDataProxy.getInstance();
+        mBleDataProxy = Ble.bleDataProxy();
         if (mBleDataProxy!=null){
-            String[] fileNames = mBleDataProxy.setRecordingStarted(ecgFileName, accFileName);  //开始记录并返回需要写入的文件
+            String[] fileNames = mBleDataProxy.startRecording(ecgFileName, accFileName);  //开始记录并返回需要写入的文件
             mEcgLocalFileName = fileNames[0];
             mAccLocalFileName = fileNames[1];
 
@@ -473,7 +474,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
             }
 
             //心电通过这里接受
-            BleDataProxy.getInstance().setAfterFilterbleDataChangeListener(new BleDataProxy.BleDataChangeListener() {
+            Ble.bleDataProxy().setAfterFilterbleDataChangeListener(new BleDataProxy.BleDataChangeListener() {
                 @Override
                 public void onBleDataChange(MessageEvent event) {
                     switch (event.messageType){
@@ -535,7 +536,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
 
                     destorySportInfoTOAPP();
 
-                    mBleDataProxy.stopWriteEcgToFileAndGetFileName();
+                    mBleDataProxy.stopRecording();
 
                     finish();
                 }
@@ -1446,7 +1447,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         deleteAbortDataRecordFomeSP();
         ShowNotificationBarUtil.detoryServiceForegrounByNotify();
 
-        String[] s = mBleDataProxy.stopWriteEcgToFileAndGetFileName();
+        String[] s = mBleDataProxy.stopRecording();
         Log.i(TAG,"结束："+s[0]+","+s[1]);
 
         /*if (mWebSocketUtil!=null){
@@ -1532,7 +1533,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
     @Override
     public void onLocationChanged(Location location) {
         //实时位置信息
-        //Log.i(TAG,"onLocationChanged:"+location.toString());
+        Log.i(TAG,"onLocationChanged:"+location.toString());
         //mTvAddress.setText(mTvAddress.getText().toString()+"\n"+ location.toString());
         mATempMapLocation = new AMapLocation(location);
 

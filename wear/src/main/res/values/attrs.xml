@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CircleImageView">
+        <attr name="border_width2" format="dimension" />
+        <attr name="border_color2" format="color" />
+        <attr name="border_overlay" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="swipelistviewstyle">
+        <attr name="right_width" format="dimension"></attr>
+    </declare-styleable>
+
+    <declare-styleable name="CircleRingView">
+        <attr name="circlering_width" format="dimension" />
+        <attr name="circlering_background_color" format="color"/>
+        <attr name="circlering_start_color" format="color"/>
+        <attr name="circlering_end_color" format="color"/>
+    </declare-styleable>
+
+
+
+</resources>

@@ -317,7 +317,6 @@ public class SportFragment extends BaseFragment implements AMap.OnMapLoadedListe
             String myDistance = MyUtil.getFormatDistance(distance);
             tv_sport_mileage.setText(myDistance);
 
-
             //速度
             //String average = Util.getAverage((float) distance, duration);
 

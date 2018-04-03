@@ -150,7 +150,6 @@ public class BarChartView extends View {
         canvas.drawLine(mMarginleft,0,mMarginleft,mHeight-marginBotom1,mCoordinatePaint);  //竖线
         String yText;
 
-
         //纵坐标数值
         for (int i=0;i<yTexts.length;i++){
             yText = yTexts[i]+"’0’’";

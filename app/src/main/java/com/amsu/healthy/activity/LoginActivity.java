@@ -501,8 +501,8 @@ public class LoginActivity extends BaseActivity {
                                             User user = new User(phone,userName,birthday,sex,weight,height,address,email,icon,stillRate);
                                             MyUtil.saveUserToSP(user);
                                             MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
-                                            BleConnectionProxy.getInstance().getmConnectionConfiguration().userLoginWay = BleConnectionProxy.userLoginWay.phoneNumber;
-                                            BleConnectionProxy.getInstance().getmConnectionConfiguration().bindid = phone;  //更新蓝牙链接库当前配置
+                                            BleConnectionProxy.getInstance().getmConnectionConfiguration().userLoginWay = BleConnectionProxy.userLoginWay.phone;
+                                            BleConnectionProxy.getInstance().getmConnectionConfiguration().userid = phone;  //更新蓝牙链接库当前配置
                                             UploadHealthyDataUtil.downlaodWeekReport(-1,-1,true,LoginActivity.this);
                                             MyUtil.showDialog(getResources().getString(R.string.login_successful_synchronizing_data),LoginActivity.this);
                                             //startActivity(new Intent(LoginActivity.this,MainActivity.class));

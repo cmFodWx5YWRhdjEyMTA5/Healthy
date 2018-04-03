@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.amsu.bleinteraction.utils.BleConstant;
 import com.amsu.bleinteraction.utils.EcgAccDataUtil;
 import com.amsu.healthy.R;
 
@@ -66,6 +67,9 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
     //protected int mSGridColor = Color.parseColor("#E8E8E8");
     //背景颜色
     protected int mBackgroundColor = Color.WHITE;
+
+    //背景颜色
+    protected int mLineColorGray = Color.parseColor("#BDBDBD");
 
     //小网格的宽度
     //protected int mSGridWidth = 15;
@@ -269,7 +273,15 @@ public class EcgView extends SurfaceView implements SurfaceHolder.Callback {
                     float newX = (float) (mStartX + ecgXOffset);
                     int location = currentcountIndex * ecgPerCount + i;
                     if (location<ecgDatas.size()){
-                        int newY = ecgConver(ecgDatas.get(location));
+                        Integer data = ecgDatas.get(location);
+                        if (data== BleConstant.bleSupplyData){
+                            mWavePaint.setColor(mLineColorGray);
+                            data = 0;
+                        }else {
+                            mWavePaint.setColor(mLineColor);
+                        }
+                        int newY = ecgConver(data);
+
                         mCanvas.drawLine(mStartX, startY0, newX, newY, mWavePaint);
                         mStartX = newX;
                         startY0 = newY;

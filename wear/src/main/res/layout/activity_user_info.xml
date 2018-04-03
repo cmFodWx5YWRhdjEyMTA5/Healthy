@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <com.amsu.wear.view.CircleImageView
+                android:id="@+id/userAvatar"
+                android:layout_width="@dimen/x82"
+                android:layout_height="@dimen/x82"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/x32"
+                android:background="@drawable/round_gray" />
+
+            <TextView
+                android:id="@+id/userName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/x20"
+                android:textColor="@color/font_txt_content_3"
+                android:textSize="@dimen/x30" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x16"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x40"
+                    android:text="@string/user_ui_value_1"
+                    android:textColor="@color/font_txt_content_3"
+                    android:textSize="@dimen/x30" />
+
+                <TextView
+                    android:id="@+id/userBirthday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x200"
+                    android:textColor="@color/font_txt_content_4"
+                    android:textSize="@dimen/x30" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x16"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x40"
+                    android:text="@string/user_ui_value_2"
+                    android:textColor="@color/font_txt_content_3"
+                    android:textSize="@dimen/x30" />
+
+                <TextView
+                    android:id="@+id/userSex"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x200"
+                    android:textColor="@color/font_txt_content_4"
+                    android:textSize="@dimen/x30" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x16"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x40"
+                    android:text="@string/user_ui_value_3"
+                    android:textColor="@color/font_txt_content_3"
+                    android:textSize="@dimen/x30" />
+
+                <TextView
+                    android:id="@+id/userWeight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x200"
+                    android:textColor="@color/font_txt_content_4"
+                    android:textSize="@dimen/x30" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x16"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x40"
+                    android:text="@string/user_ui_value_4"
+                    android:textColor="@color/font_txt_content_3"
+                    android:textSize="@dimen/x30" />
+
+                <TextView
+                    android:id="@+id/userStature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x200"
+                    android:textColor="@color/font_txt_content_4"
+                    android:textSize="@dimen/x30" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x16"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x40"
+                    android:text="@string/user_ui_value_5"
+                    android:textColor="@color/font_txt_content_3"
+                    android:textSize="@dimen/x30" />
+
+                <TextView
+                    android:id="@+id/userHR"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x200"
+                    android:textColor="@color/font_txt_content_4"
+                    android:textSize="@dimen/x30" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x16"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x40"
+                    android:text="@string/user_ui_value_6"
+                    android:textColor="@color/font_txt_content_3"
+                    android:textSize="@dimen/x30" />
+
+                <TextView
+                    android:id="@+id/userAddress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x200"
+                    android:textColor="@color/font_txt_content_4"
+                    android:textSize="@dimen/x30" />
+            </FrameLayout>
+
+            <Button
+                android:id="@+id/exitLogin"
+                android:layout_width="@dimen/x280"
+                android:layout_height="@dimen/y76"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/x28"
+                android:background="@drawable/bg_home_red_radius"
+                android:text="@string/user_ui_value_exit"
+                android:textSize="@dimen/x32" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/x100" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

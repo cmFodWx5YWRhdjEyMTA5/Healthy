@@ -26,6 +26,7 @@ import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.LeProxy;
 import com.amsu.bleinteraction.utils.BleConstant;
 import com.amsu.bleinteraction.utils.LogUtil;
+import com.amsu.bleinteraction.utils.ReadDeviceInfoUtil;
 import com.amsu.bleinteraction.utils.SharedPreferencesUtil;
 import com.amsu.healthy.R;
 import com.amsu.healthy.bean.JsonBase;
@@ -210,7 +211,7 @@ public class DeviceInfoActivity extends BaseActivity {
     }
 
     public void unBindDevice(View view) {
-        final BleDevice bleDeviceFromSP = MyUtil.getDeviceFromSP(mDevicetype);
+        final BleDevice bleDeviceFromSP = SharedPreferencesUtil.getDeviceFromSP(mDevicetype);
 
         if (bleDeviceFromSP.getClothDeviceType()==BleConstant.clothDeviceType_secondGeneration_AMSU_BindByHardware){
             //需要通过主机长按解绑
@@ -348,7 +349,7 @@ public class DeviceInfoActivity extends BaseActivity {
             if (TextUtils.isEmpty(deviceFromSP.getModelNumber()) || TextUtils.isEmpty(deviceFromSP.getHardWareVersion())){
                 //主机硬件信息没有读取上来，再次去读取
                 MyUtil.showToask(DeviceInfoActivity.this,"主机硬件信息读取失败，请点击重试");
-                BleConnectionProxy.getInstance().readSecondGenerationDeviceInfo(deviceFromSP.getMac(),BleConstant.sportType_Cloth);  //发送读取硬件信息指令
+                new ReadDeviceInfoUtil().readSecondGenerationDeviceInfo(deviceFromSP.getMac(),BleConstant.sportType_Cloth);  //发送读取硬件信息指令
             }
             else {
                 checkServerDeviceUpdateInfo(deviceFromSP);
@@ -486,21 +487,24 @@ public class DeviceInfoActivity extends BaseActivity {
     }
 
     private void downLoadSussess() {
-        UUID serUuid = UUID.fromString(BleConstant.readSecondGenerationInfoSerUuid);
-        UUID charUuid = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_1);
-        boolean send = mLeProxy.send(bleDeviceFromSP.getMac(), serUuid, charUuid, "4231", false);
+        final UUID serUuid = UUID.fromString(BleConstant.readSecondGenerationInfoSerUuid);
+        final UUID charUuid = UUID.fromString(BleConstant.sendReceiveSecondGenerationClothCharUuid_1);
+        final boolean send = mLeProxy.send(bleDeviceFromSP.getMac(), serUuid, charUuid, "4231", false);
         Log.i(TAG,"进入升级模式: "+send);
+
         new Thread(){
             @Override
             public void run() {
-                SystemClock.sleep(500);
+                Log.i(TAG,"sleep");
+                SystemClock.sleep(1000*1);
+                Log.i(TAG,"startScan");
                 startScan();
             }
         }.start();
         setProgressUpadteState(progressState_startconnecting);
     }
 
-    public void startUpload(String macAddress,String zipFilePath) {
+    public void startUpload(final String macAddress, final String zipFilePath) {
         Log.i(TAG,"macAddress:"+macAddress);
         Log.i(TAG,"zipFilePath:"+zipFilePath);
         isUdateSuccess = false;
@@ -526,6 +530,7 @@ public class DeviceInfoActivity extends BaseActivity {
         @Override
         public void onDeviceConnected(String deviceAddress) {
             Log.i(TAG, "升级onDeviceConnected");
+            isConnectting = false;
             setProgressUpadteState(progressState_startconnected);
         }
 
@@ -564,7 +569,7 @@ public class DeviceInfoActivity extends BaseActivity {
         @Override
         public void onDeviceDisconnected(String deviceAddress) {
             Log.i(TAG, "升级onDeviceDisconnected");
-
+            isConnectting = false;
         }
 
         @Override
@@ -596,6 +601,7 @@ public class DeviceInfoActivity extends BaseActivity {
             if (!isUdateSuccess){
                 setProgressUpadteState(progressState_updateerror);
             }
+            isConnectting = false;
             //stopDfu();
             //dfuDialogFragment.dismiss();
             //Toast.makeText(mContext, "升级失败，请重新点击升级。", Toast.LENGTH_SHORT).show();
@@ -707,8 +713,8 @@ public class DeviceInfoActivity extends BaseActivity {
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
         mBluetoothAdapter.startLeScan(mLeScanCallback);
-
     }
+
     //扫描蓝牙回调
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
 
@@ -721,14 +727,16 @@ public class DeviceInfoActivity extends BaseActivity {
             LogUtil.i(TAG,"onLeScan:"+device.getName()+","+device.getAddress()+","+device.getUuids()+","+device.getBondState()+","+device.getType());
 
             String leName = device.getName();
-            if (leName!=null && (leName.startsWith("OTA_") || leName.startsWith("AMSU_DFU_E"))){
+            if (leName!=null && (leName.startsWith("OTA_") || leName.startsWith(BleConstant.upDateHardwareLeName))){
                 //amsu升级模式后设备为OTA开头，   神念升级模式后设备为AMSU_DFU_E
                 if (!isConnectting){
                     /*mLeProxy.connect(device.getAddress(),false);
                     Log.i(TAG,"尝试连接OTA_");*/
-                    startUpload(device.getAddress(),mLocalSavePath);
-                    LogUtil.i(TAG,"开始升级");
                     isConnectting = true;
+                    //Ble.bleConnectionProxy().connect(device.getAddress());
+                    startUpload(device.getAddress(),mLocalSavePath);
+                    Log.i(TAG,"尝试连接OTA_");
+                    //LogUtil.i(TAG,"开始升级");
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
                     setProgressUpadteState(progressState_startconnecting);
                 }
@@ -755,10 +763,15 @@ public class DeviceInfoActivity extends BaseActivity {
                 if (!isConnected){
                     tv_device_electric.setText("--");
                 }
+                else {
+                    /*if (mIsUpdateWhenConnected){
+                        Log.i(TAG,"连接成功，开始升级");
+                        //onBleConnectedSuccessful(event.address);
+                    }*/
+                }
                 break;
         }
     }
-
 
     private void onBleDisConnected(String address) {
         isConnectting = false;

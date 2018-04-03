@@ -137,7 +137,6 @@ public class RunTrailMapActivity extends BaseActivity implements LocationSource,
                         isGetHightAccuracyPosition = true;
                     }
                 }
-
             } else {
                 String errText = "定位失败," + amapLocation.getErrorCode() + ": " + amapLocation.getErrorInfo();
                 Log.e("AmapErr", errText);

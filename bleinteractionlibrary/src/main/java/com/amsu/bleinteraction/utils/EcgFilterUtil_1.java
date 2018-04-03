@@ -163,7 +163,7 @@ public class EcgFilterUtil_1 {
             Filter_Init_notch(Filter_Mark);
             return 0;
         }
-        if(1!= Filter_Mark)
+        if(1!= Filter_Mark || data == 500)
         {
 //		gFilt_result.nFilterData = data;
             return data;
@@ -217,7 +217,8 @@ public class EcgFilterUtil_1 {
         //输入 int d  待滤波的点
         //输出 int    滤波后的点
         double hy0;
-
+	if(d == 500)
+		return 500;
         int i;
         for (i = 0; i < ECG_HPASS_LEN-1; i++)
             hx0[ECG_HPASS_LEN-1 - i] = hx0[ECG_HPASS_LEN-2 - i];
@@ -250,6 +251,8 @@ public class EcgFilterUtil_1 {
         //输入 int d  待滤波的点
         //输出 int    滤波后的点
         double ly0;
+	if(d == 500)
+		return 500;
         int i;
         for (i = 0; i < ECG_LPASS_LEN-1; i++)
             lx0[ECG_LPASS_LEN-1 - i] = lx0[ECG_LPASS_LEN-2 - i];

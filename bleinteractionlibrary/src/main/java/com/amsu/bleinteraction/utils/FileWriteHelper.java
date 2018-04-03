@@ -4,6 +4,9 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.amsu.bleinteraction.bean.BleDevice;
+import com.amsu.bleinteraction.proxy.Ble;
+import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.utils.IOUtil.WriteReadDataToBinaryFile;
 import com.amsu.bleinteraction.utils.IOUtil.WriteReadDataToFileStrategy;
 
@@ -41,7 +44,7 @@ public class FileWriteHelper {
         return fileWriteHelper;
     }
 
-    void writeEcgDataToFile(int[] data){
+    public void writeEcgDataToFile(int[] data){
         if (mIsrecording){
             if (mWriteECGDataToFileStrategy !=null){
                 mWriteECGDataToFileStrategy.writeArrayDataToBinaryFile(data);
@@ -81,7 +84,7 @@ public class FileWriteHelper {
         return format.format(date);
     }
 
-    public void startRecordingToFile(String ecgFileName,String accFileName,boolean isNeedWriteFileHead){
+    public void startRecordingToFile(String ecgFileName, String accFileName, boolean isNeedWriteFileHead){
         Log.i(TAG,"开始记录");
         Log.i(TAG,"ecgFileName:"+ecgFileName);
         this.mEcgFileName  =ecgFileName;
@@ -109,21 +112,47 @@ public class FileWriteHelper {
         return fileNames;
     }
 
+    /*
+    * 文件头：256字节
+        {
+            char head[10] = AMSU_BETA1;      ASSIC
+            char clothes_identifier[24];   //clothname      ASSIC
+            char version[8];  // 硬件版本  v1  v2 …..      ASSIC
+            long long date_time  // 时间戳，毫秒级
+            char name[64];      ASSIC
+            char age;   // 年龄
+            char sex;    //男=1 女=2
+            short height;   //cm
+            short weight;   //kg
+            short gain; //增益
+            char leads; //导联数
+            short sample_fre;//采样率
+            char ad；//ad位，一代是8位，二代是16位
+
+            char remark[130];   //备注   以后备用
+        }
+*/
     public static void writeECGFileHeadBytes(DataOutputStream dataOutputStream){
+        BleConnectionProxy.BleConfiguration configuration = Ble.configuration();
+        BleDevice deviceFromSP = SharedPreferencesUtil.getDeviceFromSP(BleConstant.sportType_Cloth);
+
         byte[] head = DataTypeConversionUtil.getBytesByAsciiString("AMSU_BETA1",10);
-        byte[] clothes_identifier = DataTypeConversionUtil.getBytesByAsciiString("AMSU_E9087896590",24);
-        byte[] version = DataTypeConversionUtil.getBytesByAsciiString("v1",4);;  // 硬件版本  v1  v2 …..      ASSIC
-        long date_time = System.currentTimeMillis() ;   //date_time[0] = (char)(2017-2000)   // 年月日时分秒
-        byte[] name = DataTypeConversionUtil.getBytesByAsciiString("18689463192",16);;
-        byte age = 11;   // 年龄
-        byte sex = 1;    //男=1 女=2
-        short height = 165;   //cm
-        short weight = 60;   //kg
-        short gain = 3; //增益
-        byte leads = 4; //导联数
+        byte[] clothes_identifier = DataTypeConversionUtil.getBytesByAsciiString(deviceFromSP.getLEName(),24);
+        byte[] version = DataTypeConversionUtil.getBytesByAsciiString(deviceFromSP.getHardWareVersion(),8);;  // 硬件版本  v1  v2 …..      ASSIC
+        long date_time = System.currentTimeMillis() ;   //date_time[0] = (char)(2017-2000)   // 年月日时分秒   8字节
+        byte[] name = DataTypeConversionUtil.getBytesByAsciiString(configuration.userid,64);
+
+        byte age = (byte) configuration.userAge;   // 年龄
+        byte sex = (byte) configuration.sex;    //男=1 女=2
+        short height = (short) configuration.height;   //cm
+        short weight = (short) configuration.weight;   //kg
+
+        short gain = 34; //增益
+        byte leads = 1; //导联数
         short sample_fre = 150;//采样率
         byte ad = 8;//ad位，一代是8位，二代是16位
-        byte[] remark = DataTypeConversionUtil.getBytesByAsciiString("xxxxxxx",182);;   //备注   以后备用
+
+        byte[] remark = DataTypeConversionUtil.getBytesByAsciiString("android",182);;   //备注   以后备用
 
         try {
             dataOutputStream.write(head);
@@ -169,7 +198,7 @@ public class FileWriteHelper {
             dataInputStream.read(clothes_identifier);
             String clothes_identifierString = DataTypeConversionUtil.getStringByAsciiBytes(clothes_identifier);
 
-            byte[] version = new byte[4];
+            byte[] version = new byte[8];
             dataInputStream.read(version);
             String versionString = DataTypeConversionUtil.getStringByAsciiBytes(version);
 
@@ -178,7 +207,7 @@ public class FileWriteHelper {
 
             long date_timeLong = DataTypeConversionUtil.bytesToLong(date_time);
 
-            byte[] name = new byte[16];
+            byte[] name = new byte[64];
             dataInputStream.read(name);
             String nameString = DataTypeConversionUtil.getStringByAsciiBytes(name);
 
@@ -269,6 +298,26 @@ public class FileWriteHelper {
             this.sampleFre = sampleFre;
             this.ad = ad;
             this.remark = remark;
+        }
+
+        @Override
+        public String toString() {
+            return "EcgFileHead{" +
+                    "head='" + head + '\'' +
+                    ", clothesIdentifier='" + clothesIdentifier + '\'' +
+                    ", version='" + version + '\'' +
+                    ", dateTime=" + dateTime +
+                    ", name='" + name + '\'' +
+                    ", age=" + age +
+                    ", sex=" + sex +
+                    ", height=" + height +
+                    ", weight=" + weight +
+                    ", gain=" + gain +
+                    ", leads=" + leads +
+                    ", sampleFre=" + sampleFre +
+                    ", ad=" + ad +
+                    ", remark='" + remark + '\'' +
+                    '}';
         }
     }
 }

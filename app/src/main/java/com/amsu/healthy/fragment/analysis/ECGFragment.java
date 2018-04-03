@@ -12,6 +12,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.amsu.bleinteraction.utils.EcgFilterUtil_1;
+import com.amsu.bleinteraction.utils.FileWriteHelper;
 import com.amsu.healthy.R;
 import com.amsu.healthy.activity.HeartRateResultShowActivity;
 import com.amsu.healthy.bean.UploadRecord;
@@ -148,7 +149,6 @@ public class ECGFragment extends BaseFragment {
                     Log.i(TAG,"mUploadRecord:"+mUploadRecord.toString());
                     //Log.i(TAG,"ec :"+mUploadRecord.ec);
                     //long timestamp =  Long.valueOf(mUploadRecord.timestamp);
-                    Log.i(TAG,"eCGFilePath:"+mUploadRecord.localEcgFileName);
 
                     String eCGFilePath = mUploadRecord.localEcgFileName;
                     Log.i(TAG,"eCGFilePath:"+eCGFilePath);
@@ -183,6 +183,9 @@ public class ECGFragment extends BaseFragment {
 
                                 }*/
 
+                                    FileWriteHelper.EcgFileHead readEcgFileHead = FileWriteHelper.readEcgFileHead(dataInputStream);
+                                    Log.i(TAG,"readEcgFileHead:"+readEcgFileHead);
+
                                     try {
 
                                         byte[] bytes = new byte[1024*1024];
@@ -198,8 +201,15 @@ public class ECGFragment extends BaseFragment {
                                             for (int i = 0; i < read/2; i++) {
                                                if (!stopThread){
                                                    //滤波处理
-                                                   int temp = ecgFilterUtil_1.miniEcgFilterLp(ecgFilterUtil_1.miniEcgFilterHp (ecgFilterUtil_1.NotchPowerLine( MyUtil.getShortByTwoBytes(bytes[i*2], bytes[i*2+1]), 1)));
+                                                   short shortByTwoBytes = MyUtil.getShortByTwoBytes(bytes[i * 2], bytes[i * 2 + 1]);
+                                                   int temp = ecgFilterUtil_1.miniEcgFilterLp(ecgFilterUtil_1.miniEcgFilterHp (ecgFilterUtil_1.NotchPowerLine(shortByTwoBytes, 1)));
 
+                                                   /*if (shortByTwoBytes== BleConstant.bleSupplyData){
+                                                       temp = BleConstant.bleSupplyData;
+                                                   }
+                                                   else {
+                                                       temp = ecgFilterUtil_1.miniEcgFilterLp(ecgFilterUtil_1.miniEcgFilterHp (ecgFilterUtil_1.NotchPowerLine(shortByTwoBytes, 1)));
+                                                   }*/
                                                    //Log.i(TAG,"滤波："+i);
                                                    datas.add(temp);
                                                    if (datas.size()==20){

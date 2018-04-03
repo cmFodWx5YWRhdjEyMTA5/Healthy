@@ -246,7 +246,8 @@ public class UploadHealthyDataUtil {
             params.addBodyParameter("minhr",uploadRecord.minhr+"");
             params.addBodyParameter("hrr",uploadRecord.hrr+"");
             params.addBodyParameter("hrs",uploadRecord.hrs+"");
-            params.addBodyParameter("ec",uploadRecord.ec+"");
+            //params.addBodyParameter("ec",uploadRecord.ec+"");
+            params.addBodyParameter("ecFile",new File(uploadRecord.localEcgFileName));
             params.addBodyParameter("ecr",uploadRecord.ecr+"");
             params.addBodyParameter("ecs",uploadRecord.ecs+"");
             params.addBodyParameter("ra",uploadRecord.ra+"");
@@ -308,7 +309,7 @@ public class UploadHealthyDataUtil {
             params.addBodyParameter("chaosPlotMinorAxis","0");
 
 
-            httpUtils.send(HttpRequest.HttpMethod.POST, Constant.uploadReportURL, params, new RequestCallBack<String>() {
+            httpUtils.send(HttpRequest.HttpMethod.POST, Constant.uploadReportURL_new, params, new RequestCallBack<String>() {
                 @Override
                 public void onSuccess(ResponseInfo<String> responseInfo) {
                     String result = responseInfo.result;

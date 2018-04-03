@@ -17,6 +17,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.amsu.bleinteraction.bean.MessageEvent;
+import com.amsu.bleinteraction.proxy.Ble;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.BleDataProxy;
 import com.amsu.bleinteraction.utils.EcgAccDataUtil;
@@ -99,7 +100,7 @@ public class HealthyDataActivity extends BaseActivity {
     private void initData() {
         Intent intent = getIntent();
 
-        mBleDataProxy = BleDataProxy.getInstance();
+        mBleDataProxy = Ble.bleDataProxy();
         mBleConnectionProxy = BleConnectionProxy.getInstance();
 
         mIsLookupECGDataFromSport = intent.getBooleanExtra(Constant.isLookupECGDataFromSport, false);
@@ -108,7 +109,7 @@ public class HealthyDataActivity extends BaseActivity {
             getTv_base_centerText().setVisibility(View.GONE);
         }
         else {
-            mBleDataProxy.setRecordingStarted();
+            mBleDataProxy.startRecording();
         }
 
         heartRateDates = new ArrayList<>();
@@ -124,13 +125,10 @@ public class HealthyDataActivity extends BaseActivity {
         EventBus.getDefault().register(this);
 
         //心电通过这里接受
-        BleDataProxy.getInstance().setAfterFilterbleDataChangeListener(new BleDataProxy.BleDataChangeListener() {
+        mBleDataProxy.setAfterFilterbleDataChangeListener(new BleDataProxy.BleDataChangeListener() {
             @Override
             public void onBleDataChange(MessageEvent event) {
                 switch (event.messageType){
-                   /* case msgType_HeartRate:
-                        updateUIECGHeartData(event.singleValue);
-                        break;*/
                     case msgType_ecgDataArray_AfterFiter:
                         LogUtil.i(TAG,"testIndex:"+event.testIndex);
                         dealWithEcgData(event.dataArray);
@@ -176,11 +174,11 @@ public class HealthyDataActivity extends BaseActivity {
     private void dealWithEcgData(int[] ecgData) {
         if (isActivityFinsh) return;
 
-        String intStringA = "";
+        /*String intStringA = "";
         for (int i:ecgData){
             intStringA+=i+",";
         }
-        LogUtil.w(TAG,"滤波后心电:"+intStringA);
+        LogUtil.w(TAG,"滤波后心电:"+intStringA);*/
 
         if (isNeedDrawEcgData){
             if (startTimeMillis==-1){
@@ -235,7 +233,7 @@ public class HealthyDataActivity extends BaseActivity {
         boolean needAnalysis = isNeedAnalysis();
 
         if (needAnalysis){
-            String[] fileNames = mBleDataProxy.stopWriteEcgToFileAndGetFileName();
+            String[] fileNames = mBleDataProxy.stopRecording();
 
             Intent intent = new Intent(HealthyDataActivity.this, HeartRateAnalysisActivity.class);
             intent.putExtra(Constant.sportState,Constant.SPORTSTATE_STATIC);
@@ -340,7 +338,7 @@ public class HealthyDataActivity extends BaseActivity {
         }
 
         EventBus.getDefault().unregister(this);
-
+        mBleDataProxy.setAfterFilterbleDataChangeListener(null);
     }
 
     //按返回键时的处理
@@ -352,7 +350,7 @@ public class HealthyDataActivity extends BaseActivity {
                 @Override
                 public void onConfirmClick() {
                     ShowNotificationBarUtil.detoryServiceForegrounByNotify();
-                    mBleDataProxy.stopWriteEcgToFileAndGetFileName();
+                    mBleDataProxy.stopRecording();
                     finish();
                 }
             });

@@ -80,7 +80,6 @@ public class WriteReadDataToBinaryFile implements WriteReadDataToFileStrategy {
         return isWriteSuccess;
     }
 
-
     @Override
     public List<Integer> readDataFromFile(String fileName) {
         EcgFilterUtil_1 mEcgFilterUtil_1 = EcgFilterUtil_1.getInstance();
@@ -129,6 +128,8 @@ public class WriteReadDataToBinaryFile implements WriteReadDataToFileStrategy {
         return isWriteSuccess;
     }
 
+    private int mPreEcgDataLegth;
+
     //写到文件里，二进制方式写入
     @Override
     public void writeArrayDataToBinaryFile(final int[] ints) {
@@ -136,24 +137,22 @@ public class WriteReadDataToBinaryFile implements WriteReadDataToFileStrategy {
             if (mDataOutputStream ==null){
                 mDataOutputStream = new DataOutputStream(new FileOutputStream(mFileName,true));  //追加到文件末尾
                 Log.i(TAG,"mFileName:"+mFileName);
-                mByteBuffer = ByteBuffer.allocate(2*ints.length);
-                mByteBuffer.order(ByteOrder.LITTLE_ENDIAN);  //小端模式写入文件
                 if (mIsNeedWriteFileHead){
                     FileWriteHelper.writeECGFileHeadBytes(mDataOutputStream);
                 }
             }
-            /*for (int anInt : ints) {
-                mByteBuffer.clear();
-                mByteBuffer.putShort((short) anInt);
-                mDataOutputStream.writeByte(mByteBuffer.get(1));
-                mDataOutputStream.writeByte(mByteBuffer.get(0));
-            }*/
+
+            if (mPreEcgDataLegth!=ints.length){
+                mByteBuffer = ByteBuffer.allocate(2*ints.length);
+                mByteBuffer.order(ByteOrder.LITTLE_ENDIAN);  //小端模式写入文件
+                mPreEcgDataLegth = ints.length;
+            }
+
             mByteBuffer.clear();
             for (int anInt : ints) {
                 mByteBuffer.putShort((short) anInt);
             }
             mDataOutputStream.write(mByteBuffer.array());
-
         } catch (IOException e) {
             Log.i(TAG,"e:"+e);
             e.printStackTrace();

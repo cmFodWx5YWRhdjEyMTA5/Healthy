@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.amsu.bleinteraction.bean.BleDevice;
 import com.amsu.bleinteraction.bean.MessageEvent;
+import com.amsu.bleinteraction.proxy.Ble;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.utils.BleConstant;
 import com.amsu.healthy.R;
@@ -84,20 +85,30 @@ public class CoreService extends Service {
             phone = userFromSP.getPhone();
         }
 
-        boolean isNeedWriteFileHead = false;   //心电文件是否需要些写入文件头，暂时不需要
-        //mBleConnectionProxy.initConnectedConfiguration(new BleConnectionProxy.ConnectionConfiguration(userAge,isAutoOffline,deivceType,clothDeviceType,isNeedWriteFileHead),this);
+        boolean isNeedWriteFileHead = true;   //心电文件是否需要些写入文件头
+        //mBleConnectionProxy.initConnectedConfiguration(new BleConnectionProxy.BleConfiguration(userAge,isAutoOffline,deivceType,clothDeviceType,isNeedWriteFileHead),this);
 
-        BleConnectionProxy.ConnectionConfiguration connectionConfiguration = new BleConnectionProxy.ConnectionConfiguration(
+        BleConnectionProxy.BleConfiguration configuration = new BleConnectionProxy.BleConfiguration(
                 userAge,
                 isAutoOffline,
                 deivceType,
                 isNeedWriteFileHead,
                 phone,
-                BleConnectionProxy.userLoginWay.phoneNumber);
-        connectionConfiguration.isOpenReceiveDataTest = isOpenReceiveDataTest;
+                BleConnectionProxy.userLoginWay.phone);
+        configuration.isOpenReceiveDataTest = isOpenReceiveDataTest;
 
-        mBleConnectionProxy.initConnectedConfiguration(connectionConfiguration, this);
+        configuration.sex = 0;
+        configuration.height = 0;
+        configuration.weight = 0;
 
+        try {
+            configuration.sex = Integer.parseInt(userFromSP.getSex());
+            configuration.height = Integer.parseInt(userFromSP.getHeight());
+            configuration.weight = Integer.parseInt(userFromSP.getWeight());
+        } catch (Exception e) {
+        }
+
+        Ble.init(this,configuration);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

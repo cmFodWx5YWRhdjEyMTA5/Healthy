@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+
+            <!--<ImageButton
+                android:id="@+id/sportsOperationLeft"
+                android:layout_width="@dimen/x60"
+                android:layout_height="@dimen/x60"
+                android:layout_gravity="bottom"
+                android:background="@color/transparent"
+                android:src="@drawable/icon_left" />
+-->
+            <ViewSwitcher
+                android:id="@+id/mSportSwitcher"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/sportsType1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/x92"
+                        android:layout_height="@dimen/x92"
+                        android:src="@drawable/huwai_1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/x16"
+                        android:layout_marginRight="@dimen/x16"
+                        android:layout_marginTop="@dimen/x28"
+                        android:paddingBottom="@dimen/x3"
+                        android:text="室外跑步"
+                        android:textColor="@color/font_color_red"
+                        android:textSize="@dimen/x36" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/sportsType2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/x92"
+                        android:layout_height="@dimen/x92"
+                        android:src="@drawable/shinei_1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/x28"
+                        android:paddingBottom="@dimen/x3"
+                        android:text="室内跑步"
+                        android:textColor="@color/font_color_red"
+                        android:textSize="@dimen/x36" />
+                </LinearLayout>
+            </ViewSwitcher>
+
+            <!--<ImageButton
+                android:id="@+id/sportsOperationRight"
+                android:layout_width="@dimen/x60"
+                android:layout_height="@dimen/x60"
+                android:layout_gravity="bottom"
+                android:background="@color/transparent"
+                android:padding="@dimen/x5"
+                android:src="@drawable/icon_right" />-->
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/startSports"
+            android:layout_width="@dimen/x280"
+            android:layout_height="@dimen/y76"
+            android:layout_marginTop="@dimen/x28"
+            android:background="@drawable/bg_home_red_radius"
+            android:text="开始"
+            android:textSize="@dimen/x32"/>
+    </LinearLayout>
+</RelativeLayout>

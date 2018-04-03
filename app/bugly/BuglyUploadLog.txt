@@ -985,3 +985,17 @@ appChannel=tencent
 appPackage=com.amsu.healthy
 appVersion=1.6.1
 
+file=C:\Users\HP\AndroidStudioProjects\Healthy-master\app\build\outputs\mapping\inner\release\mapping.txt
+sha1=606d4fde3adab88da92c0001fdb0db947b13a5ff
+appId=d139ea916b
+appChannel=inner
+appPackage=com.amsu.healthy
+appVersion=1.6.1
+
+file=C:\Users\HP\AndroidStudioProjects\Healthy-master\app\build\outputs\mapping\inner\release\mapping.txt
+sha1=673b4e909c7db66b480843001bf7e8e42846feda
+appId=d139ea916b
+appChannel=inner
+appPackage=com.amsu.healthy
+appVersion=1.6.1
+

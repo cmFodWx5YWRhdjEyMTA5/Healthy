@@ -1,6 +1,6 @@
 package com.amsu.bleinteraction.utils;
 
-import com.amsu.bleinteraction.proxy.BleConnectionProxy;
+import com.amsu.bleinteraction.proxy.Ble;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class EcgAccDataUtil {
 
     public static int[] getValuableEcgACCData(String hexData){
         LogUtil.i(TAG,"hexData:"+hexData);
-        int clothDeviceType = BleConnectionProxy.getInstance().getmConnectionConfiguration().clothDeviceType;
+        int clothDeviceType = Ble.configuration().clothDeviceType;
 
         if (clothDeviceType==BleConstant.clothDeviceType_old_encrypt || clothDeviceType==BleConstant.clothDeviceType_old_noEncrypt){
             if(hexData.startsWith("FF 83") && hexData.length()==44){   //旧版心电数据

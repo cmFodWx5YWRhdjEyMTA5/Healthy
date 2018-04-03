@@ -62,10 +62,9 @@ public class ClothHistoryRecordFragment extends Fragment {
         return inflate;
     }
 
-
     private void initView() {
-        swipeRefreshLayout = (SwipeRefreshLayout) inflate.findViewById(R.id.sr1);
-        swipeRefreshLayout.setColorSchemeResources(R.color.app_Refresh_start_color,R.color.app_background_color);
+        swipeRefreshLayout = (SwipeRefreshLayout) inflate.findViewById(R.id.sr_history_refresh);
+        swipeRefreshLayout.setColorSchemeResources(R.color.app_Refresh_start_color,R.color.app_Refresh_start_color);
         swipeRefreshLayout.setOnRefreshListener(new MySwipeRefreshLayoutListener());
 
         lv_history_all = (SwipeListView) inflate.findViewById(R.id.lv_history_all);
@@ -76,8 +75,6 @@ public class ClothHistoryRecordFragment extends Fragment {
             }
         });
     }
-
-
 
     private void initData() {
         historyRecords = new ArrayList<>();
