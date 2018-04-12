@@ -23,6 +23,8 @@ import com.amsu.bleinteraction.utils.ThreadManager;
  * @time 12/4/2017 3:39 PM
  * @describe
  */
+
+/*蓝牙扫描相关类*/
 public class BleSacnEngine {
     private static final String TAG = BleSacnEngine.class.getSimpleName();
     private boolean mIsConnectted =false;
@@ -158,7 +160,7 @@ public class BleSacnEngine {
 
                                 if ((bindType== BleConnectionProxy.DeviceBindByHardWareType.bindByOther || bindType== BleConnectionProxy.DeviceBindByHardWareType.bindByNO)
                                         && device.getAddress().equals(deviceFromSP.getMac())
-                                        && (deviceFromSP.getBindType()== BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXin || deviceFromSP.getBindType()== BleConnectionProxy.DeviceBindByHardWareType.bindByPhone )){
+                                        && (deviceFromSP.getBindType()== BleConnectionProxy.DeviceBindByHardWareType.bindByWeiXin || deviceFromSP.getBindType()== BleConnectionProxy.DeviceBindByHardWareType.bindByPhone)){
                                     //没有人绑定，但是本地还是缓存的这个设备，需要将本地的这个设备清空
                                     SharedPreferencesUtil.saveDeviceToSP(null,deviceType);
                                     return;

@@ -99,8 +99,7 @@ public class HeartRateAnalysisActivity extends BaseActivity {
 
         //分析过程有可能耗时，在子线程中进行
         final String ecgLocalFileName = intent.getStringExtra(Constant.ecgLocalFileName); ///storage/emulated/0
-        //final String ecgLocalFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth/20171123144841.ecg"; ///storage/emulated/0
-        //final String ecgLocalFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/20171109152200.ecg"; ///storage/emulated/0
+        //final String ecgLocalFileName = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth/20180404162447.ecg"; ///storage/emulated/0
 
         Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
         Log.i(TAG,"integerArrayListExtra: "+integerArrayListExtra);
@@ -117,6 +116,8 @@ public class HeartRateAnalysisActivity extends BaseActivity {
                         final String fileBase64 = MyUtil.fileToBase64(file);
                         Log.i(TAG,"fileBase64:"+fileBase64);
                         final List<Integer> ecgDataList = readIntArrayDataFromFile(file);
+
+
 
                         Log.i(TAG,"ecgDataList.size()"+ecgDataList.size());
 
@@ -640,6 +641,11 @@ public class HeartRateAnalysisActivity extends BaseActivity {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        final int[] calcuDataarry = new int[calcuData.size()];
+        for (int i=0;i<calcuData.size();i++ ){
+            calcuDataarry[i] = calcuData.get(i);
         }
         return calcuData;
     }

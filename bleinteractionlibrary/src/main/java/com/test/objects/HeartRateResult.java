@@ -1,5 +1,7 @@
 package com.test.objects;
 
+import java.util.Arrays;
+
 /**
  * 该类用于记录心电分析的结果
  */
@@ -120,7 +122,6 @@ public class HeartRateResult {
 
 	public void setRrlist(int[] data, int len) {
 		RR_list = new int[len];
-		
 		for (int i = 0; i < len; i++) {
 			RR_list[i] = data[i];
 		}
@@ -128,7 +129,6 @@ public class HeartRateResult {
 
 	public void setSpecRrlist(double[] data, int len) {
 		Speec_RR_list = new double[len];
-
 		for (int i = 0; i < len; i++) {
 			Speec_RR_list[i] = data[i];
 //			Log.d("HeartRateResult   setRrlist",Integer.toString(RR_list[i]));
@@ -161,6 +161,8 @@ public class HeartRateResult {
 				", RR_HRVI=" + RR_HRVI +
 				", LF=" + LF +
 				", HF=" + HF +
+				", RR_list=" + Arrays.toString(RR_list) +
+				", Speec_RR_list=" + Arrays.toString(Speec_RR_list) +
 				", SD1=" + SD1 +
 				", SD2=" + SD2 +
 				'}';

@@ -230,6 +230,7 @@ public class HealthyDataActivity extends BaseActivity {
         Log.i(TAG,"heartRateDates.size(): "+heartRateDates.size());
         Log.i(TAG,"heartRateDates: "+heartRateDates);
 
+        ///boolean needAnalysis = true;
         boolean needAnalysis = isNeedAnalysis();
 
         if (needAnalysis){

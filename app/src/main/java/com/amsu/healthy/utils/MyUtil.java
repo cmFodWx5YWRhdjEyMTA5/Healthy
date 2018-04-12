@@ -771,6 +771,10 @@ public class MyUtil {
         return (short) ((argB1 & 0xFF)| (argB2 << 8));
     }
 
+   /* public static short getShortByTwoBytes(byte argB1, byte argB2) {
+        return (short) (argB1| (argB2 << 8));
+    }*/
+
     /**
      * 注释：short到字节数组的转换！
      * @param

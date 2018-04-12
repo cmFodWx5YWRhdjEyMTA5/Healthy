@@ -999,3 +999,10 @@ appChannel=inner
 appPackage=com.amsu.healthy
 appVersion=1.6.1
 
+file=C:\Users\HP\AndroidStudioProjects\Healthy-master\app\build\outputs\mapping\inner\release\mapping.txt
+sha1=fb91be5cfd64ceb011db836b2657d88b00486adb
+appId=d139ea916b
+appChannel=inner
+appPackage=com.amsu.healthy
+appVersion=1.6.1
+

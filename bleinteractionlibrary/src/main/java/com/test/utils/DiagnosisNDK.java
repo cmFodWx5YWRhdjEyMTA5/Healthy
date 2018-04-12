@@ -55,7 +55,7 @@ public class DiagnosisNDK {
 	}
 
 	public native static HeartRateResult getEcgResult(double[] source,
-			long len, int s_rate,int gain);
+                                                      long len, int s_rate, int gain);
 
 /*	public native static PluseRateP_PP getPpgResult(double[] source, int len,
 			int s_rate, int SBP, int DBP, int height, int age, int SPO,
@@ -87,7 +87,7 @@ public class DiagnosisNDK {
 	 * 返回值： 返回心率值
 	 */
 	public native static HeartRate getEcgHeart(int[] raw, int[] source,
-											   int len, int s_rate, int gain);
+                                               int len, int s_rate, int gain);
 	
 	/*
 	 * 涵数名：                    getPedo
@@ -116,7 +116,7 @@ public class DiagnosisNDK {
 	 */
 	public native static float getkcal(int sex,int hr, int age,float weight,float time);
 	
-    public static HeartRate ecgHeart(int[] raw,int[] source, int len, int rate) {
+    public static HeartRate ecgHeart(int[] raw, int[] source, int len, int rate) {
 		Log.d("ndk's c++", "len=" + len + " s_rate=" + rate);
     	return getEcgHeart(raw,source,len, rate,34);
     }

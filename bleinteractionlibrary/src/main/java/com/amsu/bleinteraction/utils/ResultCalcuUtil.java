@@ -139,7 +139,7 @@ public class ResultCalcuUtil {
             fs = 52;
         }*/
 
-        DiagnosisNDK.AnalysisPedo(accByteData,accByteData.length,results,fs);
+        //DiagnosisNDK.AnalysisPedo(accByteData,accByteData.length,results,fs);
         Log.i(TAG,"results: "+results[0]+"  "+results[1]);
 
         //每分钟的步数

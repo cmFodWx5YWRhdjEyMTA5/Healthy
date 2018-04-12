@@ -192,7 +192,6 @@
     <string name="male">男</string>
     <string name="female">女</string>
 
-
     <string name="add_new_device">添加新设备</string>
     <string name="searching_for_new_device">正在搜索设备</string>
     <string name="device_close_to_your_cell">请将设备尽量靠近手机</string>

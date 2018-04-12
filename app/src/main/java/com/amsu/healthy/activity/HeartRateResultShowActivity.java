@@ -3,6 +3,7 @@ package com.amsu.healthy.activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.amsu.bleinteraction.utils.LogUtil;
 import com.amsu.healthy.R;
 import com.amsu.healthy.adapter.FragmentListRateAdapter;
 import com.amsu.healthy.bean.HistoryRecord;
@@ -41,6 +43,7 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -431,6 +434,7 @@ public class HeartRateResultShowActivity extends BaseActivity {
             Log.i(TAG,"mUploadRecord:"+mUploadRecord);
             Log.i(TAG,"latitudeLongitude:"+latitudeLongitude);
             Log.i(TAG,"mUploadRecord.latitudeLongitude:"+mUploadRecord.latitudeLongitude);
+            downloadEcgFile();
         } catch (JSONException e) {
             e.printStackTrace();
         }catch (NumberFormatException e){
@@ -442,6 +446,30 @@ public class HeartRateResultShowActivity extends BaseActivity {
         }
     }
 
+    private void downloadEcgFile() {
+        HttpUtils httpUtils = new HttpUtils();
+        String url = "http://"+mUploadRecord.ec;
+        final String target =  Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth/"+url;
+        httpUtils.download(url, target, new RequestCallBack<File>() {
+            @Override
+            public void onSuccess(ResponseInfo<File> responseInfo) {
+                LogUtil.i(TAG,"onSuccess:"+responseInfo);
+                File file = new File(target);
+                if (file.exists()){
+                    mUploadRecord.localEcgFileName = target;
+                    OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(HeartRateResultShowActivity.this);
+                    offLineDbAdapter.open();
+                    offLineDbAdapter.createOrUpdateUploadReportObject(mUploadRecord);
+                }
+            }
+
+            @Override
+            public void onFailure(HttpException e, String s) {
+                LogUtil.i(TAG,"onFailure:"+e);
+            }
+        });
+
+    }
 
 
     private void adjustFeagmentCount(int state) {

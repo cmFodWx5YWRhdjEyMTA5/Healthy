@@ -293,7 +293,6 @@ public class LeProxy {
                 bluetoothGatt.close();
                 LogUtil.e(TAG,"超时清除");
             }
-            mBleService.refresh(address);
         }
 
         @Override
@@ -320,6 +319,7 @@ public class LeProxy {
         @Override
         public void onDisconnected(String address) {
             LogUtil.e(TAG, "onDisconnected() - " + address);
+
             //updateBroadcast(address, ACTION_GATT_DISCONNECTED);
             //postBleDataOnBus(BleOnDisconnected,address);
             BleConnectionProxy.getInstance().onReceiveBleConnectionChange(address,ACTION_GATT_DISCONNECTED);
@@ -495,10 +495,17 @@ public class LeProxy {
                         boolean success_2 = enableNotification(address, serUuid, charUuid_2);
                         LogUtil.i(TAG, "success_2: " + success_2);*/
 
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                     boolean success_charUuid_notify = enableNotification(address, serUuid, charUuid_notify);
                     LogUtil.i(TAG, "success_charUuid_notify: " + success_charUuid_notify);
 
+
+                    //打开通道直接需要有间隔，不然后面的通道会打开失败
+                    if (Ble.bleConnectionProxy().ismIsConnectted()){
+                        Thread.sleep(500);
+                        boolean success_charUuid_acc = enableNotification(address, serUuid, charUuid_acc);
+                        LogUtil.i(TAG, "success_charUuid_acc: " + success_charUuid_acc);
+                    }
 
                     boolean bindedByHardware = Ble.device().isBindedByHardware();
                     if (!bindedByHardware){
@@ -514,32 +521,36 @@ public class LeProxy {
                         }
                     }
 
-                    //打开通道直接需要有间隔，不然后面的通道会打开失败
-                    Thread.sleep(100);
-                    boolean success_charUuid_acc = enableNotification(address, serUuid, charUuid_acc);
-                    LogUtil.i(TAG, "success_charUuid_acc: " + success_charUuid_acc);
-
-                    Thread.sleep(100);
-                    boolean success_charUuid_ecg = enableNotification(address, serUuid, charUuid_ecg);
-                    LogUtil.i(TAG, "success_charUuid_ecg: " + success_charUuid_ecg);
-
-                    Thread.sleep(100);
-                    boolean success_charUuid_heart = enableNotification(address, serUuid, charUuid_heart);
-                    LogUtil.i(TAG, "success_charUuid_heart: " + success_charUuid_heart);
+                    if (Ble.bleConnectionProxy().ismIsConnectted()){
+                        Thread.sleep(500);
+                        boolean success_charUuid_ecg = enableNotification(address, serUuid, charUuid_ecg);
+                        LogUtil.i(TAG, "success_charUuid_ecg: " + success_charUuid_ecg);
+                    }
+                    if (Ble.bleConnectionProxy().ismIsConnectted()){
+                        Thread.sleep(500);
+                        boolean success_charUuid_heart = enableNotification(address, serUuid, charUuid_heart);
+                        LogUtil.i(TAG, "success_charUuid_heart: " + success_charUuid_heart);
+                    }
 
 
-                    Thread.sleep(2000);
 
-                    boolean success_charUuid_ecg1 = enableNotification(address, serUuid, charUuid_ecg);
-                    LogUtil.i(TAG, "success_charUuid_ecg1: " + success_charUuid_ecg1);
+                    //再尝试打开一次，以防止上次打开失败
+                    if (Ble.bleConnectionProxy().ismIsConnectted()){
+                        Thread.sleep(1000);
+                        boolean success_charUuid_acc1 = enableNotification(address, serUuid, charUuid_acc);
+                        LogUtil.i(TAG, "success_charUuid_acc1: " + success_charUuid_acc1);
+                    }
+                    if (Ble.bleConnectionProxy().ismIsConnectted()){
+                        Thread.sleep(500);
+                        boolean success_charUuid_ecg1 = enableNotification(address, serUuid, charUuid_ecg);
+                        LogUtil.i(TAG, "success_charUuid_ecg: " + success_charUuid_ecg1);
+                    }
+                    if (Ble.bleConnectionProxy().ismIsConnectted()){
+                        Thread.sleep(500);
+                        boolean success_charUuid_heart1 = enableNotification(address, serUuid, charUuid_heart);
+                        LogUtil.i(TAG, "success_charUuid_heart1: " + success_charUuid_heart1);
+                    }
 
-                    Thread.sleep(500);
-                    boolean success_charUuid_acc1 = enableNotification(address, serUuid, charUuid_acc);
-                    LogUtil.i(TAG, "success_charUuid_acc1: " + success_charUuid_acc1);
-
-                    Thread.sleep(500);
-                    boolean success_charUuid_heart1 = enableNotification(address, serUuid, charUuid_heart);
-                    LogUtil.i(TAG, "success_charUuid_heart1: " + success_charUuid_heart1);
                 }catch (InterruptedException e) {
                     e.printStackTrace();
                 }

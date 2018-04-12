@@ -3,6 +3,7 @@ package com.amsu.healthy.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.amsu.healthy.R;
@@ -247,7 +248,11 @@ public class UploadHealthyDataUtil {
             params.addBodyParameter("hrr",uploadRecord.hrr+"");
             params.addBodyParameter("hrs",uploadRecord.hrs+"");
             //params.addBodyParameter("ec",uploadRecord.ec+"");
-            params.addBodyParameter("ecFile",new File(uploadRecord.localEcgFileName));
+
+            if (!TextUtils.isEmpty(uploadRecord.localEcgFileName)){
+                params.addBodyParameter("ecFile",new File(uploadRecord.localEcgFileName));
+            }
+
             params.addBodyParameter("ecr",uploadRecord.ecr+"");
             params.addBodyParameter("ecs",uploadRecord.ecs+"");
             params.addBodyParameter("ra",uploadRecord.ra+"");

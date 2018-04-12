@@ -24,68 +24,68 @@ public class Constant {
     public static String checkIsHaveDataOrder = "FF05050016";  //4.6	查询SD卡是否有数据
     public static String synchronizeOrder = "FF05050016";  //4.6	设备同步
 
-    //public static String loginURL = "https://bodylistener.amsu-new.com/intellingence/LoginController/phoneVerify";
+    //public static String loginURL = "https://119.29.201.120/intellingence/LoginController/phoneVerify";
     public static String loginURL = "http://192.168.0.109:8080/intellingence-web/phoneVerify.jsp";
-    public static String uploadIconURL = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/do_upload";
-    public static String downloadPersionDataURL = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/readUserinfo";
-    public static String duploadPersionDataURL = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/uploadUserinfo";
+    public static String uploadIconURL = "https://119.29.201.120/intellingence/UserinfoController/do_upload";
+    public static String downloadPersionDataURL = "https://119.29.201.120/intellingence/UserinfoController/readUserinfo";
+    public static String duploadPersionDataURL = "https://119.29.201.120/intellingence/UserinfoController/uploadUserinfo";
 
-    public static String setHealthyPlanURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/setPlanning";
-    public static String modifyHealthyPlanURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/modifyPlanning";
-    public static String getHealthyPlanListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningList";
-    public static String getHealthyPlanContentURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningCont";
-    public static String getHealthyPlanningMonthListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningMonthList";
-    public static String getOneDayHealthyPlanListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningDateList";
-    public static String getAfter20ItemHealthyPlanListURL = "https://bodylistener.amsu-new.com/intellingence/PlanningController/planningPastList";
-    //public static String uploadReportURL = "http://bodylistener.amsu-new.com:83/intellingence/ReportController/uploadReport";
-    public static String uploadReportURL = "http://www.amsu-new.com:8081/intellingence-web/uploadReport.do";
-    public static String uploadReportURL_new = "http://www.amsu-new.com:8081/intellingence-web/uploadReportNew.do";
+    public static String setHealthyPlanURL = "https://119.29.201.120/intellingence/PlanningController/setPlanning";
+    public static String modifyHealthyPlanURL = "https://119.29.201.120/intellingence/PlanningController/modifyPlanning";
+    public static String getHealthyPlanListURL = "https://119.29.201.120/intellingence/PlanningController/planningList";
+    public static String getHealthyPlanContentURL = "https://119.29.201.120/intellingence/PlanningController/planningCont";
+    public static String getHealthyPlanningMonthListURL = "https://119.29.201.120/intellingence/PlanningController/planningMonthList";
+    public static String getOneDayHealthyPlanListURL = "https://119.29.201.120/intellingence/PlanningController/planningDateList";
+    public static String getAfter20ItemHealthyPlanListURL = "https://119.29.201.120/intellingence/PlanningController/planningPastList";
+    //public static String uploadReportURL = "http://119.29.201.120:83/intellingence/ReportController/uploadReport";
+    public static String uploadReportURL = "http://119.29.201.120:8081/intellingence-web/uploadReport.do";
+    public static String uploadReportURL_new = "http://119.29.201.120:8081/intellingence-web/uploadReportNew.do";
     //public static String uploadReportURL = "http://192.168.1.124:8080/intellingence-web/uploadReport.do";
-    //public static String downloadQuarterReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadQuarterReport";
-    public static String downloadQuarterReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadQuarterReport.do";
-    //public static String downloadMonthReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadMonthReport";
-    public static String downloadMonthReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadMonthReport.do";
-    //public static String downloadYearReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadYearReport";
-    public static String downloadYearReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadYearReport.do";
+    //public static String downloadQuarterReportURL = "https://119.29.201.120/intellingence/ReportController/downloadQuarterReport";
+    public static String downloadQuarterReportURL = "http://119.29.201.120:8081/intellingence-web/downloadQuarterReport.do";
+    //public static String downloadMonthReportURL = "https://119.29.201.120/intellingence/ReportController/downloadMonthReport";
+    public static String downloadMonthReportURL = "http://119.29.201.120:8081/intellingence-web/downloadMonthReport.do";
+    //public static String downloadYearReportURL = "https://119.29.201.120/intellingence/ReportController/downloadYearReport";
+    public static String downloadYearReportURL = "http://119.29.201.120:8081/intellingence-web/downloadYearReport.do";
 
     String x = "www.amsu-new.com:8081";
 
-    //public static String getHistoryReportListURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/getReportList";
-    public static String getHistoryReportListURL = "http://www.amsu-new.com:8081/intellingence-web/getReportList.do";
-    //public static String getHistoryReportDetailURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/getDetail";
-    public static String getHistoryReportDetailURL = "http://www.amsu-new.com:8081/intellingence-web/getDetail.do";
-    public static String getShoepaddetailsURL = "http://www.amsu-new.com:8081/intellingence-web/getShoepaddetails.do";
-    //public static String downloadWeekReportURL = "https://bodylistener.amsu-new.com/intellingence/ReportController/downloadWeekReport";
-    //public static String downloadWeekReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadWeekReport.do";
-    public static String downloadWeekReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadWeekReport.do";
-    public static String downloadLatelyWeekReportURL = "http://www.amsu-new.com:8081/intellingence-web/downloadLatelyWeekReport.do";
-    public static String addSosContact = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/addContacts";
-    public static String getAllContacts = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/getContactsAndMessage";
-    public static String setSosMessage = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/setMessage";
-    public static String deleteSosContact = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/deleteContact";
-    public static String bindingDeviceURL = "https://bodylistener.amsu-new.com/intellingence/BindingController/bindingDevice";
+    //public static String getHistoryReportListURL = "https://119.29.201.120/intellingence/ReportController/getReportList";
+    public static String getHistoryReportListURL = "http://119.29.201.120:8081/intellingence-web/getReportList.do";
+    //public static String getHistoryReportDetailURL = "https://119.29.201.120/intellingence/ReportController/getDetail";
+    public static String getHistoryReportDetailURL = "http://119.29.201.120:8081/intellingence-web/getDetail.do";
+    public static String getShoepaddetailsURL = "http://119.29.201.120:8081/intellingence-web/getShoepaddetails.do";
+    //public static String downloadWeekReportURL = "https://119.29.201.120/intellingence/ReportController/downloadWeekReport";
+    //public static String downloadWeekReportURL = "http://119.29.201.120:8081/intellingence-web/downloadWeekReport.do";
+    public static String downloadWeekReportURL = "http://119.29.201.120:8081/intellingence-web/downloadWeekReport.do";
+    public static String downloadLatelyWeekReportURL = "http://119.29.201.120:8081/intellingence-web/downloadLatelyWeekReport.do";
+    public static String addSosContact = "https://119.29.201.120/intellingence/UserinfoController/addContacts";
+    public static String getAllContacts = "https://119.29.201.120/intellingence/UserinfoController/getContactsAndMessage";
+    public static String setSosMessage = "https://119.29.201.120/intellingence/UserinfoController/setMessage";
+    public static String deleteSosContact = "https://119.29.201.120/intellingence/UserinfoController/deleteContact";
+    public static String bindingDeviceURL = "https://119.29.201.120/intellingence/BindingController/bindingDevice";
     /**
      * 获取耐力测试详情
      */
-    public static String getLastEnduranceDetailURL = "http://www.amsu-new.com:8081/intellingence-web/getLastEnduranceDetail.do";
+    public static String getLastEnduranceDetailURL = "http://119.29.201.120:8081/intellingence-web/getLastEnduranceDetail.do";
     /**
      * 获取耐力测试记录
      */
-    public static String getReportListURL = "http://www.amsu-new.com:8081/intellingence-web/getReportList.do";
+    public static String getReportListURL = "http://119.29.201.120:8081/intellingence-web/getReportList.do";
     /**
      * 上传耐力测试结果
      */
-    public static String uploadEnduranceDataURL = "http://www.amsu-new.com:8081/intellingence-web/uploadEnduranceData.do";
+    public static String uploadEnduranceDataURL = "http://119.29.201.120:8081/intellingence-web/uploadEnduranceData.do";
 
-    //public static String checkAppUpdateURL = "https://bodylistener.amsu-new.com/intellingence/VersionController/getLastVersion";
-    public static String checkAppUpdateURL = "http://www.amsu-new.com:8081/intellingence-web/getLastVersion.do";
-    public static String disclaimerAssertsURL = "http://www.amsu-new.com:8081/intellingence-web/upload/disclaimerAsserts.html";
+    //public static String checkAppUpdateURL = "https://119.29.201.120/intellingence/VersionController/getLastVersion";
+    public static String checkAppUpdateURL = "http://119.29.201.120:8081/intellingence-web/getLastVersion.do";
+    public static String disclaimerAssertsURL = "http://119.29.201.120:8081/intellingence-web/upload/disclaimerAsserts.html";
     public static String Questionnaire1URL = "https://wj.qq.com/s/1203236/ee9b";
     public static String Questionnaire2URL = "https://wj.qq.com/s/1338652/a851";
-    public static String getInsoleTokenURL = "http://www.amsu-new.com:8081/intellingence-web/getToken.do";
-    public static String get30ScendInsoleAlanyDataURL = "http://www.amsu-new.com:8081/intellingence-web/getShoepadDatas30seconds.do";
-    public static String getALLShoepadDatasURL = "http://www.amsu-new.com:8081/intellingence-web/getShoepadDatas.do";
-    public static String ServerHostName = "http://www.amsu-new.com:8081/";
+    public static String getInsoleTokenURL = "http://119.29.201.120:8081/intellingence-web/getToken.do";
+    public static String get30ScendInsoleAlanyDataURL = "http://119.29.201.120:8081/intellingence-web/getShoepadDatas30seconds.do";
+    public static String getALLShoepadDatasURL = "http://119.29.201.120:8081/intellingence-web/getShoepadDatas.do";
+    public static String ServerHostName = "http://119.29.201.120:8081/";
     //public static String ServerHostName = "http://192.168.0.117:8080/";
     public static String bindDeviceInsoleUrl = ServerHostName + "intellingence-web/bangdingshoepad.do";
 
@@ -158,8 +158,8 @@ public class Constant {
     public static UUID insoleSerUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
     public static UUID insoleCharUuid = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
 
-    public static String deleteHistoryRecordURL = "http://www.amsu-new.com:8081/intellingence-web/deleteById.do";
-    public static String deleteBangdingByUserId = "http://www.amsu-new.com:8081/intellingence-web/deleteBangdingByUserid.do";
+    public static String deleteHistoryRecordURL = "http://119.29.201.120:8081/intellingence-web/deleteById.do";
+    public static String deleteBangdingByUserId = "http://119.29.201.120:8081/intellingence-web/deleteBangdingByUserid.do";
 
 
     public static final String leftInsoleFileAbsolutePath = "leftInsoleFileAbsolutePath";
@@ -169,10 +169,10 @@ public class Constant {
     public static final String maxSpeedKM_Hour = "maxSpeedKM_Hour";
     public static final String stridefreList = "stridefreList";
     public static final String insoleTag = "insoleTag";
-    public static final String getShoepadList = "http://www.amsu-new.com:8081/intellingence-web/getShoepadList.do";
-    public static final String deleteShoepadDataById = "http://www.amsu-new.com:8081/intellingence-web/deleteShoepadDataById.do";
-    public static final String getBangdingDetails = "http://www.amsu-new.com:8081/intellingence-web/getBangdingDetails.do";
-    public static final String checkDeviceUpdateUrl = "http://www.amsu-new.com:8081/intellingence-web/getHardwareVersion.do";
+    public static final String getShoepadList = "http://119.29.201.120:8081/intellingence-web/getShoepadList.do";
+    public static final String deleteShoepadDataById = "http://119.29.201.120:8081/intellingence-web/deleteShoepadDataById.do";
+    public static final String getBangdingDetails = "http://119.29.201.120:8081/intellingence-web/getBangdingDetails.do";
+    public static final String checkDeviceUpdateUrl = "http://119.29.201.120:8081/intellingence-web/getHardwareVersion.do";
 
     public static final String readInsoleBatterySerUuid = "0000180f-0000-1000-8000-00805f9b34fb";   //0x180F
     public static final String readInsoleBatteryCharUuid = "00002a19-0000-1000-8000-00805f9b34fb";  //0x2A19
