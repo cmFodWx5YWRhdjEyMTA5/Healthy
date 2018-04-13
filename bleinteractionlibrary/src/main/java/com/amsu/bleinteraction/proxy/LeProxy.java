@@ -514,6 +514,7 @@ public class LeProxy {
                         final int send = DeviceBindUtil.bingDevice( address);
                         Log.i(TAG,"发送绑定设备："+send);
 
+
                         if (send==0){
                             Thread.sleep(500);
                             final int send1 = DeviceBindUtil.bingDevice( address);
