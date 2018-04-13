@@ -104,7 +104,7 @@ public class HealthyPlanActivity extends BaseActivity {
                 Log.i(TAG,"上传onSuccess==result:"+result);
                 JsonBase<List<HealthyPlan>> jsonBase = MyUtil.commonJsonParse(result, new TypeToken<JsonBase<List<HealthyPlan>>>() {}.getType());
                 Log.i(TAG,"jsonBase:"+jsonBase);
-                if (jsonBase!=null&&jsonBase.getRet()==0){
+                if (jsonBase!=null&&jsonBase.getRet()==0 && jsonBase.errDesc!=null && !jsonBase.errDesc.equals("没有数据")){
                     if (jsonBase.errDesc!=null && jsonBase.errDesc.size()>0){
                         healthyPlanList.addAll(jsonBase.errDesc);
                         healthyPlanDataAdapter.notifyDataSetChanged();

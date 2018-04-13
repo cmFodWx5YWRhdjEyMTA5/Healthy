@@ -533,7 +533,6 @@ public class LeProxy {
                     }
 
 
-
                     //再尝试打开一次，以防止上次打开失败
                     if (Ble.bleConnectionProxy().ismIsConnectted()){
                         Thread.sleep(1000);

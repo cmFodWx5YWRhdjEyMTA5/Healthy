@@ -28,6 +28,7 @@ public class Constant {
     public static String loginURL = "http://192.168.0.109:8080/intellingence-web/phoneVerify.jsp";
     public static String uploadIconURL = "https://119.29.201.120/intellingence/UserinfoController/do_upload";
     public static String downloadPersionDataURL = "https://119.29.201.120/intellingence/UserinfoController/readUserinfo";
+    public static String phoneVerify = "https://119.29.201.120/intellingence/LoginController/phoneVerify";
     public static String duploadPersionDataURL = "https://119.29.201.120/intellingence/UserinfoController/uploadUserinfo";
 
     public static String setHealthyPlanURL = "https://119.29.201.120/intellingence/PlanningController/setPlanning";

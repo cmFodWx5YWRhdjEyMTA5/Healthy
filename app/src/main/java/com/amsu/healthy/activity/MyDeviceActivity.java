@@ -530,7 +530,11 @@ public class MyDeviceActivity extends BaseActivity {
                                 setDeviceBindSuccess(bleDevice);
                             }
                         }
-                        bleDeviceList.add(bleDevice);
+
+                        boolean needAddToList = isNeedAddToList(bleDevice.getMac(), bleDeviceList);
+                        if (needAddToList){
+                            bleDeviceList.add(bleDevice);
+                        }
                     }
                 }
             }
@@ -596,6 +600,15 @@ public class MyDeviceActivity extends BaseActivity {
                 deviceAdapter.notifyDataSetChanged();
             }
         }
+    }
+
+    private boolean isNeedAddToList(String mac, List<BleDevice> bleDeviceList) {
+        for (BleDevice device1:bleDeviceList){
+            if (device1.getLEName().equals(mac)){
+                return false;
+            }
+        }
+        return true;
     }
 
     private class RssiComparator implements Comparator<BleDevice>{

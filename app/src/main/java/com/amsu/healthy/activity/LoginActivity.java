@@ -376,10 +376,9 @@ public class LoginActivity extends BaseActivity {
             e.printStackTrace();
         }
 
-        String url = "https://bodylistener.amsu-new.com/intellingence/LoginController/phoneVerify"; //登陆
         //String url = "http://192.168.1.124:8080/intellingence-web/phoneVerify.do"; //登陆
         //String url = "http://www.amsu-new.com:8081/intellingence-web/phoneVerify.do"; //登陆
-        httpUtils.send(HttpRequest.HttpMethod.POST, url,params, new RequestCallBack<String>() {
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.phoneVerify,params, new RequestCallBack<String>() {
 
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {

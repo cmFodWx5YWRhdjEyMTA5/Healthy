@@ -242,8 +242,7 @@ public class HeartRateResultShowActivity extends BaseActivity {
                 JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
                 Log.i(TAG,"jsonBase:"+jsonBase);
                 if (jsonBase.getRet()==0){
-                    parseHealthData(result);
-                    adjustFeagmentCount(historyRecord.getState());
+                    parseHealthData(result,historyRecord);
                 }
                 else {
                     finish();
@@ -264,7 +263,7 @@ public class HeartRateResultShowActivity extends BaseActivity {
         });
     }
 
-    private void parseHealthData(String result) {
+    private void parseHealthData(String result,HistoryRecord historyRecord) {
 
         String iosDefaultString = "\"0\"";
         try {
@@ -434,7 +433,9 @@ public class HeartRateResultShowActivity extends BaseActivity {
             Log.i(TAG,"mUploadRecord:"+mUploadRecord);
             Log.i(TAG,"latitudeLongitude:"+latitudeLongitude);
             Log.i(TAG,"mUploadRecord.latitudeLongitude:"+mUploadRecord.latitudeLongitude);
-            downloadEcgFile();
+
+            downloadEcgFile(historyRecord);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }catch (NumberFormatException e){
@@ -446,9 +447,9 @@ public class HeartRateResultShowActivity extends BaseActivity {
         }
     }
 
-    private void downloadEcgFile() {
+    private void downloadEcgFile(final HistoryRecord historyRecord) {
         HttpUtils httpUtils = new HttpUtils();
-        String url = "http://"+mUploadRecord.ec;
+        String url = mUploadRecord.ec;
         final String target =  Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth/"+url;
         httpUtils.download(url, target, new RequestCallBack<File>() {
             @Override
@@ -461,16 +462,16 @@ public class HeartRateResultShowActivity extends BaseActivity {
                     offLineDbAdapter.open();
                     offLineDbAdapter.createOrUpdateUploadReportObject(mUploadRecord);
                 }
+                adjustFeagmentCount(historyRecord.getState());
             }
 
             @Override
             public void onFailure(HttpException e, String s) {
                 LogUtil.i(TAG,"onFailure:"+e);
+                finish();
             }
         });
-
     }
-
 
     private void adjustFeagmentCount(int state) {
         fragmentList.clear();
