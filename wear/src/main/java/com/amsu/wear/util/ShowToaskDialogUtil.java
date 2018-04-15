@@ -17,11 +17,11 @@ import android.support.v7.app.AlertDialog;
  * @describe
  */
 public class ShowToaskDialogUtil {
-    public static void showTipDialog(Context context, String message, DialogInterface.OnClickListener onClickListener){
+    public static void showTipDialog(Context context, String message, DialogInterface.OnClickListener onPositiveClickListener,DialogInterface.OnClickListener ontNegativeClickListener){
         AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setTitle(message)
-                .setPositiveButton("确定", onClickListener)
-                .setNegativeButton("取消",null)
+                .setPositiveButton("打开", onPositiveClickListener)
+                .setNegativeButton("取消",ontNegativeClickListener)
                 .create();
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();

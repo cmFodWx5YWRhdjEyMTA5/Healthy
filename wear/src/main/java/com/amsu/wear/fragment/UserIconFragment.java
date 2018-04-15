@@ -99,7 +99,7 @@ public class UserIconFragment extends BaseFragment {
 
     private void downloadUserInfo() {
         RequestParams params = new RequestParams();
-        String url="http://www.amsu-new.com:8081/intellingence-web/readUserinfo.do";
+        String url="http://www.amsu-new.com:8081/intellingence-web/readUserinfo.do.do";
         params.setUri(url);
         HttpUtil.addCookieForHttp(params);
 

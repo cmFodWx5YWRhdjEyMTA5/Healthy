@@ -142,7 +142,7 @@ public class AppUpdateActivity extends BaseActivity {
     private void openBrowserDownLoadApp(String path) {
         Intent intent= new Intent();
         intent.setAction("android.intent.action.VIEW");
-        Uri content_url = Uri.parse("http://119.29.201.120:8081/intellingence-web/upload/app-_91helper-debug.apk");
+        Uri content_url = Uri.parse("http://203.195.168.139:8081/intellingence-web/upload/app-_91helper-debug.apk");
         intent.setData(content_url);
         startActivity(intent);
 
@@ -154,7 +154,7 @@ public class AppUpdateActivity extends BaseActivity {
         final String savePath = getCacheDir()+"/倾听体语.apk";
         Log.i(TAG,"savePath:"+savePath);
         Log.i(TAG,"path:"+path);
-        path = "http://119.29.201.120:8081/intellingence-web/upload/app-_91helper-debug.apk";
+        path = "http://203.195.168.139:8081/intellingence-web/upload/app-_91helper-debug.apk";
 
         RequestParams params = new RequestParams();
         httpUtils.download(path, savePath,params, true,true,new RequestCallBack<File>() {

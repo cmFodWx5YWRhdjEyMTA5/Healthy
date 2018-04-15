@@ -423,7 +423,7 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
                     Log.i(TAG,"onSuccess==result:"+result);
                     /*{
                         "ret": "0",
-                            "errDesc":"http://119.29.201.120:83/xxxx/xxxx.jpg"
+                            "errDesc":"http://203.195.168.139:8081:83/xxxx/xxxx.jpg"
                     }*/
                     JSONObject jsonObject = null;
                     try {
@@ -706,18 +706,18 @@ public class PersionDataActivity extends BaseActivity implements DateTimeDialogO
 
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
-        params.addBodyParameter("UserName",username);
-        params.addBodyParameter("Birthday",upLoadbirthday);
-        params.addBodyParameter("Sex",upLoadSex);
-        params.addBodyParameter("Weight",upLoadweightValue);
-        params.addBodyParameter("Height",upLoadheightValue);
-        params.addBodyParameter("Address",area);
-        params.addBodyParameter("Phone",phone);
-        params.addBodyParameter("Email",email);
+        params.addBodyParameter("username",username);
+        params.addBodyParameter("birthday",upLoadbirthday);
+        params.addBodyParameter("sex",upLoadSex);
+        params.addBodyParameter("weight",upLoadweightValue);
+        params.addBodyParameter("height",upLoadheightValue);
+        params.addBodyParameter("address",area);
+        params.addBodyParameter("phone",phone);
+        params.addBodyParameter("email",email);
         if (stillrate.equals("")){
             stillrate="0";
         }
-        params.addBodyParameter("RestingHeartRate",stillrate);
+        params.addBodyParameter("restingheartrate",stillrate);
 
         MyUtil.addCookieForHttp(params);
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.duploadPersionDataURL,params, new RequestCallBack<String>() {

@@ -114,6 +114,9 @@
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="00a9a61217c28973e9bceba073d5ac52" />
+        <!--<meta-data-->
+            <!--android:name="com.amap.api.v2.apikey"-->
+            <!--android:value="01d97fe882f5027bc65eb07a93598ab4" />-->
 
         <!-- 定位需要的服务 -->
         <service android:name="com.amap.api.location.APSService" />
@@ -154,6 +157,7 @@
             android:name=".activity.HeartRateAnalysisActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".activity.HeartRateResultShowActivity" />
+        <!--完善个人资料-->
         <activity
             android:name=".activity.SupplyPersionDataActivity"
             android:screenOrientation="portrait" />

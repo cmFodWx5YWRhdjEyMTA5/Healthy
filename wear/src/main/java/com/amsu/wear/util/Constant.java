@@ -13,4 +13,7 @@ public class Constant {
     public static String uploadRecordDefaultString = "0";
     public static int oneSecondFrame = 150;
     public static String restingHR = "restingHR";
+    public static String openGps = "openGps";
+    public static String lat = "lat";
+    public static String lng = "lng";
 }

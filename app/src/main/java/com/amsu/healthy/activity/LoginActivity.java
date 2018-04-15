@@ -20,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amsu.bleinteraction.bean.BleDevice;
-import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.healthy.R;
 import com.amsu.healthy.appication.MyApplication;
 import com.amsu.healthy.bean.User;
@@ -28,6 +27,7 @@ import com.amsu.healthy.utils.Constant;
 import com.amsu.healthy.utils.MD5Util;
 import com.amsu.healthy.utils.MyUtil;
 import com.amsu.healthy.utils.UploadHealthyDataUtil;
+import com.google.gson.Gson;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.RequestParams;
@@ -43,6 +43,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -58,11 +59,11 @@ public class LoginActivity extends BaseActivity {
     private CheckBox cb_login_isagree;
     private Timer mTimer;
     private TimerTask mTimerTask;
-    private int MSG_UPDATE= 1;
-    private int MSG_TOAST_FAIL= 3;
-    private int MSG_TOAST_VERIFY= 0;
-    private int MSG_TOAST_SUCCESS= 4;
-    private int timeUpdate= 60;
+    private int MSG_UPDATE = 1;
+    private int MSG_TOAST_FAIL = 3;
+    private int MSG_TOAST_VERIFY = 0;
+    private int MSG_TOAST_SUCCESS = 4;
+    private int timeUpdate = 60;
     private boolean isAgree;
     private EventHandler eventHandler;
     private TextView tv_login_regioncode;
@@ -84,7 +85,7 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 MyUtil.destoryAllAvtivity(LoginActivity.this);
-                startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
                 finish();
             }
         });
@@ -102,11 +103,10 @@ public class LoginActivity extends BaseActivity {
         cb_login_isagree.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (cb_login_isagree.isChecked()){
+                if (cb_login_isagree.isChecked()) {
                     bt_login_nextstep.setBackgroundResource(R.drawable.bg_bt_rec);
                     isAgree = true;
-                }
-                else {
+                } else {
                     bt_login_nextstep.setBackgroundColor(Color.parseColor("#c8c8c8"));
                     isAgree = false;
                 }
@@ -179,38 +179,34 @@ public class LoginActivity extends BaseActivity {
         //提交验证码成功
         //返回支持发送验证码的国家列表
         //event:2,result:0,data:java.lang.Throwable: {"status":603,"detail":"请填写正确的手机号码"}
-        eventHandler = new EventHandler(){
+        eventHandler = new EventHandler() {
 
             @Override
             public void afterEvent(int event, int result, Object data) {
-                Log.i(TAG,"afterEvent====="+"event:"+event+",result:"+result+",data:"+data.toString());
+                Log.i(TAG, "afterEvent=====" + "event:" + event + ",result:" + result + ",data:" + data.toString());
 
-                if (result== SMSSDK.RESULT_COMPLETE){
-                    if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE){
+                if (result == SMSSDK.RESULT_COMPLETE) {
+                    if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
                         //获取验证码成功
                         myHandler.sendEmptyMessage(MSG_TOAST_SUCCESS);
-                    }
-                    else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+                    } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
                         //提交验证码成功
                         myHandler.sendEmptyMessage(MSG_TOAST_VERIFY);
-                    }
-                    else if (event ==SMSSDK.EVENT_GET_SUPPORTED_COUNTRIES){
+                    } else if (event == SMSSDK.EVENT_GET_SUPPORTED_COUNTRIES) {
                         //返回支持发送验证码的国家列表
 
+                    } else {
+                        ((Throwable) data).printStackTrace();
                     }
-                    else{
-                        ((Throwable)data).printStackTrace();
-                    }
-                }
-                else {
+                } else {
                     //event:2,result:0,data:java.lang.Throwable: {"status":603,"detail":"请填写正确的手机号码"}
                     MyUtil.hideDialog(LoginActivity.this);
                     String[] split = data.toString().split(":");
-                    String detail ="";
+                    String detail = "";
                     int status = 0;
-                    if (split!=null &&split.length==4){
-                        String josnData = split[1]+":"+split[2]+":"+split[3];
-                        Log.i(TAG,"josnData:"+josnData);
+                    if (split != null && split.length == 4) {
+                        String josnData = split[1] + ":" + split[2] + ":" + split[3];
+                        Log.i(TAG, "josnData:" + josnData);
 
                         try {
                             JSONObject jsonObject = new JSONObject(josnData);
@@ -219,12 +215,11 @@ public class LoginActivity extends BaseActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                    }
-                    else {
-                        detail ="网络异常，请重试";
+                    } else {
+                        detail = "网络异常，请重试";
                     }
 
-                    Log.i(TAG,"status:"+status+",detail:"+detail);
+                    Log.i(TAG, "status:" + status + ",detail:" + detail);
 
                     Message message = myHandler.obtainMessage(MSG_TOAST_FAIL);
                     message.obj = detail;
@@ -243,8 +238,8 @@ public class LoginActivity extends BaseActivity {
 
 
     public void login(View view) {
-        if (!isAgree){
-            MyUtil.showToask(this,getResources().getString(R.string.non_consent_logon_protocol));
+        if (!isAgree) {
+            MyUtil.showToask(this, getResources().getString(R.string.non_consent_logon_protocol));
             return;
         }
         String phone = et_login_phone.getText().toString();
@@ -253,16 +248,15 @@ public class LoginActivity extends BaseActivity {
 
         boolean phoneNumeric = MyUtil.isNumeric(phone);
         boolean codeNumeric = MyUtil.isNumeric(phone);
-        if (phone.isEmpty() || !phoneNumeric){
-            Toast.makeText(this,getResources().getString(R.string.enter_cell_phone_number), Toast.LENGTH_SHORT).show();
+        if (phone.isEmpty() || !phoneNumeric) {
+            Toast.makeText(this, getResources().getString(R.string.enter_cell_phone_number), Toast.LENGTH_SHORT).show();
             return;
-        }
-        else if(inputVerifycode.isEmpty() || !codeNumeric){
-            Toast.makeText(this,getResources().getString(R.string.input_validation_code), Toast.LENGTH_SHORT).show();
+        } else if (inputVerifycode.isEmpty() || !codeNumeric) {
+            Toast.makeText(this, getResources().getString(R.string.input_validation_code), Toast.LENGTH_SHORT).show();
             return;
         }
 
-        validateLogin(regioncode,phone,inputVerifycode);
+        validateLogin(regioncode, phone, inputVerifycode);
     }
 
     public void getVerifyCode(View view) {
@@ -270,12 +264,12 @@ public class LoginActivity extends BaseActivity {
         String regioncode = tv_login_regioncode.getText().toString();
         boolean phoneNumeric = MyUtil.isNumeric(phone);
 
-        if(!TextUtils.isEmpty(phone) && phoneNumeric){
-            getMESCode(regioncode,phone);  //86为国家代码
-            MyUtil.showDialog(getResources().getString(R.string.getting_validation_code),this);
+        if (!TextUtils.isEmpty(phone) && phoneNumeric) {
+            getMESCode(regioncode, phone);  //86为国家代码
+            MyUtil.showDialog(getResources().getString(R.string.getting_validation_code), this);
             isSendSuccessNotified = false;
-        }else{
-            Toast.makeText(this,getResources().getString(R.string.enter_cell_phone_number), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, getResources().getString(R.string.enter_cell_phone_number), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -284,7 +278,7 @@ public class LoginActivity extends BaseActivity {
     }
 
     public void lookAsset(View view) {
-        startActivity(new Intent(this,DisclaimerAssertsActivity.class));
+        startActivity(new Intent(this, DisclaimerAssertsActivity.class));
     }
 
     class MyTimerTask extends TimerTask {
@@ -293,40 +287,36 @@ public class LoginActivity extends BaseActivity {
             Message message = myHandler.obtainMessage(MSG_UPDATE);
             message.obj = timeUpdate;
             myHandler.sendMessage(message);
-            if(timeUpdate==0){
+            if (timeUpdate == 0) {
                 return;
             }
             timeUpdate--;
         }
     }
 
-    private Handler myHandler = new Handler(){
+    private Handler myHandler = new Handler() {
 
         @Override
         public void dispatchMessage(Message msg) {
             super.dispatchMessage(msg);
-            if (msg.what==MSG_TOAST_VERIFY){
+            if (msg.what == MSG_TOAST_VERIFY) {
                 //成功
                 //registerToDB();
-            }
-            else if (msg.what==MSG_UPDATE){
+            } else if (msg.what == MSG_UPDATE) {
                 int time = (int) msg.obj;
-                if (time==0){
+                if (time == 0) {
                     bt_login_getcode.setText(getResources().getString(R.string.code));
                     bt_login_getcode.setClickable(true);
                     bt_login_getcode.setTextSize(10);
                     //bt_login_getcode.setBackgroundResource(R.drawable.bg_button_verifycode);
+                } else {
+                    bt_login_getcode.setText(time + "");
                 }
-                else {
-                    bt_login_getcode.setText(time+"");
-                }
-            }
-            else if (msg.what==MSG_TOAST_FAIL){
+            } else if (msg.what == MSG_TOAST_FAIL) {
                 String detail = (String) msg.obj;
                 Toast.makeText(getApplication(), detail, Toast.LENGTH_SHORT).show();
                 MyUtil.hideDialog(getApplication());
-            }
-            else if (msg.what==MSG_TOAST_SUCCESS){
+            } else if (msg.what == MSG_TOAST_SUCCESS) {
                 getCodeSuccessSetTextState();
             }
         }
@@ -334,17 +324,18 @@ public class LoginActivity extends BaseActivity {
     };
 
     boolean isSendSuccessNotified;
+
     private void getCodeSuccessSetTextState() {
-        if (!isSendSuccessNotified){
+        if (!isSendSuccessNotified) {
             bt_login_getcode.setClickable(false);
             //bt_login_getcode.setBackgroundResource(R.drawable.bg_button_code_disable);
             //bt_login_getcode.setTextSize(15);
-            bt_login_getcode.setText(60+"");
+            bt_login_getcode.setText(60 + "");
             MyUtil.hideDialog(getApplication());
-            Toast.makeText(getApplication(),getResources().getString(R.string.verify_code_sent_successfully), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplication(), getResources().getString(R.string.verify_code_sent_successfully), Toast.LENGTH_SHORT).show();
             timeUpdate = 60;
 
-            if (mTimerTask != null){
+            if (mTimerTask != null) {
                 mTimerTask.cancel();  //将原任务从队列中移除
             }
             mTimerTask = new MyTimerTask();
@@ -354,37 +345,37 @@ public class LoginActivity extends BaseActivity {
 
     }
 
-    private void validateLogin(String regioncode,final String phone, String inputVerifycode) {
-        MyUtil.showDialog(getResources().getString(R.string.login),this);
+    private void validateLogin(String regioncode, final String phone, String inputVerifycode) {
+        MyUtil.showDialog(getResources().getString(R.string.login), this);
         final HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
 
-        params.addBodyParameter("phone",phone);
+        params.addBodyParameter("phone", phone);
         String param = String.valueOf(System.currentTimeMillis());
         params.addBodyParameter("param", param);  //时间戳
 
-        params.addBodyParameter("zone",regioncode);  //区号
-        params.addBodyParameter("code",inputVerifycode);  //验证码
-        params.addBodyParameter("mobtype","1");
+        params.addBodyParameter("zone", regioncode);  //区号
+        params.addBodyParameter("code", inputVerifycode);  //验证码
+        params.addBodyParameter("mobtype", "1");
 
-        Log.i(TAG,"phone:"+phone+",param:"+param+",inputVerifycode:"+inputVerifycode);
+        Log.i(TAG, "phone:" + phone + ",param:" + param + ",inputVerifycode:" + inputVerifycode);
         String oldface = "";
         try {
             oldface = MD5Util.getMD5(phone + param + Constant.loginTokenKey);
-            params.addBodyParameter("oldface",oldface);  //token
+            params.addBodyParameter("oldface", oldface);  //token
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 
-        //String url = "http://192.168.1.124:8080/intellingence-web/phoneVerify.do"; //登陆
-        //String url = "http://www.amsu-new.com:8081/intellingence-web/phoneVerify.do"; //登陆
-        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.phoneVerify,params, new RequestCallBack<String>() {
+        //String url = "http://192.168.1.124:8080/intellingence-web/phoneVerify.do.do"; //登陆
+        //String url = "http://www.amsu-new.com:8081/intellingence-web/phoneVerify.do.do"; //登陆
+        httpUtils.send(HttpRequest.HttpMethod.POST, Constant.phoneVerify, params, new RequestCallBack<String>() {
 
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
 
                 String result = responseInfo.result;
-                Log.i(TAG,"登陆onSuccess==result:"+result);
+                Log.i(TAG, "登陆onSuccess==result:" + result);
                 //{"ret":"0","errDesc":"注册成功!"}
                 //{"ret":"-468","errDesc":"验证码错误"}
                 /*{
@@ -419,124 +410,63 @@ public class LoginActivity extends BaseActivity {
                     JSONObject jsonObject = new JSONObject(result);
                     int ret = jsonObject.getInt("ret");
                     String errDesc = jsonObject.getString("errDesc");
-                    //ret = 0;
-                    //errDesc = "注册成功";
                     //MyUtil.showToask(LoginActivity.this,errDesc);
-                    if (ret==0){
-                        //注册成功
-                        MyUtil.putBooleanValueFromSP("isLogin",true);
-                        MyUtil.putStringValueFromSP("phone",phone);
+
+                    Gson gson = new Gson();
+
+                    if (ret == 201) {
+                        User fromJson = gson.fromJson(errDesc, User.class);
+
+                        MyUtil.putBooleanValueFromSP("isLogin", true);
+                        MyUtil.putStringValueFromSP("phone", phone);
 
                         saveCookieToSP(httpUtils);
-                        
+
                         getUserBindInsole();
 
-                        HttpUtils httpUtils1 = new HttpUtils();
-                        RequestParams params = new RequestParams();
-                        MyUtil.addCookieForHttp(params);
 
-                        httpUtils1.send(HttpRequest.HttpMethod.POST, Constant.downloadPersionDataURL,params, new RequestCallBack<String>() {
-                            @Override
-                            public void onSuccess(ResponseInfo<String> responseInfo) {
+                        Log.i(TAG, "fromJson:" + fromJson);
+                        if (fromJson != null) {
+                            MobclickAgent.onProfileSignIn(phone);  //友盟登陆账号统计
+                            if (!TextUtils.isEmpty(fromJson.getBirthday()) && !TextUtils.isEmpty(fromJson.getBirthday())) {
+                                //已经完善用户资料
+                                fromJson.setIcon("http://203.195.168.139:8081/intellingence-web/" + fromJson.getIcon());
+                                fromJson.setBirthday(getFormatUserBirthday(fromJson.getBirthday()));
+                                MyUtil.saveUserToSP(fromJson);
+                                MyUtil.putBooleanValueFromSP("isPrefectInfo", true);
+                                UploadHealthyDataUtil.downlaodWeekReport(-1, -1, true, LoginActivity.this);
+                                MyUtil.showDialog(getResources().getString(R.string.login_successful_synchronizing_data), LoginActivity.this);
+                            } else {
+                                //没有完善资料
                                 MyUtil.hideDialog(LoginActivity.this);
-                                String result = responseInfo.result;
-                                Log.i(TAG,"result:"+result);
-                                /*
-                                * {
-                                    "ret": "0",
-                                    "errDesc": {
-                                        "UserName": "张敏",
-                                        "Sex": "1",
-                                        "Birthday": "2016-12-07",
-                                        "Weight": "36.1",
-                                        "Height": "78.1",
-                                        "Address": "广东省深圳市",
-                                        "Phone": "15467893247",
-                                        "Email": "222@c.com",
-                                        "Icon": "http://xxxxx.com:83/xxx/xxx.jpg"    //例子
-                                    }
-                                }
-
-                                {
-                                    "ret": "0",
-                                    "errDesc": {
-                                        "UserName": "手机用户_ZUzf1",
-                                        "Sex": null,
-                                        "Birthday": null,
-                                        "Weight": null,
-                                        "Height": null,
-                                        "Address": "",
-                                        "Phone": "15321758382",
-                                        "Email": "",
-                                        "Icon": "http://119.29.201.120:83/"
-                                    }
-                                }
-                                * */
-                                try {
-                                    JSONObject jsonObject = new JSONObject(result);
-                                    int ret = jsonObject.getInt("ret");
-                                    String errDesc = jsonObject.getString("errDesc");
-                                    if (ret==0){
-                                        JSONObject jsonObject1 = new JSONObject(errDesc);
-                                        String birthday = jsonObject1.getString("Birthday");
-                                        String weight = jsonObject1.getString("Weight");
-                                        String userName = jsonObject1.getString("UserName");
-                                        if (birthday.equals("null") && weight.equals("null")){
-                                            //没有完善个人信息
-                                            //showdialog();
-                                            MyUtil.hideDialog(LoginActivity.this);
-                                            MyUtil.destoryAllAvtivity(LoginActivity.this);
-                                            startActivity(new Intent(LoginActivity.this,SupplyPersionDataActivity.class));
-                                        }
-                                        else {
-                                            MobclickAgent.onProfileSignIn(phone);  //友盟登陆账号统计
-
-                                            String sex = jsonObject1.getString("Sex");
-                                            String height = jsonObject1.getString("Height");
-                                            String address = jsonObject1.getString("Address");
-                                            String email = jsonObject1.getString("Email");
-                                            String icon = jsonObject1.getString("Icon");
-                                            String stillRate = jsonObject1.getString("RestingHeartRate");
-                                            User user = new User(phone,userName,birthday,sex,weight,height,address,email,icon,stillRate);
-                                            MyUtil.saveUserToSP(user);
-                                            MyUtil.putBooleanValueFromSP("isPrefectInfo",true);
-                                            BleConnectionProxy.getInstance().getmConnectionConfiguration().userLoginWay = BleConnectionProxy.userLoginWay.phone;
-                                            BleConnectionProxy.getInstance().getmConnectionConfiguration().userid = phone;  //更新蓝牙链接库当前配置
-                                            UploadHealthyDataUtil.downlaodWeekReport(-1,-1,true,LoginActivity.this);
-                                            MyUtil.showDialog(getResources().getString(R.string.login_successful_synchronizing_data),LoginActivity.this);
-                                            //startActivity(new Intent(LoginActivity.this,MainActivity.class));
-                                        }
-                                    }
-                                    else {
-                                        //操作失败
-                                        MyUtil.hideDialog(LoginActivity.this);
-                                        startActivity(new Intent(LoginActivity.this,MainActivity.class));
-                                        MyUtil.destoryAllAvtivity(LoginActivity.this);
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                    MyUtil.hideDialog(LoginActivity.this);
-                                }
+                                MyUtil.destoryAllAvtivity(LoginActivity.this);
+                                startActivity(new Intent(LoginActivity.this, SupplyPersionDataActivity.class));
                             }
+                        } else {
+                            //操作失败
+                            MyUtil.hideDialog(LoginActivity.this);
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            MyUtil.destoryAllAvtivity(LoginActivity.this);
+                        }
+                    } else if (ret == 200) {
+                        User user = new User();
+                        user.setPhone(phone);
 
-                            @Override
-                            public void onFailure(HttpException e, String s) {
-                                MyUtil.hideDialog(LoginActivity.this);
-                            }
-                        });
-                    }
-                    else {
+                        //验证成功，第一次注册
+                        //没有完善资料
+                        saveCookieToSP(httpUtils);
+                        MyUtil.saveUserToSP(user);
+                        MyUtil.putBooleanValueFromSP("isLogin", true);
+                        MyUtil.putStringValueFromSP("phone", phone);
                         MyUtil.hideDialog(LoginActivity.this);
-                        if (ret==-468){
-                            errDesc = getResources().getString(R.string.Verification_code_error);
-                        }
-                        else if (ret == -457){
-                            errDesc = getResources().getString(R.string.phone_number_format_error);
-                        }
-                        MyUtil.showToask(LoginActivity.this,errDesc);
+                        MyUtil.destoryAllAvtivity(LoginActivity.this);
+                        startActivity(new Intent(LoginActivity.this, SupplyPersionDataActivity.class));
+                    } else {
+                        MyUtil.hideDialog(LoginActivity.this);
+                        MyUtil.showToask(LoginActivity.this, errDesc);
 
                     }
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     MyUtil.hideDialog(LoginActivity.this);
                 }
@@ -546,11 +476,19 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onFailure(HttpException e, String s) {
                 MyUtil.hideDialog(LoginActivity.this);
-                Log.i(TAG,"登陆onFailure==s:"+s);
-                MyUtil.showToask(LoginActivity.this,getResources().getString(R.string.network_exception));
+                Log.i(TAG, "登陆onFailure==s:" + s);
+                MyUtil.showToask(LoginActivity.this, getResources().getString(R.string.network_exception));
             }
         });
-        
+    }
+
+    private String getFormatUserBirthday(String birthday) {
+        try {
+            long l = Long.parseLong(birthday);
+            return MyUtil.getPaceFormatTime(new Date(l));
+        } catch (Exception e) {
+            return birthday;
+        }
     }
 
     private void getUserBindInsole() {
@@ -558,29 +496,29 @@ public class LoginActivity extends BaseActivity {
         RequestParams params = new RequestParams();
         MyUtil.addCookieForHttp(params);
 
-        httpUtils1.send(HttpRequest.HttpMethod.POST, Constant.getBangdingDetails,params, new RequestCallBack<String>() {
+        httpUtils1.send(HttpRequest.HttpMethod.POST, Constant.getBangdingDetails, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 String result = responseInfo.result;
-                Log.i(TAG,"result:"+result);
+                Log.i(TAG, "result:" + result);
 
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     int ret = jsonObject.getInt("ret");
                     String errDesc = jsonObject.getString("errDesc");
-                    if (ret==0){
+                    if (ret == 0) {
                         JSONObject jsonObject1 = new JSONObject(errDesc);
                         String leftDeviceMAC = jsonObject1.getString("leftdevicemac");
                         String rightDeviceMAC = jsonObject1.getString("rightdevicemac");
                         BleDevice bleDevice = new BleDevice();
-                        bleDevice.setMac(leftDeviceMAC+","+rightDeviceMAC);
-                        bleDevice.setLEName("：鞋垫1("+leftDeviceMAC.substring(leftDeviceMAC.length()-2)+
-                                ")+鞋垫2("+rightDeviceMAC.substring(rightDeviceMAC.length()-2)+")");
+                        bleDevice.setMac(leftDeviceMAC + "," + rightDeviceMAC);
+                        bleDevice.setLEName("：鞋垫1(" + leftDeviceMAC.substring(leftDeviceMAC.length() - 2) +
+                                ")+鞋垫2(" + rightDeviceMAC.substring(rightDeviceMAC.length() - 2) + ")");
                         bleDevice.setName("鞋垫");
                         bleDevice.setDeviceType(Constant.sportType_Insole);
                         bleDevice.setDeviceType(Constant.sportType_Insole);
-                        MyUtil.saveDeviceToSP(bleDevice,Constant.sportType_Insole);
-                        Log.i(TAG,"bleDevice:"+ bleDevice);
+                        MyUtil.saveDeviceToSP(bleDevice, Constant.sportType_Insole);
+                        Log.i(TAG, "bleDevice:" + bleDevice);
                     }
 
                 } catch (JSONException e) {
@@ -590,7 +528,7 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                Log.i(TAG,"onFailure:"+s);
+                Log.i(TAG, "onFailure:" + s);
             }
         });
     }
@@ -611,29 +549,29 @@ public class LoginActivity extends BaseActivity {
             String name = cookies.get(i).getName();
             String value = cookies.get(i).getValue();
             //Log.i(TAG,"cookies:"+ name +","+ value);
-            if (!MyUtil.isEmpty(name) && !MyUtil.isEmpty(value)){
-                sb.append(name + "=" );
-                sb.append(value + ";" );
+            if (!MyUtil.isEmpty(name) && !MyUtil.isEmpty(value)) {
+                sb.append(name + "=");
+                sb.append(value + ";");
             }
         }
-        Log. i("Cookie", sb.toString());
+        Log.i("Cookie", sb.toString());
         MyUtil.putStringValueFromSP("Cookie", sb.toString());
     }
 
-    public void showdialog(){
+    public void showdialog() {
         new AlertDialog.Builder(LoginActivity.this).setTitle(getResources().getString(R.string.login_was_successful))
                 .setMessage(getResources().getString(R.string.now_improve_data))
                 .setPositiveButton(getResources().getString(R.string.exit_cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
                     }
                 })
                 .setNegativeButton(getResources().getString(R.string.exit_confirm), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(LoginActivity.this,SupplyPersionDataActivity.class));
+                        startActivity(new Intent(LoginActivity.this, SupplyPersionDataActivity.class));
                         finish();
                     }
                 })
@@ -643,9 +581,9 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             MyUtil.destoryAllAvtivity(this);
-            startActivity(new Intent(LoginActivity.this,MainActivity.class));
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         }
         return super.onKeyDown(keyCode, event);

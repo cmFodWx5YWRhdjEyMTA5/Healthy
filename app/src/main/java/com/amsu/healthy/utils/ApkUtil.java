@@ -163,7 +163,7 @@ public class ApkUtil {
         final String savePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/app"+System.currentTimeMillis()+".apk";  //目录放在cache下会报错
         Log.i(TAG,"savePath:"+savePath);
         Log.i(TAG,"path:"+path);
-        //path = "http://119.29.201.120:8081/intellingence-web/upload/app-_91helper-debug.apk";
+        //path = "http://203.195.168.139:8081/intellingence-web/upload/app-_91helper-debug.apk";
 
         RequestParams params = new RequestParams();
         httpUtils.download(path, savePath,params, true,true,new RequestCallBack<File>() {

@@ -450,7 +450,7 @@ public class DeviceInfoActivity extends BaseActivity {
         mLocalSavePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/firmware_update/"+System.currentTimeMillis()+".zip";
         Log.i(TAG,"savePath:"+ mLocalSavePath);
         Log.i(TAG,"path:"+path);
-        //path = "http://119.29.201.120:8081/intellingence-web/upload/app-_91helper-debug.apk";
+        //path = "http://203.195.168.139:8081/intellingence-web/upload/app-_91helper-debug.apk";
 
         RequestParams params = new RequestParams();
         params.addBodyParameter("parent1","心电衣");  //设备类型：衣服、鞋垫、充电器

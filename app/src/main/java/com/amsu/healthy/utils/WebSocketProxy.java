@@ -70,7 +70,7 @@ public class WebSocketProxy {
                     jsonBase.setErrDesc(onlineUser);
 
                     String msg = gson.toJson(jsonBase);*/
-                    //F1,http://119.29.201.120:83/usericons/f81241db11c869f3c8e57ff96538abbc.png,1,天空之城
+                    //F1,http://203.195.168.139:8081:83/usericons/f81241db11c869f3c8e57ff96538abbc.png,1,天空之城
                     String sexString;
                     if (sex.equals("1")){
                         sexString = "男";

@@ -1034,3 +1034,10 @@ appChannel=c360
 appPackage=com.amsu.healthy
 appVersion=1.6.3
 
+file=F:\AndroidStudio\workplace2\Healthy\app\build\outputs\mapping\tencent\release\mapping.txt
+sha1=27fdb35a75ecf09bfe070d86e9230bd0e1c12dc0
+appId=d139ea916b
+appChannel=tencent
+appPackage=com.amsu.healthy
+appVersion=1.6.3
+

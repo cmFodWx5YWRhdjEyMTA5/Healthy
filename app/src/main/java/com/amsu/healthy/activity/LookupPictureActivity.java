@@ -1,8 +1,6 @@
 package com.amsu.healthy.activity;
 
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
 
@@ -23,7 +21,7 @@ public class LookupPictureActivity extends BaseActivity {
 
         Intent intent = getIntent();
         String localIconUrl = intent.getStringExtra("imageUrl");
-        /*if (!localIconUrl.startsWith("https")){
+        /*if (!localIconUrl.startsWith("http")){
             if (iv_chatimage_iamge != null) {
                 iv_chatimage_iamge.setImageBitmap(BitmapFactory.decodeFile(localIconUrl));
             }

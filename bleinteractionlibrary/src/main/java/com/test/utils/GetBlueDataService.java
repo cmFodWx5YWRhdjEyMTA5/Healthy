@@ -315,7 +315,7 @@ public class GetBlueDataService extends Service {
 			 * httpclient.execute(httpRequest);
 			 * 
 			 * if(httpResponse.getStatusLine().getStatusCode() ==
-			 * HttpStatus.SC_OK){ strResult =
+			 * httptatus.SC_OK){ strResult =
 			 * EntityUtils.toString(httpResponse.getEntity()); }
 			 * des=Uri.decode(strResult);
 			 * 

@@ -25,6 +25,7 @@ import com.amsu.wear.map.MapUtil;
 import com.amsu.wear.map.PathRecord;
 import com.amsu.wear.myinterface.Function;
 import com.amsu.wear.myinterface.ObservableManager;
+import com.amsu.wear.util.DataUtil;
 import com.amsu.wear.util.LogUtil;
 import com.google.gson.Gson;
 
@@ -59,9 +60,9 @@ public class TrackFragment extends BaseFragment implements AMap.OnMapLoadedListe
     }
 
     private void initView() {
-        LogUtil.i(TAG,"mv_track_line:"+mv_track_line);
+        LogUtil.i(TAG, "mv_track_line:" + mv_track_line);
         ObservableManager.newInstance().registerObserver(FUNCTION_WITH_PARAM_AND_RESULT, this);
-        ObservableManager.newInstance().notify(RunningActivity.FUNCTION_WITH_PARAM_AND_RESULT,TRACKFRAGMENT_DATA);
+        ObservableManager.newInstance().notify(RunningActivity.FUNCTION_WITH_PARAM_AND_RESULT, TRACKFRAGMENT_DATA);
 
         initMap();
     }
@@ -73,8 +74,7 @@ public class TrackFragment extends BaseFragment implements AMap.OnMapLoadedListe
 
     private void initMap() {
         if (mAMap == null) {
-        }
-        else {
+        } else {
             mAMap.clear();  //fragment在被移除时，不会执行onDestroy（）方法，而是执行onDestroyView（）方法。fragment中的数据已经在第一次操作时完成了初始化了，所以以下代码中，aMap不为null。
         }
         mAMap = mv_track_line.getMap();
@@ -84,22 +84,25 @@ public class TrackFragment extends BaseFragment implements AMap.OnMapLoadedListe
 
     @Override
     public void onMapLoaded() {
-        Log.i(TAG,"onMapLoaded");
+        Log.i(TAG, "onMapLoaded");
         isMapLoaded = true;
-        if (mUploadRecord!=null){
+        if (mUploadRecord != null) {
             showTrack();
+        }
+        LatLng latLng = DataUtil.getLocation();
+        if (latLng != null) {
+            mAMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
         }
     }
 
     private void showTrack() {
         List<LatLng> latLngList = MapUtil.parseLatLngList(mUploadRecord.getPathline());
-        Log.i(TAG,"latLngList.size()" + ":"+latLngList.size());
+        Log.i(TAG, "latLngList.size()" + ":" + latLngList.size());
         //不纠偏
         float mapTraceDistance = MapUtil.getDistanceByLatLng(latLngList);
-        if (latLngList.size()>=5){
-            addOriginTrace(latLngList.get(0), latLngList.get(latLngList.size()-1), latLngList,mapTraceDistance);
-        }
-        else {
+        if (latLngList.size() >= 5) {
+            addOriginTrace(latLngList.get(0), latLngList.get(latLngList.size() - 1), latLngList, mapTraceDistance);
+        } else {
             //mv_finish_map.setVisibility(View.GONE);
         }
     }
@@ -113,16 +116,16 @@ public class TrackFragment extends BaseFragment implements AMap.OnMapLoadedListe
      * @param endPoint
      * @param originList
      */
-    private void addOriginTrace(LatLng startPoint, LatLng endPoint, List<LatLng> originList,float mapTraceDistance) {
+    private void addOriginTrace(LatLng startPoint, LatLng endPoint, List<LatLng> originList, float mapTraceDistance) {
         mAMap.clear();
         Polyline mOriginPolyline = mAMap.addPolyline(new PolylineOptions().color(Color.parseColor("#f17456")).width(getResources().getDimension(R.dimen.x12)).addAll(originList));
         Marker mOriginStartMarker = mAMap.addMarker(new MarkerOptions().position(startPoint).icon(BitmapDescriptorFactory.fromResource(R.drawable.point_his_start)));
         Marker mOriginEndMarker = mAMap.addMarker(new MarkerOptions().position(endPoint).icon(BitmapDescriptorFactory.fromResource(R.drawable.ydjc_dingweidian)));
 
 
-        Log.i(TAG,"originList:"+new Gson().toJson(originList));
-        Log.i(TAG,"originList.size():"+originList.size());
-        Log.i(TAG,"mapTraceDistance:"+mapTraceDistance);
+        Log.i(TAG, "originList:" + new Gson().toJson(originList));
+        Log.i(TAG, "originList.size():" + originList.size());
+        Log.i(TAG, "mapTraceDistance:" + mapTraceDistance);
 
         try {
             /*
@@ -133,11 +136,11 @@ public class TrackFragment extends BaseFragment implements AMap.OnMapLoadedListe
             mAMap.moveCamera(CameraUpdateFactory.newLatLngBounds(getBounds(originList), 16));
             mAMap.moveCamera(CameraUpdateFactory.zoomTo(16));
 
-            if (originList.size()<10){//只有2个点，表示在室内跑步，只需要标注运动位置即可
+            if (originList.size() < 10) {//只有2个点，表示在室内跑步，只需要标注运动位置即可
                 mAMap.moveCamera(CameraUpdateFactory.changeLatLng(originList.get(0)));  //只改变定图中心点位置，不改变缩放级别
                 //mAMap.setMaxZoomLevel(19);
                 mAMap.moveCamera(CameraUpdateFactory.zoomTo(16));
-                Log.i(TAG,"setMaxZoomLevel:");
+                Log.i(TAG, "setMaxZoomLevel:");
             }
             //mAMap.moveCamera(CameraUpdateFactory.changeLatLng(mOriginLatLngList.get(0)));  //只改变定图中心点位置，不改变缩放级别
         } catch (Exception e) {
@@ -159,10 +162,10 @@ public class TrackFragment extends BaseFragment implements AMap.OnMapLoadedListe
     @Override
     public Object function(Object[] data) {
         List<Object> objects = Arrays.asList(data);
-        LogUtil.i(TAG,"function:"+objects);
-        if (objects.size()>0){
+        LogUtil.i(TAG, "function:" + objects);
+        if (objects.size() > 0) {
             mUploadRecord = (PathRecord) objects.get(0);
-            if (isMapLoaded){
+            if (isMapLoaded) {
                 showTrack();
             }
         }
@@ -173,7 +176,7 @@ public class TrackFragment extends BaseFragment implements AMap.OnMapLoadedListe
     public void onResume() {
         super.onStart();
         mv_track_line.onResume();   //地图
-        Log.i(TAG,"onResume");
+        Log.i(TAG, "onResume");
     }
 
     @Override
@@ -186,7 +189,7 @@ public class TrackFragment extends BaseFragment implements AMap.OnMapLoadedListe
     public void onPause() {
         super.onPause();
         mv_track_line.onPause();   //地图
-        Log.i(TAG,"onPause");
+        Log.i(TAG, "onPause");
     }
 
     @Override
@@ -194,7 +197,7 @@ public class TrackFragment extends BaseFragment implements AMap.OnMapLoadedListe
         super.onDestroy();
         mv_track_line.onDestroy();   //地图
         ObservableManager.newInstance().removeObserver(this);
-        Log.i(TAG,"onDestroy");
+        Log.i(TAG, "onDestroy");
     }
 
 }

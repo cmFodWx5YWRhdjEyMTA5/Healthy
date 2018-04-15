@@ -67,14 +67,12 @@
             android:launchMode="singleTask">
         </activity>
 
-        <!-- 高德地图 -->
-        <!-- <meta-data -->
-        <!-- android:name="com.amap.api.v2.apikey" -->
-        <!-- android:value="00a9a61217c28973e9bceba073d5ac52" /> -->
-        <!-- wanglei 测试key -->
+        <!--<meta-data-->
+            <!--android:name="com.amap.api.v2.apikey"-->
+            <!--android:value="73fa2976ac0be5f4566c69ab351427d7" />-->
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="73fa2976ac0be5f4566c69ab351427d7" />
+            android:value="1c2b4165a265e867338b6e0ef4a12a76" />
 
         <!-- 定位需要的服务 -->
         <service android:name="com.amap.api.location.APSService" />
@@ -83,7 +81,7 @@
         <activity android:name=".activity.LoginSuccessActivity" />
         <activity android:name=".activity.UserInfoActivity" />
         <activity android:name=".activity.HistoryDetailActivity" />
-        <activity android:name=".activity.WeekIndexDataActivity"></activity>
+        <activity android:name=".activity.WeekIndexDataActivity"/>
 
         <receiver
             android:name=".receiver.WifiStateReceiver"

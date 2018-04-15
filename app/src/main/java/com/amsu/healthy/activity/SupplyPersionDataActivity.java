@@ -445,19 +445,19 @@ public class SupplyPersionDataActivity extends BaseActivity implements DateTimeD
 
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
-        params.addBodyParameter("UserName",username);
-        params.addBodyParameter("Birthday",birthday);
-        params.addBodyParameter("Sex",sexString);
-        params.addBodyParameter("Weight",weightValue);
-        params.addBodyParameter("Height",heightValue);
-        params.addBodyParameter("Address",area);
-        params.addBodyParameter("Phone",phone);
-        params.addBodyParameter("Email","");
-        params.addBodyParameter("RestingHeartRate","70.0");
+        params.addBodyParameter("username",username);
+        params.addBodyParameter("birthday",birthday);
+        params.addBodyParameter("sex",sexString);
+        params.addBodyParameter("weight",weightValue);
+        params.addBodyParameter("height",heightValue);
+        params.addBodyParameter("address",area);
+        params.addBodyParameter("phone",phone);
+        params.addBodyParameter("email","");
+        params.addBodyParameter("restingheartrate","70.0");
 
         MyUtil.addCookieForHttp(params);
 
-        String url = "https://bodylistener.amsu-new.com/intellingence/UserinfoController/uploadUserinfo"; //上传个人信息
+        String url = "http://203.195.168.139:8081/intellingence-web/uploadUserinfo.do"; //上传个人信息
         httpUtils.send(HttpRequest.HttpMethod.POST, url,params, new RequestCallBack<String>() {
 
             @Override

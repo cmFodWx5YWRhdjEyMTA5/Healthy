@@ -15,6 +15,7 @@ import android.widget.Button;
 
 import com.amsu.wear.R;
 import com.amsu.wear.activity.RunningActivity;
+import com.amsu.wear.util.Constant;
 import com.amsu.wear.util.ShowToaskDialogUtil;
 import com.amsu.wear.util.ToastUtil;
 import com.amsu.wear.util.UserUtil;
@@ -22,7 +23,7 @@ import com.amsu.wear.util.UserUtil;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeFragment extends Fragment implements View.OnClickListener{
+public class HomeFragment extends Fragment implements View.OnClickListener {
 
 
     private View inflate;
@@ -50,26 +51,38 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.startSports:
-                if (!UserUtil.isLoginEd()){
+                if (!UserUtil.isLoginEd()) {
                     ToastUtil.showToask("请先登陆");
-                }
-                else if (!isGpsOpen()){ // 判断GPS模块是否开启，如果没有则开启
-                    ShowToaskDialogUtil.showTipDialog(getContext(), "请先打开GPS", new DialogInterface.OnClickListener() {
+                } else { // 判断GPS模块是否开启，如果没有则开启
+                    ShowToaskDialogUtil.showTipDialog(getContext(), "是否打开GPS", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            getActivity().startActivityForResult(intent, 0); // 设置完成后返回到原来的界面
+                            if (!isGpsOpen()) {
+                                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                getActivity().startActivityForResult(intent, 0); // 设置完成后返回到原来的界面
+                            } else {
+                                if (System.currentTimeMillis() - mClickTime > 2 * 1000) {
+                                    Intent intent = new Intent(getActivity(), RunningActivity.class);
+                                    intent.putExtra(Constant.openGps, true);
+                                    startActivity(intent);
+                                }
+                                mClickTime = System.currentTimeMillis();
+                            }
+
+                        }
+                    }, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (System.currentTimeMillis() - mClickTime > 2 * 1000) {
+                                Intent intent = new Intent(getActivity(), RunningActivity.class);
+                                intent.putExtra(Constant.openGps, false);
+                                startActivity(intent);
+                            }
+                            mClickTime = System.currentTimeMillis();
                         }
                     });
-                }
-                else {
-                    //开始跑步
-                    if (System.currentTimeMillis()-mClickTime>2*1000){
-                        startActivity(new Intent(getActivity(), RunningActivity.class));
-                    }
-                    mClickTime = System.currentTimeMillis();
                 }
                 break;
         }

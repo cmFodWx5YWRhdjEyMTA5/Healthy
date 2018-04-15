@@ -35,6 +35,8 @@ import com.amsu.wear.map.proxy.GaodeMapProxy;
 import com.amsu.wear.map.proxy.MapProxy;
 import com.amsu.wear.myinterface.Function;
 import com.amsu.wear.myinterface.ObservableManager;
+import com.amsu.wear.util.Constant;
+import com.amsu.wear.util.DataUtil;
 import com.amsu.wear.util.FormatUtil;
 import com.amsu.wear.util.HeartUtil;
 import com.amsu.wear.util.HttpUtil;
@@ -56,7 +58,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class RunningActivity extends BaseActivity implements Function  {
+public class RunningActivity extends BaseActivity implements Function {
     @BindView(R.id.fl_running_finsh)
     FrameLayout fl_running_finsh;
 
@@ -83,13 +85,14 @@ public class RunningActivity extends BaseActivity implements Function  {
     private ArrayList<Integer> mSpeedStringList;  //配速数组,表示一公里所用的秒数
     public PathRecord mPathRecord;    //存放未纠偏轨迹记录信息
     private double mAllDistance;
-    private static final long saveDataToLocalTimeMillis = 1000*60;  //数据缓存到本地的时间间隔
+    private static final long saveDataToLocalTimeMillis = 1000 * 60;  //数据缓存到本地的时间间隔
 
     private ArrayList<Integer> mHeartRateDates = new ArrayList<>();  // 心率数组
     private HeartUtil heartUtil;
     private CopyOnWriteArrayList<String> mKcalData = new CopyOnWriteArrayList<>();
     private ArrayList<Integer> mStridefreData = new ArrayList<>();
     private float mAllKcal;
+    private boolean openGps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,19 +107,25 @@ public class RunningActivity extends BaseActivity implements Function  {
 
     private void initView() {
         countDownTime();
-
+        openGps = getIntent().getBooleanExtra(Constant.openGps, true);
         List<Fragment> fragmentList = new ArrayList<>();
-        fragmentList.add(new PaceFragment());
+        if (openGps) {
+            fragmentList.add(new TrackFragment());
+        }
         fragmentList.add(new TimeFragment());
+        fragmentList.add(new PaceFragment());
         fragmentList.add(new MileageFragment());
         fragmentList.add(new AerobicFragment());
         fragmentList.add(new StrideFragment());
         fragmentList.add(new CalorieFragment());
-        fragmentList.add(new TrackFragment());
 
         vp_running_info.setAdapter(new FragmentListAdapter(getSupportFragmentManager(), fragmentList));
-        vp_running_info.setCurrentItem(1);
-        mRunningData = new RunningData("--","--","--","--","--","--","--");
+        if (openGps) {
+            vp_running_info.setCurrentItem(1);
+        } else {
+            vp_running_info.setCurrentItem(0);
+        }
+        mRunningData = new RunningData("--", "--", "--", "--", "--", "--", "--");
     }
 
     private void countDownTime() {
@@ -150,7 +159,9 @@ public class RunningActivity extends BaseActivity implements Function  {
         });
 
         Ble.bleDataProxy().startRecording();
-        initMapLoationTrace();
+        if (openGps) {
+            initMapLoationTrace();
+        }
 
         // 注册事件,Activity实现Function接口
         ObservableManager.newInstance().registerObserver(FUNCTION_WITH_PARAM_AND_RESULT, this);
@@ -160,8 +171,9 @@ public class RunningActivity extends BaseActivity implements Function  {
     }
 
     private long preTimeMillis;
+
     private void checkSaveDataToLoacl() {
-        if (preTimeMillis!=-1 && (System.currentTimeMillis()-preTimeMillis)>saveDataToLocalTimeMillis){
+        if (preTimeMillis != -1 && (System.currentTimeMillis() - preTimeMillis) > saveDataToLocalTimeMillis) {
             //保存数据到本地
             saveDataToLocal();
         }
@@ -176,7 +188,7 @@ public class RunningActivity extends BaseActivity implements Function  {
 
     //初始化定位
     private void initMapLoationTrace() {
-        MapProxy mapProxy = new GaodeMapProxy(this,true);
+        MapProxy mapProxy = new GaodeMapProxy(this, true);
         mapProxy.init();
 
         mapProxy.setOnMapDataListener(new MapProxy.OnMapDataListener() {
@@ -195,8 +207,11 @@ public class RunningActivity extends BaseActivity implements Function  {
 
                 //GPS当前精度
                 int gpsAccuracyStatus = aMapLocation.getGpsAccuracyStatus();
-                LogUtil.i(TAG,"gpsAccuracyStatus:"+gpsAccuracyStatus);
-                if (gpsAccuracyStatus!=mPreGpsGpsAccuracyStatus){
+                LogUtil.i(TAG, "gpsAccuracyStatus:" + gpsAccuracyStatus);
+                double lat = aMapLocation.getLatitude();
+                double lng = aMapLocation.getLongitude();
+                DataUtil.saveLocation(lat, lng);
+                if (gpsAccuracyStatus != mPreGpsGpsAccuracyStatus) {
                     //更新GPS
                     ObservableManager.newInstance().notify(BaseDataFragment.FUNCTION_WITH_PARAM_AND_RESULT, gpsAccuracyStatus);
                     mPreGpsGpsAccuracyStatus = gpsAccuracyStatus;
@@ -211,10 +226,9 @@ public class RunningActivity extends BaseActivity implements Function  {
     }
 
     private void startAnimation(long millisUntilFinished) {
-        if (millisUntilFinished / 1000>=1){
+        if (millisUntilFinished / 1000 >= 1) {
             tv_running_countdown.setText(String.valueOf(millisUntilFinished / 1000));
-        }
-        else {
+        } else {
             tv_running_countdown.setText("GO");
         }
         AnimatorSet set = new AnimatorSet();
@@ -225,12 +239,12 @@ public class RunningActivity extends BaseActivity implements Function  {
     @Override
     public Object function(Object[] data) {
         List<Object> objects = Arrays.asList(data);
-        LogUtil.i(TAG,"function:"+objects);
+        LogUtil.i(TAG, "function:" + objects);
 
-        if (objects.size()>0){
-            if (objects.get(0) instanceof Integer){
+        if (objects.size() > 0) {
+            if (objects.get(0) instanceof Integer) {
                 Integer fragmentIdnex = (Integer) objects.get(0);
-                switch (fragmentIdnex){
+                switch (fragmentIdnex) {
                     case TrackFragment.TRACKFRAGMENT_DATA:
                         ObservableManager.newInstance().notify(TrackFragment.FUNCTION_WITH_PARAM_AND_RESULT, mPathRecord);
                         break;
@@ -253,7 +267,7 @@ public class RunningActivity extends BaseActivity implements Function  {
         sportDistance.setText(FormatUtil.getFormatDistance(mAllDistance));
 
         String runFormatTime = FormatUtil.getRunFormatTime((System.currentTimeMillis() - mStartTime) / 1000);
-        sportFinishTime.setText(runFormatTime+"");
+        sportFinishTime.setText(runFormatTime + "");
     }
 
     @OnClick({R.id.sportContinue, R.id.sportFinish})
@@ -271,14 +285,14 @@ public class RunningActivity extends BaseActivity implements Function  {
     }
 
     private void uploadSportData() {
-        if (mShowTimetimer!=null){
+        if (mShowTimetimer != null) {
             mShowTimetimer.cancel();
             mShowTimetimer = null;
         }
 
         MyApplication.getInstance().setRunning(false);
 
-        new Thread(){
+        new Thread() {
             @Override
             public void run() {
                 super.run();
@@ -289,21 +303,21 @@ public class RunningActivity extends BaseActivity implements Function  {
 
     private void prepareUploadData() {
         String[] fileNames = Ble.bleDataProxy().stopRecording();
-        Log.i(TAG,"fileNames:"+fileNames);
-        if (fileNames!=null&& !TextUtils.isEmpty(fileNames[0])){
-            long createrecord = MapUtil.saveOrUdateRecord(mPathRecord.getPathline(),0, mPathRecord.getDate(), this,mStartTime,mAllDistance,-1);
+        Log.i(TAG, "fileNames:" + fileNames);
+        if (fileNames != null && !TextUtils.isEmpty(fileNames[0])) {
+            long createrecord = MapUtil.saveOrUdateRecord(mPathRecord.getPathline(), 0, mPathRecord.getDate(), this, mStartTime, mAllDistance, -1);
             UploadDataUtil uploadDataUtil = new UploadDataUtil();
-            uploadDataUtil.generateUploadData(fileNames[0],mPathRecord,mHeartRateDates,1,0,mStartTime,mStridefreData,mKcalData,this,mSpeedStringList);
+            uploadDataUtil.generateUploadData(fileNames[0], mPathRecord, mHeartRateDates, 1, 0, mStartTime, mStridefreData, mKcalData, this, mSpeedStringList);
         }
     }
 
     //蓝牙数据相关通知
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
-        Log.i(TAG,"MessageEvent:"+event );
-        switch (event.messageType){
+        Log.i(TAG, "MessageEvent:" + event);
+        switch (event.messageType) {
             case msgType_Connect:
-                Log.i(TAG,"连接变化" );
+                Log.i(TAG, "连接变化");
                 //boolean isConnected = event.singleValue == BleConnectionProxy.connectTypeConnected;
                 //setDeviceConnectedState(isConnected);
                 break;
@@ -319,8 +333,8 @@ public class RunningActivity extends BaseActivity implements Function  {
     //数据上传完成相关通知
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessageEvent(Integer event) {
-        Log.i(TAG,"event:"+event );
-        switch (event){
+        Log.i(TAG, "event:" + event);
+        switch (event) {
             case HttpUtil.HttpUploadData_success:
                 finish();
                 break;
@@ -337,31 +351,31 @@ public class RunningActivity extends BaseActivity implements Function  {
         calcuAllkcal(heartRate);
         mHeartRateDates.add(heartRate);
 
-        String oxygenState = HeartUtil.calcuOxygenState(heartRate,this);
-        mRunningData.setHeartRate(heartRate+"");
+        String oxygenState = HeartUtil.calcuOxygenState(heartRate, this);
+        mRunningData.setHeartRate(heartRate + "");
         mRunningData.setAerobic(oxygenState);
     }
 
     //计算卡路里，累加
     private void calcuAllkcal(int heartRate) {
-        if (heartUtil==null){
+        if (heartUtil == null) {
             heartUtil = new HeartUtil();
         }
         float getkcal = heartUtil.calcuAllkcal(heartRate);
         //防止蓝牙断开又重新连上后时间太长导致卡路里很大
         if (getkcal > 6 && mKcalData.size() > 0) {
             getkcal = Float.parseFloat(mKcalData.get(mKcalData.size() - 1));
-            if (getkcal>10){
+            if (getkcal > 10) {
                 getkcal = 0;
             }
         }
         mAllKcal += getkcal;
         mKcalData.add(getkcal + "");
-        mRunningData.setCalorie((int)mAllKcal+"");
+        mRunningData.setCalorie((int) mAllKcal + "");
     }
 
     private void updateUIStrideData(int stride) {
-        mRunningData.setStride(stride+"");
+        mRunningData.setStride(stride + "");
         mStridefreData.add(stride);
     }
 
@@ -371,7 +385,7 @@ public class RunningActivity extends BaseActivity implements Function  {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
 
-        if (mShowTimetimer!=null){
+        if (mShowTimetimer != null) {
             mShowTimetimer.cancel();
             mShowTimetimer = null;
         }
@@ -383,11 +397,9 @@ public class RunningActivity extends BaseActivity implements Function  {
     //屏蔽返回键，不能返回
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-       showIsStopPage();
+        showIsStopPage();
         return false;
         //return super.onKeyDown(keyCode, event);
     }
-
-
 
 }
