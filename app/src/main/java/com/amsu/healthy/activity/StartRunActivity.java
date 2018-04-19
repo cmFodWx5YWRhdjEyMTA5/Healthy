@@ -1478,7 +1478,7 @@ public class StartRunActivity extends BaseActivity implements AMapLocationListen
         super.onDestroy();
         Log.i(TAG,"onDestroy");
         mIsRunning = false;
-
+        mWebSocketUtil.closeConnectWebSocket();
         MyApplication.runningActivity = MyApplication.MainActivity;
         ShowNotificationBarUtil.detoryServiceForegrounByNotify();
 

@@ -218,8 +218,8 @@ public class MainActivity extends BaseActivity {
 
         if (!isonResumeEd){
             if (mBluetoothAdapter!=null && !mBluetoothAdapter.isEnabled()) {
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+//                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             }
             isonResumeEd = true;
         }

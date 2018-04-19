@@ -1041,3 +1041,17 @@ appChannel=tencent
 appPackage=com.amsu.healthy
 appVersion=1.6.3
 
+file=F:\AndroidStudio\workplace2\Healthy\app\build\outputs\mapping\tencent\release\mapping.txt
+sha1=1b03be495be85197021b4f2dae0150a7c1dba222
+appId=d139ea916b
+appChannel=tencent
+appPackage=com.amsu.healthy
+appVersion=1.6.4
+
+file=F:\AndroidStudio\workplace2\Healthy\app\build\outputs\mapping\tencent\release\mapping.txt
+sha1=1b03be495be85197021b4f2dae0150a7c1dba222
+appId=d139ea916b
+appChannel=tencent
+appPackage=com.amsu.healthy
+appVersion=1.6.5
+

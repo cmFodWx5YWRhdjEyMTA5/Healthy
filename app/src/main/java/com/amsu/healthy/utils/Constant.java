@@ -17,6 +17,8 @@ public class Constant {
     public static int MODIFY_PHONE = 3;
     public static int MODIFY_STILLRATE = 4;
 
+    public static boolean healthyDataOpen = false;
+
     public static String writeConfigureOrder = "FF010A100C080E010016";
     public static String openDataTransmitOrder = "FF0206010016";
     public static String stopDataTransmitOrder = "FF0206000016";
@@ -192,7 +194,6 @@ public class Constant {
     public static final int saveDataTOLocalTimeSpanSecond = 10;  //数据持久化时间间隔 1分钟
 
     public static final String insoleDeviceBatteryInfos = "insoleDeviceBatteryInfos";
-
 
 
     public static final String mClothDeviceType = "mClothDeviceType";

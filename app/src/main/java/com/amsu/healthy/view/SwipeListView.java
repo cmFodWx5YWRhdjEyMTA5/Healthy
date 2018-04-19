@@ -7,6 +7,7 @@ package com.amsu.healthy.view;
  * @time 8/25/2017 3:04 PM
  * @describe
  */
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -51,13 +52,13 @@ public class SwipeListView extends ListView {
     private boolean isLoadMoreOpened = true;
 
     public SwipeListView(Context context) {
-        this(context,null);
-        init(context,null);
+        this(context, null);
+        init(context, null);
     }
 
     public SwipeListView(Context context, AttributeSet attrs) {
-        this(context, attrs,0);
-        init(context,attrs);
+        this(context, attrs, 0);
+        init(context, attrs);
     }
 
     public SwipeListView(Context context, AttributeSet attrs, int defStyle) {
@@ -71,14 +72,14 @@ public class SwipeListView extends ListView {
 
         mTypedArray.recycle();
 
-        init(context,attrs);
+        init(context, attrs);
     }
 
     private void init(Context context, AttributeSet attrs) {
         addFoot(context);
 
         iv_chatt_refresh = (ImageView) viewFoot.findViewById(R.id.iv_chatt_refresh);
-        circleAnimation = new RotateAnimation(0,360, Animation.RELATIVE_TO_SELF,0.5f,Animation.RELATIVE_TO_SELF,0.5f);
+        circleAnimation = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         circleAnimation.setDuration(500);
         circleAnimation.setRepeatCount(-1);
 
@@ -86,8 +87,8 @@ public class SwipeListView extends ListView {
 
     private void addFoot(Context context) {
         viewFoot = View.inflate(context, R.layout.view_head, null);
-        viewFoot.measure(2,2);
-        viewFoot.setPadding(0,0,0,-viewFoot.getMeasuredHeight());
+        viewFoot.measure(2, 2);
+        viewFoot.setPadding(0, 0, 0, -viewFoot.getMeasuredHeight());
         addFooterView(viewFoot);
     }
 
@@ -106,7 +107,7 @@ public class SwipeListView extends ListView {
                 System.out.println("onInterceptTouchEvent----->ACTION_DOWN");
                 mFirstX = lastX;
                 mFirstY = lastY;
-                int motionPosition = pointToPosition((int)mFirstX, (int)mFirstY);
+                int motionPosition = pointToPosition((int) mFirstX, (int) mFirstY);
 
                 if (motionPosition >= 0) {
                     View currentItemView = getChildAt(motionPosition - getFirstVisiblePosition());
@@ -176,6 +177,7 @@ public class SwipeListView extends ListView {
      */
 
     float downY;
+
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         float lastX = ev.getX();
@@ -184,21 +186,21 @@ public class SwipeListView extends ListView {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 System.out.println("---->ACTION_DOWN");
-                downY =  ev.getY();
+                downY = ev.getY();
                 break;
 
             case MotionEvent.ACTION_MOVE:
 
                 //加载更多逻辑
-                float startY =  ev.getY();
-                if (downY-startY>20){
+                float startY = ev.getY();
+                if (downY - startY > 20) {
                     //下拉
-                    if (getLastVisiblePosition()==getCount()-1 ){
-                        if (!isFootNeedLoadMore && isAllowLoadMore && isLoadMoreOpened){
+                    if (getLastVisiblePosition() == getCount() - 1) {
+                        if (!isFootNeedLoadMore && isAllowLoadMore && isLoadMoreOpened) {
                             //可见最后一个是最后一条,需要加载更多
                             iv_chatt_refresh.setAnimation(circleAnimation);
                             circleAnimation.start();
-                            viewFoot.setPadding(0,0,0,0);
+                            viewFoot.setPadding(0, 0, 0, 0);
                             isFootNeedLoadMore = true;
                         }
                     }
@@ -235,8 +237,8 @@ public class SwipeListView extends ListView {
                     }
 
                     // can't move beyond boundary
-                    if (dx < 0 && dx > -mRightViewWidth && mCurrentItemView!=null) {
-                        mCurrentItemView.scrollTo((int)(-dx), 0);
+                    if (dx < 0 && dx > -mRightViewWidth && mCurrentItemView != null) {
+                        mCurrentItemView.scrollTo((int) (-dx), 0);
                     }
 
                     return true;
@@ -257,9 +259,9 @@ public class SwipeListView extends ListView {
                 break;
 
             case MotionEvent.ACTION_UP:
-                if (isLoadMoreOpened){
-                    if (isFootNeedLoadMore && !isFootNeedLoadMoring && isAllowLoadMore ){
-                        if (refreshDataListener!=null){
+                if (isLoadMoreOpened) {
+                    if (isFootNeedLoadMore && !isFootNeedLoadMoring && isAllowLoadMore) {
+                        if (refreshDataListener != null) {
                             refreshDataListener.loadMore();
                             isFootNeedLoadMore = false;
                             isFootNeedLoadMoring = true;
@@ -306,7 +308,7 @@ public class SwipeListView extends ListView {
 
     private void clearPressedState() {
         // TODO current item is still has background, issue
-        if (mCurrentItemView!=null){
+        if (mCurrentItemView != null) {
             mCurrentItemView.setPressed(false);
             setPressed(false);
             refreshDrawableState();
@@ -319,11 +321,12 @@ public class SwipeListView extends ListView {
 
         Message msg = new MoveHandler().obtainMessage();
         msg.obj = view;
-        msg.arg1 = view.getScrollX();
-        msg.arg2 = mRightViewWidth;
-        msg.sendToTarget();
-
-        mIsShown = true;
+        if (view != null) {
+            msg.arg1 = view.getScrollX();
+            msg.arg2 = mRightViewWidth;
+            msg.sendToTarget();
+            mIsShown = true;
+        }
     }
 
     private void hiddenRight(View view) {
@@ -340,7 +343,6 @@ public class SwipeListView extends ListView {
 
         mIsShown = false;
     }
-
 
 
     /**
@@ -371,10 +373,10 @@ public class SwipeListView extends ListView {
                     return;
                 }
                 mIsInAnimation = true;
-                view = (View)msg.obj;
+                view = (View) msg.obj;
                 fromX = msg.arg1;
                 toX = msg.arg2;
-                stepX = (int)((toX - fromX) * mDurationStep * 1.0 / mDuration);
+                stepX = (int) ((toX - fromX) * mDurationStep * 1.0 / mDuration);
                 if (stepX < 0 && stepX > -1) {
                     stepX = -1;
                 } else if (stepX > 0 && stepX < 1) {
@@ -414,20 +416,20 @@ public class SwipeListView extends ListView {
 
     LoadMoreListView.LoadMoreDataListener refreshDataListener;
 
-    public void setLoadMorehDataListener(LoadMoreListView.LoadMoreDataListener refreshDataListener){
+    public void setLoadMorehDataListener(LoadMoreListView.LoadMoreDataListener refreshDataListener) {
         this.refreshDataListener = refreshDataListener;
     }
 
-    public interface LoadMoreDataListener{
+    public interface LoadMoreDataListener {
         void loadMore();
     }
 
-    public void loadMoreSuccessd(){
-        if (circleAnimation!=null){
+    public void loadMoreSuccessd() {
+        if (circleAnimation != null) {
             circleAnimation.cancel();
         }
         isFootNeedLoadMoring = false;
-        viewFoot.setPadding(0,0,0,-viewFoot.getMeasuredHeight());
+        viewFoot.setPadding(0, 0, 0, -viewFoot.getMeasuredHeight());
     }
 
     public void setAllowLoadMore(boolean allowLoadMore) {

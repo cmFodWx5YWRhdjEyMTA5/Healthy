@@ -21,7 +21,6 @@ import com.amsu.bleinteraction.proxy.Ble;
 import com.amsu.bleinteraction.proxy.BleConnectionProxy;
 import com.amsu.bleinteraction.proxy.BleDataProxy;
 import com.amsu.bleinteraction.utils.EcgAccDataUtil;
-import com.amsu.bleinteraction.utils.LogUtil;
 import com.amsu.healthy.R;
 import com.amsu.healthy.receiver.SmsReceiver;
 import com.amsu.healthy.utils.ChooseAlertDialogUtil;
@@ -44,11 +43,11 @@ public class HealthyDataActivity extends BaseActivity {
     private EcgView pv_healthydata_path;
 
     private TextView tv_healthydata_rate;
-    private ArrayList<Integer> heartRateDates ;  // 心率数组
+    private ArrayList<Integer> heartRateDates;  // 心率数组
     private boolean isNeedDrawEcgData = true; //是否要画心电数据，在跳到下个界面时则不需要画
     private boolean isActivityFinsh = false; //
 
-    private long startTimeMillis =-1;  //开始有心电数据时的秒数，作为心电文件命名。静态变量，在其他界面会用到
+    private long startTimeMillis = -1;  //开始有心电数据时的秒数，作为心电文件命名。静态变量，在其他界面会用到
     private boolean mIsLookupECGDataFromSport;
 
     private SmsReceiver mReceiver01, mReceiver02;
@@ -69,6 +68,7 @@ public class HealthyDataActivity extends BaseActivity {
     }
 
     private void initView() {
+        Constant.healthyDataOpen = true;
         initHeadView();
         setCenterText(getResources().getString(R.string.stationary_ecg));
         setLeftImage(R.drawable.back_icon);
@@ -83,7 +83,7 @@ public class HealthyDataActivity extends BaseActivity {
         getIv_base_rightimage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(HealthyDataActivity.this,MyDeviceActivity.class));
+                startActivity(new Intent(HealthyDataActivity.this, MyDeviceActivity.class));
             }
         });
 
@@ -104,11 +104,10 @@ public class HealthyDataActivity extends BaseActivity {
         mBleConnectionProxy = BleConnectionProxy.getInstance();
 
         mIsLookupECGDataFromSport = intent.getBooleanExtra(Constant.isLookupECGDataFromSport, false);
-        if (mIsLookupECGDataFromSport){
+        if (mIsLookupECGDataFromSport) {
             tv_healthydata_analysis.setVisibility(View.GONE);
             getTv_base_centerText().setVisibility(View.GONE);
-        }
-        else {
+        } else {
             mBleDataProxy.startRecording();
         }
 
@@ -116,7 +115,7 @@ public class HealthyDataActivity extends BaseActivity {
 
         int clothCurrBatteryPowerPercent = BleConnectionProxy.getInstance().getClothCurrBatteryPowerPercent();
 
-        if (clothCurrBatteryPowerPercent !=-1){
+        if (clothCurrBatteryPowerPercent != -1) {
             tv_base_charge.setVisibility(View.VISIBLE);
             tv_base_charge.setText(String.valueOf(clothCurrBatteryPowerPercent));
         }
@@ -128,9 +127,9 @@ public class HealthyDataActivity extends BaseActivity {
         mBleDataProxy.setAfterFilterbleDataChangeListener(new BleDataProxy.BleDataChangeListener() {
             @Override
             public void onBleDataChange(MessageEvent event) {
-                switch (event.messageType){
+                switch (event.messageType) {
                     case msgType_ecgDataArray_AfterFiter:
-                        LogUtil.i(TAG,"testIndex:"+event.testIndex);
+                        //LogUtil.i(TAG,"testIndex:"+event.testIndex);
                         dealWithEcgData(event.dataArray);
                         break;
 
@@ -138,7 +137,7 @@ public class HealthyDataActivity extends BaseActivity {
             }
         });
         boolean isOpenReceiveDataTest = MyUtil.getBooleanValueFromSP(Constant.isOpenReceiveDataTest);
-        if (isOpenReceiveDataTest){
+        if (isOpenReceiveDataTest) {
             tv_rate_test.setVisibility(View.VISIBLE);
         }
 
@@ -149,12 +148,12 @@ public class HealthyDataActivity extends BaseActivity {
     //连接变化
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
-        switch (event.messageType){
+        switch (event.messageType) {
             case msgType_HeartRate:
                 updateUIECGHeartData(event.singleValue);
                 break;
             case msgType_ReceiveataRate:
-                testReceiveData += event.msg+"\n";
+                testReceiveData += event.msg + "\n";
                 tv_rate_test.setText(testReceiveData);
                 break;
             /*case msgType_ecgDataArray_AfterFiter:
@@ -167,7 +166,7 @@ public class HealthyDataActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Log.i(TAG,"onStart:");
+        Log.i(TAG, "onStart:");
     }
 
     //处理心电数据
@@ -180,8 +179,8 @@ public class HealthyDataActivity extends BaseActivity {
         }
         LogUtil.w(TAG,"滤波后心电:"+intStringA);*/
 
-        if (isNeedDrawEcgData){
-            if (startTimeMillis==-1){
+        if (isNeedDrawEcgData) {
+            if (startTimeMillis == -1) {
                 startTimeMillis = System.currentTimeMillis();
             }
             updateUIECGLineData(ecgData);
@@ -191,15 +190,15 @@ public class HealthyDataActivity extends BaseActivity {
     private void updateUIECGHeartData(int heartRate) {
         //Log.i("HeartShowWayUtil","HealthyDataActivity收到心率:"+heartRate);
         updateNotify(heartRate);
-        HeartShowWayUtil.updateHeartUI(heartRate,tv_healthydata_rate,this);
+        HeartShowWayUtil.updateHeartUI(heartRate, tv_healthydata_rate, this);
         //tv_healthydata_rate.setText(heartRate+"");
         heartRateDates.add(heartRate);
     }
 
     private void updateNotify(int heartRate) {
-        String showHeartString = heartRate==0?"--":heartRate+"";
-        if (!mIsLookupECGDataFromSport){
-            ShowNotificationBarUtil.setServiceForegrounByNotify("正在测试静态心率","心率："+showHeartString+" BPM",ShowNotificationBarUtil.notifyActivityIndex_HealthyDataActivity);
+        String showHeartString = heartRate == 0 ? "--" : heartRate + "";
+        if (!mIsLookupECGDataFromSport) {
+            ShowNotificationBarUtil.setServiceForegrounByNotify("正在测试静态心率", "心率：" + showHeartString + " BPM", ShowNotificationBarUtil.notifyActivityIndex_HealthyDataActivity);
         }
     }
 
@@ -212,7 +211,7 @@ public class HealthyDataActivity extends BaseActivity {
     }
 
     private void alertAdjustLineSeekBar() {
-        showAlertAdjustLineSeekBar(pv_healthydata_path,this);
+        showAlertAdjustLineSeekBar(pv_healthydata_path, this);
     }
 
     //求助，暂时只发短信
@@ -222,24 +221,24 @@ public class HealthyDataActivity extends BaseActivity {
 
     //开始分析
     public void startAnalysis(View view) {
-        Log.i(TAG,"startAnalysis");
+        Log.i(TAG, "startAnalysis");
         jumpToAnalysis();
     }
 
     private void jumpToAnalysis() {
-        Log.i(TAG,"heartRateDates.size(): "+heartRateDates.size());
-        Log.i(TAG,"heartRateDates: "+heartRateDates);
+        Log.i(TAG, "heartRateDates.size(): " + heartRateDates.size());
+        Log.i(TAG, "heartRateDates: " + heartRateDates);
 
         ///boolean needAnalysis = true;
         boolean needAnalysis = isNeedAnalysis();
 
-        if (needAnalysis){
+        if (needAnalysis) {
             String[] fileNames = mBleDataProxy.stopRecording();
 
             Intent intent = new Intent(HealthyDataActivity.this, HeartRateAnalysisActivity.class);
-            intent.putExtra(Constant.sportState,Constant.SPORTSTATE_STATIC);
-            intent.putIntegerArrayListExtra(Constant.heartDataList_static,heartRateDates);
-            intent.putExtra(Constant.startTimeMillis,startTimeMillis);
+            intent.putExtra(Constant.sportState, Constant.SPORTSTATE_STATIC);
+            intent.putIntegerArrayListExtra(Constant.heartDataList_static, heartRateDates);
+            intent.putExtra(Constant.startTimeMillis, startTimeMillis);
             intent.putExtra(Constant.ecgLocalFileName, fileNames[0]);
 
             startActivity(intent);
@@ -249,34 +248,33 @@ public class HealthyDataActivity extends BaseActivity {
             heartRateDates.clear();
             ShowNotificationBarUtil.detoryServiceForegrounByNotify();
             finish();
-        }
-        else {
-            MyUtil.showToask(this,R.string.HeartRate_suggetstion_nodata);
+        } else {
+            MyUtil.showToask(this, R.string.HeartRate_suggetstion_nodata);
         }
     }
 
     //判断是否有数据，现在有一个正常心率则表示可以分析了
     private boolean isNeedAnalysis() {
         boolean needAnalysis = false;
-        for (int i:heartRateDates){
-            if (i>40){
-                needAnalysis  =true;
+        for (int i : heartRateDates) {
+            if (i > 40) {
+                needAnalysis = true;
                 break;
             }
         }
         return needAnalysis;
     }
 
-    boolean isonResumeEd ;
+    boolean isonResumeEd;
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG,"onResume");
+        Log.i(TAG, "onResume");
         isNeedDrawEcgData = true;
 
-        if (!isonResumeEd){
-            if (MainActivity.mBluetoothAdapter!=null && !MainActivity.mBluetoothAdapter.isEnabled()) {
+        if (!isonResumeEd) {
+            if (MainActivity.mBluetoothAdapter != null && !MainActivity.mBluetoothAdapter.isEnabled()) {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBtIntent, MainActivity.REQUEST_ENABLE_BT);
             }
@@ -284,14 +282,13 @@ public class HealthyDataActivity extends BaseActivity {
             //pv_healthydata_path.startThread();
         }
 
-        if (mBleConnectionProxy.ismIsConnectted()){
+        if (mBleConnectionProxy.ismIsConnectted()) {
             iv_base_connectedstate.setImageResource(R.drawable.yilianjie);
-            if (mBleConnectionProxy.getClothCurrBatteryPowerPercent() !=-1){
+            if (mBleConnectionProxy.getClothCurrBatteryPowerPercent() != -1) {
                 tv_base_charge.setVisibility(View.VISIBLE);
-                tv_base_charge.setText(String.valueOf(mBleConnectionProxy.getClothCurrBatteryPowerPercent()+"%"));
+                tv_base_charge.setText(String.valueOf(mBleConnectionProxy.getClothCurrBatteryPowerPercent() + "%"));
             }
-        }
-        else {
+        } else {
             iv_base_connectedstate.setImageResource(R.drawable.duankai);
             tv_base_charge.setVisibility(View.GONE);
         }
@@ -314,7 +311,7 @@ public class HealthyDataActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Log.i(TAG,"onPause");
+        Log.i(TAG, "onPause");
         isNeedDrawEcgData = false;
 
         /* 取消注册自定义Receiver */
@@ -326,25 +323,27 @@ public class HealthyDataActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.i(TAG,"onStop");
+        Log.i(TAG, "onStop");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i(TAG,"onDestroy");
+        Log.i(TAG, "onDestroy");
 
-        if (heartRateDates.size()>0){
-            ShowNotificationBarUtil.detoryServiceForegrounByNotify();
+        if (!Constant.healthyDataOpen) {
+            if (heartRateDates.size() > 0) {
+                ShowNotificationBarUtil.detoryServiceForegrounByNotify();
+            }
+
+            EventBus.getDefault().unregister(this);
+            mBleDataProxy.setAfterFilterbleDataChangeListener(null);
         }
-
-        EventBus.getDefault().unregister(this);
-        mBleDataProxy.setAfterFilterbleDataChangeListener(null);
     }
 
     //按返回键时的处理
     private void backJudge() {
-        if (heartRateDates.size()>0 && !mIsLookupECGDataFromSport){
+        if (heartRateDates.size() > 0 && !mIsLookupECGDataFromSport) {
             ChooseAlertDialogUtil chooseAlertDialogUtil = new ChooseAlertDialogUtil(HealthyDataActivity.this);
             chooseAlertDialogUtil.setAlertDialogText(getResources().getString(R.string.testing_ecg_quit));
             chooseAlertDialogUtil.setOnConfirmClickListener(new ChooseAlertDialogUtil.OnConfirmClickListener() {
@@ -352,11 +351,12 @@ public class HealthyDataActivity extends BaseActivity {
                 public void onConfirmClick() {
                     ShowNotificationBarUtil.detoryServiceForegrounByNotify();
                     mBleDataProxy.stopRecording();
+                    Constant.healthyDataOpen = false;
                     finish();
                 }
             });
-        }
-        else {
+        } else {
+            Constant.healthyDataOpen = false;
             finish();
         }
     }
@@ -368,10 +368,10 @@ public class HealthyDataActivity extends BaseActivity {
     }
 
 
-    private  BottomSheetDialog mBottomAdjustRateLineDialog;
+    private BottomSheetDialog mBottomAdjustRateLineDialog;
 
-    public  void showAlertAdjustLineSeekBar(final EcgView pv_healthydata_path, Context context) {
-        if (mBottomAdjustRateLineDialog==null){
+    public void showAlertAdjustLineSeekBar(final EcgView pv_healthydata_path, Context context) {
+        if (mBottomAdjustRateLineDialog == null) {
             mBottomAdjustRateLineDialog = new BottomSheetDialog(context);
             View inflate = LayoutInflater.from(context).inflate(R.layout.view_adjustline, null);
 
@@ -387,19 +387,19 @@ public class HealthyDataActivity extends BaseActivity {
 
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    Log.i(TAG,"onProgressChanged:"+progress);
+                    Log.i(TAG, "onProgressChanged:" + progress);
                 }
 
                 @Override
                 public void onStartTrackingTouch(SeekBar seekBar) {
-                    Log.i(TAG,"onStart:"+seekBar.getProgress());
+                    Log.i(TAG, "onStart:" + seekBar.getProgress());
                 }
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    Log.i(TAG,"onStop:"+seekBar.getProgress());
+                    Log.i(TAG, "onStop:" + seekBar.getProgress());
                     int endProgress = seekBar.getProgress();
-                    adjustRateLineRToEcgView(endProgress,pv_healthydata_path);
+                    adjustRateLineRToEcgView(endProgress, pv_healthydata_path);
                 }
             });
         }
@@ -412,26 +412,23 @@ public class HealthyDataActivity extends BaseActivity {
                 在 12<=ecgAmpSum<26 时 不放大大不缩小。
                 在ecgAmpSum>=26时 缩小两倍
             * */
-    public  void adjustRateLineRToEcgView(int endProgress,EcgView pv_healthydata_path) {
+    public void adjustRateLineRToEcgView(int endProgress, EcgView pv_healthydata_path) {
         double type = 0;
-        Log.i(TAG,"currentType:"+EcgAccDataUtil.ECGSCALE_MODE_CURRENT);
-        if (endProgress<=20){
+        Log.i(TAG, "currentType:" + EcgAccDataUtil.ECGSCALE_MODE_CURRENT);
+        if (endProgress <= 20) {
             type = EcgAccDataUtil.ECGSCALE_MODE_HALF;
-        }
-        else if(20<endProgress && endProgress<=40){
+        } else if (20 < endProgress && endProgress <= 40) {
             type = EcgAccDataUtil.ECGSCALE_MODE_ORIGINAL;
-        }
-        else if(40<endProgress && endProgress<=60){
+        } else if (40 < endProgress && endProgress <= 60) {
             type = EcgAccDataUtil.ECGSCALE_MODE_DOUBLE;
-        }
-        else if(60<endProgress && endProgress<=80){
+        } else if (60 < endProgress && endProgress <= 80) {
             type = EcgAccDataUtil.ECGSCALE_MODE_QUADRUPLE;
         }
 
-        if (type!=EcgAccDataUtil.ECGSCALE_MODE_CURRENT){
+        if (type != EcgAccDataUtil.ECGSCALE_MODE_CURRENT) {
             EcgAccDataUtil.ECGSCALE_MODE_CURRENT = type;
             //重新绘图
-            Log.i(TAG,"调在增益");
+            Log.i(TAG, "调在增益");
             pv_healthydata_path.setRateLineR(type);
         }
     }

@@ -128,6 +128,7 @@ public class PrepareRunningActivity extends BaseActivity {
             String url = "";
 
             //String hostName = "ws://www.amsu-new.com:8081/";
+//            String hostName = "ws://172.20.105.62:8080/";
             String hostName = "ws://192.168.43.243:8080/";
 
             if (chooseMonitorShowIndex==0){

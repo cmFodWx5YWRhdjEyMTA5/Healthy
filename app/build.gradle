@@ -15,25 +15,36 @@ android {
         applicationId "com.amsu.healthy"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 163
-        versionName "1.6.3"
+        versionCode 165
+        versionName "1.6.5"
 
         multiDexEnabled true
 
         ndk {
             // 设置支持的SO库架构
-            abiFilters 'armeabi' , 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
+            abiFilters 'armeabi', 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
             //abiFilters 'armeabi-v7a' //, 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
         }
     }
-
+    //配置keystore签名
+    signingConfigs {
+        release {
+            storeFile file('D:/Work/key/appkey.jks')
+            storePassword "123456"
+            keyAlias "123456"
+            keyPassword "123456"
+        }
+    }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.release
+        }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             android.applicationVariants.all { variant ->
-                variant.outputs.all{ output ->
+                variant.outputs.all { output ->
                     // apk_渠道名-版本号-版本名称-编译时间.apk
                     outputFileName = "app_${variant.productFlavors[0].name}_${defaultConfig.versionName}_${releaseTime()}_release.apk"
                 }
@@ -42,24 +53,23 @@ android {
     }
     useLibrary 'org.apache.http.legacy'
 
-
     // 友盟多渠道打包
     flavorDimensions "default"
     productFlavors {
-        ali {dimension "default"}  //阿里
-        c360 {dimension "default"}    //360
-        vivo {dimension "default"}     //vivo
-        pphelper {dimension "default"}  //pp助手
-        tencent {dimension "default"}   //腾讯
-        baidu {dimension "default"}   //百度
-        xiaomi {dimension "default"}   //小米
-        androidmarket {dimension "default"}   //安卓市场
-        letv {dimension "default"}   //安卓市场
-        huawei {dimension "default"}   //安卓市场
-        other {dimension "default"}   //其他
-        inner {dimension "default"}   //其他
-        beta_test {dimension "default"}   //测试
-        google_pay {dimension "default"}   //测试
+        ali { dimension "default" }  //阿里
+        c360 { dimension "default" }    //360
+        vivo { dimension "default" }     //vivo
+        pphelper { dimension "default" }  //pp助手
+        tencent { dimension "default" }   //腾讯
+        baidu { dimension "default" }   //百度
+        xiaomi { dimension "default" }   //小米
+        androidmarket { dimension "default" }   //安卓市场
+        letv { dimension "default" }   //安卓市场
+        huawei { dimension "default" }   //安卓市场
+        other { dimension "default" }   //其他
+        inner { dimension "default" }   //其他
+        beta_test { dimension "default" }   //测试
+        google_pay { dimension "default" }   //测试
     }
 
     productFlavors.all { flavor ->

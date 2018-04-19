@@ -62,7 +62,7 @@ public class HeartRateResultShowActivity extends BaseActivity {
     private TextView tv_analysis_sport;
     private FragmentListRateAdapter mAnalysisRateAdapter;
     private float mOneTableWidth;
-    private int subFormAlCount = 0 ;  //当有四个fragment是为0，有5个fragment时为1
+    private int subFormAlCount = 0;  //当有四个fragment是为0，有5个fragment时为1
     private ImageView iv_base_myreport;
     public static int state;
 
@@ -71,7 +71,7 @@ public class HeartRateResultShowActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rate_analysis);
 
-        Log.i(TAG,"onCreate");
+        Log.i(TAG, "onCreate");
         initView();
         initData();
     }
@@ -116,27 +116,27 @@ public class HeartRateResultShowActivity extends BaseActivity {
         iv_base_myreport.setVisibility(View.VISIBLE);
 
         //每一个小格的宽度
-        mOneTableWidth = MyUtil.getScreeenWidth(this)/5;
+        mOneTableWidth = MyUtil.getScreeenWidth(this) / 5;
 
         vp_analysis_content.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 //Log.i(TAG,"onPageScrolled===position:"+position+",positionOffset:"+positionOffset+",positionOffsetPixels:"+positionOffsetPixels);
                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) v_analysis_select.getLayoutParams();
-                int floatWidth=  (int) (mOneTableWidth *(positionOffset+position));  //view向左的偏移量
-                layoutParams.setMargins(floatWidth,0,0,0); //4个参数按顺序分别是左上右下
+                int floatWidth = (int) (mOneTableWidth * (positionOffset + position));  //view向左的偏移量
+                layoutParams.setMargins(floatWidth, 0, 0, 0); //4个参数按顺序分别是左上右下
                 v_analysis_select.setLayoutParams(layoutParams);
             }
 
             @Override
             public void onPageSelected(int position) {
                 //Log.i(TAG,"onPageSelected===position:"+position);
-                setViewPageTextColor(position+subFormAlCount);
+                setViewPageTextColor(position + subFormAlCount);
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
-               // Log.i(TAG,"onPageScrollStateChanged===state:"+state);
+                // Log.i(TAG,"onPageScrollStateChanged===state:"+state);
             }
         });
 
@@ -150,16 +150,16 @@ public class HeartRateResultShowActivity extends BaseActivity {
 
     private void initData() {
         final Intent intent = getIntent();
-        if (intent!=null){
+        if (intent != null) {
             Bundle bundle = intent.getParcelableExtra("bundle");
-            if (bundle!=null){
+            if (bundle != null) {
                 UploadRecord uploadRecord = bundle.getParcelable("uploadRecord");
-                Log.i(TAG,"uploadRecord:"+uploadRecord);
-                if (uploadRecord==null){
+                Log.i(TAG, "uploadRecord:" + uploadRecord);
+                if (uploadRecord == null) {
                     final HistoryRecord historyRecord = bundle.getParcelable("historyRecord");
-                    if (historyRecord!=null){
-                        Log.i(TAG,"historyRecord:"+historyRecord.toString());
-                        String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm",new Date(historyRecord.getDatatime()));  //此处的datatime是时间戳（毫秒）
+                    if (historyRecord != null) {
+                        Log.i(TAG, "historyRecord:" + historyRecord.toString());
+                        String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm", new Date(historyRecord.getDatatime()));  //此处的datatime是时间戳（毫秒）
                         setCenterText(datatime);
 
                         state = historyRecord.getState();
@@ -169,32 +169,30 @@ public class HeartRateResultShowActivity extends BaseActivity {
                         OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(HeartRateResultShowActivity.this);
                         try {
                             offLineDbAdapter.open();
-                        }catch (Exception ignored){
+                        } catch (Exception ignored) {
                         }
 
-                        Log.i(TAG,"historyRecord.getDatatime():"+historyRecord.getDatatime());
+                        Log.i(TAG, "historyRecord.getDatatime():" + historyRecord.getDatatime());
 
-                        uploadRecord = offLineDbAdapter.queryRecordByTimestamp(historyRecord.getDatatime()/1000);  // 2017-06-28 11:01:33
-                        Log.i(TAG,"本地数据库uploadRecord:"+uploadRecord);
+                        uploadRecord = offLineDbAdapter.queryRecordByTimestamp(historyRecord.getDatatime() / 1000);  // 2017-06-28 11:01:33
+                        Log.i(TAG, "本地数据库uploadRecord:" + uploadRecord);
                         try {
                             offLineDbAdapter.close();
-                        }catch (Exception ignored){
+                        } catch (Exception ignored) {
                         }
 
-                        if (uploadRecord!=null){
+                        if (uploadRecord != null) {
                             mUploadRecord = uploadRecord;
                             adjustFeagmentCount(historyRecord.getState());
-                        }
-                        else {
+                        } else {
                             //本地没有缓存,从服务器上取
                             getHistoryReportDetail(historyRecord);
                         }
                     }
-                }
-                else {
+                } else {
                     state = uploadRecord.state;
                     //当前分析结果，直接显示
-                    if (uploadRecord.state==1 && uploadRecord.sportCreateRecordID>0){
+                    if (uploadRecord.state == 1 && uploadRecord.sportCreateRecordID > 0) {
                         DbAdapter dbAdapter = new DbAdapter(this);
                         dbAdapter.open();
                         PathRecord pathRecord = dbAdapter.queryRecordById((int) uploadRecord.sportCreateRecordID);
@@ -203,96 +201,94 @@ public class HeartRateResultShowActivity extends BaseActivity {
                     }
 
                     mUploadRecord = uploadRecord;
-                    Log.i(TAG,"直接显示uploadRecord:"+uploadRecord.toString());
-                    Log.i(TAG,"mUploadRecord.ae:"+uploadRecord.ae);
+                    Log.i(TAG, "直接显示uploadRecord:" + uploadRecord.toString());
+                    Log.i(TAG, "mUploadRecord.ae:" + uploadRecord.ae);
 
-                    Log.i(TAG,"mUploadRecord.latitudeLongitude:"+uploadRecord.latitudeLongitude);
+                    Log.i(TAG, "mUploadRecord.latitudeLongitude:" + uploadRecord.latitudeLongitude);
                     //String replace = mUploadRecord.getDatatime().replace("/", "-");//2016/10/24 10:56:4
-                    String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm",new Date(uploadRecord.timestamp*1000));//此处的datatime是时间戳（秒）
-                    Log.i(TAG,"mUploadRecord.timestamp:"+mUploadRecord.timestamp);
+                    String datatime = MyUtil.getSpecialFormatTime("yyyy-MM-dd HH:mm", new Date(uploadRecord.timestamp * 1000));//此处的datatime是时间戳（秒）
+                    Log.i(TAG, "mUploadRecord.timestamp:" + mUploadRecord.timestamp);
                     setCenterText(datatime);
                     //Log.i(TAG,"ecgLocalFileName:"+ecgLocalFileName);
                     adjustFeagmentCount(uploadRecord.state);
                 }
-            }
-            else {
-                adjustFeagmentCount(intent.getIntExtra(Constant.sportState,-1));
+            } else {
+                adjustFeagmentCount(intent.getIntExtra(Constant.sportState, -1));
             }
         }
     }
 
     private void getHistoryReportDetail(final HistoryRecord historyRecord) {
-        MyUtil.showDialog(getResources().getString(R.string.loading),HeartRateResultShowActivity.this);
+        MyUtil.showDialog(getResources().getString(R.string.loading), HeartRateResultShowActivity.this);
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
-        params.addBodyParameter("id",historyRecord.getId());
+        params.addBodyParameter("id", historyRecord.getId());
         MyUtil.addCookieForHttp(params);
 
         httpUtils.send(HttpRequest.HttpMethod.POST, Constant.getHistoryReportDetailURL, params, new RequestCallBack<String>() {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
-                if (isActiivtyDestroy)return;
+                if (isActiivtyDestroy) return;
                 String result = responseInfo.result;
-                Log.i(TAG,"上传onSuccess==result:"+result);
+                Log.i(TAG, "上传onSuccess==result:" + result);
 
                 //JsonBase<UploadRecord> jsonBase = MyUtil.commonJsonParse(result, new TypeToken<JsonBase<UploadRecord>>() {}.getType());
                 //Log.i(TAG,"jsonBase："+jsonBase);
 
                 Gson gson = new Gson();
                 JsonBase jsonBase = gson.fromJson(result, JsonBase.class);
-                Log.i(TAG,"jsonBase:"+jsonBase);
-                if (jsonBase.getRet()==0){
-                    parseHealthData(result,historyRecord);
-                }
-                else {
+                Log.i(TAG, "jsonBase:" + jsonBase);
+                if (jsonBase.getRet() == 0) {
+                    parseHealthData(result, historyRecord);
+                } else {
                     finish();
-                    MyUtil.showToask(HeartRateResultShowActivity.this,"数据加载失败");
+                    MyUtil.showToask(HeartRateResultShowActivity.this, "数据加载失败");
                 }
 
-                MyUtil.hideDialog(HeartRateResultShowActivity.this);
+
             }
 
             @Override
             public void onFailure(HttpException e, String s) {
-                if (isActiivtyDestroy)return;
+                if (isActiivtyDestroy) return;
                 MyUtil.hideDialog(HeartRateResultShowActivity.this);
-                MyUtil.showToask(HeartRateResultShowActivity.this,"数据加载失败");
-                Log.i(TAG,"上传onFailure==s:"+s);
+                MyUtil.showToask(HeartRateResultShowActivity.this, "数据加载失败");
+                Log.i(TAG, "上传onFailure==s:" + s);
                 finish();
             }
         });
     }
 
-    private void parseHealthData(String result,HistoryRecord historyRecord) {
+    private void parseHealthData(String result, HistoryRecord historyRecord) {
 
         String iosDefaultString = "\"0\"";
         try {
             JSONObject object = new JSONObject(result);
-            JSONObject jsonObject =object.getJSONObject("errDesc");
-            String id    = jsonObject.getString("id");
-            String fi    = jsonObject.getString("fi");
-            String es    = jsonObject.getString("es");
-            String pi    = jsonObject.getString("pi");
-            String cc    = jsonObject.getString("cc");
-            String hrvr  = jsonObject.getString("hrvr");
-            String hrvs  = jsonObject.getString("hrvs");
-            String ahr   = jsonObject.getString("ahr");
+            JSONObject jsonObject = object.getJSONObject("errDesc");
+            String id = jsonObject.getString("id");
+            String fi = jsonObject.getString("fi");
+            String es = jsonObject.getString("es");
+            String pi = jsonObject.getString("pi");
+            String cc = jsonObject.getString("cc");
+            String hrvr = jsonObject.getString("hrvr");
+            String hrvs = jsonObject.getString("hrvs");
+            String ahr = jsonObject.getString("ahr");
             String maxhr = jsonObject.getString("maxhr");
             String minhr = jsonObject.getString("minhr");
-            String hrr   = jsonObject.getString("hrr");
-            String hrs   = jsonObject.getString("hrs");
-            String ec    = jsonObject.getString("ec");
-            String ecr   = jsonObject.getString("ecr");
-            String ecs   = jsonObject.getString("ecs");
-            String ra    = jsonObject.getString("ra");
+            String hrr = jsonObject.getString("hrr");
+            String hrs = jsonObject.getString("hrs");
+            String ec = jsonObject.getString("ec");
+            String ecr = jsonObject.getString("ecr");
+            String ecs = jsonObject.getString("ecs");
+            String ra = jsonObject.getString("ra");
             String timestamp = jsonObject.getString("timestamp");
-            String datatime  = jsonObject.getString("datatime");
-            String hr    = jsonObject.getString("hr");
-            String ae    = jsonObject.getString("ae");
-            String distance  = jsonObject.getString("distance");
-            String time  = jsonObject.getString("time");
-            String cadence   = jsonObject.getString("cadence");
-            String calorie   = jsonObject.getString("calorie");
+            String datatime = jsonObject.getString("datatime");
+            String hr = jsonObject.getString("hr");
+            String ae = jsonObject.getString("ae");
+            String distance = jsonObject.getString("distance");
+            String time = jsonObject.getString("time");
+            String cadence = jsonObject.getString("cadence");
+            String calorie = jsonObject.getString("calorie");
             String state = jsonObject.getString("state");
             String zaobo = jsonObject.getString("zaobo");
             String loubo = jsonObject.getString("loubo");
@@ -326,14 +322,14 @@ public class HeartRateResultShowActivity extends BaseActivity {
             uploadRecord.minhr = Integer.parseInt(minhr);
             uploadRecord.hrr = hrr;
             uploadRecord.hrs = hrs;
-            uploadRecord.ec =ec;
-            uploadRecord.ecr =Integer.parseInt(ecr);
-            uploadRecord.ecs =ecs;
-            uploadRecord.ra =Integer.parseInt(ra);
-            uploadRecord.timestamp =Long.parseLong(timestamp);
-            uploadRecord.datatime =datatime;
+            uploadRecord.ec = ec;
+            uploadRecord.ecr = Integer.parseInt(ecr);
+            uploadRecord.ecs = ecs;
+            uploadRecord.ra = Integer.parseInt(ra);
+            uploadRecord.timestamp = Long.parseLong(timestamp);
+            uploadRecord.datatime = datatime;
 
-            Log.i(TAG,"ae:"+ae);
+            Log.i(TAG, "ae:" + ae);
 
             /*if (!MyUtil.isEmpty(hr) && !hr.equals(Constant.uploadRecordDefaultString)  && !hr.equals("-1")){
                 uploadRecord.hr = gson.fromJson(hr,new TypeToken<List<Integer>>() {}.getType());
@@ -342,11 +338,16 @@ public class HeartRateResultShowActivity extends BaseActivity {
                 uploadRecord.ae =gson.fromJson(ae,new TypeToken<List<Integer>>() {}.getType());
             }*/
 
-            uploadRecord.hr = MyUtil.parseListJson(hr,new TypeToken<List<Integer>>() {}.getType());
-            uploadRecord.ae = MyUtil.parseListJson(ae,new TypeToken<List<Integer>>() {}.getType());
-            uploadRecord.cadence = MyUtil.parseListJson(cadence,new TypeToken<List<Integer>>() {}.getType());
-            uploadRecord.calorie =MyUtil.parseListJson(calorie,new TypeToken<List<String>>() {}.getType());
-            uploadRecord.latitudeLongitude = MyUtil.parseListJson(latitudeLongitude,new TypeToken<List<ParcelableDoubleList>>() {}.getType());
+            uploadRecord.hr = MyUtil.parseListJson(hr, new TypeToken<List<Integer>>() {
+            }.getType());
+            uploadRecord.ae = MyUtil.parseListJson(ae, new TypeToken<List<Integer>>() {
+            }.getType());
+            uploadRecord.cadence = MyUtil.parseListJson(cadence, new TypeToken<List<Integer>>() {
+            }.getType());
+            uploadRecord.calorie = MyUtil.parseListJson(calorie, new TypeToken<List<String>>() {
+            }.getType());
+            uploadRecord.latitudeLongitude = MyUtil.parseListJson(latitudeLongitude, new TypeToken<List<ParcelableDoubleList>>() {
+            }.getType());
 
             /*if (!MyUtil.isEmpty(cadence) && !cadence.equals(Constant.uploadRecordDefaultString) ){
                 uploadRecord.cadence = gson.fromJson(cadence,new TypeToken<List<Integer>>() {}.getType());
@@ -363,40 +364,42 @@ public class HeartRateResultShowActivity extends BaseActivity {
 
             uploadRecord.distance = Float.parseFloat(distance);
             uploadRecord.time = (long) Float.parseFloat(time);
-            uploadRecord.state =Integer.parseInt(state);
-            uploadRecord.zaobo =Integer.parseInt(zaobo);
-            uploadRecord.loubo =Integer.parseInt(loubo);
+            uploadRecord.state = Integer.parseInt(state);
+            uploadRecord.zaobo = Integer.parseInt(zaobo);
+            uploadRecord.loubo = Integer.parseInt(loubo);
 
             uploadRecord.localEcgFileName = MyUtil.generateECGFilePath(HeartRateResultShowActivity.this, System.currentTimeMillis());
 
-            if (!MyUtil.isEmpty(sdnn1) && !sdnn1.equals("null")){
+            if (!MyUtil.isEmpty(sdnn1) && !sdnn1.equals("null")) {
                 uploadRecord.sdnn1 = (int) Float.parseFloat(sdnn1);
             }
-            if (!MyUtil.isEmpty(sdnn2) && !sdnn2.equals("null")){
+            if (!MyUtil.isEmpty(sdnn2) && !sdnn2.equals("null")) {
                 uploadRecord.sdnn2 = (int) Float.parseFloat(sdnn2);
             }
 
-            if (!MyUtil.isEmpty(lf1) && !lf1.equals("null")){
+            if (!MyUtil.isEmpty(lf1) && !lf1.equals("null")) {
                 uploadRecord.lf1 = Double.parseDouble(lf1);
             }
-            if (!MyUtil.isEmpty(lf2) && !lf2.equals("null")){
+            if (!MyUtil.isEmpty(lf2) && !lf2.equals("null")) {
                 uploadRecord.lf2 = Double.parseDouble(lf2);
             }
-            if (!MyUtil.isEmpty(hf1) && !hf1.equals("null")){
+            if (!MyUtil.isEmpty(hf1) && !hf1.equals("null")) {
                 uploadRecord.hf1 = Double.parseDouble(hf1);
             }
-            if (!MyUtil.isEmpty(hf2) && !hf2.equals("null")){
+            if (!MyUtil.isEmpty(hf2) && !hf2.equals("null")) {
                 uploadRecord.hf2 = Double.parseDouble(hf2);
             }
-            if (!MyUtil.isEmpty(hf) && !hf.equals("null")){
+            if (!MyUtil.isEmpty(hf) && !hf.equals("null")) {
                 uploadRecord.hf = Double.parseDouble(hf);
             }
-            if (!MyUtil.isEmpty(lf) && !lf.equals("null")){
+            if (!MyUtil.isEmpty(lf) && !lf.equals("null")) {
                 uploadRecord.lf = Double.parseDouble(lf);
             }
 
-            uploadRecord.chaosPlotPoint = MyUtil.parseListJson(chaosPlotPoint,new TypeToken<List<Integer>>() {}.getType());
-            uploadRecord.frequencyDomainDiagramPoint = MyUtil.parseListJson(frequencyDomainDiagramPoint,new TypeToken<List<Double>>() {}.getType());
+            uploadRecord.chaosPlotPoint = MyUtil.parseListJson(chaosPlotPoint, new TypeToken<List<Integer>>() {
+            }.getType());
+            uploadRecord.frequencyDomainDiagramPoint = MyUtil.parseListJson(frequencyDomainDiagramPoint, new TypeToken<List<Double>>() {
+            }.getType());
 
             /*if (!MyUtil.isEmpty(chaosPlotPoint) && !chaosPlotPoint.equals(Constant.uploadRecordDefaultString) ){
                 uploadRecord.chaosPlotPoint = gson.fromJson(chaosPlotPoint,new TypeToken<List<Integer>>() {}.getType());
@@ -406,11 +409,11 @@ public class HeartRateResultShowActivity extends BaseActivity {
                 uploadRecord.frequencyDomainDiagramPoint = gson.fromJson(frequencyDomainDiagramPoint,new TypeToken<List<Double>>() {}.getType());
             }*/
 
-            if (!MyUtil.isEmpty(chaosPlotMajorAxis) && !chaosPlotMajorAxis.equals("null") && !chaosPlotMajorAxis.equals(iosDefaultString)){
-                uploadRecord.chaosPlotMajorAxis =  (int) Float.parseFloat(chaosPlotMajorAxis);
+            if (!MyUtil.isEmpty(chaosPlotMajorAxis) && !chaosPlotMajorAxis.equals("null") && !chaosPlotMajorAxis.equals(iosDefaultString)) {
+                uploadRecord.chaosPlotMajorAxis = (int) Float.parseFloat(chaosPlotMajorAxis);
             }
-            if (!MyUtil.isEmpty(chaosPlotMinorAxis) && !chaosPlotMinorAxis.equals("null") && !chaosPlotMajorAxis.equals(iosDefaultString)){
-                uploadRecord.chaosPlotMinorAxis =  (int) Float.parseFloat(chaosPlotMinorAxis);
+            if (!MyUtil.isEmpty(chaosPlotMinorAxis) && !chaosPlotMinorAxis.equals("null") && !chaosPlotMajorAxis.equals(iosDefaultString)) {
+                uploadRecord.chaosPlotMinorAxis = (int) Float.parseFloat(chaosPlotMinorAxis);
             }
 
             uploadRecord.uploadState = 1;
@@ -425,38 +428,43 @@ public class HeartRateResultShowActivity extends BaseActivity {
             //mUploadRecord.datatime = mUploadRecord.datatime.replace("/", "-");  //将本地数据库时间改成和服务器一致，下次查看数据时，先从根据时间从本地查询
 
 
-            if (offLineDbAdapter!=null){
+            if (offLineDbAdapter != null) {
                 long createOrUpdateUploadReportObject = offLineDbAdapter.createOrUpdateUploadReportObject(uploadRecord);
-                Log.i(TAG,"createOrUpdateUploadReportObject:"+createOrUpdateUploadReportObject);
+                Log.i(TAG, "createOrUpdateUploadReportObject:" + createOrUpdateUploadReportObject);
                 offLineDbAdapter.close();
             }
-            Log.i(TAG,"mUploadRecord:"+mUploadRecord);
-            Log.i(TAG,"latitudeLongitude:"+latitudeLongitude);
-            Log.i(TAG,"mUploadRecord.latitudeLongitude:"+mUploadRecord.latitudeLongitude);
+            Log.i(TAG, "mUploadRecord:" + mUploadRecord);
+            Log.i(TAG, "latitudeLongitude:" + latitudeLongitude);
+            Log.i(TAG, "mUploadRecord.latitudeLongitude:" + mUploadRecord.latitudeLongitude);
 
             downloadEcgFile(historyRecord);
 
         } catch (JSONException e) {
             e.printStackTrace();
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             e.printStackTrace();
-            Log.e(TAG,"e:"+e);
-        }catch (JsonSyntaxException e){
+            Log.e(TAG, "e:" + e);
+        } catch (JsonSyntaxException e) {
             e.printStackTrace();
-            Log.e(TAG,"e1:"+e);
+            Log.e(TAG, "e1:" + e);
         }
     }
 
     private void downloadEcgFile(final HistoryRecord historyRecord) {
         HttpUtils httpUtils = new HttpUtils();
         String url = mUploadRecord.ec;
-        final String target =  Environment.getExternalStorageDirectory().getAbsolutePath()+"/amsu/cloth/"+url;
+        if (url == null || url.length() == 0) {
+            adjustFeagmentCount(historyRecord.getState());
+            return;
+        }
+        final String target = Environment.getExternalStorageDirectory().getAbsolutePath() + "/amsu/cloth/" + url;
         httpUtils.download(url, target, new RequestCallBack<File>() {
             @Override
             public void onSuccess(ResponseInfo<File> responseInfo) {
-                LogUtil.i(TAG,"onSuccess:"+responseInfo);
+                MyUtil.hideDialog(HeartRateResultShowActivity.this);
+                LogUtil.i(TAG, "onSuccess:" + responseInfo);
                 File file = new File(target);
-                if (file.exists()){
+                if (file.exists() && mUploadRecord != null) {
                     mUploadRecord.localEcgFileName = target;
                     OffLineDbAdapter offLineDbAdapter = new OffLineDbAdapter(HeartRateResultShowActivity.this);
                     offLineDbAdapter.open();
@@ -467,7 +475,8 @@ public class HeartRateResultShowActivity extends BaseActivity {
 
             @Override
             public void onFailure(HttpException e, String s) {
-                LogUtil.i(TAG,"onFailure:"+e);
+                MyUtil.hideDialog(HeartRateResultShowActivity.this);
+                LogUtil.i(TAG, "onFailure:" + e);
                 finish();
             }
         });
@@ -475,13 +484,13 @@ public class HeartRateResultShowActivity extends BaseActivity {
 
     private void adjustFeagmentCount(int state) {
         fragmentList.clear();
-        if (state!=0){
+        if (state != 0) {
             fragmentList.add(new SportFragment());
         }
         fragmentList.add(new HRVFragment());
         fragmentList.add(new HeartRateFragment());
         fragmentList.add(new ECGFragment());
-        if (state!=0){
+        if (state != 0) {
             fragmentList.add(new HRRFragment());
         }
 
@@ -490,62 +499,62 @@ public class HeartRateResultShowActivity extends BaseActivity {
 
         vp_analysis_content.setAdapter(mAnalysisRateAdapter);
 
-        Log.i(TAG,"adjustFeagmentCount");
-        Log.i(TAG,"state:"+state);
-        if (state==0 && tv_analysis_sport.getVisibility()== View.VISIBLE){
+        Log.i(TAG, "adjustFeagmentCount");
+        Log.i(TAG, "state:" + state);
+        if (state == 0 && tv_analysis_sport.getVisibility() == View.VISIBLE) {
             subFormAlCount = 1;
             tv_analysis_sport.setVisibility(View.GONE);
             tv_analysis_hrr.setVisibility(View.GONE);
-            mOneTableWidth = MyUtil.getScreeenWidth(this)/3;
+            mOneTableWidth = MyUtil.getScreeenWidth(this) / 3;
 
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) v_analysis_select.getLayoutParams();
-            params.width = (int) (MyUtil.getScreeenWidth(this)/3);
+            params.width = (int) (MyUtil.getScreeenWidth(this) / 3);
             v_analysis_select.setLayoutParams(params);
         }
     }
 
-    private class MyClickListener implements View.OnClickListener{
+    private class MyClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.tv_analysis_sport:
-                    setViewPageItem(0,vp_analysis_content.getCurrentItem());
+                    setViewPageItem(0, vp_analysis_content.getCurrentItem());
                     break;
                 case R.id.tv_analysis_hrv:
-                    setViewPageItem(1,vp_analysis_content.getCurrentItem());
+                    setViewPageItem(1, vp_analysis_content.getCurrentItem());
                     break;
                 case R.id.tv_analysis_rate:
-                    setViewPageItem(2,vp_analysis_content.getCurrentItem());
+                    setViewPageItem(2, vp_analysis_content.getCurrentItem());
                     break;
                 case R.id.tv_analysis_ecg:
-                    setViewPageItem(3,vp_analysis_content.getCurrentItem());
+                    setViewPageItem(3, vp_analysis_content.getCurrentItem());
                     break;
                 case R.id.tv_analysis_hrr:
-                    setViewPageItem(4,vp_analysis_content.getCurrentItem());
+                    setViewPageItem(4, vp_analysis_content.getCurrentItem());
                     break;
             }
         }
     }
 
     //点击时设置选中条目
-    public void setViewPageItem(int viewPageItem,int currentItem) {
-        viewPageItem = viewPageItem-subFormAlCount;
-        if (currentItem==viewPageItem){
+    public void setViewPageItem(int viewPageItem, int currentItem) {
+        viewPageItem = viewPageItem - subFormAlCount;
+        if (currentItem == viewPageItem) {
             return;
         }
         vp_analysis_content.setCurrentItem(viewPageItem);
-        RelativeLayout.LayoutParams layoutParams =   (RelativeLayout.LayoutParams) v_analysis_select.getLayoutParams();
-        int floatWidth= (int) (mOneTableWidth*viewPageItem);  //view向左的偏移量
-        layoutParams.setMargins(floatWidth,0,0,0); //4个参数按顺序分别是左上右下
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) v_analysis_select.getLayoutParams();
+        int floatWidth = (int) (mOneTableWidth * viewPageItem);  //view向左的偏移量
+        layoutParams.setMargins(floatWidth, 0, 0, 0); //4个参数按顺序分别是左上右下
         v_analysis_select.setLayoutParams(layoutParams);
 
-        setViewPageTextColor(viewPageItem+subFormAlCount);
+        setViewPageTextColor(viewPageItem + subFormAlCount);
     }
 
     //设置文本颜色
     private void setViewPageTextColor(int viewPageItem) {
-        switch (viewPageItem){
+        switch (viewPageItem) {
             case 0:
                 tv_analysis_hrv.setTextColor(Color.parseColor("#999999"));
                 tv_analysis_rate.setTextColor(Color.parseColor("#999999"));
@@ -588,13 +597,13 @@ public class HeartRateResultShowActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG,"onResume");
+        Log.i(TAG, "onResume");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.i(TAG,"onStop");
+        Log.i(TAG, "onStop");
     }
 
     private boolean isActiivtyDestroy;
@@ -602,9 +611,9 @@ public class HeartRateResultShowActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i(TAG,"onDestroy");
+        Log.i(TAG, "onDestroy");
         isActiivtyDestroy = true;
-        mUploadRecord  = null;
+        mUploadRecord = null;
     }
 
 
